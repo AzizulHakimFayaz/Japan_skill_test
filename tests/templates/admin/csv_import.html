@@ -1,0 +1,93 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% translate 'Home' %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label='tests' %}">Tests</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:tests_test_changelist' %}">Tests</a></li>
+    <li class="breadcrumb-item active">{% translate 'Bulk CSV Import' %}</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+<div id="content-main" style="max-width: 900px; margin: 20px auto;">
+    
+    <div class="card shadow-md">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h1 class="card-title m-0" style="font-size: 1.35rem;">
+                <i class="fas fa-file-csv text-danger mr-2"></i> Bulk Import Questions via CSV / Google Sheets
+            </h1>
+            <a href="{% url 'admin:download_sample_csv' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-file-download mr-1"></i> Download Sample CSV Template
+            </a>
+        </div>
+
+        <div class="card-body p-4">
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} mb-4" style="border-radius: var(--gakkou-radius-md);">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="p-3 mb-4" style="background: var(--gakkou-bg); border: 1px solid var(--gakkou-border); border-radius: var(--gakkou-radius-md);">
+                <h6 class="font-weight-bold mb-2" style="color: var(--gakkou-text-main);">
+                    <i class="fas fa-info-circle text-info mr-1"></i> Instructions for Google Sheets &amp; Excel Users:
+                </h6>
+                <ol class="mb-0 pl-3" style="font-size: 0.875rem; line-height: 1.6; color: var(--gakkou-text-muted);">
+                    <li>Download the <strong>Sample CSV Template</strong> using the top right button.</li>
+                    <li>Open it in <strong>Google Sheets</strong> or <strong>Microsoft Excel</strong>.</li>
+                    <li>Fill in your questions across the 4 sections: <code>script_vocab</code>, <code>conversation</code>, <code>listening</code>, or <code>reading</code>.</li>
+                    <li>Set <code>correct_option</code> to <strong>1</strong>, <strong>2</strong>, <strong>3</strong>, or <strong>4</strong> matching the correct answer choice.</li>
+                    <li>In Google Sheets: Click <strong>File &gt; Download &gt; Comma-separated values (.csv)</strong>.</li>
+                    <li>Select your target Test below and upload the CSV file!</li>
+                </ol>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group mb-4">
+                    <label for="test_id" class="font-weight-bold" style="color: var(--gakkou-text-main);">
+                        Select Target Practice Test:
+                    </label>
+                    <select name="test_id" id="test_id" required class="form-control">
+                        <option value="">-- Choose a Practice Test --</option>
+                        {% for test in tests %}
+                            <option value="{{ test.id }}" {% if selected_test_id == test.id %}selected{% endif %}>
+                                {{ test.title }} ({{ test.questions.count }} existing questions)
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="csv_file" class="font-weight-bold" style="color: var(--gakkou-text-main);">
+                        Upload CSV File:
+                    </label>
+                    <input type="file" name="csv_file" id="csv_file" accept=".csv" required class="form-control-file p-2" style="border: 1px dashed var(--gakkou-border-light); border-radius: var(--gakkou-radius-md); background: var(--gakkou-bg); color: var(--gakkou-text-main);">
+                </div>
+
+                <div class="form-group form-check mb-4">
+                    <input type="checkbox" name="clear_existing" id="clear_existing" value="true" class="form-check-input">
+                    <label for="clear_existing" class="form-check-label font-weight-bold text-danger" style="font-size: 0.875rem;">
+                        Clear existing questions for this test before importing
+                    </label>
+                </div>
+
+                <div class="pt-3 border-top d-flex gap-2">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-cloud-upload-alt mr-1"></i> Import Questions Now
+                    </button>
+                    <a href="{% url 'admin:tests_test_changelist' %}" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

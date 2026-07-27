@@ -1,0 +1,142 @@
+<!-- ==========================================================================
+     Global Animated Loading Overlay Component (Japanese Exam Portal)
+     ========================================================================== -->
+
+<!-- Top Loading Progress Line -->
+<div id="global-top-progress" class="fixed top-0 left-0 right-0 h-1 z-[10000] pointer-events-none opacity-0 transition-opacity duration-200">
+    <div class="h-full w-full bg-gradient-to-r from-red-600 via-rose-400 via-amber-400 to-red-600 animate-shimmer-bar"></div>
+</div>
+
+<!-- Full Screen Glassmorphic Loading Screen -->
+<div id="global-page-loader" class="fixed inset-0 z-[9999] hidden flex flex-col items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl transition-all duration-300 opacity-0 select-none">
+    
+    <!-- Ambient Background Light Orbs -->
+    <div class="absolute w-72 h-72 rounded-full bg-red-600/20 blur-3xl animate-pulse-slow pointer-events-none"></div>
+    <div class="absolute w-80 h-80 rounded-full bg-indigo-600/15 blur-3xl animate-pulse pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-sm w-full bg-slate-900/90 border border-slate-800/90 rounded-3xl p-8 shadow-2xl shadow-slate-950 text-center backdrop-blur-md flex flex-col items-center">
+        
+        <!-- Animated Badge with Spinning Ring -->
+        <div class="relative w-20 h-20 mb-6 flex items-center justify-center">
+            <!-- Pulsing outer ring -->
+            <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-red-600 to-rose-500 blur-md opacity-60 animate-pulse-ring"></div>
+            
+            <!-- Spinning outer gradient border -->
+            <div class="absolute -inset-1.5 rounded-3xl bg-gradient-to-tr from-red-600 via-amber-500 to-rose-500 animate-spin-ring opacity-80"></div>
+            
+            <!-- Center Icon Box -->
+            <div class="relative w-16 h-16 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-white font-black text-2xl shadow-xl">
+                <span class="text-transparent bg-clip-text bg-gradient-to-tr from-red-500 via-rose-400 to-amber-300">学</span>
+            </div>
+        </div>
+
+        <!-- Dynamic Title & Subtitle -->
+        <h3 id="global-loader-title" class="text-xl font-black text-white tracking-tight mb-2">
+            Loading...
+        </h3>
+        
+        <p id="global-loader-subtitle" class="text-xs font-medium text-slate-400 leading-relaxed mb-6 px-2">
+            Please wait while the server responds...
+        </p>
+
+        <!-- Shimmering Progress Bar -->
+        <div class="w-full h-2 bg-slate-800/90 rounded-full overflow-hidden mb-4 border border-slate-700/50">
+            <div class="h-full w-full rounded-full bg-gradient-to-r from-red-600 via-rose-400 via-amber-400 to-red-600 animate-shimmer-bar"></div>
+        </div>
+
+        <!-- Status Ticker & Pulse Dots -->
+        <div class="flex items-center gap-2 text-[11px] font-bold text-rose-400">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+            <span id="global-loader-ticker">Gakkou No Shiken Server</span>
+        </div>
+    </div>
+</div>
+
+<!-- Global Loader JavaScript Controller -->
+<script>
+    (function() {
+        const loader = document.getElementById('global-page-loader');
+        const topProgress = document.getElementById('global-top-progress');
+        const titleEl = document.getElementById('global-loader-title');
+        const subtitleEl = document.getElementById('global-loader-subtitle');
+        const tickerEl = document.getElementById('global-loader-ticker');
+
+        const tickerMessages = [
+            "Processing request...",
+            "Evaluating exam performance...",
+            "Calculating score & band level...",
+            "Preparing score report...",
+            "Almost ready..."
+        ];
+
+        let tickerInterval = null;
+        let activeIndex = 0;
+
+        window.showGlobalLoader = function(customTitle, customSubtitle) {
+            if (customTitle && titleEl) titleEl.textContent = customTitle;
+            else if (titleEl) titleEl.textContent = "Loading...";
+
+            if (customSubtitle && subtitleEl) subtitleEl.textContent = customSubtitle;
+            else if (subtitleEl) subtitleEl.textContent = "Please wait while the server processes your request...";
+
+            if (topProgress) {
+                topProgress.classList.remove('opacity-0');
+            }
+
+            if (loader) {
+                loader.classList.remove('hidden');
+                // Force reflow for opacity transition
+                void loader.offsetWidth;
+                loader.classList.remove('opacity-0');
+            }
+
+            // Start status ticker text cycling
+            if (tickerEl) {
+                activeIndex = 0;
+                tickerEl.textContent = tickerMessages[0];
+                clearInterval(tickerInterval);
+                tickerInterval = setInterval(() => {
+                    activeIndex = (activeIndex + 1) % tickerMessages.length;
+                    tickerEl.textContent = tickerMessages[activeIndex];
+                }, 1800);
+            }
+        };
+
+        window.hideGlobalLoader = function() {
+            if (topProgress) {
+                topProgress.classList.add('opacity-0');
+            }
+            if (loader) {
+                loader.classList.add('opacity-0');
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                }, 300);
+            }
+            if (tickerInterval) clearInterval(tickerInterval);
+        };
+
+        // Auto-hook into form submissions across the website
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            // Check if form is quiz form or general form
+            if (form && form.id === 'quiz-form') {
+                window.showGlobalLoader(
+                    'Evaluating Exam Results...',
+                    'Submitting your answers, calculating official CEFR-J scale scores and performance breakdown...'
+                );
+            } else if (form && !form.dataset.noLoader) {
+                window.showGlobalLoader(
+                    'Processing Request...',
+                    'Communicating with Gakkou No Shiken server, please wait...'
+                );
+            }
+        });
+
+        // Hide loader if user navigates back via browser back/forward buttons
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                window.hideGlobalLoader();
+            }
+        });
+    })();
+</script>

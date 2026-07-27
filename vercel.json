@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": {
+        "includeFiles": [
+          "db.sqlite3",
+          "templates/**",
+          "static/**",
+          "staticfiles/**",
+          "media/**",
+          "tests/**",
+          "accounts/**",
+          "config/**",
+          "manage.py"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/index.py"
+    }
+  ]
+}

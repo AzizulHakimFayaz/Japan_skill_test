@@ -1,0 +1,733 @@
+{% load quiz_extras %}
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-white select-none">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{{ test.title }} - Gakkou No Shiken CBT Interface</title>
+
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+
+        /* Official CBT Pentagon Chevron Tab Shape (Currently Answering) */
+        .cbt-chevron-tab {
+            clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%);
+            background-color: #6B9E2B !important;
+            color: #FEF08A !important; /* Yellow font matching Prometric UI */
+            font-weight: 800 !important;
+            border: none !important;
+        }
+
+        /* Choice Box Normal & Selected States */
+        .cbt-choice-box {
+            border: 1.5px solid #000000;
+            background-color: #FFFFFF;
+            color: #000000;
+            padding: 10px 16px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            max-width: 680px;
+            text-align: left;
+            transition: background-color 0.1s ease;
+        }
+        @media (min-width: 640px) {
+            .cbt-choice-box {
+                padding: 12px 20px;
+                font-size: 1.125rem;
+            }
+        }
+        .cbt-choice-box:hover {
+            background-color: #F8FAFC;
+        }
+        .cbt-choice-box input[type="radio"]:checked + div {
+            background-color: #FFE6D5 !important;
+            border: 2px solid #D97706 !important;
+            color: #000000 !important;
+        }
+
+        /* Custom mini scrollbar for sidebar question list */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #EAEAEA;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #A3A3A3;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="h-full w-full m-0 p-0 overflow-hidden font-sans text-slate-900 bg-white flex flex-col justify-between"
+      x-data="{
+        isActualExamDemo: {{ test.is_actual_exam_demo|yesno:"true,false" }},
+        currentStep: {{ test.is_actual_exam_demo|yesno:"0,1" }}, // 0 = Intro (if demo), 1..N = Questions
+        totalSteps: {{ total_questions }},
+        timeLimit: {% if test.time_limit_seconds %}{{ test.time_limit_seconds }}{% else %}null{% endif %},
+        timeLeft: {% if test.time_limit_seconds %}{{ test.time_limit_seconds }}{% else %}null{% endif %},
+        answers: {},
+        flagged: {},
+        completedSections: [],
+        showUnansweredModal: false,
+        showLanguageModal: false,
+        languageModalTitle: 'Your Language 1',
+
+        // Unique section list in serial order
+        orderedSectionKeys: ['script_vocab', 'conversation', 'listening', 'reading'],
+        sectionLabels: {
+            'script_vocab': 'Script and Vocabulary',
+            'conversation': 'Conversation and Expression',
+            'listening': 'Listening Comprehension',
+            'reading': 'Reading Comprehension'
+        },
+
+        // Dynamic 4-Section mapping for each question step
+        questionSections: {
+            {% for question in questions %}
+                {{ forloop.counter }}: '{{ question.section }}',
+            {% endfor %}
+        },
+
+        // Dynamic Multi-Language Translations dictionary for each question step
+        questionTranslations: {
+            {% for question in questions %}
+                {{ forloop.counter }}: {
+                    {% for lang, text in question.get_translations.items %}
+                        '{{ lang|escapejs }}': '{{ text|escapejs }}',
+                    {% endfor %}
+                },
+            {% endfor %}
+        },
+
+        init() {
+            {% for question in questions %}
+                this.answers['q{{ question.id }}'] = null;
+                this.flagged['q{{ question.id }}'] = false;
+            {% endfor %}
+
+            if (this.timeLimit) {
+                let timer = setInterval(() => {
+                    if (this.timeLeft <= 0) {
+                        clearInterval(timer);
+                        this.autoSubmit();
+                    } else {
+                        this.timeLeft--;
+                    }
+                }, 1000);
+            }
+        },
+
+        get activeSectionKey() {
+            if (this.currentStep === 0) return 'intro';
+            return this.questionSections[this.currentStep] || 'script_vocab';
+        },
+
+        get activeSectionName() {
+            if (this.currentStep === 0) return 'Introduction';
+            return this.sectionLabels[this.activeSectionKey] || 'Script & Vocabulary';
+        },
+
+        get currentQuestionTranslations() {
+            if (this.currentStep === 0) return {};
+            return this.questionTranslations[this.currentStep] || {};
+        },
+
+        get formattedTime() {
+            if (this.timeLeft === null) return '00:00:00';
+            const hours = Math.floor(this.timeLeft / 3600);
+            const minutes = Math.floor((this.timeLeft % 3600) / 60);
+            const seconds = this.timeLeft % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        },
+
+        get answeredCount() {
+            return Object.values(this.answers).filter(val => val !== null).length;
+        },
+
+        getSectionFill(secKey) {
+            let countTotal = 0;
+            let countAnswered = 0;
+            {% for question in questions %}
+                if ('{{ question.section }}' === secKey) {
+                    countTotal++;
+                    if (this.answers['q{{ question.id }}'] !== null) {
+                        countAnswered++;
+                    }
+                }
+            {% endfor %}
+            if (countTotal === 0) return 0;
+            return Math.round((countAnswered / countTotal) * 100);
+        },
+
+        isSectionCompleted(secKey) {
+            return this.completedSections.includes(secKey);
+        },
+
+        getFirstStepForSection(secKey) {
+            {% for question in questions %}
+                if ('{{ question.section }}' === secKey) {
+                    return {{ forloop.counter }};
+                }
+            {% endfor %}
+            return 1;
+        },
+
+        getLastStepForSection(secKey) {
+            let lastStep = 1;
+            {% for question in questions %}
+                if ('{{ question.section }}' === secKey) {
+                    lastStep = {{ forloop.counter }};
+                }
+            {% endfor %}
+            return lastStep;
+        },
+
+        startExamFromIntro() {
+            this.pauseAllAudio();
+            this.currentStep = 1;
+        },
+
+        nextStep() {
+            this.pauseAllAudio();
+            const currentSec = this.activeSectionKey;
+            const lastStepInSec = this.getLastStepForSection(currentSec);
+
+            if (this.currentStep === lastStepInSec) {
+                this.finishCurrentSection();
+            } else if (this.currentStep < this.totalSteps) {
+                this.currentStep++;
+            }
+        },
+
+        prevStep() {
+            this.pauseAllAudio();
+            const currentSec = this.activeSectionKey;
+            const firstStepInSec = this.getFirstStepForSection(currentSec);
+
+            if (this.currentStep > firstStepInSec) {
+                this.currentStep--;
+            }
+        },
+
+        goToStep(step) {
+            const targetSec = this.questionSections[step];
+            if (targetSec === this.activeSectionKey && !this.isSectionCompleted(targetSec)) {
+                this.pauseAllAudio();
+                this.currentStep = step;
+            }
+        },
+
+        finishCurrentSection() {
+            const currentSec = this.activeSectionKey;
+            if (!this.completedSections.includes(currentSec)) {
+                this.completedSections.push(currentSec);
+            }
+            
+            const currentIdx = this.orderedSectionKeys.indexOf(currentSec);
+            if (currentIdx !== -1 && currentIdx < this.orderedSectionKeys.length - 1) {
+                const nextSecKey = this.orderedSectionKeys[currentIdx + 1];
+                const nextStep = this.getFirstStepForSection(nextSecKey);
+                this.pauseAllAudio();
+                this.currentStep = nextStep;
+            } else {
+                this.checkBeforeSubmit();
+            }
+        },
+
+        toggleFlag(step) {
+            if (step === 0) return;
+            const keys = Object.keys(this.flagged);
+            if (keys[step - 1]) {
+                this.flagged[keys[step - 1]] = !this.flagged[keys[step - 1]];
+            }
+        },
+
+        openLanguageModal(title) {
+            this.languageModalTitle = title;
+            this.showLanguageModal = true;
+        },
+
+        pauseAllAudio() {
+            document.querySelectorAll('audio').forEach(audio => {
+                audio.pause();
+            });
+        },
+
+        checkBeforeSubmit(e) {
+            this.pauseAllAudio();
+            const unanswered = this.totalSteps - this.answeredCount;
+            if (unanswered > 0) {
+                if (e) e.preventDefault();
+                this.showUnansweredModal = true;
+            } else {
+                if (window.showGlobalLoader) {
+                    window.showGlobalLoader('Evaluating Exam Results...', 'Calculating your CEFR-J scale scores and section performance breakdown...');
+                }
+                document.getElementById('quiz-form').submit();
+            }
+        },
+
+        autoSubmit() {
+            this.pauseAllAudio();
+            if (window.showGlobalLoader) {
+                window.showGlobalLoader('Time Expired - Evaluating Results...', 'Auto-submitting exam answers and calculating official score report...');
+            }
+            document.getElementById('quiz-form').submit();
+        }
+      }">
+
+    <!-- ==========================================
+         TOP HEADER 1: BLACK BAR (Section & Timer)
+         ========================================== -->
+    <header class="bg-black text-white min-h-[2.5rem] py-1.5 px-3 sm:px-4 flex items-center justify-between gap-2 border-b border-slate-800 text-xs font-sans flex-shrink-0">
+        <div class="flex items-center gap-2 sm:gap-4 truncate">
+            <span class="font-bold whitespace-nowrap bg-slate-800 px-2 py-0.5 rounded text-[11px] sm:text-xs">Q <span x-text="currentStep === 0 ? 'Intro' : currentStep"></span>/{{ total_questions }}</span>
+            <span class="truncate text-slate-200 text-[11px] sm:text-xs">Sec: <span class="font-bold text-white" x-text="activeSectionName"></span></span>
+        </div>
+
+        <!-- Timer & Section Action -->
+        <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5 text-[11px] sm:text-xs bg-slate-900 px-2.5 py-1 rounded border border-slate-700">
+                <svg class="w-3.5 h-3.5 text-amber-400 flex-shrink-0 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="font-mono font-bold text-white" x-text="formattedTime"></span>
+            </div>
+
+            <button type="button" 
+                    @click="finishCurrentSection()"
+                    class="bg-[#F59E0B] hover:bg-[#D97706] text-black font-extrabold px-2.5 py-1 sm:px-4 sm:py-1.5 rounded text-[10px] sm:text-xs transition-all active:scale-95 whitespace-nowrap">
+                Finish Sec
+            </button>
+        </div>
+    </header>
+
+    <!-- ==========================================
+         TOP HEADER 2: OLIVE GREEN BAR (Test Title & Candidate)
+         ========================================== -->
+    <div class="bg-[#6B9E2B] text-white min-h-[1.75rem] py-1 px-3 sm:px-4 flex items-center justify-between text-[11px] sm:text-xs font-bold flex-shrink-0 truncate shadow-xs">
+        <div class="truncate mr-2 flex items-center gap-1.5">
+            <span class="truncate font-semibold">{{ test.title }}</span>
+            {% if test.is_actual_exam_demo %}
+                <span class="px-1.5 py-0.5 bg-amber-400 text-black text-[9px] sm:text-[10px] uppercase font-extrabold rounded flex-shrink-0">Demo</span>
+            {% endif %}
+        </div>
+        <div class="whitespace-nowrap text-[10px] sm:text-xs text-lime-100">
+            <span class="font-semibold">{% if user.is_authenticated %}{{ user.username }}{% else %}Candidate{% endif %}</span>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MAIN CONTENT AREA: RESPONSIVE SIDEBAR + CANVAS
+         ========================================== -->
+    <form id="quiz-form" method="POST" action="{% url 'submit_quiz' test.id %}" @submit="checkBeforeSubmit($event)" class="flex-1 flex flex-row overflow-hidden relative">
+        {% csrf_token %}
+
+        <!-- Left Navigation Sidebar (Desktop persistent, Mobile drawer ready) -->
+        <aside class="w-24 sm:w-36 bg-[#EAEAEA] border-r border-[#CCCCCC] h-full flex flex-row p-1 sm:p-1.5 gap-1 sm:gap-1.5 flex-shrink-0 select-none overflow-hidden">
+            
+            <!-- Sub-Column 1: Section Tabs -->
+            <div class="w-8 sm:w-11 h-full flex flex-col justify-between gap-1 sm:gap-1.5 flex-shrink-0 font-sans py-0.5">
+                
+                <!-- Section 0: Intro (Visible in Actual Exam Demo) -->
+                {% if test.is_actual_exam_demo %}
+                    <div class="flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors"
+                         :class="currentStep === 0 ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'">
+                        <span class="leading-none pt-0.5 font-semibold text-center">Intro</span>
+                        <div class="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
+                            <div class="w-full bg-[#6B9E2B] transition-all duration-300" :style="currentStep === 0 ? 'height: 100%' : 'height: 0%'"></div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Section 1: Script and Vocabulary -->
+                <div class="flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors relative"
+                     :class="activeSectionKey === 'script_vocab' ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'">
+                    <span class="leading-none pt-0.5 text-center">Scri...</span>
+                    <template x-if="isSectionCompleted('script_vocab')">
+                        <span class="text-[9px] sm:text-[10px] text-red-500 font-bold" title="Section Locked">🔒</span>
+                    </template>
+                    <div class="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
+                        <div class="w-full bg-[#6B9E2B] transition-all duration-300"
+                             :style="`height: ${getSectionFill('script_vocab')}%`"></div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Conversation and Expression -->
+                <div class="flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors relative"
+                     :class="activeSectionKey === 'conversation' ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'">
+                    <span class="leading-none pt-0.5 text-center">Co...</span>
+                    <template x-if="isSectionCompleted('conversation')">
+                        <span class="text-[9px] sm:text-[10px] text-red-500 font-bold" title="Section Locked">🔒</span>
+                    </template>
+                    <div class="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
+                        <div class="w-full bg-[#6B9E2B] transition-all duration-300"
+                             :style="`height: ${getSectionFill('conversation')}%`"></div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Listening Comprehension -->
+                <div class="flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors relative"
+                     :class="activeSectionKey === 'listening' ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'">
+                    <span class="leading-none pt-0.5 text-center">List...</span>
+                    <template x-if="isSectionCompleted('listening')">
+                        <span class="text-[9px] sm:text-[10px] text-red-500 font-bold" title="Section Locked">🔒</span>
+                    </template>
+                    <div class="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
+                        <div class="w-full bg-[#6B9E2B] transition-all duration-300"
+                             :style="`height: ${getSectionFill('listening')}%`"></div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Reading Comprehension -->
+                <div class="flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors relative"
+                     :class="activeSectionKey === 'reading' ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'">
+                    <span class="leading-none pt-0.5 text-center">Read...</span>
+                    <template x-if="isSectionCompleted('reading')">
+                        <span class="text-[9px] sm:text-[10px] text-red-500 font-bold" title="Section Locked">🔒</span>
+                    </template>
+                    <div class="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
+                        <div class="w-full bg-[#6B9E2B] transition-all duration-300"
+                             :style="`height: ${getSectionFill('reading')}%`"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-Column 2: Question List for Active Section -->
+            <div class="flex-1 h-full overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-0.5">
+                
+                <!-- Section 0: Intro Tab (Visible in Actual Exam Demo) -->
+                {% if test.is_actual_exam_demo %}
+                    <template x-if="activeSectionKey === 'intro'">
+                        <button type="button"
+                                @click="goToStep(0)"
+                                class="w-full h-8 text-[11px] font-bold flex items-center justify-center border transition-colors shadow-2xs"
+                                :class="currentStep === 0 ? 'cbt-chevron-tab' : 'bg-white text-slate-800 border-[#CCCCCC] hover:bg-slate-50'">
+                            Intro
+                        </button>
+                    </template>
+                {% endif %}
+
+                <!-- Dynamic Question Step Tabs for Active Section -->
+                {% for question in questions %}
+                    <template x-if="activeSectionKey === '{{ question.section }}'">
+                        <button type="button"
+                                @click="goToStep({{ forloop.counter }})"
+                                :disabled="isSectionCompleted('{{ question.section }}')"
+                                class="w-full h-7 sm:h-8 text-[11px] font-bold flex items-center justify-between px-1 sm:px-1.5 border transition-colors shadow-2xs relative disabled:opacity-50"
+                                :class="{
+                                    'cbt-chevron-tab': currentStep === {{ forloop.counter }},
+                                    'bg-[#FFE6D5] text-slate-900 border-[#D97706]': answers.q{{ question.id }} !== null && currentStep !== {{ forloop.counter }},
+                                    'bg-white text-slate-800 border-[#CCCCCC] hover:bg-slate-50': answers.q{{ question.id }} === null && currentStep !== {{ forloop.counter }}
+                                }">
+                            <span class="flex items-center gap-0.5">
+                                <span x-show="flagged.q{{ question.id }}" class="text-[10px]">🚩</span>
+                                <span>{{ forloop.counter }}</span>
+                            </span>
+                            <span x-show="answers.q{{ question.id }} !== null" class="text-[10px] font-extrabold text-amber-700">✓</span>
+                        </button>
+                    </template>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <!-- Right Main Canvas Area -->
+        <main class="flex-1 bg-white h-full overflow-y-auto p-3 sm:p-6 text-slate-900 font-sans">
+            
+            <!-- SECTION 0: INTRO CANVAS (Demo only) -->
+            {% if test.is_actual_exam_demo %}
+                <div x-show="currentStep === 0" class="max-w-4xl mx-auto space-y-4">
+                    <div class="border-2 border-black p-4 sm:p-6 bg-slate-50 space-y-4">
+                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 border-b border-slate-300 pb-2">
+                            Welcome to Japan Foundation Test for Basic Japanese (JFT-Basic) CBT Simulation
+                        </h2>
+                        <p class="text-xs sm:text-sm leading-relaxed text-slate-800">
+                            This simulated CBT exam strictly follows official Prometric testing standards. You will complete 4 sections in sequential order.
+                        </p>
+
+                        <div class="pt-4">
+                            <button type="button" @click="startExamFromIntro()" class="bg-[#6B9E2B] hover:bg-[#5A8226] text-white font-extrabold px-6 py-2.5 rounded shadow-sm text-sm active:scale-95 btn-touch-active">
+                                Start Examination &gt;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- SECTIONS 1..4 QUESTION CANVASES -->
+            {% for question in questions %}
+                <div x-show="currentStep === {{ forloop.counter }}" class="max-w-4xl mx-auto space-y-4 pb-12 sm:pb-0">
+                    
+                    <!-- Question Header & Translation Triggers -->
+                    <div class="border-b border-slate-300 pb-3 space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <h3 class="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
+                                Question {{ forloop.counter }} <span class="text-xs font-normal text-slate-500">({{ question.section|section_label }})</span>
+                            </h3>
+                            
+                            <!-- Translation Helper Buttons -->
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <button type="button"
+                                        @click="openLanguageModal('Your Language 1')"
+                                        class="inline-flex items-center gap-1.5 text-[11px] font-bold bg-white border border-slate-400 hover:bg-slate-50 text-slate-800 px-3 py-1 rounded shadow-2xs active:scale-95 btn-touch-active">
+                                    🌐 Your Language 1
+                                </button>
+                                <button type="button"
+                                        @click="openLanguageModal('Your Language 2')"
+                                        class="inline-flex items-center gap-1.5 text-[11px] font-bold bg-white border border-slate-400 hover:bg-slate-50 text-slate-800 px-3 py-1 rounded shadow-2xs active:scale-95 btn-touch-active">
+                                    🌐 Your Language 2
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Question Text -->
+                        <div class="text-sm sm:text-base text-slate-900 leading-relaxed font-medium pt-1">
+                            {{ question.text }}
+                        </div>
+                    </div>
+
+                    <!-- Question Image Media -->
+                    {% if question.type == 'image' and question.image %}
+                        <div class="my-3 sm:my-4 flex justify-start">
+                            <img src="{{ question.image.url }}" alt="Question illustration" class="max-h-48 sm:max-h-64 w-auto object-contain rounded border border-slate-200 shadow-xs">
+                        </div>
+                    {% endif %}
+
+                    <!-- Question Audio Media -->
+                    {% if question.type == 'audio' and question.audio %}
+                        <div class="my-3 sm:my-4 p-3 bg-slate-900 text-white rounded-xl max-w-md shadow-xs">
+                            <audio controls src="{{ question.audio.url }}" class="w-full h-9"></audio>
+                        </div>
+                    {% endif %}
+
+                    <!-- Choice Rectangles (Touch Optimized for Mobile App UX) -->
+                    <div class="space-y-3 pt-2">
+                        {% for option in question.options.all %}
+                            <label class="cbt-choice-box block relative rounded-xl transition-all btn-touch-active">
+                                <input type="radio" 
+                                       name="question_{{ question.id }}" 
+                                       value="{{ option.id }}" 
+                                       x-model="answers.q{{ question.id }}"
+                                       :disabled="isSectionCompleted('{{ question.section }}')"
+                                       class="sr-only">
+                                <div class="w-full h-full font-bold">
+                                    {{ option.label }}
+                                </div>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </main>
+    </form>
+
+    <!-- ==========================================
+         BOTTOM CONTROL FOOTER: BLACK BAR (THUMB ZONE TOUCH CONTROLS)
+         ========================================== -->
+    <footer class="bg-black text-white min-h-[3.25rem] py-1.5 px-3 sm:px-4 flex items-center justify-between border-t border-black text-xs font-bold flex-shrink-0 select-none z-30">
+        <!-- Left Buttons: Grid / Help -->
+        <div class="flex items-center gap-2">
+            <span class="text-[10px] sm:text-xs text-slate-400 font-mono hidden xs:inline">CBT Control</span>
+        </div>
+
+        <!-- Right Action Controls: Flag, Back, Next -->
+        <div class="flex items-center gap-2">
+            <!-- Flag Button -->
+            <button type="button"
+                    @click="toggleFlag(currentStep)"
+                    class="bg-[#6B9E2B] hover:bg-[#5A8226] text-white px-3 py-2 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1 shadow-xs text-xs font-extrabold active:scale-95 btn-touch-active whitespace-nowrap">
+                🚩 <span x-text="flagged['q' + currentStep] ? 'Flagged' : 'Flag'"></span>
+            </button>
+
+            <!-- Back Button -->
+            <button type="button"
+                    @click="prevStep"
+                    :disabled="currentStep === 0 || currentStep === getFirstStepForSection(activeSectionKey)"
+                    class="bg-[#6B9E2B] hover:bg-[#5A8226] text-white px-3.5 py-2 sm:px-4 sm:py-1.5 rounded-lg flex items-center gap-1 disabled:opacity-40 shadow-xs text-xs font-extrabold active:scale-95 btn-touch-active whitespace-nowrap">
+                &lt; Back
+            </button>
+
+            <!-- Next Button -->
+            <button type="button"
+                    x-show="currentStep < totalSteps"
+                    @click="nextStep"
+                    class="bg-[#6B9E2B] hover:bg-[#5A8226] text-white px-4 py-2 sm:px-5 sm:py-1.5 rounded-lg flex items-center gap-1 shadow-xs text-xs font-extrabold active:scale-95 btn-touch-active whitespace-nowrap">
+                <span x-text="currentStep === 0 ? 'Start Exam >' : (currentStep === getLastStepForSection(activeSectionKey) ? 'Finish Sec >' : 'Next >')"></span>
+            </button>
+
+            <!-- Finish / Submit Button -->
+            <button type="button"
+                    x-show="currentStep === totalSteps"
+                    @click="checkBeforeSubmit()"
+                    class="bg-[#F59E0B] hover:bg-[#D97706] text-black font-black px-4 py-2 sm:px-5 sm:py-1.5 rounded-lg flex items-center gap-1 shadow-xs text-xs active:scale-95 btn-touch-active whitespace-nowrap">
+                Finish &gt;
+            </button>
+        </div>
+    </footer>
+
+    <!-- =========================================================================
+         MULTI-LANGUAGE TRANSLATION MODAL OVERLAY (MATCHING USER SCREENSHOT EXACTLY)
+         ========================================================================= -->
+    <div class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-2 sm:p-4 bg-black/60"
+         x-show="showLanguageModal"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 scale-100"
+         x-transition:leave-end="opacity-0 scale-95"
+         x-cloak>
+        
+        <div class="bg-white max-w-2xl sm:max-w-3xl w-full border-2 border-black shadow-2xl overflow-hidden font-sans text-slate-900">
+            <!-- Modal Black Title Bar -->
+            <div class="bg-black text-white px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between select-none">
+                <h3 class="text-xs sm:text-sm font-bold tracking-wide" x-text="languageModalTitle"></h3>
+                <button type="button" @click="showLanguageModal = false" class="text-white hover:text-amber-300 font-bold text-base px-2 py-0.5">
+                    ✖
+                </button>
+            </div>
+
+            <!-- 9-Language Translation Table (Exact Prometric Layout) -->
+            <div class="p-0 overflow-x-auto max-h-[75vh]">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                    <tbody>
+                        <!-- 1. English -->
+                        <tr class="border-b border-slate-300 hover:bg-slate-50">
+                            <td class="w-20 sm:w-32 p-2 sm:p-3 font-semibold text-slate-900 bg-slate-100 border-r border-slate-300 align-top">
+                                English
+                            </td>
+                            <td class="p-2 sm:p-3 text-slate-800 leading-relaxed align-top"
+                                x-text="currentQuestionTranslations['English'] || 'How do you write the underlined kanji word in hiragana? Choose the correct one.'">
+                            </td>
+                        </tr>
+
+                        <!-- 2. Chinese -->
+                        <tr class="border-b border-slate-300 hover:bg-slate-50">
+                            <td class="w-20 sm:w-32 p-2 sm:p-3 font-semibold text-slate-900 bg-slate-100 border-r border-slate-300 align-top">
+                                Chinese
+                            </td>
+                            <td class="p-2 sm:p-3 text-slate-800 leading-relaxed align-top"
+                                x-text="currentQuestionTranslations['Chinese'] || '带有下划线的汉字单词的平假名是什么？请选择正确的答案。'">
+                            </td>
+                        </tr>
+
+                        <!-- 3. Indonesian -->
+                        <tr class="border-b border-slate-300 hover:bg-slate-50">
+                            <td class="w-20 sm:w-32 p-2 sm:p-3 font-semibold text-slate-900 bg-slate-100 border-r border-slate-300 align-top">
+                                Indonesian
+                            </td>
+                            <td class="p-2 sm:p-3 text-slate-800 leading-relaxed align-top"
+                                x-text="currentQuestionTranslations['Indonesian'] || 'Bagaimanakah Anda menuliskan hiragana dari kanji yang digarisbawahi? Pilihlah yang benar.'">
+                            </td>
+                        </tr>
+
+                        <!-- 4. Khmer -->
+                        <tr class="border-b border-slate-300 hover:bg-slate-50">
+                            <td class="w-20 sm:w-32 p-2 sm:p-3 font-semibold text-slate-900 bg-slate-100 border-r border-slate-300 align-top">
+                                Khmer
+                            </td>
+                            <td class="p-2 sm:p-3 text-slate-800 leading-relaxed align-top"
+                                x-text="currentQuestionTranslations['Khmer'] || 'តើពាក្យកាន់ជើដែលបានគូសបន្ទាត់ពីក្រោមអាចសរសេរយ៉ាងដូចម្តេចដោយប្រើហ៊ីរ៉ាហ្គាណា? ចូរជ្រើសរើសចម្លើយមួយដែលត្រឹមត្រូវ។'">
+                            </td>
+                        </tr>
+
+                        <!-- 5. Mongolian -->
+                        <tr class="border-b border-slate-300 hover:bg-slate-50">
+                            <td class="w-20 sm:w-32 p-2 sm:p-3 font-semibold text-slate-900 bg-slate-100 border-r border-slate-300 align-top">
+                                Mongolian
+                            </td>
+                            <td class="p-2 sm:p-3 text-slate-800 leading-relaxed align-top"
+                                x-text="currentQuestionTranslations['Mongolian'] || 'Доогуур зураастай ханзтай үгийг Хирагана-гаар яаж бичих вэ? Зөв зүйлийг сонгоно уу.'">
+                            </td>
+                        </tr>
+
+                        <!-- 6. Myanmar -->
+                        <tr class="border-b border-slate-300 hover:bg-slate-50">
+                            <td class="w-20 sm:w-32 p-2 sm:p-3 font-semibold text-slate-900 bg-slate-100 border-r border-slate-300 align-top">
+                                Myanmar
+                            </td>
+                            <td class="p-2 sm:p-3 text-slate-800 leading-relaxed align-top"
+                                x-text="currentQuestionTranslations['Myanmar'] || 'မျဉ်းတားထားသောက Kanji စကားလုံးများကို ဟိရဂဏဖြင့်မည်သို့ရေးမည်နည်း။ အမှန်ကိုရွေးပါ။'">
+                            </td>
+                        </tr>
+
+                        <!-- 7. Nepali -->
+                        <tr class="border-b border-slate-300 hover:bg-slate-50">
+                            <td class="w-20 sm:w-32 p-2 sm:p-3 font-semibold text-slate-900 bg-slate-100 border-r border-slate-300 align-top">
+                                Nepali
+                            </td>
+                            <td class="p-2 sm:p-3 text-slate-800 leading-relaxed align-top"
+                                x-text="currentQuestionTranslations['Nepali'] || 'लाइन लगाइएको कान्जी शब्दलाई हिरागानामा कसरी लेख्नुहुन्छ? सही उत्तर चयन गर्नुहोस्।'">
+                            </td>
+                        </tr>
+
+                        <!-- 8. Thai -->
+                        <tr class="border-b border-slate-300 hover:bg-slate-50">
+                            <td class="w-20 sm:w-32 p-2 sm:p-3 font-semibold text-slate-900 bg-slate-100 border-r border-slate-300 align-top">
+                                Thai
+                            </td>
+                            <td class="p-2 sm:p-3 text-slate-800 leading-relaxed align-top"
+                                x-text="currentQuestionTranslations['Thai'] || 'คำที่เขียนด้วยคันจิที่ขีดเส้นใต้นี้เขียนเป็นฮิรางานะว่าอย่างไร เลือกข้อที่ถูกต้อง'">
+                            </td>
+                        </tr>
+
+                        <!-- 9. Vietnamese -->
+                        <tr class="hover:bg-slate-50">
+                            <td class="w-20 sm:w-32 p-2 sm:p-3 font-semibold text-slate-900 bg-slate-100 border-r border-slate-300 align-top">
+                                Vietnamese
+                            </td>
+                            <td class="p-2 sm:p-3 text-slate-800 leading-relaxed align-top"
+                                x-text="currentQuestionTranslations['Vietnamese'] || 'Cụm từ chữ Hán gạch chân được viết như thế nào bằng chữ Hiragana? Hãy chọn đáp án đúng.'">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer Close Action -->
+            <div class="p-2.5 sm:p-3 bg-slate-100 border-t border-slate-300 flex justify-end">
+                <button type="button" @click="showLanguageModal = false" class="bg-black hover:bg-slate-800 text-white text-xs font-bold px-4 py-1.5 sm:px-5 sm:py-2 rounded">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unanswered Questions Alert Modal -->
+    <div class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4 bg-black/50"
+         x-show="showUnansweredModal"
+         x-transition
+         x-cloak>
+        <div class="bg-white max-w-md w-full p-4 sm:p-6 space-y-3 sm:space-y-4 shadow-2xl border border-slate-400 font-sans">
+            <div class="space-y-1.5 sm:space-y-2">
+                <h3 class="text-sm sm:text-base font-bold text-slate-900">Finish Exam & Submit</h3>
+                <p class="text-xs text-slate-700 leading-relaxed">
+                    You have <span class="font-bold text-red-600" x-text="totalSteps - answeredCount"></span> unanswered question(s) remaining. Do you want to finish and submit your exam results now?
+                </p>
+            </div>
+
+            <div class="flex gap-2 sm:gap-3 pt-2">
+                <button type="button" 
+                        @click="showUnansweredModal = false"
+                        class="flex-1 py-2 bg-slate-200 text-slate-800 font-bold text-xs hover:bg-slate-300">
+                    Return to Exam
+                </button>
+                <button type="button"
+                        @click="if (window.showGlobalLoader) showGlobalLoader('Evaluating Exam Results...', 'Calculating your CEFR-J scale scores and performance breakdown...'); document.getElementById('quiz-form').submit()"
+                        class="flex-1 py-2 bg-[#6B9E2B] text-white font-bold text-xs hover:bg-[#5A8226]">
+                    Finish & Submit
+                </button>
+            </div>
+        </div>
+    <!-- Global Animated Loading Overlay -->
+    {% include 'components/loading_overlay.html' %}
+
+</body>
+</html>

@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% load quiz_extras %}
+
+{% block title %}Gakkou No Shiken (学校の試験) | Official Japanese Exam Portal{% endblock %}
+
+{% block content %}
+<div class="space-y-4 sm:space-y-12">
+    <!-- Hero Banner (Mobile App Container Styling) -->
+    <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-950 via-japan-navy to-slate-900 text-white p-4 sm:p-14 shadow-2xl shadow-slate-900/30 border border-slate-800/80">
+        <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sm:gap-10">
+            <div class="space-y-2.5 sm:space-y-6 max-w-2xl">
+                <div class="flex flex-wrap items-center gap-1.5 sm:gap-3">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-japan-red/20 border border-japan-red/40 text-rose-300 text-[10px] sm:text-xs font-extrabold uppercase tracking-wider backdrop-blur-md">
+                        <span class="w-1.5 h-1.5 rounded-full bg-japan-red animate-pulse"></span>
+                        Gakkou No Shiken
+                    </div>
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-[10px] sm:text-xs font-black uppercase tracking-wider backdrop-blur-md">
+                        SSW Pathway
+                    </div>
+                </div>
+
+                <h1 class="text-2xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+                    Master Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-japan-red to-amber-300">JFT-Basic &amp; SSW</span> Exams
+                </h1>
+
+                <p class="hidden sm:block text-sm sm:text-lg text-slate-300 font-normal leading-relaxed">
+                    Prepare for official Japanese language &amp; workplace evaluation tests with authentic computer-based testing (CBT), 9-language helper, and instant CEFR-J score reports.
+                </p>
+                <!-- Mobile-only short description -->
+                <p class="sm:hidden text-xs text-slate-400 leading-relaxed">
+                    Authentic CBT · 9-language helper · CEFR-J score reports
+                </p>
+
+                <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 pt-0.5 sm:pt-2">
+                    <a href="{% url 'jft_basic_info' %}" class="inline-flex items-center justify-center gap-1.5 sm:gap-2.5 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-bold px-4 sm:px-7 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl transition-all shadow-lg shadow-red-500/25 text-xs sm:text-sm active:scale-95 btn-touch-active">
+                        JFT-Basic Guide
+                        <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </a>
+                    <a href="{% url 'ssw_skill_test_info' %}" class="inline-flex items-center justify-center gap-1.5 sm:gap-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold px-4 sm:px-7 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl backdrop-blur-md transition-all text-xs sm:text-sm border border-white/15 hover:border-white/30 btn-touch-active">
+                        SSW Tests
+                        <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Floating Hero Badge Circle -->
+            <div class="hidden lg:flex flex-shrink-0 relative w-60 h-60 items-center justify-center">
+                <div class="absolute inset-0 bg-gradient-to-tr from-japan-red/30 to-amber-500/20 rounded-full blur-3xl animate-pulse-slow"></div>
+                <div class="w-40 h-40 rounded-full bg-gradient-to-tr from-japan-red via-rose-600 to-amber-500 shadow-2xl shadow-red-500/50 flex flex-col items-center justify-center text-white font-black border-4 border-white/20 animate-float text-center p-2">
+                    <span class="text-[10px] uppercase tracking-widest text-red-100 font-extrabold">Prometric CBT</span>
+                    <span class="text-3xl font-black">学</span>
+                    <span class="text-[10px] font-bold text-amber-200">10-250 Score Scale</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subtle Background Kanji Watermark & Glow -->
+        <div class="absolute -right-6 -bottom-10 opacity-10 font-black text-8xl sm:text-9xl tracking-tighter text-rose-300 pointer-events-none select-none">
+            試験
+        </div>
+        <div class="absolute -left-10 -top-10 w-96 h-96 rounded-full bg-japan-red/10 blur-3xl pointer-events-none"></div>
+    </div>
+
+    <!-- Quick CBT Platform Feature Cards (Mobile Touch 2x2 Grid) -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6">
+        <div class="bg-white p-3 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-xs flex flex-col items-center text-center gap-2 sm:flex-row sm:text-left sm:gap-4 active:scale-95 transition-transform">
+            <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center font-black text-base sm:text-xl flex-shrink-0">
+                🖥️
+            </div>
+            <div>
+                <strong class="text-[11px] sm:text-base font-extrabold text-slate-900 block leading-tight">Prometric CBT</strong>
+                <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5">Authentic exam UI</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-3 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-xs flex flex-col items-center text-center gap-2 sm:flex-row sm:text-left sm:gap-4 active:scale-95 transition-transform">
+            <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center font-black text-base sm:text-xl flex-shrink-0">
+                🌐
+            </div>
+            <div>
+                <strong class="text-[11px] sm:text-base font-extrabold text-slate-900 block leading-tight">9-Lang Helper</strong>
+                <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5">Dual translations</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-3 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-xs flex flex-col items-center text-center gap-2 sm:flex-row sm:text-left sm:gap-4 active:scale-95 transition-transform">
+            <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center font-black text-base sm:text-xl flex-shrink-0">
+                🔒
+            </div>
+            <div>
+                <strong class="text-[11px] sm:text-base font-extrabold text-slate-900 block leading-tight">Sec. Locking</strong>
+                <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5">Serial progression</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-3 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-xs flex flex-col items-center text-center gap-2 sm:flex-row sm:text-left sm:gap-4 active:scale-95 transition-transform">
+            <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center font-black text-base sm:text-xl flex-shrink-0">
+                📊
+            </div>
+            <div>
+                <strong class="text-[11px] sm:text-base font-extrabold text-slate-900 block leading-tight">Score Report</strong>
+                <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5">10-250 Score Scale</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Practice Test Categories & Grid -->
+    <div class="space-y-4 sm:space-y-12">
+        {% for cat_key, cat_label, cat_chip_class, cat_icon_color in section_specs %}
+            {% with category_tests=tests_by_category|get_item:cat_key %}
+                <section class="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-slate-200/90 p-4 sm:p-10 shadow-sm">
+                    {% include 'components/practice_test_grid.html' with practice_tests=category_tests title=cat_label subtitle="Beginner-friendly Japanese language and workplace evaluation tests." cat_key=cat_key %}
+                </section>
+            {% endwith %}
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

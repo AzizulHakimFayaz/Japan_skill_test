@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Candidate Sign In | Gakkou No Shiken{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto py-8 sm:py-16 animate-fade-in">
+    <div class="bg-white border border-slate-200/90 rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-100 space-y-6">
+        <!-- Header -->
+        <div class="text-center space-y-3">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-japan-red via-rose-600 to-amber-500 flex items-center justify-center text-white text-2xl font-black mx-auto shadow-md shadow-red-500/20">
+                学
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Candidate Sign In</h1>
+            <p class="text-slate-500 text-xs sm:text-sm">Sign in with your username or email address to track your exam performance stats.</p>
+        </div>
+
+        <!-- Form errors -->
+        {% if form.non_field_errors %}
+            <div class="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-4 rounded-2xl font-semibold">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- Form -->
+        <form method="POST" action="{% url 'login' %}{% if next %}?next={{ next }}{% endif %}" class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label for="id_username" class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">Username or Email</label>
+                <input type="text" 
+                       name="username" 
+                       id="id_username" 
+                       required 
+                       autofocus 
+                       class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
+                       placeholder="Enter username or email">
+                {% if form.username.errors %}
+                    <p class="text-xs text-rose-600 mt-1 font-bold">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="id_password" class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">Password</label>
+                <input type="password" 
+                       name="password" 
+                       id="id_password" 
+                       required 
+                       class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
+                       placeholder="Enter password">
+                {% if form.password.errors %}
+                    <p class="text-xs text-rose-600 mt-1 font-bold">{{ form.password.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="w-full py-4 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold rounded-2xl text-sm transition-all shadow-lg shadow-red-500/20 active:scale-95 mt-2">
+                Sign In to Candidate Portal
+            </button>
+        </form>
+
+        <hr class="border-slate-100">
+
+        <!-- Footer -->
+        <div class="text-center text-xs sm:text-sm">
+            <span class="text-slate-500 font-medium">Don't have a candidate profile?</span>
+            <a href="{% url 'signup' %}{% if next %}?next={{ next }}{% endif %}" class="text-japan-red hover:underline font-bold transition-colors ml-1">Register Free</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

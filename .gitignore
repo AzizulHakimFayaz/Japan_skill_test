@@ -1,0 +1,17 @@
+# Python
+*.pyc
+__pycache__/
+.venv/
+env/
+venv/
+
+# Django
+media/
+.env
+
+# Antigravity / System
+.gemini/
+.vscode/
+.idea/
+
+.vercel

@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+
+{% block title %}Candidate Profile & Performance Statistics | Gakkou No Shiken{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js CDN for Smooth Curve Graph -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="space-y-6 sm:space-y-10 animate-fade-in">
+
+    <!-- Candidate Profile Banner (Mobile App Container) -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-japan-navy to-slate-900 text-white p-6 sm:p-12 shadow-2xl shadow-slate-900/20 border border-slate-800/80 mobile-app-card">
+        <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 sm:gap-8">
+            <div class="flex items-center gap-4 sm:gap-6">
+                <!-- User Profile Picture Avatar -->
+                <div class="w-16 h-16 sm:w-22 sm:h-22 rounded-full bg-gradient-to-tr from-japan-red via-rose-600 to-amber-500 flex items-center justify-center text-white text-2xl sm:text-4xl font-black shadow-xl shadow-red-500/30 border-2 sm:border-4 border-white/20 flex-shrink-0">
+                    {{ user.username|first|upper }}
+                </div>
+                <div class="space-y-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h1 class="text-2xl sm:text-4xl font-black text-white tracking-tight">{{ user.username }}</h1>
+                        {% if user.is_staff %}
+                            <span class="px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[10px] sm:text-[11px] font-black uppercase tracking-wider">Staff Admin</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-300 font-medium">Candidate Profile • Member since {{ user.date_joined|date:"F Y" }}</p>
+                    <p class="text-[11px] sm:text-xs text-slate-400 font-mono truncate max-w-xs">{{ user.email|default:"No registered email" }}</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                <a href="{% url 'landing_page' %}" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-5 sm:px-7 py-3 sm:py-3.5 rounded-2xl transition-all shadow-lg shadow-red-500/20 text-xs sm:text-sm active:scale-95 btn-touch-active">
+                    Take Exam
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </a>
+                <a href="{% url 'logout' %}" class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-4 sm:px-6 py-3 sm:py-3.5 rounded-2xl backdrop-blur-md transition-all text-xs sm:text-sm border border-white/15 btn-touch-active">
+                    Sign Out
+                </a>
+            </div>
+        </div>
+
+        <!-- Ambient Background Watermark -->
+        <div class="absolute -right-6 -bottom-10 opacity-10 font-black text-8xl sm:text-9xl tracking-tighter text-rose-300 pointer-events-none select-none">
+            成績
+        </div>
+    </div>
+
+    {% if total_attempts > 0 %}
+        <!-- 4 Stat Cards (App Touch Cards) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+            <!-- Metric 1: Exams Attempted -->
+            <div class="bg-white p-4 sm:p-7 rounded-2xl sm:rounded-[28px] border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5 btn-touch-active mobile-app-card">
+                <div class="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-slate-100/90 border border-slate-200/60 flex items-center justify-center text-slate-700 text-lg sm:text-2xl flex-shrink-0">
+                    📋
+                </div>
+                <div class="space-y-0.5">
+                    <span class="text-[10px] sm:text-[11px] text-slate-500 font-extrabold uppercase tracking-wider block">Exams</span>
+                    <strong class="text-2xl sm:text-3xl font-black text-slate-900 leading-none block">{{ total_attempts }}</strong>
+                    <span class="text-[10px] sm:text-[11px] text-slate-400 font-medium block">Completed CBT</span>
+                </div>
+            </div>
+
+            <!-- Metric 2: Overall Pass Rate -->
+            <div class="bg-white p-4 sm:p-7 rounded-2xl sm:rounded-[28px] border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5 btn-touch-active mobile-app-card">
+                <div class="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 text-lg sm:text-2xl flex-shrink-0">
+                    🎯
+                </div>
+                <div class="space-y-0.5">
+                    <span class="text-[10px] sm:text-[11px] text-slate-500 font-extrabold uppercase tracking-wider block">Pass Rate</span>
+                    <strong class="text-2xl sm:text-3xl font-black text-emerald-600 leading-none block">{{ pass_rate }}%</strong>
+                    <span class="text-[10px] sm:text-[11px] text-slate-400 font-medium block">{{ passed_attempts }} of {{ total_attempts }} passed</span>
+                </div>
+            </div>
+
+            <!-- Metric 3: Highest Scaled Score -->
+            <div class="bg-white p-4 sm:p-7 rounded-2xl sm:rounded-[28px] border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5 btn-touch-active mobile-app-card">
+                <div class="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 text-lg sm:text-2xl flex-shrink-0">
+                    🏆
+                </div>
+                <div class="space-y-0.5">
+                    <span class="text-[10px] sm:text-[11px] text-slate-500 font-extrabold uppercase tracking-wider block">Max Score</span>
+                    <strong class="text-2xl sm:text-3xl font-black text-slate-900 leading-none block">{{ highest_scaled_score }} <span class="text-xs text-slate-400 font-normal">/ 250</span></strong>
+                    <span class="text-[10px] sm:text-[11px] text-slate-400 font-medium block">Avg: {{ avg_scaled_score }} pts</span>
+                </div>
+            </div>
+
+            <!-- Metric 4: CEFR-J Level -->
+            <div class="bg-white p-4 sm:p-7 rounded-2xl sm:rounded-[28px] border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5 btn-touch-active mobile-app-card">
+                <div class="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center text-japan-red text-lg sm:text-2xl flex-shrink-0">
+                    🎓
+                </div>
+                <div class="space-y-0.5">
+                    <span class="text-[10px] sm:text-[11px] text-slate-500 font-extrabold uppercase tracking-wider block">CEFR Level</span>
+                    <strong class="text-xl sm:text-2xl font-black text-japan-red leading-none block">{{ highest_level }}</strong>
+                    <span class="text-[10px] sm:text-[11px] text-slate-400 font-medium block">JFT Standard</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Smooth Score Performance Progression Curve Graph (Chart.js Spline) -->
+        <div class="bg-white rounded-2xl sm:rounded-[28px] border border-slate-200/80 p-4 sm:p-8 shadow-xs space-y-4 sm:space-y-6 mobile-app-card">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <span class="text-[11px] sm:text-xs font-extrabold text-japan-red uppercase tracking-wider block mb-0.5">Performance Trend Curve</span>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Scaled Score Trajectory</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Chronological score progression curve on the 10–250 JFT scale.</p>
+                </div>
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-extrabold self-start sm:self-auto">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Pass Threshold: 200 pts
+                </div>
+            </div>
+
+            <div class="relative w-full h-60 sm:h-80">
+                <canvas id="scoreTrendCurveCanvas"></canvas>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const ctx = document.getElementById('scoreTrendCurveCanvas');
+                if (!ctx) return;
+
+                const labels = {{ chart_labels_json|safe }};
+                const scores = {{ chart_scores_json|safe }};
+                const titles = {{ chart_titles_json|safe }};
+
+                const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, 'rgba(220, 38, 38, 0.35)');
+                gradient.addColorStop(1, 'rgba(220, 38, 38, 0.0)');
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Scaled Score (10-250)',
+                                data: scores,
+                                borderColor: '#DC2626',
+                                borderWidth: 3,
+                                backgroundColor: gradient,
+                                fill: true,
+                                tension: 0.42,
+                                pointBackgroundColor: '#FFFFFF',
+                                pointBorderColor: '#DC2626',
+                                pointBorderWidth: 3,
+                                pointRadius: 5,
+                                pointHoverRadius: 8,
+                            },
+                            {
+                                label: 'Pass Mark (200 pts)',
+                                data: new Array(scores.length).fill(200),
+                                borderColor: '#10B981',
+                                borderWidth: 2,
+                                borderDash: [6, 6],
+                                fill: false,
+                                pointRadius: 0,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { intersect: false, mode: 'index' },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: { font: { family: 'Plus Jakarta Sans', weight: '700', size: 11 }, usePointStyle: true, padding: 12 }
+                            },
+                            tooltip: {
+                                backgroundColor: '#0F172A',
+                                titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: '800' },
+                                bodyFont: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
+                                padding: 10,
+                                cornerRadius: 12,
+                            }
+                        },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' }, color: '#64748B' } },
+                            y: { min: 0, max: 250, grid: { color: 'rgba(241, 245, 249, 0.8)' }, ticks: { stepSize: 50, font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' }, color: '#64748B' } }
+                        }
+                    }
+                });
+            });
+        </script>
+
+        <!-- Section Competency Breakdown Bars -->
+        <div class="bg-white rounded-2xl sm:rounded-[28px] border border-slate-200/80 p-4 sm:p-8 shadow-xs space-y-4 sm:space-y-6 mobile-app-card">
+            <div>
+                <span class="text-[11px] sm:text-xs font-extrabold text-japan-red uppercase tracking-wider block mb-0.5">Diagnostic Analysis</span>
+                <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Cumulative Section Performance</h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Accuracy breakdown across all 4 JFT exam sections.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
+                {% for sec in section_stats %}
+                <div class="p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/70 bg-slate-50/50 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <strong class="text-xs sm:text-sm font-extrabold text-slate-900 block">{{ sec.name_en }}</strong>
+                            <span class="text-[11px] text-slate-400 font-medium">{{ sec.name_ja }}</span>
+                        </div>
+                        <span class="text-base sm:text-lg font-black text-slate-900">{{ sec.pct }}%</span>
+                    </div>
+
+                    <div class="w-full bg-slate-200/80 rounded-full h-2.5 overflow-hidden">
+                        <div class="h-2.5 rounded-full transition-all duration-500 
+                            {% if sec.color == 'rose' %}bg-rose-500{% elif sec.color == 'indigo' %}bg-indigo-500{% elif sec.color == 'amber' %}bg-amber-500{% else %}bg-emerald-500{% endif %}" 
+                            style="width: {{ sec.pct }}%">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-[11px] sm:text-xs text-slate-500 font-medium">
+                        <span>{{ sec.correct }} of {{ sec.total }} correct</span>
+                        <span class="font-bold text-slate-700">Pass: 80%</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Exam Attempt History (App Card View for Mobile & Table for Desktop) -->
+        <div class="bg-white rounded-2xl sm:rounded-[28px] border border-slate-200/80 shadow-xs overflow-hidden mobile-app-card">
+            <div class="p-4 sm:p-8 border-b border-slate-100">
+                <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Exam Attempt History</h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Record of completed practice tests.</p>
+            </div>
+
+            <!-- Mobile App Stack Cards View -->
+            <div class="sm:hidden divide-y divide-slate-100">
+                {% for attempt in attempts %}
+                    <div class="p-4 space-y-3 btn-touch-active">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <strong class="text-sm font-extrabold text-slate-900 block leading-snug">{{ attempt.test.title }}</strong>
+                                <span class="text-[11px] text-slate-400 font-mono mt-0.5 block">{{ attempt.completed_at|date:"M d, Y • h:i A" }}</span>
+                            </div>
+                            {% if attempt.passed %}
+                                <span class="inline-flex items-center gap-1 py-0.5 px-2.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 flex-shrink-0">
+                                    ✓ PASS
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1 py-0.5 px-2.5 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200 flex-shrink-0">
+                                    NO PASS
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl text-center border border-slate-100">
+                            <div>
+                                <span class="text-[9px] font-bold text-slate-400 uppercase block">Raw</span>
+                                <strong class="text-xs font-bold text-slate-800">{{ attempt.score }}/{{ attempt.total_questions }}</strong>
+                            </div>
+                            <div>
+                                <span class="text-[9px] font-bold text-slate-400 uppercase block">Scaled</span>
+                                <strong class="text-xs font-black text-slate-900">{{ attempt.scaled_score }} pts</strong>
+                            </div>
+                            <div>
+                                <span class="text-[9px] font-bold text-slate-400 uppercase block">CEFR-J</span>
+                                <strong class="text-xs font-bold text-japan-red">{{ attempt.assessment_level }}</strong>
+                            </div>
+                        </div>
+
+                        <a href="{% url 'attempt_results' attempt.id %}" class="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl border border-slate-200 hover:border-japan-red hover:text-japan-red transition-all text-xs font-extrabold active:scale-95 bg-white shadow-2xs">
+                            View Score Report
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Desktop Table View -->
+            <div class="hidden sm:block overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50/80 border-b border-slate-200/80 text-xs font-bold uppercase tracking-wider text-slate-500">
+                            <th class="py-4 px-6">Practice Exam Title</th>
+                            <th class="py-4 px-6">Date Completed</th>
+                            <th class="py-4 px-6 text-center">Raw Score</th>
+                            <th class="py-4 px-6 text-center">Scaled Score</th>
+                            <th class="py-4 px-6 text-center">CEFR Level</th>
+                            <th class="py-4 px-6 text-center">Result</th>
+                            <th class="py-4 px-6 text-right">Score Card</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-sm font-semibold text-slate-700">
+                        {% for attempt in attempts %}
+                            <tr class="hover:bg-slate-50/60 transition-colors">
+                                <td class="py-4 px-6">
+                                    <span class="block font-extrabold text-slate-900">{{ attempt.test.title }}</span>
+                                    <span class="inline-flex items-center text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200 mt-1 font-mono">Attempt #{{ attempt.id }}</span>
+                                </td>
+                                <td class="py-4 px-6 text-slate-500">
+                                    {{ attempt.completed_at|date:"M d, Y" }}
+                                    <span class="block text-xs text-slate-400 mt-0.5 font-mono">{{ attempt.completed_at|date:"h:i A" }}</span>
+                                </td>
+                                <td class="py-4 px-6 text-center text-slate-900 font-mono font-bold">
+                                    {{ attempt.score }} / {{ attempt.total_questions }}
+                                </td>
+                                <td class="py-4 px-6 text-center font-mono font-black text-slate-900 text-base">
+                                    {{ attempt.scaled_score }} <span class="text-xs text-slate-400 font-normal">pts</span>
+                                </td>
+                                <td class="py-4 px-6 text-center">
+                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-800 border border-slate-200">
+                                        {{ attempt.assessment_level }}
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-center">
+                                    {% if attempt.passed %}
+                                        <span class="inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                            PASS
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-1.5 py-1 px-3.5 rounded-full text-xs font-extrabold bg-rose-50 text-rose-700 border border-rose-200">
+                                            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                            NO PASS
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-4 px-6 text-right">
+                                    <a href="{% url 'attempt_results' attempt.id %}" class="inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl border border-slate-200 hover:border-japan-red hover:text-japan-red transition-all text-xs font-extrabold">
+                                        View Report
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-12 text-center max-w-lg mx-auto shadow-xs space-y-4 mobile-app-card">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-rose-50 border border-rose-100 text-japan-red rounded-full flex items-center justify-center mx-auto text-2xl sm:text-3xl font-black">
+                📝
+            </div>
+            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">No Exam Attempts Yet</h3>
+            <p class="text-slate-500 text-xs sm:text-sm leading-relaxed">
+                You haven't completed any Japanese CBT practice tests yet. Take your first test today to start building your performance statistics!
+            </p>
+            <a href="{% url 'landing_page' %}" class="inline-flex items-center gap-2 py-3 px-6 bg-japan-red hover:bg-japan-redhover text-white font-extrabold rounded-2xl text-xs sm:text-sm transition-all shadow-lg shadow-red-500/20 active:scale-95 btn-touch-active">
+                Browse Practice Tests
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}
