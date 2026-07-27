@@ -16,14 +16,25 @@
     <style>
         [x-cloak] { display: none !important; }
 
+        /* Normal Green Question Tab */
+        .cbt-tab-green {
+            background-color: #6B9E2B !important;
+            color: #FEF08A !important;
+            font-weight: 800 !important;
+            border-radius: 6px;
+            border: none !important;
+        }
+
         /* Official CBT Pentagon Chevron Tab Shape (Currently Answering) */
         .cbt-chevron-tab {
             clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%);
             background-color: #6B9E2B !important;
             color: #FEF08A !important; /* Yellow font matching Prometric UI */
             font-weight: 800 !important;
+            border-radius: 0 !important;
             border: none !important;
         }
+
 
         /* Choice Box Normal & Selected States */
         .cbt-choice-box {
@@ -331,7 +342,8 @@
         {% csrf_token %}
 
         <!-- Left Navigation Sidebar (Desktop persistent, Mobile drawer ready) -->
-        <aside class="w-24 sm:w-36 bg-[#EAEAEA] border-r border-[#CCCCCC] h-full flex flex-row p-1 sm:p-1.5 gap-1 sm:gap-1.5 flex-shrink-0 select-none overflow-hidden">
+        <aside class="w-24 sm:w-36 bg-white border-r border-[#E2E8F0] h-full flex flex-row p-1 sm:p-1.5 gap-1 sm:gap-1.5 flex-shrink-0 select-none overflow-hidden">
+
             
             <!-- Sub-Column 1: Section Tabs -->
             <div class="w-8 sm:w-11 h-full flex flex-col justify-between gap-1 sm:gap-1.5 flex-shrink-0 font-sans py-0.5">
@@ -421,17 +433,13 @@
                         <button type="button"
                                 @click="goToStep({{ forloop.counter }})"
                                 :disabled="isSectionCompleted('{{ question.section }}')"
-                                class="w-full h-7 sm:h-8 text-[11px] font-bold flex items-center justify-between px-1 sm:px-1.5 border transition-colors shadow-2xs relative disabled:opacity-50"
-                                :class="{
-                                    'cbt-chevron-tab': currentStep === {{ forloop.counter }},
-                                    'bg-[#FFE6D5] text-slate-900 border-[#D97706]': answers.q{{ question.id }} !== null && currentStep !== {{ forloop.counter }},
-                                    'bg-white text-slate-800 border-[#CCCCCC] hover:bg-slate-50': answers.q{{ question.id }} === null && currentStep !== {{ forloop.counter }}
-                                }">
+                                class="w-full h-7 sm:h-8 text-xs font-black flex items-center justify-between px-1.5 transition-all shadow-2xs relative disabled:opacity-50"
+                                :class="currentStep === {{ forloop.counter }} ? 'cbt-chevron-tab' : 'cbt-tab-green opacity-90 hover:opacity-100'">
                             <span class="flex items-center gap-0.5">
                                 <span x-show="flagged.q{{ question.id }}" class="text-[10px]">🚩</span>
                                 <span>{{ forloop.counter }}</span>
                             </span>
-                            <span x-show="answers.q{{ question.id }} !== null" class="text-[10px] font-extrabold text-amber-700">✓</span>
+                            <span x-show="answers.q{{ question.id }} !== null" class="text-[10px] font-extrabold text-amber-300">✓</span>
                         </button>
                     </template>
                 {% endfor %}
@@ -465,39 +473,42 @@
             {% for question in questions %}
                 <div x-show="currentStep === {{ forloop.counter }}" class="max-w-4xl mx-auto space-y-4 pb-12 sm:pb-0">
                     
-                    <!-- Question Header & Translation Triggers -->
-                    <div class="border-b border-slate-300 pb-3 space-y-3">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <h3 class="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
-                                Question {{ forloop.counter }} <span class="text-xs font-normal text-slate-500">({{ question.section|section_label }})</span>
-                            </h3>
-                            
-                            <!-- Translation Helper Buttons -->
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <button type="button"
-                                        @click="openLanguageModal('Your Language 1')"
-                                        class="inline-flex items-center gap-1.5 text-[11px] font-bold bg-white border border-slate-400 hover:bg-slate-50 text-slate-800 px-3 py-1 rounded shadow-2xs active:scale-95 btn-touch-active">
-                                    🌐 Your Language 1
-                                </button>
-                                <button type="button"
-                                        @click="openLanguageModal('Your Language 2')"
-                                        class="inline-flex items-center gap-1.5 text-[11px] font-bold bg-white border border-slate-400 hover:bg-slate-50 text-slate-800 px-3 py-1 rounded shadow-2xs active:scale-95 btn-touch-active">
-                                    🌐 Your Language 2
-                                </button>
+                    <!-- Official Light-Blue Prompt Box Container (Matching Prometric CBT UI) -->
+                    <div class="bg-[#EBF6FF] border border-[#C5E1F5] p-4 sm:p-6 rounded-xs space-y-3 shadow-2xs">
+                        {% if question.instruction %}
+                            <div class="text-sm sm:text-base text-slate-900 font-medium leading-relaxed">
+                                {{ question.instruction }}
                             </div>
-                        </div>
-
-                        <!-- Question Text & Prompt -->
-                        <div class="text-sm sm:text-base text-slate-900 leading-relaxed font-medium pt-1">
-                            {% if question.instruction %}
-                                <div class="text-xs text-slate-500 font-semibold mb-1">{{ question.instruction }}</div>
-                            {% endif %}
-                            {% if question.prompt %}
-                                <div class="text-base sm:text-lg font-bold text-slate-950">{{ question.prompt|safe }}</div>
-                            {% endif %}
-                        </div>
-
+                        {% endif %}
+                        {% if question.prompt %}
+                            <div class="text-lg sm:text-2xl font-bold text-slate-950 leading-relaxed font-sans tracking-wide">
+                                {{ question.prompt|safe }}
+                            </div>
+                        {% endif %}
                     </div>
+
+                    <!-- Translation Helper Buttons (Official Prometric Button Layout) -->
+                    <div class="flex flex-col sm:flex-row items-start gap-2.5 my-2">
+                        <button type="button"
+                                @click="openLanguageModal('Your Language 1')"
+                                class="inline-flex items-center justify-between gap-3 text-xs font-semibold bg-[#F5F5F5] hover:bg-[#EAEAEA] border border-[#A0A0A0] text-slate-900 px-3 py-1.5 rounded-xs shadow-2xs active:scale-98">
+                            <span class="flex items-center gap-1.5">
+                                <span class="text-slate-600 text-xs">🖼️</span>
+                                <span>Your Language 1</span>
+                            </span>
+                            <span class="text-slate-600 text-xs">↗</span>
+                        </button>
+                        <button type="button"
+                                @click="openLanguageModal('Your Language 2')"
+                                class="inline-flex items-center justify-between gap-3 text-xs font-semibold bg-[#F5F5F5] hover:bg-[#EAEAEA] border border-[#A0A0A0] text-slate-900 px-3 py-1.5 rounded-xs shadow-2xs active:scale-98">
+                            <span class="flex items-center gap-1.5">
+                                <span class="text-slate-600 text-xs">🖼️</span>
+                                <span>Your Language 2</span>
+                            </span>
+                            <span class="text-slate-600 text-xs">↗</span>
+                        </button>
+                    </div>
+
 
                     <!-- Question Image Media -->
                     {% if question.type == 'image' and question.image %}
