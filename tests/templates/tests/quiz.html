@@ -487,10 +487,16 @@
                             </div>
                         </div>
 
-                        <!-- Question Text -->
+                        <!-- Question Text & Prompt -->
                         <div class="text-sm sm:text-base text-slate-900 leading-relaxed font-medium pt-1">
-                            {{ question.text }}
+                            {% if question.instruction %}
+                                <div class="text-xs text-slate-500 font-semibold mb-1">{{ question.instruction }}</div>
+                            {% endif %}
+                            {% if question.prompt %}
+                                <div class="text-base sm:text-lg font-bold text-slate-950">{{ question.prompt|safe }}</div>
+                            {% endif %}
                         </div>
+
                     </div>
 
                     <!-- Question Image Media -->

@@ -65,6 +65,9 @@ class Question(models.Model):
     )
     order_index = models.PositiveIntegerField(default=0)
 
+    @property
+    def text(self):
+        return self.prompt or self.instruction
 
 
     def get_translations(self):
