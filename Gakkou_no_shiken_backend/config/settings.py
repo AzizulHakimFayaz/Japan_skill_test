@@ -29,6 +29,8 @@ if os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV') or os.environ.get('R
     ALLOWED_HOSTS = ['*']
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+
 
 # Logging — print all Django errors to stdout so they show in Railway deploy logs
 LOGGING = {
