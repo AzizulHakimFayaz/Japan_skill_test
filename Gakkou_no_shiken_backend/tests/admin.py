@@ -157,7 +157,12 @@ class TestAdmin(admin.ModelAdmin):
     list_per_page = 20
     save_on_top = True
 
+    class Media:
+        css = {'all': ('css/admin_custom.css',)}
+        js = ('js/admin_sticky_save.js',)
+
     def get_queryset(self, request):
+
         return super().get_queryset(request).annotate(q_count=models.Count('questions', distinct=True))
 
     readonly_fields = ('manage_questions_link',)
@@ -421,7 +426,12 @@ class QuestionGroupAdmin(admin.ModelAdmin):
     ordering = ('test', 'order_index')
     save_on_top = True
 
+    class Media:
+        css = {'all': ('css/admin_custom.css',)}
+        js = ('js/admin_sticky_save.js',)
+
     fieldsets = (
+
         ('Group Info', {
             'fields': ('test', 'title', 'order_index'),
             'description': 'Create a group to share one image/audio passage across multiple questions.',
@@ -510,7 +520,12 @@ class QuestionAdmin(admin.ModelAdmin):
     list_per_page = 25
     save_on_top = True
 
+    class Media:
+        css = {'all': ('css/admin_custom.css',)}
+        js = ('js/admin_sticky_save.js',)
+
     fieldsets = (
+
         ('Question Content', {
             'fields': ('test', 'group', 'section', 'type', 'instruction', 'prompt', 'order_index'),
             'description': 'Link to a Question Group to share an image/audio passage across multiple questions.',

@@ -497,3 +497,130 @@ img.logo-dark,
 .login-box .btn-primary:hover {
     background: #B91C1C !important;
 }
+
+/* ============================================================
+   STICKY FLOATING SAVE ACTIONS & FLOATING BUTTON (No Scrolling Needed!)
+   ============================================================ */
+
+/* 1. Make standard Django/Jazzmin submit row sticky at bottom of viewport */
+.change-form .card-footer,
+.change-form .submit-row,
+.submit-row {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 1030 !important;
+    background: rgba(15, 23, 42, 0.96) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6) !important;
+    padding: 12px 24px !important;
+    border-radius: 16px 16px 0 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    margin-top: 24px !important;
+}
+
+.submit-row input[type="submit"],
+.submit-row .btn,
+.card-footer .btn {
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    padding: 10px 20px !important;
+    font-size: 0.875rem !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+    transition: all 0.2s ease !important;
+}
+
+.submit-row input[name="_continue"],
+.card-footer .btn-info {
+    background: #2563EB !important;
+    border: none !important;
+    color: #FFFFFF !important;
+}
+
+.submit-row input[name="_continue"]:hover,
+.card-footer .btn-info:hover {
+    background: #1D4ED8 !important;
+    transform: translateY(-1px) !important;
+}
+
+.submit-row input[name="_save"],
+.card-footer .btn-success,
+.submit-row .default {
+    background: var(--gakkou-red) !important;
+    border: none !important;
+    color: #FFFFFF !important;
+}
+
+.submit-row input[name="_save"]:hover,
+.card-footer .btn-success:hover {
+    background: var(--gakkou-red-hover) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* 2. Floating Quick Save FAB Button (Always reachable in bottom-right corner) */
+.gakkou-floating-save-container {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.gakkou-fab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #DC2626, #B91C1C);
+    color: #FFFFFF !important;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    padding: 12px 22px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.5), 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gakkou-fab-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 12px 30px rgba(220, 38, 38, 0.65), 0 6px 14px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+}
+
+.gakkou-fab-btn:active {
+    transform: scale(0.97);
+}
+
+/* 3. Toast Feedback notification on Ctrl+S */
+.gakkou-save-toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 10000;
+    background: #0F172A;
+    color: #38BDF8;
+    border: 1px solid #0284C7;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.gakkou-save-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
