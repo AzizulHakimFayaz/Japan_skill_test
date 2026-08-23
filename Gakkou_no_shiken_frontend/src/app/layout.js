@@ -63,11 +63,11 @@ export const metadata = {
   },
   icons: {
     icon: [
-      { url: '/img/logo.png', sizes: 'any' },
-      { url: '/img/logo.png', type: 'image/png' },
+      { url: '/img/logo.png?v=2', sizes: 'any' },
+      { url: '/img/logo.png?v=2', type: 'image/png' },
     ],
-    shortcut: '/img/logo.png',
-    apple: '/img/logo.png',
+    shortcut: '/img/logo.png?v=2',
+    apple: '/img/logo.png?v=2',
   },
 };
 
@@ -78,7 +78,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className="h-full bg-slate-50">
       <head>
-        <link rel="icon" type="image/png" href="/img/logo.png" />
+        <link rel="icon" type="image/png" href="/img/logo.png?v=2" />
+        <link rel="shortcut icon" type="image/png" href="/img/logo.png?v=2" />
+        <link rel="apple-touch-icon" href="/img/logo.png?v=2" />
+
         {/* Leaflet CSS for maps */}
         <link
           rel="stylesheet"
