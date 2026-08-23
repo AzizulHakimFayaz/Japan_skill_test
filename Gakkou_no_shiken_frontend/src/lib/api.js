@@ -88,8 +88,9 @@ async function apiRequest(endpoint, options = {}) {
 // ─── Tests & Quiz APIs ───
 export async function getTests(category = '') {
   const query = category ? `?category=${encodeURIComponent(category)}` : '';
-  return apiRequest(`/api/tests/${query}`);
+  return apiRequest(`/api/tests/${query}`, { cache: 'no-store' });
 }
+
 
 export async function getTestDetail(id) {
   return apiRequest(`/api/tests/${id}/`);

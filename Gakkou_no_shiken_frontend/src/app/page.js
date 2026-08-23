@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { getTests } from '@/lib/api';
 import PracticeTestGrid from '@/components/PracticeTestGrid';
 
-export const revalidate = 60; // ISR cache for fast cold-starts
+export const dynamic = 'force-dynamic';
+export const revalidate = 0; // Always fetch live tests in real-time
 
 export default async function HomePage() {
   let data = { tests: [], tests_by_category: { basic: [], skill: [] }, section_specs: [] };
