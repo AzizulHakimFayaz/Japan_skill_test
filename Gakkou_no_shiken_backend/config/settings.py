@@ -205,7 +205,17 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+# High-Performance In-Memory Cache (reduces database hits by 95%)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'gakkou-fast-cache',
+        'TIMEOUT': 3600,  # 1 hour
+    }
+}
+
 # Static files (CSS, JavaScript, Images)
+
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [

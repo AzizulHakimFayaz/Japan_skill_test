@@ -99,6 +99,12 @@ class QuizDataAPIView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
+        from django.core.cache import cache
+        cache_key = f"cbt_quiz_data_v1_{pk}"
+        cached_data = cache.get(cache_key)
+        if cached_data is not None:
+            return Response(cached_data)
+
         questions = list(test.get_ordered_questions())
 
         # Group questions into CBT steps (screens)
@@ -124,12 +130,17 @@ class QuizDataAPIView(APIView):
                     'questions': QuestionQuizSerializer([question], many=True, context={'request': request}).data,
                 })
 
-        return Response({
+        response_data = {
             'test': TestDetailSerializer(test, context={'request': request}).data,
             'total_questions': len(questions),
             'total_steps': len(steps),
             'steps': steps,
-        })
+        }
+
+        # Cache quiz data in memory for 1 hour (3600 seconds)
+        cache.set(cache_key, response_data, 3600)
+        return Response(response_data)
+
 
 
 class SubmitQuizAPIView(APIView):
