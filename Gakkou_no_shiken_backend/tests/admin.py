@@ -207,43 +207,65 @@ class TestAdmin(admin.ModelAdmin):
         return response
 
     def admin_import_csv_view(self, request):
-        try:
-            tests = Test.objects.all()
-            selected_test_id = request.POST.get('test_id') or request.GET.get('test_id')
+        # VERSION MARKER: v3-standalone-2026-08-23
+        import sys
+        print(f"[CSV-IMPORT v3] Method={request.method} Path={request.path}", file=sys.stderr, flush=True)
 
+        try:
             if request.method == 'POST':
+                print("[CSV-IMPORT v3] Processing POST...", file=sys.stderr, flush=True)
                 test_id = request.POST.get('test_id')
                 clear_existing = str(request.POST.get('clear_existing', '')).lower() in ['true', 'on', '1', 'yes']
                 csv_file = request.FILES.get('csv_file')
+                print(f"[CSV-IMPORT v3] test_id={test_id}, has_file={csv_file is not None}, clear={clear_existing}", file=sys.stderr, flush=True)
 
                 if not test_id or not csv_file:
-                    messages.error(request, "Please select a target test and choose a valid CSV file.")
-                else:
-                    try:
-                        test_obj = Test.objects.get(pk=test_id)
-                        if clear_existing:
-                            test_obj.questions.all().delete()
-                            test_obj.question_groups.all().delete()
+                    return HttpResponse(self._import_result_html(
+                        success=False,
+                        message="Please select a target test and choose a valid CSV file."
+                    ))
 
-                        created_count, errors = import_questions_from_csv(test_obj, csv_file)
+                try:
+                    test_obj = Test.objects.get(pk=test_id)
+                    print(f"[CSV-IMPORT v3] Found test: {test_obj.title}", file=sys.stderr, flush=True)
 
-                        if errors:
-                            for err in errors[:10]:
-                                messages.warning(request, err)
+                    if clear_existing:
+                        deleted_q = test_obj.questions.all().delete()
+                        deleted_g = test_obj.question_groups.all().delete()
+                        print(f"[CSV-IMPORT v3] Cleared existing: questions={deleted_q}, groups={deleted_g}", file=sys.stderr, flush=True)
 
-                        messages.success(
-                            request,
-                            f"Successfully imported {created_count} question(s) into '{test_obj.title}'!"
-                        )
-                        return redirect('admin:tests_test_changelist')
-                    except Test.DoesNotExist:
-                        messages.error(request, "Target test does not exist.")
-                    except Exception as e:
-                        import traceback
-                        tb = traceback.format_exc()
-                        print(f"CSV import error: {tb}")
-                        messages.error(request, f"Failed to import questions: {str(e)}")
+                    created_count, errors = import_questions_from_csv(test_obj, csv_file)
+                    print(f"[CSV-IMPORT v3] Import complete: created={created_count}, errors={len(errors)}", file=sys.stderr, flush=True)
 
+                    warning_html = ""
+                    if errors:
+                        warning_items = "".join(f"<li>{e}</li>" for e in errors[:10])
+                        warning_html = f"<div style='margin-top:16px;padding:12px;background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;'><strong>Warnings:</strong><ul style='margin:8px 0 0;'>{warning_items}</ul></div>"
+
+                    return HttpResponse(self._import_result_html(
+                        success=True,
+                        message=f"Successfully imported {created_count} question(s) into '{test_obj.title}'!",
+                        extra_html=warning_html
+                    ))
+
+                except Test.DoesNotExist:
+                    return HttpResponse(self._import_result_html(
+                        success=False,
+                        message=f"Test with ID '{test_id}' does not exist."
+                    ))
+                except Exception as e:
+                    import traceback
+                    tb = traceback.format_exc()
+                    print(f"[CSV-IMPORT v3] Import exception: {tb}", file=sys.stderr, flush=True)
+                    return HttpResponse(self._import_result_html(
+                        success=False,
+                        message=f"Import failed: {str(e)}",
+                        extra_html=f"<pre style='margin-top:12px;background:#fef2f2;color:#991b1b;padding:12px;border-radius:8px;overflow-x:auto;font-size:0.8rem;'>{tb}</pre>"
+                    ))
+
+            # GET request — render the normal Jazzmin template
+            tests = Test.objects.all()
+            selected_test_id = request.POST.get('test_id') or request.GET.get('test_id')
             context = {
                 **self.admin_site.each_context(request),
                 'title': 'Bulk Import Questions via CSV',
@@ -254,20 +276,45 @@ class TestAdmin(admin.ModelAdmin):
                 'available_apps': self.admin_site.get_app_list(request),
             }
             return render(request, 'admin/csv_import.html', context)
+
         except Exception as fatal_e:
             import traceback
             tb = traceback.format_exc()
-            print(f"FATAL admin_import_csv_view error: {tb}")
-            from django.http import HttpResponse
-            return HttpResponse(
-                f"<div style='font-family:sans-serif;padding:30px;max-width:800px;margin:40px auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.05);'>"
-                f"<h2 style='color:#dc2626;margin-top:0;'>⚠️ CSV Import Error Diagnostics</h2>"
-                f"<p style='color:#475569;'>An error occurred while processing the request:</p>"
-                f"<pre style='background:#fef2f2;color:#991b1b;padding:15px;border-radius:8px;overflow-x:auto;font-size:0.875rem;'>{tb}</pre>"
-                f"<p style='margin-top:20px;'><a href='/admin/tests/test/' style='display:inline-block;padding:8px 16px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;'>Return to Tests List</a></p>"
-                f"</div>",
-                status=200
-            )
+            print(f"[CSV-IMPORT v3] FATAL error: {tb}", file=sys.stderr, flush=True)
+            return HttpResponse(self._import_result_html(
+                success=False,
+                message="A fatal error occurred.",
+                extra_html=f"<pre style='margin-top:12px;background:#fef2f2;color:#991b1b;padding:12px;border-radius:8px;overflow-x:auto;font-size:0.8rem;'>{tb}</pre>"
+            ))
+
+    @staticmethod
+    def _import_result_html(success, message, extra_html=""):
+        """Returns a standalone HTML page for import results — no Jazzmin template dependency."""
+        color = "#16a34a" if success else "#dc2626"
+        icon = "✅" if success else "❌"
+        bg = "#f0fdf4" if success else "#fef2f2"
+        border = "#86efac" if success else "#fca5a5"
+        return (
+            f"<!DOCTYPE html><html><head><meta charset='utf-8'><title>CSV Import Result</title>"
+            f"<style>body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#1a1c23;color:#e2e8f0;margin:0;padding:40px 20px;}}"
+            f".card{{max-width:700px;margin:0 auto;background:#2d303a;border-radius:16px;padding:32px;box-shadow:0 8px 32px rgba(0,0,0,0.3);}}"
+            f".result{{padding:20px;border-radius:12px;background:{bg};border:1px solid {border};margin-bottom:20px;}}"
+            f".result h2{{color:{color};margin:0 0 8px;font-size:1.3rem;}}"
+            f".result p{{color:#334155;margin:0;font-size:1rem;}}"
+            f".btn{{display:inline-block;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.95rem;margin-right:12px;margin-top:8px;}}"
+            f".btn-primary{{background:#2563eb;color:#fff;}}.btn-secondary{{background:#475569;color:#fff;}}"
+            f"</style></head><body>"
+            f"<div class='card'>"
+            f"<div class='result'><h2>{icon} {message}</h2></div>"
+            f"{extra_html}"
+            f"<div style='margin-top:24px;'>"
+            f"<a href='/admin/tests/test/' class='btn btn-primary'>← Back to Tests</a>"
+            f"<a href='/admin/tests/test/import-csv/' class='btn btn-secondary'>Import Another CSV</a>"
+            f"</div>"
+            f"<p style='margin-top:20px;font-size:0.75rem;color:#64748b;'>Deploy version: v3-standalone | {__import__('datetime').datetime.now().isoformat()}</p>"
+            f"</div></body></html>"
+        )
+
 
     def import_csv_action(self, obj):
         url = reverse('admin:import_questions_csv') + f'?test_id={obj.id}'
