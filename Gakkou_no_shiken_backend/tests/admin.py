@@ -248,6 +248,9 @@ class TestAdmin(admin.ModelAdmin):
             'title': 'Bulk Import Questions via CSV',
             'tests': tests,
             'selected_test_id': int(selected_test_id) if selected_test_id and str(selected_test_id).isdigit() else None,
+            'opts': self.model._meta,
+            'has_view_permission': self.has_view_permission(request),
+            'available_apps': self.admin_site.get_app_list(request),
         }
         return render(request, 'admin/csv_import.html', context)
 
