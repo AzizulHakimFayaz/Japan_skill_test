@@ -207,52 +207,67 @@ class TestAdmin(admin.ModelAdmin):
         return response
 
     def admin_import_csv_view(self, request):
-        tests = Test.objects.all()
-        selected_test_id = request.POST.get('test_id') or request.GET.get('test_id')
+        try:
+            tests = Test.objects.all()
+            selected_test_id = request.POST.get('test_id') or request.GET.get('test_id')
 
-        if request.method == 'POST':
-            test_id = request.POST.get('test_id')
-            clear_existing = str(request.POST.get('clear_existing', '')).lower() in ['true', 'on', '1', 'yes']
-            csv_file = request.FILES.get('csv_file')
+            if request.method == 'POST':
+                test_id = request.POST.get('test_id')
+                clear_existing = str(request.POST.get('clear_existing', '')).lower() in ['true', 'on', '1', 'yes']
+                csv_file = request.FILES.get('csv_file')
 
-            if not test_id or not csv_file:
-                messages.error(request, "Please select a target test and choose a valid CSV file.")
-            else:
-                try:
-                    test_obj = Test.objects.get(pk=test_id)
-                    if clear_existing:
-                        test_obj.questions.all().delete()
-                        test_obj.question_groups.all().delete()
+                if not test_id or not csv_file:
+                    messages.error(request, "Please select a target test and choose a valid CSV file.")
+                else:
+                    try:
+                        test_obj = Test.objects.get(pk=test_id)
+                        if clear_existing:
+                            test_obj.questions.all().delete()
+                            test_obj.question_groups.all().delete()
 
-                    created_count, errors = import_questions_from_csv(test_obj, csv_file)
+                        created_count, errors = import_questions_from_csv(test_obj, csv_file)
 
-                    if errors:
-                        for err in errors[:10]:
-                            messages.warning(request, err)
+                        if errors:
+                            for err in errors[:10]:
+                                messages.warning(request, err)
 
-                    messages.success(
-                        request,
-                        f"Successfully imported {created_count} question(s) into '{test_obj.title}'!"
-                    )
-                    return redirect('admin:tests_test_changelist')
-                except Test.DoesNotExist:
-                    messages.error(request, "Target test does not exist.")
-                except Exception as e:
-                    import traceback
-                    tb = traceback.format_exc()
-                    print(f"CSV import error: {tb}")
-                    messages.error(request, f"Failed to import questions: {str(e)}")
+                        messages.success(
+                            request,
+                            f"Successfully imported {created_count} question(s) into '{test_obj.title}'!"
+                        )
+                        return redirect('admin:tests_test_changelist')
+                    except Test.DoesNotExist:
+                        messages.error(request, "Target test does not exist.")
+                    except Exception as e:
+                        import traceback
+                        tb = traceback.format_exc()
+                        print(f"CSV import error: {tb}")
+                        messages.error(request, f"Failed to import questions: {str(e)}")
 
-        context = {
-            **self.admin_site.each_context(request),
-            'title': 'Bulk Import Questions via CSV',
-            'tests': tests,
-            'selected_test_id': int(selected_test_id) if selected_test_id and str(selected_test_id).isdigit() else None,
-            'opts': self.model._meta,
-            'has_view_permission': self.has_view_permission(request),
-            'available_apps': self.admin_site.get_app_list(request),
-        }
-        return render(request, 'admin/csv_import.html', context)
+            context = {
+                **self.admin_site.each_context(request),
+                'title': 'Bulk Import Questions via CSV',
+                'tests': tests,
+                'selected_test_id': int(selected_test_id) if selected_test_id and str(selected_test_id).isdigit() else None,
+                'opts': self.model._meta,
+                'has_view_permission': self.has_view_permission(request),
+                'available_apps': self.admin_site.get_app_list(request),
+            }
+            return render(request, 'admin/csv_import.html', context)
+        except Exception as fatal_e:
+            import traceback
+            tb = traceback.format_exc()
+            print(f"FATAL admin_import_csv_view error: {tb}")
+            from django.http import HttpResponse
+            return HttpResponse(
+                f"<div style='font-family:sans-serif;padding:30px;max-width:800px;margin:40px auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.05);'>"
+                f"<h2 style='color:#dc2626;margin-top:0;'>⚠️ CSV Import Error Diagnostics</h2>"
+                f"<p style='color:#475569;'>An error occurred while processing the request:</p>"
+                f"<pre style='background:#fef2f2;color:#991b1b;padding:15px;border-radius:8px;overflow-x:auto;font-size:0.875rem;'>{tb}</pre>"
+                f"<p style='margin-top:20px;'><a href='/admin/tests/test/' style='display:inline-block;padding:8px 16px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;'>Return to Tests List</a></p>"
+                f"</div>",
+                status=200
+            )
 
     def import_csv_action(self, obj):
         url = reverse('admin:import_questions_csv') + f'?test_id={obj.id}'
