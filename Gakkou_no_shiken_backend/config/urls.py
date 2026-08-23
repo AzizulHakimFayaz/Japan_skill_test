@@ -8,6 +8,7 @@ from django.views.static import serve
 from django.conf import settings
 
 urlpatterns = [
+    path('favicon.ico', RedirectView.as_view(url='/static/img/logo.png', permanent=True)),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     path('', RedirectView.as_view(url='https://www.gakkounoshiken.site', permanent=False)),
