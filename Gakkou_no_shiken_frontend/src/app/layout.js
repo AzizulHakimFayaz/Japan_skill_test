@@ -61,7 +61,16 @@ export const metadata = {
   verification: {
     google: 'fI-KwMB7mR1ngiM-wpYJb7Wj9iP5ytkJF3FRLSjRDRU',
   },
+  icons: {
+    icon: [
+      { url: '/img/logo.png', sizes: 'any' },
+      { url: '/img/logo.png', type: 'image/png' },
+    ],
+    shortcut: '/img/logo.png',
+    apple: '/img/logo.png',
+  },
 };
+
 
 
 
