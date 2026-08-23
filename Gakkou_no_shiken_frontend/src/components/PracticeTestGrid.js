@@ -12,7 +12,28 @@ export default function PracticeTestGrid({
   catKey = 'basic',
 }) {
   const { user } = useAuth();
-  const tests = practiceTests || [];
+  const [tests, setTests] = React.useState(practiceTests || []);
+
+  React.useEffect(() => {
+    if (practiceTests && practiceTests.length > 0) {
+      setTests(practiceTests);
+    }
+  }, [practiceTests]);
+
+  React.useEffect(() => {
+    // Client-side real-time fetch to guarantee live data
+    import('@/lib/api').then(({ getTests }) => {
+      getTests(catKey)
+        .then((res) => {
+          const list = res?.tests || (Array.isArray(res) ? res : []);
+          if (list && list.length > 0) {
+            setTests(list);
+          }
+        })
+        .catch(() => {});
+    });
+  }, [catKey]);
+
 
   return (
     <div className="space-y-4 sm:space-y-6">

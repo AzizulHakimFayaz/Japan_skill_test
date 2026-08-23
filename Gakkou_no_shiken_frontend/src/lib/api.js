@@ -47,8 +47,10 @@ async function apiRequest(endpoint, options = {}) {
 
   const headers = {
     'Content-Type': 'application/json',
+    'Accept': 'application/json, text/plain, */*',
     ...(options.headers || {}),
   };
+
 
   if (token && !headers['Authorization']) {
     headers['Authorization'] = `Bearer ${token}`;
