@@ -100,6 +100,12 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
+# Support Large 45-Question Exams & High-Quality Audio Uploads
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000            # Default was 1,000 (45 questions has >1,200 fields!)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100 MB for bulk MP3 / audio uploads
+FILE_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100 MB
+
+
 
 
 REST_FRAMEWORK = {
