@@ -74,21 +74,53 @@ def import_questions_from_csv(test_instance, file_stream):
     Parses a CSV file or file-like object and creates Questions, QuestionGroups, and AnswerOptions for test_instance.
     Returns (created_count, errors_list).
     """
+    raw_bytes = None
     if isinstance(file_stream, bytes):
-        file_content = file_stream.decode('utf-8-sig', errors='replace')
+        raw_bytes = file_stream
+    elif hasattr(file_stream, 'read'):
+        raw_bytes = file_stream.read()
+        if isinstance(raw_bytes, str):
+            raw_bytes = raw_bytes.encode('utf-8')
     elif isinstance(file_stream, str):
-        file_content = file_stream
-    else:
-        # File-like object (e.g. UploadedFile)
-        file_content = file_stream.read()
-        if isinstance(file_content, bytes):
-            file_content = file_content.decode('utf-8-sig', errors='replace')
+        raw_bytes = file_stream.encode('utf-8')
 
-    reader = csv.DictReader(io.StringIO(file_content))
+    if not raw_bytes:
+        return 0, ["The uploaded file is empty."]
+
+    # Check if user uploaded an Excel .xlsx or .xls file (Zip header PK\x03\x04 or OLE header \xd0\xcf\x11\xe0)
+    if raw_bytes.startswith(b'PK\x03\x04') or raw_bytes.startswith(b'\xd0\xcf\x11\xe0'):
+        raise ValueError(
+            "You uploaded an Excel spreadsheet (.xlsx/.xls). Please export or save it as a CSV file (.csv) before uploading. In Google Sheets/Excel: File > Download/Save As > Comma Separated Values (.csv)."
+        )
+
+    # Decode using resilient multi-encoding fallback
+    file_content = None
+    for enc in ['utf-8-sig', 'utf-8', 'cp1252', 'latin-1', 'shift-jis']:
+        try:
+            file_content = raw_bytes.decode(enc)
+            break
+        except (UnicodeDecodeError, UnicodeError):
+            continue
+
+    if file_content is None:
+        file_content = raw_bytes.decode('utf-8', errors='replace')
+
+    # Remove any null bytes
+    file_content = file_content.replace('\x00', '')
+
+    # Automatically detect delimiter (comma, semicolon, tab)
+    sample = file_content[:2048]
+    delimiter = ','
+    if ';' in sample and sample.count(';') > sample.count(','):
+        delimiter = ';'
+    elif '\t' in sample and sample.count('\t') > sample.count(','):
+        delimiter = '\t'
+
+    reader = csv.DictReader(io.StringIO(file_content), delimiter=delimiter)
     
     # Normalize fieldnames to lowercase trimmed strings
     if reader.fieldnames:
-        reader.fieldnames = [f.strip().lower() for f in reader.fieldnames]
+        reader.fieldnames = [f.strip().lower() for f in reader.fieldnames if f]
 
     created_count = 0
     errors = []
@@ -98,6 +130,8 @@ def import_questions_from_csv(test_instance, file_stream):
         row_num = 1
         for row in reader:
             row_num += 1
+            if not row:
+                continue
             # Clean dictionary values
             clean_row = {k.strip(): (v.strip() if v else '') for k, v in row.items() if k}
             

@@ -208,7 +208,7 @@ class TestAdmin(admin.ModelAdmin):
 
     def admin_import_csv_view(self, request):
         tests = Test.objects.all()
-        selected_test_id = request.GET.get('test_id')
+        selected_test_id = request.POST.get('test_id') or request.GET.get('test_id')
 
         if request.method == 'POST':
             test_id = request.POST.get('test_id')
@@ -243,7 +243,7 @@ class TestAdmin(admin.ModelAdmin):
             **self.admin_site.each_context(request),
             'title': 'Bulk Import Questions via CSV',
             'tests': tests,
-            'selected_test_id': int(selected_test_id) if selected_test_id and selected_test_id.isdigit() else None,
+            'selected_test_id': int(selected_test_id) if selected_test_id and str(selected_test_id).isdigit() else None,
         }
         return render(request, 'admin/csv_import.html', context)
 
