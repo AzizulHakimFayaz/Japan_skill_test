@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 const TICKER_MESSAGES = [
   'Processing request...',
   'Evaluating exam performance...',
-  'Calculating official score & CEFR-J band level...',
+  'Calculating official score & performance level...',
   'Preparing score report breakdown...',
   'Almost ready...',
 ];
@@ -13,8 +13,9 @@ const TICKER_MESSAGES = [
 export default function GlobalLoader({
   visible = false,
   title = 'Evaluating Exam Results...',
-  subtitle = 'Submitting your answers, calculating official CEFR-J scale scores and performance breakdown...',
+  subtitle = 'Submitting your answers, calculating official scale scores and performance breakdown...',
 }) {
+
   const [tickerIndex, setTickerIndex] = useState(0);
 
   useEffect(() => {

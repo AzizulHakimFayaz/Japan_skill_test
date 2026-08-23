@@ -887,8 +887,9 @@ export default function QuizPage({ params: paramsPromise }) {
       <GlobalLoader
         visible={Boolean(loadingOverlayText)}
         title={loadingOverlayText || 'Evaluating Exam Results...'}
-        subtitle="Submitting your answers, calculating official CEFR-J scale scores and performance breakdown..."
+        subtitle="Submitting your answers, calculating official scale scores and performance breakdown..."
       />
     </div>
   );
 }
+
