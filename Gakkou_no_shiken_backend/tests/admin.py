@@ -331,7 +331,7 @@ class TestAdmin(admin.ModelAdmin):
             status_text = "Live Preview" if obj.is_published else "Draft Preview"
             status_color = "#0284C7" if obj.is_published else "#D97706"
             return format_html(
-                '<a href="/test/{}/?preview=admin" target="_blank" '
+                '<a href="https://japan-skill-test.vercel.app/test/{}?preview=admin" target="_blank" '
                 'style="display:inline-flex; align-items:center; gap:4px; background:{}; color:#fff; padding:4px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 2px 6px rgba(0,0,0,0.2);">'
                 '👁️ {}'
                 '</a>',
@@ -339,6 +339,7 @@ class TestAdmin(admin.ModelAdmin):
             )
         return format_html('<span class="text-muted">Save first</span>')
     preview_action.short_description = 'CBT Preview'
+
 
 
 

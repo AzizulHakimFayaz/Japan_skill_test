@@ -59,6 +59,7 @@ LOGGING = {
 
 
 CSRF_TRUSTED_ORIGINS = [
+    'https://japan-skill-test.vercel.app',
     'https://gakkou-no-shiken.vercel.app',
     'https://*.vercel.app',
     'https://*.onrender.com',
@@ -68,6 +69,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:3000',
 ]
+
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
