@@ -98,8 +98,9 @@ CSRF_COOKIE_NAME = 'gakkou_csrftoken'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
 
 
 # Support Large 45-Question Exams & High-Quality Audio Uploads
