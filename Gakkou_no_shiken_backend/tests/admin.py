@@ -212,7 +212,7 @@ class TestAdmin(admin.ModelAdmin):
 
         if request.method == 'POST':
             test_id = request.POST.get('test_id')
-            clear_existing = request.POST.get('clear_existing') == 'true'
+            clear_existing = str(request.POST.get('clear_existing', '')).lower() in ['true', 'on', '1', 'yes']
             csv_file = request.FILES.get('csv_file')
 
             if not test_id or not csv_file:
@@ -222,11 +222,12 @@ class TestAdmin(admin.ModelAdmin):
                     test_obj = Test.objects.get(pk=test_id)
                     if clear_existing:
                         test_obj.questions.all().delete()
+                        test_obj.question_groups.all().delete()
 
                     created_count, errors = import_questions_from_csv(test_obj, csv_file)
 
                     if errors:
-                        for err in errors:
+                        for err in errors[:10]:
                             messages.warning(request, err)
 
                     messages.success(
@@ -237,7 +238,10 @@ class TestAdmin(admin.ModelAdmin):
                 except Test.DoesNotExist:
                     messages.error(request, "Target test does not exist.")
                 except Exception as e:
-                    messages.error(request, f"Failed to parse CSV file: {str(e)}")
+                    import traceback
+                    tb = traceback.format_exc()
+                    print(f"CSV import error: {tb}")
+                    messages.error(request, f"Failed to import questions: {str(e)}")
 
         context = {
             **self.admin_site.each_context(request),

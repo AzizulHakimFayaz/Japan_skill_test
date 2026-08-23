@@ -174,18 +174,19 @@ def import_questions_from_csv(test_instance, file_stream):
             group_title = get_val(clean_row, 'group_title', 'group', 'passage', 'reading_passage', 'context')
             group_obj = None
             if group_title:
-                if group_title not in created_groups:
+                group_title_safe = str(group_title).strip()[:250]
+                if group_title_safe not in created_groups:
                     group_obj, _ = QuestionGroup.objects.get_or_create(
                         test=test_instance,
-                        title=group_title,
+                        title=group_title_safe,
                         defaults={
                             'instruction': instruction,
                             'order_index': order_idx
                         }
                     )
-                    created_groups[group_title] = group_obj
+                    created_groups[group_title_safe] = group_obj
                 else:
-                    group_obj = created_groups[group_title]
+                    group_obj = created_groups[group_title_safe]
 
             # Determine correct option index (1-based integer, supporting 1-4, A-D, or label match)
             correct_raw = str(get_val(clean_row, 'correct_option', 'correct option', 'correct_answer', 'correct answer', 'answer', 'correct', 'key', 'ans') or '1').strip().lower()
@@ -214,37 +215,40 @@ def import_questions_from_csv(test_instance, file_stream):
             for lang in ['Bengali', 'English', 'Chinese', 'Indonesian', 'Khmer', 'Mongolian', 'Myanmar', 'Nepali', 'Thai', 'Vietnamese']:
                 val = get_val(clean_row, f'translation_{lang.lower()}', lang.lower())
                 if val:
-                    custom_translations[lang] = val
+                    custom_translations[lang] = str(val).strip()
 
-            # Create Question
-            question = Question.objects.create(
-                test=test_instance,
-                group=group_obj,
-                section=section_val,
-                type=type_val,
-                instruction=instruction,
-                prompt=prompt,
-                translations=custom_translations if custom_translations else {},
-                order_index=order_idx
-            )
+            try:
+                # Create Question
+                question = Question.objects.create(
+                    test=test_instance,
+                    group=group_obj,
+                    section=section_val,
+                    type=type_val,
+                    instruction=instruction,
+                    prompt=prompt,
+                    translations=custom_translations if custom_translations else {},
+                    order_index=order_idx
+                )
 
-            # Collect options
-            option_labels = [opt1, opt2, opt3, opt4]
-            opt_created = 0
-            for i, label in enumerate(option_labels, start=1):
-                if label:
-                    is_corr = (i == correct_idx)
-                    AnswerOption.objects.create(
-                        question=question,
-                        label=label,
-                        is_correct=is_corr,
-                        order_index=i
-                    )
-                    opt_created += 1
+                # Collect options
+                option_labels = [opt1, opt2, opt3, opt4]
+                opt_created = 0
+                for i, label in enumerate(option_labels, start=1):
+                    if label:
+                        is_corr = (i == correct_idx)
+                        AnswerOption.objects.create(
+                            question=question,
+                            label=str(label).strip()[:250],
+                            is_correct=is_corr,
+                            order_index=i
+                        )
+                        opt_created += 1
 
-            if opt_created == 0:
-                errors.append(f"Row {row_num}: Question '{prompt[:30]}' created with no answer options.")
-            
-            created_count += 1
+                if opt_created == 0:
+                    errors.append(f"Row {row_num}: Question '{prompt[:30]}' created with no answer options.")
+                
+                created_count += 1
+            except Exception as row_err:
+                errors.append(f"Row {row_num} error: {str(row_err)}")
 
     return created_count, errors
