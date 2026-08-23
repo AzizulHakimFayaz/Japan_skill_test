@@ -126,6 +126,17 @@ def import_questions_from_csv(test_instance, file_stream):
     errors = []
     created_groups = {}  # Cache groups by title to link multiple questions to the same group
 
+    def get_val(row, *aliases):
+        for alias in aliases:
+            norm = alias.strip().lower()
+            if norm in row and row[norm]:
+                return row[norm]
+            for k, v in row.items():
+                if k.replace('_', '').replace(' ', '') == norm.replace('_', '').replace(' ', ''):
+                    if v:
+                        return v
+        return ''
+
     with transaction.atomic():
         row_num = 1
         for row in reader:
@@ -133,27 +144,34 @@ def import_questions_from_csv(test_instance, file_stream):
             if not row:
                 continue
             # Clean dictionary values
-            clean_row = {k.strip(): (v.strip() if v else '') for k, v in row.items() if k}
+            clean_row = {str(k).strip().lower(): (str(v).strip() if v is not None else '') for k, v in row.items() if k is not None}
             
-            prompt = clean_row.get('prompt', '')
-            instruction = clean_row.get('instruction', '')
-            if not prompt and not clean_row.get('option_1'):
+            prompt = get_val(clean_row, 'prompt', 'question', 'question_text', 'question text', 'problem', 'text', 'item')
+            instruction = get_val(clean_row, 'instruction', 'instructions', 'pre_prompt', 'guide', 'direction', 'directions')
+            
+            opt1 = get_val(clean_row, 'option_1', 'option 1', 'option1', 'option_a', 'option a', 'a', 'choice_1', 'choice 1')
+            opt2 = get_val(clean_row, 'option_2', 'option 2', 'option2', 'option_b', 'option b', 'b', 'choice_2', 'choice 2')
+            opt3 = get_val(clean_row, 'option_3', 'option 3', 'option3', 'option_c', 'option c', 'c', 'choice_3', 'choice 3')
+            opt4 = get_val(clean_row, 'option_4', 'option 4', 'option4', 'option_d', 'option d', 'd', 'choice_4', 'choice 4')
+
+            if not prompt and not opt1:
                 # Empty row, skip
                 continue
 
-            sec_str = clean_row.get('section', '').lower()
+            sec_str = get_val(clean_row, 'section', 'part', 'category', 'type_section').lower()
             section_val = SECTION_MAP.get(sec_str, Question.Section.SCRIPT_VOCAB)
 
-            type_str = clean_row.get('type', 'text').lower()
+            type_str = get_val(clean_row, 'type', 'question_type', 'q_type').lower()
             type_val = TYPE_MAP.get(type_str, Question.QuestionType.TEXT)
 
             try:
-                order_idx = int(clean_row.get('order_index', row_num - 1))
+                order_raw = get_val(clean_row, 'order_index', 'order', 'no', 'number', 'q_num')
+                order_idx = int(order_raw) if order_raw else (row_num - 1)
             except ValueError:
                 order_idx = row_num - 1
 
             # Check if group_title is provided
-            group_title = clean_row.get('group_title', '') or clean_row.get('group', '')
+            group_title = get_val(clean_row, 'group_title', 'group', 'passage', 'reading_passage', 'context')
             group_obj = None
             if group_title:
                 if group_title not in created_groups:
@@ -169,17 +187,32 @@ def import_questions_from_csv(test_instance, file_stream):
                 else:
                     group_obj = created_groups[group_title]
 
-            # Determine correct option index (1-based integer)
-            correct_raw = clean_row.get('correct_option', '1')
-            try:
-                correct_idx = int(correct_raw)
-            except ValueError:
+            # Determine correct option index (1-based integer, supporting 1-4, A-D, or label match)
+            correct_raw = str(get_val(clean_row, 'correct_option', 'correct option', 'correct_answer', 'correct answer', 'answer', 'correct', 'key', 'ans') or '1').strip().lower()
+            if correct_raw in ['1', 'a', 'option a', 'opt 1', 'option 1', 'first']:
                 correct_idx = 1
+            elif correct_raw in ['2', 'b', 'option b', 'opt 2', 'option 2', 'second']:
+                correct_idx = 2
+            elif correct_raw in ['3', 'c', 'option c', 'opt 3', 'option 3', 'third']:
+                correct_idx = 3
+            elif correct_raw in ['4', 'd', 'option d', 'opt 4', 'option 4', 'fourth']:
+                correct_idx = 4
+            else:
+                try:
+                    correct_idx = int(correct_raw)
+                except ValueError:
+                    # Match by option text
+                    found_idx = 1
+                    for idx_cand, opt_cand in enumerate([opt1, opt2, opt3, opt4], start=1):
+                        if opt_cand and opt_cand.lower() == correct_raw:
+                            found_idx = idx_cand
+                            break
+                    correct_idx = found_idx
 
             # Extract custom translations if provided in CSV
             custom_translations = {}
             for lang in ['Bengali', 'English', 'Chinese', 'Indonesian', 'Khmer', 'Mongolian', 'Myanmar', 'Nepali', 'Thai', 'Vietnamese']:
-                val = clean_row.get(f'translation_{lang.lower()}', '') or clean_row.get(lang.lower(), '')
+                val = get_val(clean_row, f'translation_{lang.lower()}', lang.lower())
                 if val:
                     custom_translations[lang] = val
 
@@ -196,13 +229,7 @@ def import_questions_from_csv(test_instance, file_stream):
             )
 
             # Collect options
-            option_labels = [
-                clean_row.get('option_1', ''),
-                clean_row.get('option_2', ''),
-                clean_row.get('option_3', ''),
-                clean_row.get('option_4', ''),
-            ]
-
+            option_labels = [opt1, opt2, opt3, opt4]
             opt_created = 0
             for i, label in enumerate(option_labels, start=1):
                 if label:
