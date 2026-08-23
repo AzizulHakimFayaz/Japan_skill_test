@@ -120,7 +120,7 @@ export async function getSswInfo() {
   return apiRequest('/api/info/ssw/');
 }
 
-// ─── Authentication APIs ───
+// ─── Authentication & Profile APIs ───
 export async function loginUser(username, password) {
   const data = await apiRequest('/api/auth/login/', {
     method: 'POST',
@@ -133,11 +133,13 @@ export async function loginUser(username, password) {
   return data;
 }
 
-export async function registerUser(username, email, password, passwordConfirm) {
+export async function registerUser(username, email, password, passwordConfirm, firstName = '', lastName = '') {
   const data = await apiRequest('/api/auth/register/', {
     method: 'POST',
     body: JSON.stringify({
       username,
+      first_name: firstName,
+      last_name: lastName,
       email,
       password,
       password_confirm: passwordConfirm,
@@ -154,6 +156,27 @@ export async function getMe() {
   return apiRequest('/api/auth/me/');
 }
 
+export async function getUserProfile() {
+  return apiRequest('/api/auth/profile/');
+}
+
+export async function updateUserProfile(profileData) {
+  const data = await apiRequest('/api/auth/profile/', {
+    method: 'PUT',
+    body: JSON.stringify(profileData),
+  });
+  if (data?.user) {
+    setStoredUser(data.user);
+  }
+  return data;
+}
+
 export async function getMyResults() {
   return apiRequest('/api/auth/my-results/');
 }
+
+// ─── Leaderboard & Rankings API ───
+export async function getLeaderboard() {
+  return apiRequest('/api/leaderboard/');
+}
+

@@ -67,6 +67,15 @@ export default function Navbar() {
             >
               SSW Skill Tests
             </Link>
+            <Link
+              href="/leaderboard"
+              className={`text-sm font-bold transition-colors duration-200 py-1.5 px-3 rounded-xl flex items-center gap-1.5 ${
+                isActive('/leaderboard') ? 'text-amber-600 bg-amber-50' : 'text-slate-700 hover:text-amber-600 hover:bg-amber-50/80'
+              }`}
+            >
+              <span>🏆</span> Leaderboard
+            </Link>
+
 
             {isAuthenticated && user ? (
               <>
@@ -186,6 +195,17 @@ export default function Navbar() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                 </svg>
               </Link>
+              <Link
+                href="/leaderboard"
+                onClick={() => setOpen(false)}
+                className="px-4 py-3 rounded-2xl text-base font-bold text-amber-700 bg-amber-50/60 hover:bg-amber-100 transition-all flex items-center justify-between"
+              >
+                <span className="flex items-center gap-2">🏆 Leaderboard Standings</span>
+                <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+
 
               {isAuthenticated && user ? (
                 <>

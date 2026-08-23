@@ -19,19 +19,53 @@ def get_absolute_media_url(file_field, request=None):
         return None
 
 
+from accounts.models import UserProfile
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    target_exam_display = serializers.CharField(source='get_target_exam_display', read_only=True)
+    japanese_level_display = serializers.CharField(source='get_japanese_level_display', read_only=True)
+
+    class Meta:
+        model = UserProfile
+        fields = [
+            'bio',
+            'target_exam',
+            'target_exam_display',
+            'japanese_level',
+            'japanese_level_display',
+            'location',
+            'updated_at',
+        ]
+
+
 class UserSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer(read_only=True)
+    full_name = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'is_staff']
+        fields = ['id', 'username', 'first_name', 'last_name', 'full_name', 'email', 'is_staff', 'profile']
+
+    def get_full_name(self, obj):
+        name = f"{obj.first_name} {obj.last_name}".strip()
+        return name if name else obj.username
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(required=False, allow_blank=True, max_length=150, default='')
+    last_name = serializers.CharField(required=False, allow_blank=True, max_length=150, default='')
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password_confirm = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'password_confirm']
+        fields = ['username', 'first_name', 'last_name', 'email', 'password', 'password_confirm']
+
+    def validate_username(self, value):
+        if User.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError("This username is already taken. Please choose another.")
+        return value
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:
@@ -41,10 +75,46 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],
+            first_name=validated_data.get('first_name', ''),
+            last_name=validated_data.get('last_name', ''),
             email=validated_data.get('email', ''),
             password=validated_data['password']
         )
         return user
+
+
+class UserProfileUpdateSerializer(serializers.Serializer):
+    first_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
+    last_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
+    email = serializers.EmailField(required=False, allow_blank=True)
+    bio = serializers.CharField(required=False, allow_blank=True, max_length=500)
+    target_exam = serializers.ChoiceField(choices=UserProfile.TargetExam.choices, required=False)
+    japanese_level = serializers.ChoiceField(choices=UserProfile.JapaneseLevel.choices, required=False)
+    location = serializers.CharField(required=False, allow_blank=True, max_length=100)
+
+    def update(self, instance, validated_data):
+        # instance is User
+        if 'first_name' in validated_data:
+            instance.first_name = validated_data['first_name']
+        if 'last_name' in validated_data:
+            instance.last_name = validated_data['last_name']
+        if 'email' in validated_data:
+            instance.email = validated_data['email']
+        instance.save()
+
+        profile, _ = UserProfile.objects.get_or_create(user=instance)
+        if 'bio' in validated_data:
+            profile.bio = validated_data['bio']
+        if 'target_exam' in validated_data:
+            profile.target_exam = validated_data['target_exam']
+        if 'japanese_level' in validated_data:
+            profile.japanese_level = validated_data['japanese_level']
+        if 'location' in validated_data:
+            profile.location = validated_data['location']
+        profile.save()
+
+        return instance
+
 
 
 class AnswerOptionSerializer(serializers.ModelSerializer):

@@ -21,8 +21,11 @@ from .serializers import (
     AttemptSummarySerializer,
     UserSerializer,
     RegisterSerializer,
+    UserProfileSerializer,
+    UserProfileUpdateSerializer,
     get_absolute_media_url,
 )
+
 
 
 def get_tokens_for_user(user):
@@ -566,4 +569,138 @@ class MyResultsAPIView(APIView):
                 'titles': chart_titles,
             }
         })
+
+
+class ProfileAPIView(APIView):
+    """Retrieves or updates the current candidate's profile details."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        return Response(UserSerializer(request.user).data)
+
+    def put(self, request):
+        return self.update_profile(request)
+
+    def patch(self, request):
+        return self.update_profile(request)
+
+    def update_profile(self, request):
+        serializer = UserProfileUpdateSerializer(instance=request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({
+                'user': UserSerializer(user).data,
+                'message': 'Profile updated successfully!'
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LeaderboardAPIView(APIView):
+    """
+    Returns candidate leaderboard ranked by test performance:
+    1. Tests Passed (count of passed attempts)
+    2. Highest Scaled Score
+    3. Average Scaled Score
+    4. Total Attempts
+    Splits into top_three podium and rankings for 4th onwards.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        attempts_qs = Attempt.objects.filter(user__isnull=False).select_related('user', 'user__profile')
+
+        user_stats = defaultdict(lambda: {
+            'user': None,
+            'total_attempts': 0,
+            'passed_attempts': 0,
+            'scores': [],
+            'highest_score': 0,
+        })
+
+        for att in attempts_qs:
+            u = att.user
+            stats = user_stats[u.id]
+            if stats['user'] is None:
+                stats['user'] = u
+            stats['total_attempts'] += 1
+            scaled = att.scaled_score
+            stats['scores'].append(scaled)
+            if scaled > stats['highest_score']:
+                stats['highest_score'] = scaled
+            if scaled >= 200:
+                stats['passed_attempts'] += 1
+
+        candidates_list = []
+        for user_id, s in user_stats.items():
+            u = s['user']
+            scores = s['scores']
+            avg_score = int(round(sum(scores) / len(scores))) if scores else 0
+            pass_rate = int(round(s['passed_attempts'] / s['total_attempts'] * 100)) if s['total_attempts'] > 0 else 0
+            
+            profile = getattr(u, 'profile', None)
+            full_name = f"{u.first_name} {u.last_name}".strip()
+
+            candidates_list.append({
+                'user_id': u.id,
+                'username': u.username,
+                'full_name': full_name if full_name else u.username,
+                'bio': profile.bio if profile else '',
+                'target_exam': profile.target_exam if profile else 'jft_basic',
+                'target_exam_display': profile.get_target_exam_display() if profile else 'JFT-Basic (A2 Standard)',
+                'japanese_level': profile.japanese_level if profile else 'n4',
+                'japanese_level_display': profile.get_japanese_level_display() if profile else 'Elementary (N4 / A2)',
+                'location': profile.location if profile else '',
+                'total_attempts': s['total_attempts'],
+                'passed_attempts': s['passed_attempts'],
+                'highest_score': s['highest_score'],
+                'avg_score': avg_score,
+                'pass_rate': pass_rate,
+            })
+
+        # Sort candidates: passed_attempts DESC, highest_score DESC, avg_score DESC, total_attempts DESC
+        candidates_list.sort(
+            key=lambda x: (x['passed_attempts'], x['highest_score'], x['avg_score'], x['total_attempts']),
+            reverse=True
+        )
+
+        for idx, item in enumerate(candidates_list):
+            item['rank'] = idx + 1
+
+        top_three = candidates_list[:3]
+        rankings = candidates_list[3:50]
+
+        current_user_rank = None
+        if request.user.is_authenticated:
+            for item in candidates_list:
+                if item['user_id'] == request.user.id:
+                    current_user_rank = item
+                    break
+            if current_user_rank is None:
+                profile = getattr(request.user, 'profile', None)
+                full_name = f"{request.user.first_name} {request.user.last_name}".strip()
+                current_user_rank = {
+                    'user_id': request.user.id,
+                    'username': request.user.username,
+                    'full_name': full_name if full_name else request.user.username,
+                    'bio': profile.bio if profile else '',
+                    'target_exam': profile.target_exam if profile else 'jft_basic',
+                    'target_exam_display': profile.get_target_exam_display() if profile else 'JFT-Basic',
+                    'japanese_level': profile.japanese_level if profile else 'n4',
+                    'japanese_level_display': profile.get_japanese_level_display() if profile else 'N4',
+                    'location': profile.location if profile else '',
+                    'total_attempts': 0,
+                    'passed_attempts': 0,
+                    'highest_score': 0,
+                    'avg_score': 0,
+                    'pass_rate': 0,
+                    'rank': None,
+                }
+
+        return Response({
+            'total_candidates': len(candidates_list),
+            'top_three': top_three,
+            'rankings': rankings,
+            'current_user_rank': current_user_rank,
+        })
+
 

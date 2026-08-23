@@ -12,6 +12,8 @@ function SignupForm() {
   const next = searchParams.get('next') || '/';
   const { login } = useAuth();
 
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,7 +33,7 @@ function SignupForm() {
     setSubmitting(true);
 
     try {
-      const data = await registerUser(username, email, password, passwordConfirm);
+      const data = await registerUser(username, email, password, passwordConfirm, firstName, lastName);
       if (data?.user) {
         login(data.user);
         router.push(next);
@@ -57,7 +59,7 @@ function SignupForm() {
         <img src="/img/logo.png" alt="Gakkou No Shiken" className="h-16 w-auto mx-auto object-contain filter drop-shadow-xs" />
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Create Candidate Account</h1>
         <p className="text-slate-500 text-xs sm:text-sm">
-          Register to take official practice mock exams and save your scores.
+          Register to take official practice mock exams and track your rankings.
         </p>
       </div>
 
@@ -70,9 +72,39 @@ function SignupForm() {
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* First & Last Name */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="id_first_name" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">
+              First Name
+            </label>
+            <input
+              type="text"
+              id="id_first_name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
+              placeholder="e.g. Kenji"
+            />
+          </div>
+          <div>
+            <label htmlFor="id_last_name" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">
+              Last Name
+            </label>
+            <input
+              type="text"
+              id="id_last_name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
+              placeholder="e.g. Tanaka"
+            />
+          </div>
+        </div>
+
         <div>
           <label htmlFor="id_username" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">
-            Username
+            Username <span className="text-japan-red">*</span>
           </label>
           <input
             type="text"
@@ -80,9 +112,8 @@ function SignupForm() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
-            autoFocus
-            className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
-            placeholder="Choose a username"
+            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
+            placeholder="Unique candidate username"
           />
         </div>
 
@@ -95,14 +126,14 @@ function SignupForm() {
             id="id_email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
+            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
             placeholder="your.email@example.com (optional)"
           />
         </div>
 
         <div>
           <label htmlFor="id_password" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">
-            Password
+            Password <span className="text-japan-red">*</span>
           </label>
           <input
             type="password"
@@ -110,14 +141,14 @@ function SignupForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
+            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
             placeholder="Create strong password"
           />
         </div>
 
         <div>
           <label htmlFor="id_password_confirm" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">
-            Confirm Password
+            Confirm Password <span className="text-japan-red">*</span>
           </label>
           <input
             type="password"
@@ -125,7 +156,7 @@ function SignupForm() {
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
             required
-            className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
+            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
             placeholder="Confirm password"
           />
         </div>
@@ -138,6 +169,7 @@ function SignupForm() {
           {submitting ? 'Creating Account...' : 'Register Candidate Profile'}
         </button>
       </form>
+
 
       <hr className="border-slate-100" />
 

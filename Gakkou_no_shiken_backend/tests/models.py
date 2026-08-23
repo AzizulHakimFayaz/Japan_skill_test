@@ -307,9 +307,26 @@ class Attempt(models.Model):
     answers = models.JSONField(default=dict)  # {question_id: selected_option_id}
     completed_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def percentage(self):
+        if self.total_questions > 0:
+            return round((self.score / self.total_questions) * 100, 1)
+        return 0.0
+
+    @property
+    def scaled_score(self):
+        if self.total_questions > 0:
+            return int(round((self.score / self.total_questions) * 250))
+        return 0
+
+    @property
+    def is_passed(self):
+        return self.scaled_score >= 200
+
     def __str__(self):
         user_str = self.user.username if self.user else "Anonymous"
         return f"Attempt by {user_str} on {self.test.title}: {self.score}/{self.total_questions}"
 
     class Meta:
         ordering = ['-completed_at']
+

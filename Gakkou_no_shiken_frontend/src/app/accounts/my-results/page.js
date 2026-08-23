@@ -3,16 +3,27 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { getMyResults } from '@/lib/api';
+import { getMyResults, updateUserProfile } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
 
 export default function MyResultsPage() {
   const router = useRouter();
-  const { user, isAuthenticated, loading: authLoading, logout } = useAuth();
+  const { user, setUser, isAuthenticated, loading: authLoading, logout } = useAuth();
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Edit Profile Modal State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editFirstName, setEditFirstName] = useState('');
+  const [editLastName, setEditLastName] = useState('');
+  const [editBio, setEditBio] = useState('');
+  const [editTargetExam, setEditTargetExam] = useState('jft_basic');
+  const [editJapaneseLevel, setEditJapaneseLevel] = useState('n4');
+  const [editLocation, setEditLocation] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileSuccessMsg, setProfileSuccessMsg] = useState(null);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -31,8 +42,46 @@ export default function MyResultsPage() {
         .finally(() => {
           setLoading(false);
         });
+
+      // Pre-fill profile state
+      if (user) {
+        setEditFirstName(user.first_name || '');
+        setEditLastName(user.last_name || '');
+        setEditBio(user.profile?.bio || '');
+        setEditTargetExam(user.profile?.target_exam || 'jft_basic');
+        setEditJapaneseLevel(user.profile?.japanese_level || 'n4');
+        setEditLocation(user.profile?.location || '');
+      }
     }
-  }, [authLoading, isAuthenticated, router]);
+  }, [authLoading, isAuthenticated, router, user]);
+
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    setSavingProfile(true);
+    setProfileSuccessMsg(null);
+    try {
+      const res = await updateUserProfile({
+        first_name: editFirstName,
+        last_name: editLastName,
+        bio: editBio,
+        target_exam: editTargetExam,
+        japanese_level: editJapaneseLevel,
+        location: editLocation,
+      });
+      if (res?.user) {
+        if (setUser) setUser(res.user);
+        setProfileSuccessMsg('Profile updated successfully!');
+        setTimeout(() => {
+          setIsEditModalOpen(false);
+          setProfileSuccessMsg(null);
+        }, 1200);
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to update profile');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   if (authLoading || loading) {
     return (
@@ -68,44 +117,86 @@ export default function MyResultsPage() {
     attempts = [],
   } = data || {};
 
+  const profile = user?.profile || {};
+  const fullName = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || user?.username;
+
   return (
     <div className="space-y-6 sm:space-y-10 animate-fade-in">
       {/* Candidate Profile Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-japan-navy to-slate-900 text-white p-6 sm:p-12 shadow-2xl shadow-slate-900/20 border border-slate-800/80 mobile-app-card">
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 sm:gap-8">
-          <div className="flex items-center gap-4 sm:gap-6">
-            <div className="w-16 h-16 sm:w-22 sm:h-22 rounded-full bg-gradient-to-tr from-japan-red via-rose-600 to-amber-500 flex items-center justify-center text-white text-2xl sm:text-4xl font-black shadow-xl shadow-red-500/30 border-2 sm:border-4 border-white/20 flex-shrink-0">
-              {user?.username?.slice(0, 1).toUpperCase()}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-japan-navy to-slate-900 text-white p-6 sm:p-10 shadow-2xl shadow-slate-900/20 border border-slate-800/80 mobile-app-card">
+        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+            {/* Dynamic Initials Avatar */}
+            <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-3xl bg-gradient-to-tr from-japan-red via-rose-600 to-amber-500 flex items-center justify-center text-white text-2xl sm:text-3xl font-black shadow-xl shadow-red-500/30 border-2 sm:border-4 border-white/20 flex-shrink-0">
+              {fullName.slice(0, 1).toUpperCase()}
             </div>
-            <div className="space-y-1">
+            
+            <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">{user?.username}</h1>
+                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">{fullName}</h1>
+                <span className="text-slate-400 font-mono text-xs">(@{user?.username})</span>
                 {user?.is_staff && (
                   <span className="px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[10px] sm:text-[11px] font-black uppercase tracking-wider">
                     Staff Admin
                   </span>
                 )}
               </div>
-              <p className="text-xs sm:text-sm text-slate-300 font-medium">Candidate Profile</p>
-              <p className="text-[11px] sm:text-xs text-slate-400 font-mono truncate max-w-xs">
-                {user?.email || 'No registered email'}
-              </p>
+
+              {/* Bio snippet */}
+              {profile.bio ? (
+                <p className="text-xs sm:text-sm text-slate-300 font-medium max-w-xl line-clamp-2 italic">
+                  "{profile.bio}"
+                </p>
+              ) : (
+                <p className="text-xs text-slate-400 font-medium">
+                  No candidate bio set yet. Click Edit Profile below to add your goals.
+                </p>
+              )}
+
+              {/* Badges: Target Exam, Level, Location */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                {profile.target_exam_display && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 text-[11px] font-bold">
+                    🎯 {profile.target_exam_display}
+                  </span>
+                )}
+                {profile.japanese_level_display && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-200 border border-emerald-500/30 text-[11px] font-bold">
+                    🌸 {profile.japanese_level_display}
+                  </span>
+                )}
+                {profile.location && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 text-[11px] font-bold">
+                    📍 {profile.location}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 w-full sm:w-auto">
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl backdrop-blur-md transition-all text-xs sm:text-sm border border-white/15 cursor-pointer active:scale-95"
+            >
+              ✏️ Edit Profile
+            </button>
+            <Link
+              href="/leaderboard"
+              className="inline-flex items-center justify-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl transition-all text-xs sm:text-sm border border-amber-500/30 active:scale-95"
+            >
+              🏆 Leaderboard
+            </Link>
             <Link
               href="/"
-              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-5 sm:px-7 py-3 sm:py-3.5 rounded-2xl transition-all shadow-lg shadow-red-500/20 text-xs sm:text-sm active:scale-95 btn-touch-active"
+              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl transition-all shadow-lg shadow-red-500/20 text-xs sm:text-sm active:scale-95"
             >
-              Take Exam
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
+              Take Exam →
             </Link>
             <button
               onClick={logout}
-              className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-4 sm:px-6 py-3 sm:py-3.5 rounded-2xl backdrop-blur-md transition-all text-xs sm:text-sm border border-white/15 btn-touch-active cursor-pointer"
+              className="inline-flex items-center justify-center text-slate-400 hover:text-white font-semibold px-3 py-2.5 rounded-2xl text-xs transition-colors cursor-pointer"
             >
               Sign Out
             </button>
@@ -117,6 +208,135 @@ export default function MyResultsPage() {
           成績
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 space-y-5 animate-scale-up">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">✏️</span>
+                <h3 className="text-lg font-black text-slate-900">Edit Candidate Profile</h3>
+              </div>
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700 text-xl font-bold w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {profileSuccessMsg && (
+              <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-2xl text-xs font-bold text-center animate-fade-in">
+                ✓ {profileSuccessMsg}
+              </div>
+            )}
+
+            <form onSubmit={handleSaveProfile} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">First Name</label>
+                  <input
+                    type="text"
+                    value={editFirstName}
+                    onChange={(e) => setEditFirstName(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:border-japan-red"
+                    placeholder="e.g. Kenji"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">Last Name</label>
+                  <input
+                    type="text"
+                    value={editLastName}
+                    onChange={(e) => setEditLastName(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:border-japan-red"
+                    placeholder="e.g. Tanaka"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">Candidate Bio</label>
+                <textarea
+                  value={editBio}
+                  onChange={(e) => setEditBio(e.target.value)}
+                  rows={2}
+                  maxLength={500}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-800 focus:outline-none focus:border-japan-red"
+                  placeholder="Share your goals (e.g. Preparing for JFT-Basic & SSW Nursing Care in Tokyo!)"
+                />
+                <span className="text-[10px] text-slate-400 float-right">{editBio.length}/500</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">Target Examination</label>
+                  <select
+                    value={editTargetExam}
+                    onChange={(e) => setEditTargetExam(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-japan-red"
+                  >
+                    <option value="jft_basic">JFT-Basic (A2 Standard)</option>
+                    <option value="ssw_nursing">SSW: Nursing Care (介護)</option>
+                    <option value="ssw_food">SSW: Food Service (外食業)</option>
+                    <option value="ssw_agriculture">SSW: Agriculture (農業)</option>
+                    <option value="ssw_construction">SSW: Construction (建設業)</option>
+                    <option value="ssw_manufacturing">SSW: Manufacturing (製造業)</option>
+                    <option value="ssw_accommodation">SSW: Accommodation (宿泊業)</option>
+                    <option value="jlpt_n4">JLPT N4</option>
+                    <option value="jlpt_n3">JLPT N3</option>
+                    <option value="other">Other Examination</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">Japanese Level</label>
+                  <select
+                    value={editJapaneseLevel}
+                    onChange={(e) => setEditJapaneseLevel(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-japan-red"
+                  >
+                    <option value="n5">Beginner (N5 / A1)</option>
+                    <option value="n4">Elementary (N4 / A2)</option>
+                    <option value="n3">Intermediate (N3 / B1)</option>
+                    <option value="n2">Upper Intermediate (N2 / B2)</option>
+                    <option value="n1">Advanced (N1 / C1)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">Location / Country</label>
+                <input
+                  type="text"
+                  value={editLocation}
+                  onChange={(e) => setEditLocation(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:border-japan-red"
+                  placeholder="e.g. Dhaka, Bangladesh or Yangon, Myanmar"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="px-5 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingProfile}
+                  className="px-6 py-2.5 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white text-xs font-extrabold rounded-xl shadow-md shadow-red-500/20 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {savingProfile ? 'Saving...' : 'Save Profile Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
 
       {total_attempts > 0 ? (
         <>

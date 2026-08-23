@@ -20,5 +20,10 @@ urlpatterns = [
     path('auth/login/', views.LoginAPIView.as_view(), name='api_login'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='api_token_refresh'),
     path('auth/me/', views.MeAPIView.as_view(), name='api_me'),
+    path('auth/profile/', views.ProfileAPIView.as_view(), name='api_profile'),
     path('auth/my-results/', views.MyResultsAPIView.as_view(), name='api_my_results'),
+
+    # Leaderboard & Rankings
+    path('leaderboard/', views.LeaderboardAPIView.as_view(), name='api_leaderboard'),
 ]
+
