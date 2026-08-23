@@ -87,16 +87,19 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-# Database-backed persistent sessions (rock solid stability)
+# Rock-Solid Persistent Admin Sessions
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 Days
-SESSION_SAVE_EVERY_REQUEST = True
+SESSION_SAVE_EVERY_REQUEST = False      # DO NOT rewrite SQLite on every GET request (prevents SQLite locks)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_NAME = 'gakkou_sessionid'
+CSRF_COOKIE_NAME = 'gakkou_csrftoken'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
 
 
 REST_FRAMEWORK = {
@@ -205,8 +208,12 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': db_path,
+            'OPTIONS': {
+                'timeout': 30,
+            },
         }
     }
+
 
 
 
