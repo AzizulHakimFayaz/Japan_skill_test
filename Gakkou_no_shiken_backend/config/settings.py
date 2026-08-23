@@ -130,21 +130,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-if env('DATABASE_URL', default=None):
+import dj_database_url
+
+database_url = os.environ.get('DATABASE_URL') or env('DATABASE_URL', default=None)
+if database_url:
     DATABASES = {
-        'default': env.db('DATABASE_URL')
+        'default': dj_database_url.parse(str(database_url), conn_max_age=0, ssl_require=True)
     }
     DATABASES['default'].setdefault('OPTIONS', {})
     DATABASES['default']['OPTIONS']['sslmode'] = 'require'
-    
-    # Serverless & Connection Pooling Optimizations (Aiven / Vercel)
-    DATABASES['default']['CONN_MAX_AGE'] = env.int('CONN_MAX_AGE', default=0)
     DATABASES['default']['CONN_HEALTH_CHECKS'] = True
-
-    # Disable server-side cursors for pooled PostgreSQL connections (Neon -pooler, PgBouncer, Supavisor, etc.)
-    db_url_lower = env('DATABASE_URL', default='').lower()
-    if env.bool('DISABLE_SERVER_SIDE_CURSORS', default=True) or any(k in db_url_lower for k in ['pooler', 'pgbouncer', 'neon.tech', 'supavisor']):
-        DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
+    DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
 else:
     db_path = '/tmp/db.sqlite3' if (os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV')) else BASE_DIR / 'db.sqlite3'
     DATABASES = {
