@@ -19,11 +19,15 @@ try:
             start_response(status, response_headers)
             return [output]
 
-except Exception:
+except Exception as err:
+    import traceback
+    tb = traceback.format_exc()
+    error_msg = f"<h1>Django WSGI Startup Error</h1><h3>{type(err).__name__}: {err}</h3><pre>{tb}</pre>"
     def application(environ, start_response):
         status = '500 Internal Server Error'
-        output = f"<h1>Django WSGI Startup Error</h1><pre>{traceback.format_exc()}</pre>".encode('utf-8')
-        response_headers = [('Content-type', 'text/html'), ('Content-Length', str(len(output)))]
+        output = error_msg.encode('utf-8')
+        response_headers = [('Content-type', 'text/html; charset=utf-8'), ('Content-Length', str(len(output)))]
         start_response(status, response_headers)
         return [output]
+
 
