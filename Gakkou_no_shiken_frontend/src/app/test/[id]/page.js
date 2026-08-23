@@ -326,6 +326,12 @@ export default function QuizPage({ params: paramsPromise }) {
     );
   }
 
+  const activeSectionSteps = steps.filter((s) => s.section === activeSectionKey);
+  const currentSectionStepNum = currentStepData
+    ? activeSectionSteps.findIndex((s) => s === currentStepData) + 1
+    : 1;
+  const totalStepsInSection = activeSectionSteps.length;
+
   return (
     <div className="fixed inset-0 z-50 h-screen w-screen m-0 p-0 overflow-hidden font-sans text-slate-900 bg-white flex flex-col justify-between select-none">
       {/* ==========================================
@@ -334,12 +340,13 @@ export default function QuizPage({ params: paramsPromise }) {
       <header className="bg-black text-white min-h-[2.5rem] py-1.5 px-3 sm:px-4 flex items-center justify-between gap-2 border-b border-slate-800 text-xs font-sans flex-shrink-0">
         <div className="flex items-center gap-2 sm:gap-4 truncate">
           <span className="font-bold whitespace-nowrap bg-slate-800 px-2 py-0.5 rounded text-[11px] sm:text-xs">
-            Q {currentStep === 0 ? 'Intro' : currentStep}/{totalQuestions}
+            Q {currentStep === 0 ? 'Intro' : `${currentSectionStepNum}/${totalStepsInSection}`}
           </span>
           <span className="truncate text-slate-200 text-[11px] sm:text-xs">
             Sec: <span className="font-bold text-white">{activeSectionName}</span>
           </span>
         </div>
+
 
         {/* Timer & Section Action */}
         <div className="flex items-center gap-2">
@@ -511,38 +518,42 @@ export default function QuizPage({ params: paramsPromise }) {
               </button>
             )}
 
-            {/* Dynamic Question Step Tabs for Active Section */}
-            {steps.map((step, idx) => {
-              const stepNum = idx + 1;
-              if (step.section !== activeSectionKey) return null;
+            {/* Dynamic Question Step Tabs for Active Section (Starting from 1 in each section) */}
+            {(() => {
+              const activeSectionSteps = steps.filter((s) => s.section === activeSectionKey);
+              return activeSectionSteps.map((step, sectionIdx) => {
+                const globalStepNum = steps.indexOf(step) + 1;
+                const sectionStepNum = sectionIdx + 1;
 
-              const isAnswered = step.questions.every(
-                (q) => answers[`q${q.id}`] !== undefined && answers[`q${q.id}`] !== null
-              );
-              const isActive = currentStep === stepNum;
-              const isLocked = isSectionCompleted(step.section);
+                const isAnswered = step.questions.every(
+                  (q) => answers[`q${q.id}`] !== undefined && answers[`q${q.id}`] !== null
+                );
+                const isActive = currentStep === globalStepNum;
+                const isLocked = isSectionCompleted(step.section);
 
-              return (
-                <button
-                  key={stepNum}
-                  type="button"
-                  onClick={() => goToStep(stepNum)}
-                  disabled={isLocked}
-                  className={`w-full h-7 sm:h-8 text-xs font-black flex items-center justify-between px-1.5 transition-all shadow-2xs relative disabled:opacity-50 cursor-pointer ${
-                    isActive
-                      ? 'cbt-chevron-tab'
-                      : 'cbt-tab-green opacity-90 hover:opacity-100'
-                  }`}
-                >
-                  <span className="flex items-center gap-0.5">
-                    <span>{stepNum}</span>
-                  </span>
-                  {isAnswered && <span className="text-[10px] font-extrabold text-amber-300">✓</span>}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={globalStepNum}
+                    type="button"
+                    onClick={() => goToStep(globalStepNum)}
+                    disabled={isLocked}
+                    className={`w-full h-7 sm:h-8 text-xs font-black flex items-center justify-between px-1.5 transition-all shadow-2xs relative disabled:opacity-50 cursor-pointer ${
+                      isActive
+                        ? 'cbt-chevron-tab'
+                        : 'cbt-tab-green opacity-90 hover:opacity-100'
+                    }`}
+                  >
+                    <span className="flex items-center gap-0.5">
+                      <span>{sectionStepNum}</span>
+                    </span>
+                    {isAnswered && <span className="text-[10px] font-extrabold text-amber-300">✓</span>}
+                  </button>
+                );
+              });
+            })()}
           </div>
         </aside>
+
 
         {/* Right Main Canvas Area */}
         <main className="flex-1 bg-white h-full overflow-y-auto p-3 sm:p-6 text-slate-900 font-sans">
