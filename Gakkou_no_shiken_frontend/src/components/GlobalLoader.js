@@ -49,12 +49,16 @@ export default function GlobalLoader({
             {/* Spinning outer gradient border */}
             <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-tr from-red-600 via-amber-500 to-rose-500 animate-spin-ring opacity-80"></div>
 
-            {/* Center Icon Box with Kanji */}
-            <div className="relative w-16 h-16 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-white font-black text-2xl shadow-xl">
-              <span className="text-transparent bg-clip-text bg-gradient-to-tr from-red-500 via-rose-400 to-amber-300">
-                学
-              </span>
+            {/* Center Icon Box with Official Logo */}
+            <div className="relative w-16 h-16 rounded-2xl bg-white/95 border border-slate-700/80 flex items-center justify-center p-2.5 shadow-xl overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/img/logo.png"
+                alt="Gakkou No Shiken Logo"
+                className="w-full h-full object-contain filter drop-shadow-xs scale-105"
+              />
             </div>
+
           </div>
 
           {/* Dynamic Title & Subtitle */}
