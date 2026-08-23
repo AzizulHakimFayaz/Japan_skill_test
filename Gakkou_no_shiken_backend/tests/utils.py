@@ -137,118 +137,129 @@ def import_questions_from_csv(test_instance, file_stream):
                         return v
         return ''
 
-    with transaction.atomic():
-        row_num = 1
-        for row in reader:
-            row_num += 1
-            if not row:
-                continue
-            # Clean dictionary values
-            clean_row = {str(k).strip().lower(): (str(v).strip() if v is not None else '') for k, v in row.items() if k is not None}
-            
-            prompt = get_val(clean_row, 'prompt', 'question', 'question_text', 'question text', 'problem', 'text', 'item')
-            instruction = get_val(clean_row, 'instruction', 'instructions', 'pre_prompt', 'guide', 'direction', 'directions')
-            
-            opt1 = get_val(clean_row, 'option_1', 'option 1', 'option1', 'option_a', 'option a', 'a', 'choice_1', 'choice 1')
-            opt2 = get_val(clean_row, 'option_2', 'option 2', 'option2', 'option_b', 'option b', 'b', 'choice_2', 'choice 2')
-            opt3 = get_val(clean_row, 'option_3', 'option 3', 'option3', 'option_c', 'option c', 'c', 'choice_3', 'choice 3')
-            opt4 = get_val(clean_row, 'option_4', 'option 4', 'option4', 'option_d', 'option d', 'd', 'choice_4', 'choice 4')
+    # First pass: collect all groups needed
+    groups_to_create = {}  # title -> (instruction, order_idx)
+    rows_data = []
 
-            if not prompt and not opt1:
-                # Empty row, skip
-                continue
+    row_num = 1
+    for row in reader:
+        row_num += 1
+        if not row:
+            continue
+        clean_row = {str(k).strip().lower(): (str(v).strip() if v is not None else '') for k, v in row.items() if k is not None}
 
-            sec_str = get_val(clean_row, 'section', 'part', 'category', 'type_section').lower()
-            section_val = SECTION_MAP.get(sec_str, Question.Section.SCRIPT_VOCAB)
+        prompt = get_val(clean_row, 'prompt', 'question', 'question_text', 'question text', 'problem', 'text', 'item')
+        instruction = get_val(clean_row, 'instruction', 'instructions', 'pre_prompt', 'guide', 'direction', 'directions')
 
-            type_str = get_val(clean_row, 'type', 'question_type', 'q_type').lower()
-            type_val = TYPE_MAP.get(type_str, Question.QuestionType.TEXT)
+        opt1 = get_val(clean_row, 'option_1', 'option 1', 'option1', 'option_a', 'option a', 'a', 'choice_1', 'choice 1')
+        opt2 = get_val(clean_row, 'option_2', 'option 2', 'option2', 'option_b', 'option b', 'b', 'choice_2', 'choice 2')
+        opt3 = get_val(clean_row, 'option_3', 'option 3', 'option3', 'option_c', 'option c', 'c', 'choice_3', 'choice 3')
+        opt4 = get_val(clean_row, 'option_4', 'option 4', 'option4', 'option_d', 'option d', 'd', 'choice_4', 'choice 4')
 
+        if not prompt and not opt1:
+            continue
+
+        sec_str = get_val(clean_row, 'section', 'part', 'category', 'type_section').lower()
+        section_val = SECTION_MAP.get(sec_str, Question.Section.SCRIPT_VOCAB)
+
+        type_str = get_val(clean_row, 'type', 'question_type', 'q_type').lower()
+        type_val = TYPE_MAP.get(type_str, Question.QuestionType.TEXT)
+
+        try:
+            order_raw = get_val(clean_row, 'order_index', 'order', 'no', 'number', 'q_num')
+            order_idx = int(order_raw) if order_raw else (row_num - 1)
+        except ValueError:
+            order_idx = row_num - 1
+
+        group_title = get_val(clean_row, 'group_title', 'group', 'passage', 'reading_passage', 'context')
+        if group_title:
+            group_title_safe = str(group_title).strip()[:250]
+            if group_title_safe not in groups_to_create:
+                groups_to_create[group_title_safe] = (instruction, order_idx)
+
+        # Determine correct option index
+        correct_raw = str(get_val(clean_row, 'correct_option', 'correct option', 'correct_answer', 'correct answer', 'answer', 'correct', 'key', 'ans') or '1').strip().lower()
+        if correct_raw in ['1', 'a', 'option a', 'opt 1', 'option 1', 'first']:
+            correct_idx = 1
+        elif correct_raw in ['2', 'b', 'option b', 'opt 2', 'option 2', 'second']:
+            correct_idx = 2
+        elif correct_raw in ['3', 'c', 'option c', 'opt 3', 'option 3', 'third']:
+            correct_idx = 3
+        elif correct_raw in ['4', 'd', 'option d', 'opt 4', 'option 4', 'fourth']:
+            correct_idx = 4
+        else:
             try:
-                order_raw = get_val(clean_row, 'order_index', 'order', 'no', 'number', 'q_num')
-                order_idx = int(order_raw) if order_raw else (row_num - 1)
+                correct_idx = int(correct_raw)
             except ValueError:
-                order_idx = row_num - 1
+                found_idx = 1
+                for idx_cand, opt_cand in enumerate([opt1, opt2, opt3, opt4], start=1):
+                    if opt_cand and opt_cand.lower() == correct_raw:
+                        found_idx = idx_cand
+                        break
+                correct_idx = found_idx
 
-            # Check if group_title is provided
-            group_title = get_val(clean_row, 'group_title', 'group', 'passage', 'reading_passage', 'context')
-            group_obj = None
-            if group_title:
-                group_title_safe = str(group_title).strip()[:250]
-                if group_title_safe not in created_groups:
-                    group_obj, _ = QuestionGroup.objects.get_or_create(
-                        test=test_instance,
-                        title=group_title_safe,
-                        defaults={
-                            'instruction': instruction,
-                            'order_index': order_idx
-                        }
-                    )
-                    created_groups[group_title_safe] = group_obj
-                else:
-                    group_obj = created_groups[group_title_safe]
+        # Extract custom translations if provided
+        custom_translations = {}
+        for lang in ['Bengali', 'English', 'Chinese', 'Indonesian', 'Khmer', 'Mongolian', 'Myanmar', 'Nepali', 'Thai', 'Vietnamese']:
+            val = get_val(clean_row, f'translation_{lang.lower()}', lang.lower())
+            if val:
+                custom_translations[lang] = str(val).strip()
 
-            # Determine correct option index (1-based integer, supporting 1-4, A-D, or label match)
-            correct_raw = str(get_val(clean_row, 'correct_option', 'correct option', 'correct_answer', 'correct answer', 'answer', 'correct', 'key', 'ans') or '1').strip().lower()
-            if correct_raw in ['1', 'a', 'option a', 'opt 1', 'option 1', 'first']:
-                correct_idx = 1
-            elif correct_raw in ['2', 'b', 'option b', 'opt 2', 'option 2', 'second']:
-                correct_idx = 2
-            elif correct_raw in ['3', 'c', 'option c', 'opt 3', 'option 3', 'third']:
-                correct_idx = 3
-            elif correct_raw in ['4', 'd', 'option d', 'opt 4', 'option 4', 'fourth']:
-                correct_idx = 4
-            else:
-                try:
-                    correct_idx = int(correct_raw)
-                except ValueError:
-                    # Match by option text
-                    found_idx = 1
-                    for idx_cand, opt_cand in enumerate([opt1, opt2, opt3, opt4], start=1):
-                        if opt_cand and opt_cand.lower() == correct_raw:
-                            found_idx = idx_cand
-                            break
-                    correct_idx = found_idx
+        rows_data.append({
+            'row_num': row_num,
+            'section': section_val,
+            'type': type_val,
+            'instruction': instruction,
+            'prompt': prompt,
+            'translations': custom_translations if custom_translations else {},
+            'order_index': order_idx,
+            'group_title': str(group_title).strip()[:250] if group_title else None,
+            'options': [opt1, opt2, opt3, opt4],
+            'correct_idx': correct_idx,
+        })
 
-            # Extract custom translations if provided in CSV
-            custom_translations = {}
-            for lang in ['Bengali', 'English', 'Chinese', 'Indonesian', 'Khmer', 'Mongolian', 'Myanmar', 'Nepali', 'Thai', 'Vietnamese']:
-                val = get_val(clean_row, f'translation_{lang.lower()}', lang.lower())
-                if val:
-                    custom_translations[lang] = str(val).strip()
+    with transaction.atomic():
+        # Batch create all groups at once
+        created_groups = {}
+        for title, (instr, oidx) in groups_to_create.items():
+            group_obj, _ = QuestionGroup.objects.get_or_create(
+                test=test_instance,
+                title=title,
+                defaults={'instruction': instr, 'order_index': oidx}
+            )
+            created_groups[title] = group_obj
 
-            try:
-                # Create Question
-                question = Question.objects.create(
-                    test=test_instance,
-                    group=group_obj,
-                    section=section_val,
-                    type=type_val,
-                    instruction=instruction,
-                    prompt=prompt,
-                    translations=custom_translations if custom_translations else {},
-                    order_index=order_idx
-                )
+        # Batch create all questions
+        question_objects = []
+        for rd in rows_data:
+            group_obj = created_groups.get(rd['group_title']) if rd['group_title'] else None
+            question_objects.append(Question(
+                test=test_instance,
+                group=group_obj,
+                section=rd['section'],
+                type=rd['type'],
+                instruction=rd['instruction'],
+                prompt=rd['prompt'],
+                translations=rd['translations'],
+                order_index=rd['order_index'],
+            ))
 
-                # Collect options
-                option_labels = [opt1, opt2, opt3, opt4]
-                opt_created = 0
-                for i, label in enumerate(option_labels, start=1):
-                    if label:
-                        is_corr = (i == correct_idx)
-                        AnswerOption.objects.create(
-                            question=question,
-                            label=str(label).strip()[:250],
-                            is_correct=is_corr,
-                            order_index=i
-                        )
-                        opt_created += 1
+        created_questions = Question.objects.bulk_create(question_objects)
 
-                if opt_created == 0:
-                    errors.append(f"Row {row_num}: Question '{prompt[:30]}' created with no answer options.")
-                
-                created_count += 1
-            except Exception as row_err:
-                errors.append(f"Row {row_num} error: {str(row_err)}")
+        # Batch create all answer options
+        option_objects = []
+        for q, rd in zip(created_questions, rows_data):
+            for i, label in enumerate(rd['options'], start=1):
+                if label:
+                    option_objects.append(AnswerOption(
+                        question=q,
+                        label=str(label).strip()[:250],
+                        is_correct=(i == rd['correct_idx']),
+                        order_index=i,
+                    ))
+
+        AnswerOption.objects.bulk_create(option_objects)
+        created_count = len(created_questions)
 
     return created_count, errors
+
