@@ -1,0 +1,68 @@
+group_title,section,type,instruction,prompt,option_1,option_2,option_3,option_4,correct_option,order_index
+,Script and Vocabulary,image,Look at the illustration and choose the correct word.,,メかネ,トケイ,メガネ,,3,1
+,Script and Vocabulary,image,Look at the illustration and choose the correct word.,,てつだいます,おきます,とります,,2,2
+,Script and Vocabulary,image,Look at the illustration and choose the correct word.,,よぼうする,にゅういんする,きにゅうする,,2,3
+,Script and Vocabulary,text,Read the sentence and choose the word that fits in ( ) the most.,あしたは　あさ　７じに　うちを（　　　）。,かえります,つきます,でます,,3,4
+,Script and Vocabulary,text,Read the sentence and choose the word that fits in ( ) the most.,きのうは　あめが（　　　）、どこにも　いきませんでした。,ふれば,ふって,ふったり,,2,5
+,Script and Vocabulary,text,Read the sentence and choose the word that fits in ( ) the most.,でんしゃが　おくれたので、かいしゃに（　　　）。,とまりました,まにあいました,おくれました,,3,6
+,Script and Vocabulary,text,"How do you write the underlined kanji word in hiragana?
+Choose the correct one.",料理  を  つくります,りょり,りょうり,りょうりい,,2,7
+,Script and Vocabulary,text,"How do you write the underlined kanji word in hiragana?
+Choose the correct one.",外国   から　きた　ともだちと　いっしょに　ごはんを　たべました。,がいごく,かいごく,がいこく,,3,8
+,Script and Vocabulary,text,"How do you write the underlined kanji word in hiragana?
+Choose the correct one.",わたし  は  まだ   上手   では　ありません。,じょうずう,じょうず,しょうず,,2,9
+,Script and Vocabulary,text,Read the sentence and choose the kanji word that fits in ( ) the most.,スーパーで　やさいを（　　　）きました。,買って,洗って,売って,,1,10
+,Script and Vocabulary,text,Read the sentence and choose the kanji word that fits in ( ) the most.,まいあさ　コーヒーを（　　　）から、かいしゃへ　いきます。,食べて,読んで,飲んで,,3,11
+,Script and Vocabulary,text,Read the sentence and choose the kanji word that fits in ( ) the most.,つぎの　でんしゃに（　　　）ください。,光って,乗って,通って,,2,12
+,Conversation and Expression,text,Read the Dialogue and choose the phrase that fits the most.,"A：しごとは　どうですか。
+B：＿＿＿、たのしいです。",やすみですから,いそがしいですが,あめですから,にちようびですから,2,13
+,Conversation and Expression,text,Read the Dialogue and choose the phrase that fits the most.,"A：すみません。この　にもつを　もって　いただけませんか。
+B：＿＿＿。",ごちそうさまです。,しつれいしました。,おじゃまします。,はい、もちろんです。,4,14
+,Conversation and Expression,text,Read the Dialogue and choose the phrase that fits the most.,"A：すみません。あした　しごとの　あとで、いっしょに　ばんごはんを　たべませんか。
+B：いいですね。＿＿＿＿。",おつかれさまでした,ごちそうさまでした。,６じごろなら　だいじょうぶです。,おじゃまします。,3,15
+,Conversation and Expression,text,Read the Dialogue and choose the phrase that fits the most.,"A：しごとが　おわりました。
+B：＿＿＿＿。",ごちそうさまでした。,いってきます。,いただきます。,おつかれさまでした,4,16
+,Conversation and Expression,text,Read the Dialogue and choose the expression that fits the most.,"A：日曜日に、えいがを見ましょうか。
+B：＿＿＿。",すみません、日曜日はちょっと..,はい、見ましょう,えいがはきらいです,,2,17
+,Conversation and Expression,text,Read the Dialogue and choose the expression that fits the most.,"A：この自転車をかりてもいいですか。ほんやへ行きたいです。
+B：＿＿＿。",いいえ、だめです,ええ、どうぞ,わかりません,,2,18
+,Conversation and Expression,text,Read the Dialogue and choose the expression that fits the most.,"A：でんしゃが　おくれています。
+B：じゃあ、＿＿＿＿＿。",バスで　いきましょう,パンを　たべましょう。,コーヒーを　のみましょう。,,1,19
+,Conversation and Expression,text,Read the Dialogue and choose the expression that fits the most.,"A： わかやまにおすすめところはどこですか?
+B：わかやまなら（けんろくえん）がゆうめいですよ。＿＿＿行ってみてください。",たぶん,やっと,ぜひ,,3,20
+,Conversation and Expression,text,Read the Dialogue and choose the expression that fits the most.,"A：マリアさん、すてきなかばんですね。
+B：これですか？誕生日にともだちに＿＿＿。",かりました,もらいました,よみました,,2,21
+,Conversation and Expression,text,Read the Dialogue and choose the expression that fits the most.,"A：私の国は、一年中夏です。ずっと暑いです。
+B： ________。それは大変ですね。",そうですね,そうです,そうなんですか,,3,22
+,Conversation and Expression,text,Read the Dialogue and choose the expression that fits the most.,"A：どこに住んでいますか?
+B：_____ に住んでいます。",電車,東京,会社,,2,23
+,Conversation and Expression,text,Read the Dialogue and choose the expression that fits the most.,"A：日本では、どんなことがしたいですか?
+B：まず、仕事をはやく覚えたいです。それから、________、富士山に登ってみたいですね。",できれば,確かに,なるほど,,1,24
+,Listening Comprehension,image,Where is Loh’s house?,,a,b,c,d,2,25
+,Listening Comprehension,image,What time and where did they decide to meet?,,6:00,4:00,8:30,6:30,4,26
+,Listening Comprehension,image,Where did he study Japanese?,,A,B,C,D,1,27
+,Listening Comprehension,audio,What day did he want to take class?,,土曜日,木曜日,水曜日,火曜日,3,28
+,Listening Comprehension,audio,What did Guo-san receive at the reception desk?,,しょほうせん,おかね,ほけんしょう,しんさつけん,4,29
+,Listening Comprehension,audio,What kind of person is the partner?,,ふつうで、おもしろくない ひと。,かっこよくて、しずかな ひと。,ふつうで、すごく おもしろい ひと。,かっこよくて、おもしろい ひと。,3,30
+S,Listening Comprehension,audio,"You will hear two people talking about where they are from.
+ Answer questions (1) and (2).",What is the city like?,しゅと,かんこうち,こうげんのまち,おおきいまち,4,31
+S,Listening Comprehension,audio,,What is special about the city?,とかい,やすくておいしいレストランがある,かんこうきゃくがおおい,,2,32
+A,Listening Comprehension,audio,"You will hear two people talking about Japanese etiquette when attending a funeral.
+ Answer questions (1) and (2).",What clothes should be worn?,A,B,C,D,1,33
+A,Listening Comprehension,audio,,How should condolence money be offered?,A,B,C,D,3,34
+B,Reading Comprehension,Image,"You are reading a social media post about a festival.
+ Answer questions (1) and (2).",この人は、だれと 行きましたか。,家族,友だち,先生,,2,35
+B,Reading Comprehension,Image,,この人は、何を 食べましたか。,すし,ラーメン,カレー,,3,36
+C,Reading Comprehension,IMage,"You are reading a health poster about influenza prevention.
+ Answer questions (1) and (2).",インフルエンザを ふせぐために、何をしますか。,さんぽ,手あらい,べんきょう,,2,37
+C,Reading Comprehension,IMage,,ポスターに ある 症状は どれですか。,おなかがすく,歯がいたい,38度以上の発熱,,3,38
+,Reading Comprehension,IMage,You are looking at a train ticket.,この切符は、何時に  とうきょう　を 出ますか。,10:20,10:02,14:08,14:20,1,39
+D,Reading Comprehension,IMage,"You are reading an interview article about a foreign resident in Japan.
+ Answer questions (1) and (2).",モウさんは、今 何の仕事を していますか。,かいしゃ,りょうり,かいご,,3,40
+D,Reading Comprehension,IMage,,モウさんは、何が 好きですか。,さんぽ,サッカー,えいが,,1,41
+E,Reading Comprehension,IMage,"Aru-san received instructions on medicines at the pharmacy.
+ Read the instructions and answer questions (1) and (2).",セキドミカプセルは　１回に　いくつ　飲みますか。,１つ,２つ,３つ,,2,42
+E,Reading Comprehension,IMage,,タントレン錠は　いつ　飲みますか。,朝食後,昼食後,夕食後,,3,43
+F,Reading Comprehension,IMage,"You are looking at a map of Iroha Town.
+ Answer questions (1) and (2).",夕日が きれいに 見えるのは どこですか。,やしが浜,花山公園,夕日の丘展望台,,3,44
+F,Reading Comprehension,IMage,,いろはそばが 食べられるのは どこですか。,もみじ庵,いろはカフェ,花山公園,,1,45
