@@ -3,10 +3,63 @@ import { AuthProvider } from '@/components/AuthContext';
 import AppLayout from '@/components/AppLayout';
 
 export const metadata = {
-  title: 'Gakkou No Shiken (学校の試験) | Official Japanese Exam Portal',
+  metadataBase: new URL('https://www.gakkounoshiken.site'),
+  title: {
+    default: 'Gakkou No Shiken (学校の試験) | Official Japanese CBT Exam Portal',
+    template: '%s | Gakkou No Shiken',
+  },
   description:
-    'Practice official Computer-Based Testing (CBT) mock tests for JFT-Basic & Specified Skilled Worker (SSW) exams with authentic Prometric UI, audio listening, and instant scoring.',
+    'Practice official Computer-Based Testing (CBT) mock tests for JFT-Basic & Specified Skilled Worker (SSW) exams with authentic Prometric UI, audio listening, instant CEFR scoring, and leaderboards.',
+  keywords: [
+    'JFT-Basic practice exam',
+    'JFT mock test online',
+    'SSW skill exam preparation',
+    'Specified Skilled Worker Japanese test',
+    'Prometric CBT practice',
+    'Gakkou No Shiken',
+    '学校の試験',
+    'Japanese test online with audio',
+  ],
+  authors: [{ name: 'Gakkou No Shiken' }],
+  creator: 'Gakkou No Shiken',
+  publisher: 'Gakkou No Shiken',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://www.gakkounoshiken.site',
+    siteName: 'Gakkou No Shiken (学校の試験)',
+    title: 'Gakkou No Shiken | Japanese JFT-Basic & SSW CBT Exam Portal',
+    description:
+      'Prepare for your official Japanese Prometric exam with live timed CBT tests, native listening audio, and instant CEFR score reports.',
+    images: [
+      {
+        url: '/img/logo.png',
+        width: 512,
+        height: 512,
+        alt: 'Gakkou No Shiken Logo',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Gakkou No Shiken | Japanese JFT-Basic & SSW CBT Exam Portal',
+    description:
+      'Prepare for your official Japanese Prometric exam with live timed CBT tests, native listening audio, and instant CEFR score reports.',
+    images: ['/img/logo.png'],
+  },
 };
+
 
 export default function RootLayout({ children }) {
   return (
