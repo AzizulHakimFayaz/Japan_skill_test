@@ -237,7 +237,11 @@ class TestAdmin(admin.ModelAdmin):
                     created_count, errors = import_questions_from_csv(test_obj, csv_file)
                     print(f"[CSV-IMPORT v3] Import complete: created={created_count}, errors={len(errors)}", file=sys.stderr, flush=True)
 
+                    from tests.signals import invalidate_test_cache
+                    invalidate_test_cache(test_obj.id)
+
                     warning_html = ""
+
                     if errors:
                         warning_items = "".join(f"<li>{e}</li>" for e in errors[:10])
                         warning_html = f"<div style='margin-top:16px;padding:12px;background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;'><strong>Warnings:</strong><ul style='margin:8px 0 0;'>{warning_items}</ul></div>"
