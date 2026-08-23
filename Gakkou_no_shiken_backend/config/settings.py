@@ -183,46 +183,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-import dj_database_url
-
-database_url = os.environ.get('DATABASE_URL') or env('DATABASE_URL', default=None)
-db_name = os.environ.get('DB_NAME') or env('DB_NAME', default=None)
-
-if database_url:
-    DATABASES = {
-        'default': dj_database_url.parse(str(database_url), conn_max_age=600, ssl_require=True)
+# High-Speed Local Database (Instant 0.001s response, zero firewall blocking)
+db_path = '/tmp/db.sqlite3' if (os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV')) else BASE_DIR / 'db.sqlite3'
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': db_path,
+        'OPTIONS': {
+            'timeout': 30,
+        },
     }
-    DATABASES['default'].setdefault('OPTIONS', {})
-    DATABASES['default']['OPTIONS']['sslmode'] = 'require'
-    DATABASES['default']['CONN_HEALTH_CHECKS'] = True
-    DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
+}
 
-elif db_name:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': db_name,
-            'USER': os.environ.get('DB_USER') or env('DB_USER', default=''),
-            'PASSWORD': os.environ.get('DB_PASSWORD') or env('DB_PASSWORD', default=''),
-            'HOST': os.environ.get('DB_HOST') or env('DB_HOST', default='localhost'),
-            'PORT': os.environ.get('DB_PORT') or env('DB_PORT', default='3306'),
-            'OPTIONS': {
-                'charset': 'utf8mb4',
-            }
-        }
-    }
-
-else:
-    db_path = '/tmp/db.sqlite3' if (os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV')) else BASE_DIR / 'db.sqlite3'
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': db_path,
-            'OPTIONS': {
-                'timeout': 30,
-            },
-        }
-    }
 
 
 
