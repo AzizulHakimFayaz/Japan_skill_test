@@ -1,0 +1,499 @@
+/* ============================================================
+   Gakkou No Shiken Admin — Unified Midnight Slate Theme
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --gakkou-red:          #DC2626;
+    --gakkou-red-hover:    #EF4444;
+    --gakkou-red-dark:     #991B1B;
+    
+    --gakkou-bg:           #0F172A;
+    --gakkou-surface:      #1E293B;
+    --gakkou-surface-elev: #334155;
+    --gakkou-border:       #334155;
+    --gakkou-border-light: #475569;
+    
+    --gakkou-text-main:    #F8FAFC;
+    --gakkou-text-muted:   #94A3B8;
+    --gakkou-text-dim:     #64748B;
+    
+    --gakkou-emerald:      #10B981;
+    --gakkou-amber:        #F59E0B;
+    
+    --gakkou-radius-xl:    16px;
+    --gakkou-radius-lg:    12px;
+    --gakkou-radius-md:    8px;
+    --gakkou-radius-sm:    6px;
+}
+
+/* ---- Global Typography & Background ---- */
+body, .content-wrapper, .main-sidebar, .navbar, .card, .btn, input, select, textarea {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+body, .content-wrapper {
+    background-color: var(--gakkou-bg) !important;
+    color: var(--gakkou-text-main) !important;
+}
+
+/* ---- Top Header Navbar Styling ---- */
+.main-header.navbar {
+    background: #090D16 !important;
+    border-bottom: 2px solid var(--gakkou-red) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    padding: 8px 16px !important;
+}
+
+.main-header .nav-link {
+    color: var(--gakkou-text-muted) !important;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.main-header .nav-link:hover {
+    color: #ffffff !important;
+}
+
+.main-header .brand-text {
+    font-weight: 800 !important;
+    letter-spacing: -0.02em;
+    color: #ffffff !important;
+}
+
+/* Top search input in header */
+.main-header .form-control-navbar {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    border-radius: 20px !important;
+    padding: 6px 16px !important;
+    font-size: 0.85rem !important;
+}
+
+.main-header .form-control-navbar::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.main-header .form-control-navbar:focus {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: var(--gakkou-red) !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2) !important;
+}
+
+.main-header .btn-navbar {
+    background: transparent !important;
+    color: var(--gakkou-text-muted) !important;
+    border: none !important;
+}
+
+/* ---- Sidebar Navigation Styling ---- */
+.main-sidebar {
+    background: #090D16 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.main-sidebar .brand-link {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding: 16px 20px !important;
+}
+
+.sidebar .nav-sidebar .nav-header {
+    color: var(--gakkou-text-dim) !important;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 16px 20px 6px !important;
+}
+
+.sidebar .nav-sidebar .nav-link {
+    color: var(--gakkou-text-muted) !important;
+    border-radius: var(--gakkou-radius-md) !important;
+    margin: 3px 10px !important;
+    padding: 9px 14px !important;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.sidebar .nav-sidebar .nav-link i {
+    font-size: 0.95rem;
+    margin-right: 10px;
+    opacity: 0.85;
+}
+
+.sidebar .nav-sidebar .nav-link:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: #ffffff !important;
+}
+
+.sidebar .nav-sidebar .nav-link.active {
+    background: var(--gakkou-red) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35) !important;
+}
+
+/* ---- Cards & Content Boxes ---- */
+.card, .info-box, .small-box {
+    background: var(--gakkou-surface) !important;
+    border: 1px solid var(--gakkou-border) !important;
+    border-radius: var(--gakkou-radius-lg) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+    overflow: hidden !important;
+    margin-bottom: 24px;
+}
+
+.card-header {
+    background: var(--gakkou-surface) !important;
+    border-bottom: 1px solid var(--gakkou-border) !important;
+    font-weight: 700;
+    padding: 16px 22px !important;
+    color: var(--gakkou-text-main) !important;
+}
+
+.card-title {
+    font-weight: 800 !important;
+    font-size: 1.1rem;
+    color: var(--gakkou-text-main) !important;
+}
+
+.card-footer {
+    background: rgba(0, 0, 0, 0.15) !important;
+    border-top: 1px solid var(--gakkou-border) !important;
+    padding: 12px 22px !important;
+}
+
+/* ---- Change-list Filter Bar & Search Inputs Fixes ---- */
+.changelist-filter, #changelist-filter, #toolbar, .actions, .object-tools {
+    background: var(--gakkou-surface) !important;
+    border: 1px solid var(--gakkou-border) !important;
+    border-radius: var(--gakkou-radius-md) !important;
+}
+
+#toolbar {
+    padding: 12px 16px !important;
+    margin-bottom: 16px !important;
+}
+
+/* Fix Filter select dropdowns from getting squished & cut off */
+#changelist-filter select, 
+.actions select, 
+select.form-control,
+select {
+    background-color: var(--gakkou-bg) !important;
+    border: 1px solid var(--gakkou-border-light) !important;
+    color: var(--gakkou-text-main) !important;
+    border-radius: var(--gakkou-radius-md) !important;
+    padding: 8px 14px !important;
+    font-size: 0.85rem !important;
+    min-width: 140px !important;
+    height: auto !important;
+}
+
+/* Inputs, text fields */
+input[type="text"], 
+input[type="password"], 
+input[type="email"], 
+input[type="number"], 
+input[type="url"], 
+input[type="search"],
+textarea,
+.form-control {
+    background-color: var(--gakkou-bg) !important;
+    border: 1px solid var(--gakkou-border-light) !important;
+    color: var(--gakkou-text-main) !important;
+    border-radius: var(--gakkou-radius-md) !important;
+    padding: 8px 14px !important;
+    font-size: 0.875rem !important;
+}
+
+input:focus, select:focus, textarea:focus, .form-control:focus {
+    border-color: var(--gakkou-red) !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.25) !important;
+    outline: none !important;
+}
+
+/* Fix Date filters list styling */
+#changelist-filter h2, #changelist-filter h3 {
+    color: var(--gakkou-text-muted) !important;
+    font-size: 0.8rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+#changelist-filter ul li.selected a {
+    color: var(--gakkou-red) !important;
+    font-weight: 700;
+}
+
+/* ---- Tables ---- */
+.table-responsive, .card-body.p-0 {
+    border-radius: var(--gakkou-radius-lg) !important;
+    border: none !important;
+    overflow: hidden !important;
+}
+
+.table {
+    margin-bottom: 0;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--gakkou-surface) !important;
+}
+
+.table thead th {
+    background: #090D16 !important;
+    color: var(--gakkou-text-muted) !important;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 14px 18px !important;
+    border-bottom: 1px solid var(--gakkou-border) !important;
+}
+
+.table tbody tr {
+    transition: background 0.15s ease;
+}
+
+.table tbody tr:nth-of-type(even) {
+    background-color: rgba(255, 255, 255, 0.015);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(220, 38, 38, 0.08) !important;
+}
+
+.table tbody td {
+    padding: 14px 18px !important;
+    vertical-align: middle;
+    border-top: 1px solid var(--gakkou-border) !important;
+    color: var(--gakkou-text-main) !important;
+    font-size: 0.875rem;
+}
+
+/* ---- Buttons & Controls ---- */
+.btn {
+    border-radius: var(--gakkou-radius-md) !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem;
+    padding: 8px 16px !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-sm {
+    border-radius: var(--gakkou-radius-sm) !important;
+    padding: 5px 12px !important;
+    font-size: 0.775rem;
+}
+
+.btn-primary {
+    background: var(--gakkou-red) !important;
+    border: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+}
+
+.btn-primary:hover {
+    background: var(--gakkou-red-hover) !important;
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.45) !important;
+}
+
+.btn-success {
+    background: #059669 !important;
+    border: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25) !important;
+}
+
+.btn-success:hover {
+    background: #10B981 !important;
+}
+
+.btn-outline-secondary, .btn-default {
+    background: var(--gakkou-bg) !important;
+    border: 1px solid var(--gakkou-border-light) !important;
+    color: var(--gakkou-text-muted) !important;
+}
+
+.btn-outline-secondary:hover, .btn-default:hover {
+    background: var(--gakkou-surface-elev) !important;
+    color: #ffffff !important;
+}
+
+/* ---- Badges & Indicators ---- */
+.admin-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.admin-badge-count {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34D399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.admin-badge-count.empty {
+    background: rgba(239, 68, 68, 0.15);
+    color: #FCA5A5;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.admin-badge-pass {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34D399;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.admin-badge-fail {
+    background: rgba(239, 68, 68, 0.2);
+    color: #FCA5A5;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.admin-badge-type {
+    background: rgba(59, 130, 246, 0.15);
+    color: #93C5FD;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.admin-preview-container {
+    padding: 8px 12px;
+    background: var(--gakkou-bg);
+    border: 1px solid var(--gakkou-border);
+    border-radius: var(--gakkou-radius-md);
+    display: inline-block;
+}
+
+.admin-preview-img {
+    max-height: 120px;
+    max-width: 180px;
+    border-radius: var(--gakkou-radius-sm);
+    object-fit: cover;
+}
+
+.admin-preview-audio {
+    max-width: 240px;
+    height: 36px;
+}
+
+/* Breadcrumbs & Pagination */
+.breadcrumb {
+    background: transparent !important;
+    padding: 0 !important;
+    margin-bottom: 16px !important;
+    font-size: 0.85rem;
+}
+
+.breadcrumb a {
+    color: var(--gakkou-red-hover) !important;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--gakkou-red) !important;
+    border-color: var(--gakkou-red) !important;
+}
+
+/* ---- Jazzmin Login Page & Logo Constraints ---- */
+.login-page {
+    background: #090D16 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.login-box {
+    width: 100% !important;
+    max-width: 440px !important;
+    margin: 0 auto !important;
+}
+
+.login-logo {
+    margin-bottom: 24px !important;
+    text-align: center !important;
+}
+
+.login-logo img,
+.login-box .login-logo img,
+.brand-image,
+.login-box img {
+    max-height: 80px !important;
+    max-width: 240px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    margin: 0 auto !important;
+    display: block !important;
+}
+
+/* Hide duplicate logo-dark completely */
+img.logo-dark,
+.login-logo .logo-dark,
+.login-box .logo-dark {
+    display: none !important;
+}
+
+/* Ensure only one single logo element is visible above the login box */
+.login-box .card .login-logo,
+.login-box .card-body .login-logo,
+.login-box .card img,
+.login-box .login-card-body img,
+.login-box .login-logo ~ .login-logo,
+.login-box .brand-link {
+    display: none !important;
+}
+
+.login-box .card {
+    background: #1E293B !important;
+    border: 1px solid #334155 !important;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important;
+    overflow: hidden;
+}
+
+.login-card-body {
+    background: #1E293B !important;
+    color: #F8FAFC !important;
+    padding: 28px !important;
+}
+
+.login-box .form-control {
+    background: #0F172A !important;
+    border: 1px solid #475569 !important;
+    color: #F8FAFC !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+}
+
+.login-box .form-control:focus {
+    border-color: #DC2626 !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.25) !important;
+}
+
+.login-box .btn-primary {
+    background: #DC2626 !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 12px !important;
+    font-weight: 800 !important;
+    width: 100% !important;
+}
+
+.login-box .btn-primary:hover {
+    background: #B91C1C !important;
+}

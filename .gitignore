@@ -1,17 +1,25 @@
-# Python
+# Python & Virtual Environments
 *.pyc
 __pycache__/
 .venv/
 env/
 venv/
+*.sqlite3
 
-# Django
-media/
-.env
+# Django Backend
+Gakkou_no_shiken_backend/media/
+Gakkou_no_shiken_backend/.env
+Gakkou_no_shiken_backend/__pycache__/
+Gakkou_no_shiken_backend/staticfiles/
 
-# Antigravity / System
+# Next.js Frontend
+Gakkou_no_shiken_frontend/node_modules/
+Gakkou_no_shiken_frontend/.next/
+Gakkou_no_shiken_frontend/.env.local
+
+# IDE & OS
 .gemini/
 .vscode/
 .idea/
-
+.DS_Store
 .vercel

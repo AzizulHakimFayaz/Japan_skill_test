@@ -1,0 +1,910 @@
+[
+{
+  "model": "tests.test",
+  "pk": 1,
+  "fields": {
+    "title": "JFT-Basic Free Mock Exam (General)",
+    "description": "This is a free practice exam open to all students. It contains questions on grammar, reading comprehension, and everyday vocabulary.",
+    "category": "basic",
+    "requires_account": false,
+    "is_published": true,
+    "is_actual_exam_demo": true,
+    "time_limit_seconds": 600,
+    "created_at": "2026-07-18T15:48:02.478Z"
+  }
+},
+{
+  "model": "tests.test",
+  "pk": 3,
+  "fields": {
+    "title": "Basic Skill Test 2",
+    "description": "Test your self",
+    "category": "basic",
+    "requires_account": false,
+    "is_published": true,
+    "is_actual_exam_demo": false,
+    "time_limit_seconds": null,
+    "created_at": "2026-07-18T16:41:27.770Z"
+  }
+},
+{
+  "model": "tests.test",
+  "pk": 4,
+  "fields": {
+    "title": "Skill Test 2",
+    "description": "Test your skill",
+    "category": "basic",
+    "requires_account": false,
+    "is_published": true,
+    "is_actual_exam_demo": false,
+    "time_limit_seconds": 30,
+    "created_at": "2026-07-18T16:43:11.954Z"
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 20,
+  "fields": {
+    "test": 4,
+    "group": null,
+    "type": "text",
+    "section": "script_vocab",
+    "instruction": "",
+    "prompt": "Which greeting is used in the morning?",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 24,
+  "fields": {
+    "test": 3,
+    "group": null,
+    "type": "text",
+    "section": "script_vocab",
+    "instruction": "",
+    "prompt": "Which greeting is used in the morning?",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 25,
+  "fields": {
+    "test": 3,
+    "group": null,
+    "type": "text",
+    "section": "script_vocab",
+    "instruction": "",
+    "prompt": "Which greeting is used in the morning?",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 35,
+  "fields": {
+    "test": 1,
+    "group": null,
+    "type": "text",
+    "section": "script_vocab",
+    "instruction": "How do you write the underlined kanji word in hiragana?\nChoose the correct one.",
+    "prompt": "水道が こわれた ときは、 ここに でんわして ください。",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 41,
+  "fields": {
+    "test": 4,
+    "group": null,
+    "type": "text",
+    "section": "script_vocab",
+    "instruction": "How do you write the underlined kanji word in hiragana? __Choose__  the correct one.",
+    "prompt": "水道が こわれた ときは、 ここに でんわして ください。",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 21,
+  "fields": {
+    "test": 4,
+    "group": null,
+    "type": "text",
+    "section": "conversation",
+    "instruction": "",
+    "prompt": "Complete the sentence:\r\nわたしは はるが ______ です。",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 26,
+  "fields": {
+    "test": 3,
+    "group": null,
+    "type": "text",
+    "section": "conversation",
+    "instruction": "",
+    "prompt": "Complete the sentence:\nわたしは はるが ______ です。",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 36,
+  "fields": {
+    "test": 1,
+    "group": null,
+    "type": "text",
+    "section": "conversation",
+    "instruction": "",
+    "prompt": "Mei-san is asking Emi-san about baby gifts.\nComplete the sentence:\nわたしは はるが ______ です。 (I like spring.)",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 42,
+  "fields": {
+    "test": 4,
+    "group": null,
+    "type": "text",
+    "section": "conversation",
+    "instruction": "Complete the sentence:",
+    "prompt": "わたしは はるが ______ です。 (I like spring.)",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 22,
+  "fields": {
+    "test": 4,
+    "group": null,
+    "type": "image",
+    "section": "listening",
+    "instruction": "",
+    "prompt": "Look at the illustration. What time is it?",
+    "image": "questions/images/benchmarks.png",
+    "audio": "",
+    "translations": {},
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 27,
+  "fields": {
+    "test": 3,
+    "group": null,
+    "type": "image",
+    "section": "listening",
+    "instruction": "",
+    "prompt": "Look at the illustration. What time is it?",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 37,
+  "fields": {
+    "test": 1,
+    "group": null,
+    "type": "audio",
+    "section": "listening",
+    "instruction": "",
+    "prompt": "Look at the clock in the illustration. What time is it?",
+    "image": "",
+    "audio": "questions/audio/sample-3s_580VRsy.mp3",
+    "translations": {},
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 43,
+  "fields": {
+    "test": 4,
+    "group": null,
+    "type": "image",
+    "section": "listening",
+    "instruction": "Look at the illustration. What time is it?",
+    "prompt": "Look at the clock in the picture.",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 23,
+  "fields": {
+    "test": 4,
+    "group": null,
+    "type": "text",
+    "section": "reading",
+    "instruction": "",
+    "prompt": "You are reading a notice. What activity is available at the festival?",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 4
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 28,
+  "fields": {
+    "test": 3,
+    "group": null,
+    "type": "text",
+    "section": "reading",
+    "instruction": "",
+    "prompt": "You are reading a notice. What activity is available at the festival?",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 4
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 38,
+  "fields": {
+    "test": 1,
+    "group": null,
+    "type": "text",
+    "section": "reading",
+    "instruction": "",
+    "prompt": "You are reading a public notice about a festival.\nフェスティバルに 行った 人は 何が できましたか。",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 4
+  }
+},
+{
+  "model": "tests.question",
+  "pk": 44,
+  "fields": {
+    "test": 4,
+    "group": null,
+    "type": "text",
+    "section": "reading",
+    "instruction": "Read the notice and choose the correct answer:",
+    "prompt": "フェスティバルに 行った 人は 何が できましたか。",
+    "image": "",
+    "audio": "",
+    "translations": {},
+    "order_index": 4
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 67,
+  "fields": {
+    "question": 20,
+    "label": "こんにちは (Konnichiwa)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 71,
+  "fields": {
+    "question": 21,
+    "label": "すき (suki)",
+    "image": "",
+    "is_correct": true,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 74,
+  "fields": {
+    "question": 22,
+    "label": "3:00 (San-ji)",
+    "image": "",
+    "is_correct": true,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 77,
+  "fields": {
+    "question": 23,
+    "label": "歌と おどりを 見ること",
+    "image": "",
+    "is_correct": true,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 80,
+  "fields": {
+    "question": 24,
+    "label": "こんにちは (Konnichiwa)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 84,
+  "fields": {
+    "question": 25,
+    "label": "こんにちは (Konnichiwa)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 88,
+  "fields": {
+    "question": 26,
+    "label": "すき (suki)",
+    "image": "",
+    "is_correct": true,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 91,
+  "fields": {
+    "question": 27,
+    "label": "3:00 (San-ji)",
+    "image": "",
+    "is_correct": true,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 94,
+  "fields": {
+    "question": 28,
+    "label": "歌と おどりを 見ること",
+    "image": "",
+    "is_correct": true,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 116,
+  "fields": {
+    "question": 35,
+    "label": "すいどう",
+    "image": "",
+    "is_correct": true,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 119,
+  "fields": {
+    "question": 36,
+    "label": "すき (suki)",
+    "image": "",
+    "is_correct": true,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 122,
+  "fields": {
+    "question": 37,
+    "label": "3:00 (San-ji)",
+    "image": "",
+    "is_correct": true,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 125,
+  "fields": {
+    "question": 38,
+    "label": "歌と おどりを 見ること",
+    "image": "",
+    "is_correct": true,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 134,
+  "fields": {
+    "question": 41,
+    "label": "すいどう",
+    "image": "",
+    "is_correct": true,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 137,
+  "fields": {
+    "question": 42,
+    "label": "すき (suki)",
+    "image": "",
+    "is_correct": true,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 140,
+  "fields": {
+    "question": 43,
+    "label": "3:00 (San-ji)",
+    "image": "",
+    "is_correct": true,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 143,
+  "fields": {
+    "question": 44,
+    "label": "歌と おどりを 見ること",
+    "image": "",
+    "is_correct": true,
+    "order_index": 1
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 68,
+  "fields": {
+    "question": 20,
+    "label": "おはようございます (Ohayou gozaimasu)",
+    "image": "",
+    "is_correct": true,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 72,
+  "fields": {
+    "question": 21,
+    "label": "きらい (kirai)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 75,
+  "fields": {
+    "question": 22,
+    "label": "6:00 (Roku-ji)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 78,
+  "fields": {
+    "question": 23,
+    "label": "がっきを 買うこと",
+    "image": "",
+    "is_correct": false,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 81,
+  "fields": {
+    "question": 24,
+    "label": "おはようございます (Ohayou gozaimasu)",
+    "image": "",
+    "is_correct": true,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 85,
+  "fields": {
+    "question": 25,
+    "label": "おはようございます (Ohayou gozaimasu)",
+    "image": "",
+    "is_correct": true,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 89,
+  "fields": {
+    "question": 26,
+    "label": "きらい (kirai)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 92,
+  "fields": {
+    "question": 27,
+    "label": "6:00 (Roku-ji)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 95,
+  "fields": {
+    "question": 28,
+    "label": "がっきを 買うこと",
+    "image": "",
+    "is_correct": false,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 117,
+  "fields": {
+    "question": 35,
+    "label": "すいとう",
+    "image": "",
+    "is_correct": false,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 120,
+  "fields": {
+    "question": 36,
+    "label": "きらい (kirai)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 123,
+  "fields": {
+    "question": 37,
+    "label": "6:00 (Roku-ji)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 126,
+  "fields": {
+    "question": 38,
+    "label": "がっきを 買うこと",
+    "image": "",
+    "is_correct": false,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 135,
+  "fields": {
+    "question": 41,
+    "label": "すいとう",
+    "image": "",
+    "is_correct": false,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 138,
+  "fields": {
+    "question": 42,
+    "label": "きらい (kirai)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 141,
+  "fields": {
+    "question": 43,
+    "label": "6:00 (Roku-ji)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 144,
+  "fields": {
+    "question": 44,
+    "label": "がっきを 買うこと",
+    "image": "",
+    "is_correct": false,
+    "order_index": 2
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 69,
+  "fields": {
+    "question": 20,
+    "label": "こんばんは (Konbanwa)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 73,
+  "fields": {
+    "question": 21,
+    "label": "へた (heta)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 76,
+  "fields": {
+    "question": 22,
+    "label": "9:00 (Ku-ji)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 79,
+  "fields": {
+    "question": 23,
+    "label": "アクセサリーを 作ること",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 82,
+  "fields": {
+    "question": 24,
+    "label": "こんばんは (Konbanwa)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 86,
+  "fields": {
+    "question": 25,
+    "label": "こんばんは (Konbanwa)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 90,
+  "fields": {
+    "question": 26,
+    "label": "へた (heta)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 93,
+  "fields": {
+    "question": 27,
+    "label": "9:00 (Ku-ji)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 96,
+  "fields": {
+    "question": 28,
+    "label": "アクセサリーを 作ること",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 118,
+  "fields": {
+    "question": 35,
+    "label": "ずいどう",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 121,
+  "fields": {
+    "question": 36,
+    "label": "へた (heta)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 124,
+  "fields": {
+    "question": 37,
+    "label": "9:00 (Ku-ji)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 127,
+  "fields": {
+    "question": 38,
+    "label": "アクセサリーを 作ること",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 136,
+  "fields": {
+    "question": 41,
+    "label": "ずいどう",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 139,
+  "fields": {
+    "question": 42,
+    "label": "へた (heta)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 142,
+  "fields": {
+    "question": 43,
+    "label": "9:00 (Ku-ji)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 145,
+  "fields": {
+    "question": 44,
+    "label": "アクセサリーを 作ること",
+    "image": "",
+    "is_correct": false,
+    "order_index": 3
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 70,
+  "fields": {
+    "question": 20,
+    "label": "さようなら (Sayounara)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 4
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 83,
+  "fields": {
+    "question": 24,
+    "label": "さようなら (Sayounara)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 4
+  }
+},
+{
+  "model": "tests.answeroption",
+  "pk": 87,
+  "fields": {
+    "question": 25,
+    "label": "さようなら (Sayounara)",
+    "image": "",
+    "is_correct": false,
+    "order_index": 4
+  }
+}
+]
