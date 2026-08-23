@@ -20,14 +20,43 @@ if env_file.exists():
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-z&v^**=kgkjkpil6$n=+k*r1na0cpd2(w0+d#0l4yle29bo!*t')
 
-DEBUG = env('DEBUG', default=True)
-ALLOWED_HOSTS = env('ALLOWED_HOSTS', default=['*'])
+# Temporarily force DEBUG=True on Railway to diagnose 500 errors
+DEBUG = True
+ALLOWED_HOSTS = ['*']
 
 # Ensure Vercel / Railway domains are always allowed
 if os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV') or os.environ.get('RAILWAY_ENVIRONMENT'):
     ALLOWED_HOSTS = ['*']
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Logging — print all Django errors to stdout so they show in Railway deploy logs
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
+
 
 CSRF_TRUSTED_ORIGINS = [
     'https://gakkou-no-shiken.vercel.app',
