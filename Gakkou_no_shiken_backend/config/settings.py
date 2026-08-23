@@ -254,6 +254,9 @@ STATICFILES_DIRS = [
 # Media files (uploaded questions images/audio)
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
+
 
 # Cloudinary Storage Configuration
 CLOUDINARY_STORAGE = {
