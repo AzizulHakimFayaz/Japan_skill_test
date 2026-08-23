@@ -8,3 +8,28 @@ class TestsConfig(AppConfig):
     def ready(self):
         import tests.signals
 
+        # Automatically ensure all media directories exist with full permissions
+        from django.conf import settings
+        import os
+        media_root = getattr(settings, 'MEDIA_ROOT', None)
+        if media_root:
+            subdirs = [
+                'questions/images',
+                'questions/audio',
+                'groups/images',
+                'groups/audio',
+                'options/images',
+                'tests/images',
+            ]
+            for sub in subdirs:
+                try:
+                    p = os.path.join(str(media_root), sub)
+                    os.makedirs(p, mode=0o777, exist_ok=True)
+                    try:
+                        os.chmod(p, 0o777)
+                    except Exception:
+                        pass
+                except Exception:
+                    pass
+
+
