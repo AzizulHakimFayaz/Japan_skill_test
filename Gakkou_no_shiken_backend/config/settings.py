@@ -87,9 +87,10 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-# Cryptographically Signed Cookie Sessions (Zero DB Hits, Zero File Permissions, 100% Lock-Free)
-SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+# Database-Backed Persistent Admin Sessions (Compact 32-byte cookie, Never drops)
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 Days
+SESSION_SAVE_EVERY_REQUEST = False      # ONLY write on login/logout (prevents DB lock contention)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_NAME = 'gakkou_sessionid'
 CSRF_COOKIE_NAME = 'gakkou_csrftoken'
@@ -98,6 +99,7 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
+
 
 
 
