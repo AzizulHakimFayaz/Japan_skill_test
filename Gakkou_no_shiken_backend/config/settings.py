@@ -59,6 +59,8 @@ LOGGING = {
 
 
 CSRF_TRUSTED_ORIGINS = [
+    'https://gakkounoshiken.site',
+    'https://www.gakkounoshiken.site',
     'https://japan-skill-test.vercel.app',
     'https://gakkou-no-shiken.vercel.app',
     'https://*.vercel.app',
@@ -85,10 +87,17 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-# Use signed cookies for sessions to avoid unnecessary DB lookups
-SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+# Database-backed persistent sessions (rock solid stability)
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 Days
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
