@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { getQuizData, submitQuiz } from '@/lib/api';
 import { formatPrompt, renderUnderline } from '@/lib/utils';
 import { useAuth } from '@/components/AuthContext';
@@ -38,6 +38,8 @@ const LANGUAGES_LIST = [
 export default function QuizPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const previewToken = searchParams?.get('preview');
   const { user } = useAuth();
 
   const [quizData, setQuizData] = useState(null);
@@ -60,7 +62,7 @@ export default function QuizPage({ params: paramsPromise }) {
   const timerRef = useRef(null);
 
   useEffect(() => {
-    getQuizData(params.id)
+    getQuizData(params.id, previewToken)
       .then((data) => {
         setQuizData(data);
         const isDemo = Boolean(data.test?.is_actual_exam_demo);
@@ -79,7 +81,8 @@ export default function QuizPage({ params: paramsPromise }) {
       .finally(() => {
         setLoading(false);
       });
-  }, [params.id, router]);
+  }, [params.id, previewToken, router]);
+
 
   // Countdown timer
   useEffect(() => {

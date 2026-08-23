@@ -94,9 +94,11 @@ export async function getTestDetail(id) {
   return apiRequest(`/api/tests/${id}/`);
 }
 
-export async function getQuizData(id) {
-  return apiRequest(`/api/tests/${id}/quiz/`);
+export async function getQuizData(id, preview = null) {
+  const query = preview ? `?preview=${preview}` : '';
+  return apiRequest(`/api/tests/${id}/quiz/${query}`);
 }
+
 
 export async function submitQuiz(id, answers) {
   return apiRequest(`/api/tests/${id}/submit/`, {
