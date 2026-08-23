@@ -851,22 +851,23 @@ from django.conf import settings
 import os
 
 class SetupDatabaseAPIView(APIView):
-    """Super lightweight, instant 1-second setup to create tables and admin user."""
+    """Super lightweight setup with full error diagnosis."""
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         if request.GET.get('key') != 'fayaz2026':
             return Response({'error': 'Unauthorized key'}, status=status.HTTP_403_FORBIDDEN)
         
+        import traceback
         logs = []
-        # 1. Fast Migrate (Creates all database tables in MySQL)
+        # 1. Fast Migrate
         try:
             call_command('migrate', interactive=False)
             logs.append('✅ Database Tables Created: SUCCESS')
         except Exception as e:
-            logs.append(f'❌ Migration note: {e}')
+            logs.append(f'❌ Migration error: {e}\n{traceback.format_exc()}')
 
-        # 2. Instant Admin Account Creation
+        # 2. Admin Account Creation
         try:
             user, _ = User.objects.get_or_create(username='admin')
             user.set_password('03698742Fayaz@')
@@ -875,11 +876,12 @@ class SetupDatabaseAPIView(APIView):
             user.save()
             logs.append('✅ Admin Account Ready! Username: admin | Password: 03698742Fayaz@')
         except Exception as e:
-            logs.append(f'❌ Admin error: {e}')
+            logs.append(f'❌ Admin setup error: {e}\n{traceback.format_exc()}')
 
         return Response({
-            'status': 'SUCCESS_READY_TO_LOGIN',
+            'status': 'RESULT',
             'login_url': 'https://gakkounoshiken.site/admin/',
             'logs': logs
         })
+
 
