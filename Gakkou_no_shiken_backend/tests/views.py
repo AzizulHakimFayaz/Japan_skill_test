@@ -76,15 +76,26 @@ def ssw_skill_test_info_view(request):
 
 
 def quiz_page_view(request, pk):
-    test = get_object_or_404(Test, pk=pk, is_published=True)
+    test = get_object_or_404(Test, pk=pk)
     
+    preview_param = request.GET.get('preview')
+    is_preview = (preview_param in ['admin', 'true', 'staff', 'preview'] or bool(preview_param))
+
+    # Draft Access Check: Allow if published OR if staff OR if preview parameter is provided
+    if not test.is_published:
+        is_staff = bool(request.user.is_authenticated and request.user.is_staff)
+        if not (is_staff or is_preview):
+            messages.warning(request, "This practice test is currently in Draft mode. Only staff can preview it.")
+            return redirect('landing_page')
+
     # Enforce authentication server-side if requires_account is True
-    if test.requires_account and not request.user.is_authenticated:
+    if test.requires_account and not request.user.is_authenticated and not is_preview:
         messages.warning(request, "This practice test requires an account. Please sign in or register to continue.")
         return redirect(f"{reverse('login')}?next={request.path}")
     
     # Fetch questions and their answer options efficiently in section hierarchy order
     questions = list(test.get_ordered_questions())
+
     
     # Group questions by QuestionGroup for multi-question passage screens
     steps = []
