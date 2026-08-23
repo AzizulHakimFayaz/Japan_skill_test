@@ -301,6 +301,15 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'landing_page'
 LOGOUT_REDIRECT_URL = 'landing_page'
 
+# Persistent Long-Lived Admin Sessions (Keeps you logged in for 30 days)
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 Days
+SESSION_SAVE_EVERY_REQUEST = True       # Automatically refreshes session on every click
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False # Stay logged in even after closing browser
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = False
+
+
 # Jazzmin Admin Panel Customization
 JAZZMIN_SETTINGS = {
     # Window / Tab
