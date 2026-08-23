@@ -87,10 +87,11 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-# Rock-Solid Persistent Admin Sessions
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# Rock-Solid File-Based Persistent Admin Sessions (Immune to SQLite DB Locks)
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+SESSION_FILE_PATH = str(BASE_DIR / 'tmp' / 'sessions')
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 Days
-SESSION_SAVE_EVERY_REQUEST = False      # DO NOT rewrite SQLite on every GET request (prevents SQLite locks)
+SESSION_SAVE_EVERY_REQUEST = False
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_NAME = 'gakkou_sessionid'
 CSRF_COOKIE_NAME = 'gakkou_csrftoken'
@@ -99,6 +100,7 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+
 
 # Support Large 45-Question Exams & High-Quality Audio Uploads
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000            # Default was 1,000 (45 questions has >1,200 fields!)

@@ -29,7 +29,15 @@ class TestsConfig(AppConfig):
                         os.chmod(p, 0o777)
                     except Exception:
                         pass
-                except Exception:
-                    pass
+        # Automatically ensure session directory exists
+        base_dir = getattr(settings, 'BASE_DIR', None)
+        if base_dir:
+            sess_dir = os.path.join(str(base_dir), 'tmp', 'sessions')
+            try:
+                os.makedirs(sess_dir, mode=0o777, exist_ok=True)
+                os.chmod(sess_dir, 0o777)
+            except Exception:
+                pass
+
 
 
