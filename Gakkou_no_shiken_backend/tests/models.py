@@ -26,7 +26,7 @@ class Test(models.Model):
 
     def get_ordered_questions(self):
         """Returns questions ordered by JFT section hierarchy (script_vocab, conversation, listening, reading), then order_index, then id."""
-        return self.questions.annotate(
+        return self.questions.select_related('group').prefetch_related('options').annotate(
             sec_order=Case(
                 When(section=Question.Section.SCRIPT_VOCAB, then=Value(1)),
                 When(section=Question.Section.CONVERSATION, then=Value(2)),
@@ -35,7 +35,8 @@ class Test(models.Model):
                 default=Value(5),
                 output_field=IntegerField()
             )
-        ).order_by('sec_order', 'order_index', 'id').prefetch_related('options')
+        ).order_by('sec_order', 'order_index', 'id')
+
 
     def __str__(self):
         return self.title

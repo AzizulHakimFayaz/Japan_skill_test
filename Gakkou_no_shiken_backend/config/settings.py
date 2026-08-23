@@ -164,12 +164,13 @@ import dj_database_url
 database_url = os.environ.get('DATABASE_URL') or env('DATABASE_URL', default=None)
 if database_url:
     DATABASES = {
-        'default': dj_database_url.parse(str(database_url), conn_max_age=0, ssl_require=True)
+        'default': dj_database_url.parse(str(database_url), conn_max_age=600, ssl_require=True)
     }
     DATABASES['default'].setdefault('OPTIONS', {})
     DATABASES['default']['OPTIONS']['sslmode'] = 'require'
     DATABASES['default']['CONN_HEALTH_CHECKS'] = True
     DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = True
+
 else:
     db_path = '/tmp/db.sqlite3' if (os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV')) else BASE_DIR / 'db.sqlite3'
     DATABASES = {

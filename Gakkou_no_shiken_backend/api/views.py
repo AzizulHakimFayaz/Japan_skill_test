@@ -455,11 +455,14 @@ class MyResultsAPIView(APIView):
                         if correct_opt_id is not None and correct_opt_id == int(selected_opt_id):
                             section_totals[sec]['correct'] += 1
 
+            test_title = attempt.test.title if attempt.test else "Mock Exam"
+            test_category = attempt.test.category if attempt.test else "basic"
+
             serialized_attempts.append({
                 'id': attempt.id,
                 'test_id': attempt.test_id,
-                'test_title': attempt.test.title,
-                'test_category': attempt.test.category,
+                'test_title': test_title,
+                'test_category': test_category,
                 'score': attempt.score,
                 'total_questions': total_q,
                 'percentage': int(round(pct)),
@@ -495,9 +498,9 @@ class MyResultsAPIView(APIView):
             })
 
         chart_attempts = list(reversed(attempts))
-        chart_labels = [att.completed_at.strftime('%b %d, %H:%M') for att in chart_attempts]
-        chart_scores = [att.scaled_score for att in serialized_attempts[::-1]]
-        chart_titles = [att.test.title for att in chart_attempts]
+        chart_labels = [att.completed_at.strftime('%b %d, %H:%M') for att in chart_attempts if att.completed_at]
+        chart_scores = [att['scaled_score'] for att in serialized_attempts[::-1]]
+        chart_titles = [(att.test.title if att.test else "Exam") for att in chart_attempts]
 
         return Response({
             'total_attempts': total_attempts,
@@ -514,3 +517,4 @@ class MyResultsAPIView(APIView):
                 'titles': chart_titles,
             }
         })
+
