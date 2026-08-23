@@ -145,6 +145,7 @@ class TestAdmin(admin.ModelAdmin):
         'requires_account',
         'is_published',
         'time_limit_display',
+        'preview_action',
         'import_csv_action',
         'created_at',
     )
@@ -162,14 +163,13 @@ class TestAdmin(admin.ModelAdmin):
         js = ('js/admin_sticky_save.js',)
 
     def get_queryset(self, request):
-
         return super().get_queryset(request).annotate(q_count=models.Count('questions', distinct=True))
 
-    readonly_fields = ('manage_questions_link',)
+    readonly_fields = ('manage_questions_link', 'preview_action')
 
     fieldsets = (
         ('Test Information', {
-            'fields': ('title', 'description', 'category', 'is_actual_exam_demo', 'manage_questions_link'),
+            'fields': ('title', 'description', 'category', 'is_actual_exam_demo', 'manage_questions_link', 'preview_action'),
             'description': 'Basic details about this practice test and its examination mode.'
         }),
         ('Access & Visibility', {
@@ -182,6 +182,7 @@ class TestAdmin(admin.ModelAdmin):
             'description': 'Optional countdown timer in seconds. Leave blank for unlimited time.'
         }),
     )
+
 
     def manage_questions_link(self, obj):
         if obj and obj.id:
@@ -325,19 +326,25 @@ class TestAdmin(admin.ModelAdmin):
         )
 
 
+    def preview_action(self, obj):
+        if obj and obj.id:
+            status_text = "Live Preview" if obj.is_published else "Draft Preview"
+            status_color = "#0284C7" if obj.is_published else "#D97706"
+            return format_html(
+                '<a href="https://gakkou-no-shiken.vercel.app/test/{}" target="_blank" '
+                'style="display:inline-flex; align-items:center; gap:4px; background:{}; color:#fff; padding:4px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 2px 6px rgba(0,0,0,0.2);">'
+                '👁️ {}'
+                '</a>',
+                obj.id, status_color, status_text
+            )
+        return format_html('<span class="text-muted">Save first</span>')
+    preview_action.short_description = 'CBT Preview'
+
     def import_csv_action(self, obj):
         url = reverse('admin:import_questions_csv') + f'?test_id={obj.id}'
         return format_html(
-            '<a href="{}" style="background:#16a34a; color:#fff; padding:4px 10px; border-radius:6px; font-weight:600; font-size:0.75rem; text-decoration:none;">'
-            '📥 Import CSV'
-            '</a>',
-            url
-        )
-    def import_csv_action(self, obj):
-        url = reverse('admin:import_questions_csv') + f'?test_id={obj.id}'
-        return format_html(
-            '<a href="{}" class="btn btn-sm btn-success">'
-            '<i class="fas fa-file-import"></i> CSV'
+            '<a href="{}" style="display:inline-flex; align-items:center; gap:4px; background:#16a34a; color:#fff; padding:4px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 2px 6px rgba(0,0,0,0.2);">'
+            '📥 CSV'
             '</a>',
             url
         )
@@ -345,13 +352,14 @@ class TestAdmin(admin.ModelAdmin):
 
     def title_display(self, obj):
         icon = '🔒' if obj.requires_account else '🌐'
-        status = '🟢' if obj.is_published else '⚫'
+        status = '🟢' if obj.is_published else '🟡 [DRAFT]'
         return format_html(
             '{} {} <strong>{}</strong>',
             status, icon, obj.title
         )
     title_display.short_description = 'Test'
     title_display.admin_order_field = 'title'
+
 
     def question_count(self, obj):
         count = getattr(obj, 'q_count', obj.questions.count())

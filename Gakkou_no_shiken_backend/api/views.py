@@ -34,14 +34,21 @@ def get_tokens_for_user(user):
 
 
 class TestListAPIView(APIView):
-    """Returns published tests, optionally grouped by category or filtered."""
+    """Returns published tests for public, and all tests (including Drafts) for staff/admin."""
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         category = request.query_params.get('category')
-        queryset = Test.objects.filter(is_published=True).annotate(
-            q_count=Count('questions', distinct=True)
-        ).order_by('category', 'created_at')
+        is_staff = bool(request.user.is_authenticated and request.user.is_staff)
+
+        if is_staff:
+            queryset = Test.objects.all().annotate(
+                q_count=Count('questions', distinct=True)
+            ).order_by('category', '-is_published', 'created_at')
+        else:
+            queryset = Test.objects.filter(is_published=True).annotate(
+                q_count=Count('questions', distinct=True)
+            ).order_by('category', 'created_at')
 
         if category:
             queryset = queryset.filter(category=category)
@@ -77,21 +84,37 @@ class TestListAPIView(APIView):
 
 
 class TestDetailAPIView(APIView):
-    """Returns single test details."""
+    """Returns single test details (allows draft preview for staff/admin)."""
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, pk):
-        test = get_object_or_404(Test, pk=pk, is_published=True)
+        test = get_object_or_404(Test, pk=pk)
+
+        if not test.is_published:
+            if not (request.user.is_authenticated and request.user.is_staff):
+                return Response(
+                    {"detail": "This practice test is currently in Draft mode. Only staff/admin can preview it."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
         serializer = TestDetailSerializer(test, context={'request': request})
         return Response(serializer.data)
 
 
 class QuizDataAPIView(APIView):
-    """Returns structured CBT quiz steps and questions for exam interface."""
+    """Returns structured CBT quiz steps and questions (allows draft preview for staff/admin)."""
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, pk):
-        test = get_object_or_404(Test, pk=pk, is_published=True)
+        test = get_object_or_404(Test, pk=pk)
+
+        # Draft Access Check: Only staff/admin can preview unpublished tests
+        if not test.is_published:
+            if not (request.user.is_authenticated and request.user.is_staff):
+                return Response(
+                    {"detail": "This practice test is currently in Draft mode. Only staff and administrators can preview it."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
 
         if test.requires_account and not request.user.is_authenticated:
             return Response(
@@ -102,10 +125,12 @@ class QuizDataAPIView(APIView):
         from django.core.cache import cache
         cache_key = f"cbt_quiz_data_v1_{pk}"
         cached_data = cache.get(cache_key)
-        if cached_data is not None:
+        # If staff is previewing a draft, always fetch fresh data
+        if cached_data is not None and test.is_published:
             return Response(cached_data)
 
         questions = list(test.get_ordered_questions())
+
 
         # Group questions into CBT steps (screens)
         steps = []
@@ -148,13 +173,21 @@ class SubmitQuizAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, pk):
-        test = get_object_or_404(Test, pk=pk, is_published=True)
+        test = get_object_or_404(Test, pk=pk)
+
+        if not test.is_published:
+            if not (request.user.is_authenticated and request.user.is_staff):
+                return Response(
+                    {"detail": "Cannot submit answers to a Draft test."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
 
         if test.requires_account and not request.user.is_authenticated:
             return Response(
                 {"detail": "You must be logged in to submit this test."},
                 status=status.HTTP_403_FORBIDDEN
             )
+
 
         questions = list(test.get_ordered_questions())
         user_answers = request.data.get('answers', {})

@@ -383,8 +383,13 @@ export default function QuizPage({ params: paramsPromise }) {
       <div className="bg-[#6B9E2B] text-white min-h-[1.75rem] py-1 px-3 sm:px-4 flex items-center justify-between text-[11px] sm:text-xs font-bold flex-shrink-0 truncate shadow-xs">
         <div className="truncate mr-2 flex items-center gap-1.5">
           <span className="truncate font-semibold">{test.title}</span>
+          {test.is_published === false && (
+            <span className="px-2 py-0.5 bg-amber-400 text-slate-950 text-[9px] sm:text-[10px] uppercase font-black rounded flex-shrink-0 shadow-xs border border-amber-500">
+              🔒 Draft Preview (Staff Only)
+            </span>
+          )}
           {test.is_actual_exam_demo && (
-            <span className="px-1.5 py-0.5 bg-amber-400 text-black text-[9px] sm:text-[10px] uppercase font-extrabold rounded flex-shrink-0">
+            <span className="px-1.5 py-0.5 bg-white text-slate-900 text-[9px] sm:text-[10px] uppercase font-extrabold rounded flex-shrink-0">
               Demo
             </span>
           )}
@@ -393,6 +398,7 @@ export default function QuizPage({ params: paramsPromise }) {
           <span className="font-semibold">{user?.username || 'Candidate'}</span>
         </div>
       </div>
+
 
       {/* ==========================================
            MAIN CONTENT AREA: RESPONSIVE SIDEBAR + CANVAS

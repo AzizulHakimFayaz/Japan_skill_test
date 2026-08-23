@@ -59,6 +59,11 @@ export default function PracticeTestGrid({
 
                     {/* Account / Access Badges */}
                     <div className="flex items-center gap-1 self-start flex-shrink-0">
+                      {test.is_published === false && (
+                        <span className="inline-flex items-center px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-black bg-amber-100 text-amber-900 border border-amber-300 shadow-xs">
+                          🔒 Draft (Staff Only)
+                        </span>
+                      )}
                       {test.requires_account ? (
                         <span className="inline-flex items-center px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200/80 shadow-xs">
                           Req. Login
@@ -69,6 +74,7 @@ export default function PracticeTestGrid({
                         </span>
                       )}
                     </div>
+
                   </div>
 
                   {/* Category Pill */}
