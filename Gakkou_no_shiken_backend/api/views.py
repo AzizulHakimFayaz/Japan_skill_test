@@ -10,7 +10,9 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt
+from accounts.models import UserProfile
 from tests.data.jft_data import get_jft_info, get_jft_test_centers, get_jft_resources
+
 from tests.data.ssw_data import get_ssw_info, get_ssw_sectors, get_ssw_test_centers
 from .serializers import (
     TestListSerializer,
@@ -595,6 +597,68 @@ class ProfileAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+def compute_leaderboard_candidates():
+    attempts_qs = Attempt.objects.filter(user__isnull=False).select_related('user', 'user__profile')
+
+    user_stats = defaultdict(lambda: {
+        'user': None,
+        'total_attempts': 0,
+        'passed_attempts': 0,
+        'scores': [],
+        'highest_score': 0,
+    })
+
+    for att in attempts_qs:
+        u = att.user
+        stats = user_stats[u.id]
+        if stats['user'] is None:
+            stats['user'] = u
+        stats['total_attempts'] += 1
+        scaled = att.scaled_score
+        stats['scores'].append(scaled)
+        if scaled > stats['highest_score']:
+            stats['highest_score'] = scaled
+        if scaled >= 200:
+            stats['passed_attempts'] += 1
+
+    candidates_list = []
+    for user_id, s in user_stats.items():
+        u = s['user']
+        scores = s['scores']
+        avg_score = int(round(sum(scores) / len(scores))) if scores else 0
+        pass_rate = int(round(s['passed_attempts'] / s['total_attempts'] * 100)) if s['total_attempts'] > 0 else 0
+        
+        profile = getattr(u, 'profile', None)
+        full_name = f"{u.first_name} {u.last_name}".strip()
+
+        candidates_list.append({
+            'user_id': u.id,
+            'username': u.username,
+            'full_name': full_name if full_name else u.username,
+            'bio': profile.bio if profile else '',
+            'target_exam': profile.target_exam if profile else 'jft_basic',
+            'target_exam_display': profile.get_target_exam_display() if profile else 'JFT-Basic (A2 Standard)',
+            'japanese_level': profile.japanese_level if profile else 'n4',
+            'japanese_level_display': profile.get_japanese_level_display() if profile else 'Elementary (N4 / A2)',
+            'location': profile.location if profile else '',
+            'total_attempts': s['total_attempts'],
+            'passed_attempts': s['passed_attempts'],
+            'highest_score': s['highest_score'],
+            'avg_score': avg_score,
+            'pass_rate': pass_rate,
+        })
+
+    candidates_list.sort(
+        key=lambda x: (x['passed_attempts'], x['highest_score'], x['avg_score'], x['total_attempts']),
+        reverse=True
+    )
+
+    for idx, item in enumerate(candidates_list):
+        item['rank'] = idx + 1
+
+    return candidates_list
+
+
 class LeaderboardAPIView(APIView):
     """
     Returns candidate leaderboard ranked by test performance:
@@ -607,65 +671,7 @@ class LeaderboardAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
-        attempts_qs = Attempt.objects.filter(user__isnull=False).select_related('user', 'user__profile')
-
-        user_stats = defaultdict(lambda: {
-            'user': None,
-            'total_attempts': 0,
-            'passed_attempts': 0,
-            'scores': [],
-            'highest_score': 0,
-        })
-
-        for att in attempts_qs:
-            u = att.user
-            stats = user_stats[u.id]
-            if stats['user'] is None:
-                stats['user'] = u
-            stats['total_attempts'] += 1
-            scaled = att.scaled_score
-            stats['scores'].append(scaled)
-            if scaled > stats['highest_score']:
-                stats['highest_score'] = scaled
-            if scaled >= 200:
-                stats['passed_attempts'] += 1
-
-        candidates_list = []
-        for user_id, s in user_stats.items():
-            u = s['user']
-            scores = s['scores']
-            avg_score = int(round(sum(scores) / len(scores))) if scores else 0
-            pass_rate = int(round(s['passed_attempts'] / s['total_attempts'] * 100)) if s['total_attempts'] > 0 else 0
-            
-            profile = getattr(u, 'profile', None)
-            full_name = f"{u.first_name} {u.last_name}".strip()
-
-            candidates_list.append({
-                'user_id': u.id,
-                'username': u.username,
-                'full_name': full_name if full_name else u.username,
-                'bio': profile.bio if profile else '',
-                'target_exam': profile.target_exam if profile else 'jft_basic',
-                'target_exam_display': profile.get_target_exam_display() if profile else 'JFT-Basic (A2 Standard)',
-                'japanese_level': profile.japanese_level if profile else 'n4',
-                'japanese_level_display': profile.get_japanese_level_display() if profile else 'Elementary (N4 / A2)',
-                'location': profile.location if profile else '',
-                'total_attempts': s['total_attempts'],
-                'passed_attempts': s['passed_attempts'],
-                'highest_score': s['highest_score'],
-                'avg_score': avg_score,
-                'pass_rate': pass_rate,
-            })
-
-        # Sort candidates: passed_attempts DESC, highest_score DESC, avg_score DESC, total_attempts DESC
-        candidates_list.sort(
-            key=lambda x: (x['passed_attempts'], x['highest_score'], x['avg_score'], x['total_attempts']),
-            reverse=True
-        )
-
-        for idx, item in enumerate(candidates_list):
-            item['rank'] = idx + 1
-
+        candidates_list = compute_leaderboard_candidates()
         top_three = candidates_list[:3]
         rankings = candidates_list[3:50]
 
@@ -702,5 +708,142 @@ class LeaderboardAPIView(APIView):
             'rankings': rankings,
             'current_user_rank': current_user_rank,
         })
+
+
+class CandidatePublicProfileAPIView(APIView):
+    """Returns public candidate profile by username."""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, username):
+        target_user = get_object_or_404(User.objects.select_related('profile'), username__iexact=username)
+        profile, _ = UserProfile.objects.get_or_create(user=target_user)
+
+        attempts = list(Attempt.objects.filter(user=target_user).select_related('test').order_by('-completed_at'))
+        total_attempts = len(attempts)
+        passed_attempts = 0
+        total_scaled = 0
+        highest_scaled = 0
+        highest_level = 'Below A1'
+        serialized_recent = []
+
+        for att in attempts:
+            scaled = att.scaled_score
+            total_scaled += scaled
+            if scaled > highest_scaled:
+                highest_scaled = scaled
+            if scaled >= 200:
+                passed_attempts += 1
+                highest_level = 'A2 (Passed)'
+            elif scaled >= 150 and highest_level != 'A2 (Passed)':
+                highest_level = 'A1 (Elementary)'
+
+            if len(serialized_recent) < 5:
+                serialized_recent.append({
+                    'id': att.id,
+                    'test_id': att.test_id,
+                    'test_title': att.test.title if att.test else 'Mock Exam',
+                    'test_category': att.test.category if att.test else 'basic',
+                    'score': att.score,
+                    'total_questions': att.total_questions,
+                    'percentage': int(round(att.percentage)),
+                    'scaled_score': scaled,
+                    'passed': att.is_passed,
+                    'completed_at': att.completed_at,
+                })
+
+        pass_rate = int(round(passed_attempts / total_attempts * 100)) if total_attempts > 0 else 0
+        avg_scaled = int(round(total_scaled / total_attempts)) if total_attempts > 0 else 0
+
+        # Compute rank
+        all_candidates = compute_leaderboard_candidates()
+        candidate_rank = None
+        for c in all_candidates:
+            if c['user_id'] == target_user.id:
+                candidate_rank = c['rank']
+                break
+
+        # Compute dynamic achievements
+        achievements = [
+            {
+                'id': 'registered',
+                'title': 'Registered Candidate',
+                'description': 'Joined Gakkou No Shiken examination portal',
+                'icon': '🌸',
+                'unlocked': True,
+                'tier': 'common'
+            },
+            {
+                'id': 'first_test',
+                'title': 'First CBT Challenge',
+                'description': 'Completed at least 1 mock exam attempt',
+                'icon': '📝',
+                'unlocked': total_attempts >= 1,
+                'tier': 'bronze'
+            },
+            {
+                'id': 'first_pass',
+                'title': 'JFT-Basic Qualified (A2)',
+                'description': 'Achieved 200+ scaled passing score',
+                'icon': '💮',
+                'unlocked': passed_attempts >= 1,
+                'tier': 'silver'
+            },
+            {
+                'id': 'high_scorer',
+                'title': 'High Scorer Elite',
+                'description': 'Achieved 220+ scaled score on mock exam',
+                'icon': '⚡',
+                'unlocked': highest_scaled >= 220,
+                'tier': 'gold'
+            },
+            {
+                'id': 'exam_veteran',
+                'title': 'Exam Veteran',
+                'description': 'Completed 3 or more mock exams',
+                'icon': '📜',
+                'unlocked': total_attempts >= 3,
+                'tier': 'silver'
+            },
+            {
+                'id': 'top_3',
+                'title': 'Podium Champion',
+                'description': 'Ranked in the Top 3 on the global leaderboard',
+                'icon': '👑',
+                'unlocked': candidate_rank is not None and candidate_rank <= 3,
+                'tier': 'gold'
+            },
+        ]
+
+        full_name = f"{target_user.first_name} {target_user.last_name}".strip() or target_user.username
+
+        return Response({
+            'id': target_user.id,
+            'username': target_user.username,
+            'first_name': target_user.first_name,
+            'last_name': target_user.last_name,
+            'full_name': full_name,
+            'email': target_user.email if request.user == target_user or request.user.is_staff else '',
+            'bio': profile.bio,
+            'target_exam': profile.target_exam,
+            'target_exam_display': profile.get_target_exam_display(),
+            'japanese_level': profile.japanese_level,
+            'japanese_level_display': profile.get_japanese_level_display(),
+            'location': profile.location,
+            'date_joined': target_user.date_joined.strftime('%B %Y'),
+            'is_staff': target_user.is_staff,
+            'rank': candidate_rank,
+            'total_candidates': len(all_candidates),
+            'stats': {
+                'total_attempts': total_attempts,
+                'passed_attempts': passed_attempts,
+                'pass_rate': pass_rate,
+                'highest_scaled_score': highest_scaled,
+                'avg_scaled_score': avg_scaled,
+                'highest_level': highest_level,
+            },
+            'achievements': achievements,
+            'recent_attempts': serialized_recent,
+        })
+
 
 

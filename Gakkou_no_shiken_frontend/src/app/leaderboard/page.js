@@ -136,24 +136,26 @@ export default function LeaderboardPage() {
           {/* 3-Column Olympic Podium Layout: [2nd Silver] [1st Gold (Center Elevated)] [3rd Bronze] */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-end">
             {/* 🥈 2nd Place (Silver) */}
+
             {secondPlace ? (
+
               <div className="bg-gradient-to-b from-slate-900 to-slate-950 text-white rounded-3xl p-6 border-2 border-slate-400/50 shadow-xl shadow-slate-900/10 flex flex-col justify-between order-2 md:order-1 relative overflow-hidden group hover:border-slate-300 transition-all">
                 <div className="absolute top-3 right-3 text-2xl font-black opacity-30">#2</div>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-slate-400 to-slate-200 text-slate-900 font-black text-xl flex items-center justify-center shadow-lg border-2 border-white/40">
+                  <Link href={`/profile/${encodeURIComponent(secondPlace.username)}`} className="flex items-center gap-3 group/item">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-slate-400 to-slate-200 text-slate-900 font-black text-xl flex items-center justify-center shadow-lg border-2 border-white/40 group-hover/item:scale-105 transition-transform">
                       {secondPlace.full_name.slice(0, 1).toUpperCase()}
                     </div>
                     <div>
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-400/20 text-slate-300 border border-slate-400/30 text-[10px] font-black uppercase">
                         🥈 2nd Place
                       </span>
-                      <h3 className="text-base font-black text-white mt-1 leading-tight line-clamp-1">
+                      <h3 className="text-base font-black text-white mt-1 leading-tight line-clamp-1 group-hover/item:text-amber-300 transition-colors">
                         {secondPlace.full_name}
                       </h3>
                       <span className="text-xs text-slate-400 font-mono">@{secondPlace.username}</span>
                     </div>
-                  </div>
+                  </Link>
 
                   {secondPlace.bio && (
                     <p className="text-xs text-slate-300 italic line-clamp-2">"{secondPlace.bio}"</p>
@@ -169,19 +171,27 @@ export default function LeaderboardPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-800 grid grid-cols-3 gap-2 text-center">
-                  <div>
-                    <span className="text-[10px] text-slate-400 block uppercase">Passed</span>
-                    <strong className="text-sm font-black text-emerald-400">{secondPlace.passed_attempts}</strong>
+                <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                  <div className="grid grid-cols-3 gap-2 text-center flex-1">
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase">Passed</span>
+                      <strong className="text-sm font-black text-emerald-400">{secondPlace.passed_attempts}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase">High Score</span>
+                      <strong className="text-sm font-black text-amber-400">{secondPlace.highest_score}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase">Avg Score</span>
+                      <strong className="text-sm font-black text-white">{secondPlace.avg_score}</strong>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 block uppercase">High Score</span>
-                    <strong className="text-sm font-black text-amber-400">{secondPlace.highest_score}</strong>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 block uppercase">Avg Score</span>
-                    <strong className="text-sm font-black text-white">{secondPlace.avg_score}</strong>
-                  </div>
+                  <Link
+                    href={`/profile/${encodeURIComponent(secondPlace.username)}`}
+                    className="ml-3 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold rounded-xl transition-colors"
+                  >
+                    Profile →
+                  </Link>
                 </div>
               </div>
             ) : (
@@ -196,20 +206,20 @@ export default function LeaderboardPage() {
                 <div className="absolute top-3 right-3 text-3xl font-black text-amber-400/40">👑 #1</div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 text-slate-950 font-black text-2xl flex items-center justify-center shadow-xl shadow-amber-500/40 border-2 border-white">
+                  <Link href={`/profile/${encodeURIComponent(firstPlace.username)}`} className="flex items-center gap-3.5 group/item">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 text-slate-950 font-black text-2xl flex items-center justify-center shadow-xl shadow-amber-500/40 border-2 border-white group-hover/item:scale-105 transition-transform">
                       {firstPlace.full_name.slice(0, 1).toUpperCase()}
                     </div>
                     <div>
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/50 text-[11px] font-black uppercase tracking-wide">
                         🥇 1st Champion
                       </span>
-                      <h3 className="text-lg font-black text-white mt-1 leading-tight line-clamp-1">
+                      <h3 className="text-lg font-black text-white mt-1 leading-tight line-clamp-1 group-hover/item:text-amber-300 transition-colors">
                         {firstPlace.full_name}
                       </h3>
                       <span className="text-xs text-amber-300/80 font-mono">@{firstPlace.username}</span>
                     </div>
-                  </div>
+                  </Link>
 
                   {firstPlace.bio ? (
                     <p className="text-xs sm:text-sm text-amber-100/90 italic line-clamp-2">"{firstPlace.bio}"</p>
@@ -232,19 +242,27 @@ export default function LeaderboardPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-amber-500/30 grid grid-cols-3 gap-2 text-center bg-amber-500/10 -mx-6 sm:-mx-7 -mb-6 sm:-mb-7 p-4 rounded-b-3xl">
-                  <div>
-                    <span className="text-[10px] text-amber-300/80 block uppercase font-bold">Passed</span>
-                    <strong className="text-base font-black text-emerald-400">{firstPlace.passed_attempts}</strong>
+                <div className="mt-6 pt-4 border-t border-amber-500/30 -mx-6 sm:-mx-7 -mb-6 sm:-mb-7 p-4 bg-amber-500/10 rounded-b-3xl flex items-center justify-between">
+                  <div className="grid grid-cols-3 gap-2 text-center flex-1">
+                    <div>
+                      <span className="text-[10px] text-amber-300/80 block uppercase font-bold">Passed</span>
+                      <strong className="text-base font-black text-emerald-400">{firstPlace.passed_attempts}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-amber-300/80 block uppercase font-bold">High Score</span>
+                      <strong className="text-base font-black text-amber-300">{firstPlace.highest_score}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-amber-300/80 block uppercase font-bold">Pass Rate</span>
+                      <strong className="text-base font-black text-white">{firstPlace.pass_rate}%</strong>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-[10px] text-amber-300/80 block uppercase font-bold">High Score</span>
-                    <strong className="text-base font-black text-amber-300">{firstPlace.highest_score}</strong>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-amber-300/80 block uppercase font-bold">Pass Rate</span>
-                    <strong className="text-base font-black text-white">{firstPlace.pass_rate}%</strong>
-                  </div>
+                  <Link
+                    href={`/profile/${encodeURIComponent(firstPlace.username)}`}
+                    className="ml-3 px-3.5 py-2 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 text-xs font-black rounded-xl shadow-md transition-all active:scale-95"
+                  >
+                    Profile →
+                  </Link>
                 </div>
               </div>
             )}
@@ -254,20 +272,20 @@ export default function LeaderboardPage() {
               <div className="bg-gradient-to-b from-slate-900 to-slate-950 text-white rounded-3xl p-6 border-2 border-amber-700/50 shadow-xl shadow-slate-900/10 flex flex-col justify-between order-3 relative overflow-hidden group hover:border-amber-600 transition-all">
                 <div className="absolute top-3 right-3 text-2xl font-black opacity-30">#3</div>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-700 to-amber-600 text-white font-black text-xl flex items-center justify-center shadow-lg border-2 border-white/20">
+                  <Link href={`/profile/${encodeURIComponent(thirdPlace.username)}`} className="flex items-center gap-3 group/item">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-700 to-amber-600 text-white font-black text-xl flex items-center justify-center shadow-lg border-2 border-white/20 group-hover/item:scale-105 transition-transform">
                       {thirdPlace.full_name.slice(0, 1).toUpperCase()}
                     </div>
                     <div>
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-700/20 text-amber-400 border border-amber-700/30 text-[10px] font-black uppercase">
                         🥉 3rd Place
                       </span>
-                      <h3 className="text-base font-black text-white mt-1 leading-tight line-clamp-1">
+                      <h3 className="text-base font-black text-white mt-1 leading-tight line-clamp-1 group-hover/item:text-amber-300 transition-colors">
                         {thirdPlace.full_name}
                       </h3>
                       <span className="text-xs text-slate-400 font-mono">@{thirdPlace.username}</span>
                     </div>
-                  </div>
+                  </Link>
 
                   {thirdPlace.bio && (
                     <p className="text-xs text-slate-300 italic line-clamp-2">"{thirdPlace.bio}"</p>
@@ -283,19 +301,27 @@ export default function LeaderboardPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-800 grid grid-cols-3 gap-2 text-center">
-                  <div>
-                    <span className="text-[10px] text-slate-400 block uppercase">Passed</span>
-                    <strong className="text-sm font-black text-emerald-400">{thirdPlace.passed_attempts}</strong>
+                <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+                  <div className="grid grid-cols-3 gap-2 text-center flex-1">
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase">Passed</span>
+                      <strong className="text-sm font-black text-emerald-400">{thirdPlace.passed_attempts}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase">High Score</span>
+                      <strong className="text-sm font-black text-amber-400">{thirdPlace.highest_score}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block uppercase">Avg Score</span>
+                      <strong className="text-sm font-black text-white">{thirdPlace.avg_score}</strong>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 block uppercase">High Score</span>
-                    <strong className="text-sm font-black text-amber-400">{thirdPlace.highest_score}</strong>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 block uppercase">Avg Score</span>
-                    <strong className="text-sm font-black text-white">{thirdPlace.avg_score}</strong>
-                  </div>
+                  <Link
+                    href={`/profile/${encodeURIComponent(thirdPlace.username)}`}
+                    className="ml-3 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold rounded-xl transition-colors"
+                  >
+                    Profile →
+                  </Link>
                 </div>
               </div>
             ) : (
@@ -326,6 +352,7 @@ export default function LeaderboardPage() {
                     <th className="py-3.5 px-4 text-center">Passed Exams</th>
                     <th className="py-3.5 px-4 text-center">High Score</th>
                     <th className="py-3.5 px-4 text-center hidden sm:table-cell">Avg Score</th>
+                    <th className="py-3.5 px-4 text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
@@ -342,13 +369,18 @@ export default function LeaderboardPage() {
                           #{c.rank}
                         </td>
                         <td className="py-3 px-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-black text-xs flex items-center justify-center flex-shrink-0 border border-slate-200">
+                          <Link
+                            href={`/profile/${encodeURIComponent(c.username)}`}
+                            className="flex items-center gap-3 group/cand"
+                          >
+                            <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-black text-xs flex items-center justify-center flex-shrink-0 border border-slate-200 group-hover/cand:border-japan-red group-hover/cand:bg-red-50 transition-colors">
                               {c.full_name.slice(0, 1).toUpperCase()}
                             </div>
                             <div>
                               <div className="flex items-center gap-1.5">
-                                <span className="font-bold text-slate-900">{c.full_name}</span>
+                                <span className="font-bold text-slate-900 group-hover/cand:text-japan-red transition-colors">
+                                  {c.full_name}
+                                </span>
                                 {isCurrentUser && (
                                   <span className="px-1.5 py-0.2 bg-indigo-100 text-indigo-700 rounded text-[9px] font-extrabold">
                                     You
@@ -357,7 +389,7 @@ export default function LeaderboardPage() {
                               </div>
                               <span className="text-[11px] text-slate-400 block font-mono">@{c.username}</span>
                             </div>
-                          </div>
+                          </Link>
                         </td>
                         <td className="py-3 px-4 hidden md:table-cell">
                           <div className="space-y-0.5">
@@ -374,6 +406,14 @@ export default function LeaderboardPage() {
                         <td className="py-3 px-4 text-center text-slate-600 hidden sm:table-cell">
                           {c.avg_score}
                         </td>
+                        <td className="py-3 px-4 text-center">
+                          <Link
+                            href={`/profile/${encodeURIComponent(c.username)}`}
+                            className="px-2.5 py-1 text-xs font-bold text-slate-600 hover:text-japan-red hover:bg-slate-100 rounded-lg transition-colors inline-block"
+                          >
+                            View →
+                          </Link>
+                        </td>
                       </tr>
                     );
                   })}
@@ -387,6 +427,7 @@ export default function LeaderboardPage() {
           </div>
         )}
       </div>
+
     </div>
   );
 }

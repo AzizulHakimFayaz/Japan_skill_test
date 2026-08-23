@@ -180,3 +180,8 @@ export async function getLeaderboard() {
   return apiRequest('/api/leaderboard/');
 }
 
+export async function getCandidateProfile(username) {
+  return apiRequest(`/api/candidates/${encodeURIComponent(username)}/`);
+}
+
+

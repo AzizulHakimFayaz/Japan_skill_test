@@ -25,5 +25,8 @@ urlpatterns = [
 
     # Leaderboard & Rankings
     path('leaderboard/', views.LeaderboardAPIView.as_view(), name='api_leaderboard'),
+    path('candidates/<str:username>/', views.CandidatePublicProfileAPIView.as_view(), name='api_candidate_public_profile'),
+    path('profile/<str:username>/', views.CandidatePublicProfileAPIView.as_view(), name='api_candidate_public_profile_alias'),
 ]
+
 
