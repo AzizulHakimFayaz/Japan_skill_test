@@ -58,7 +58,11 @@ export const metadata = {
       'Prepare for your official Japanese Prometric exam with live timed CBT tests, native listening audio, and instant CEFR score reports.',
     images: ['/img/logo.png'],
   },
+  verification: {
+    google: 'fI-KwMB7mR1ngiM-wpYJb7Wj9iP5ytkJF3FRLSjRDRU',
+  },
 };
+
 
 
 export default function RootLayout({ children }) {
