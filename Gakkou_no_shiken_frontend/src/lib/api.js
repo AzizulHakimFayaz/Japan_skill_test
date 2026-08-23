@@ -63,7 +63,18 @@ async function apiRequest(endpoint, options = {}) {
   const data = isJson ? await response.json() : await response.text();
 
   if (!response.ok) {
-    const errorMsg = data?.detail || data?.message || (typeof data === 'object' ? JSON.stringify(data) : data) || 'API Request Failed';
+    let errorMsg = 'API Request Failed';
+    if (isJson && typeof data === 'object' && data !== null) {
+      errorMsg = data.detail || data.message || data.error || (Array.isArray(data.non_field_errors) ? data.non_field_errors[0] : null) || Object.values(data).flat().join(', ') || 'Request failed';
+    } else if (response.status === 404) {
+      errorMsg = 'Backend endpoint not found (404). Please verify that NEXT_PUBLIC_API_URL is set to your Railway backend URL.';
+    } else if (response.status >= 500) {
+      errorMsg = 'Backend server error (500). Please check your Railway backend deployment logs.';
+    } else if (typeof data === 'string' && !data.includes('<html') && !data.includes('<!DOCTYPE')) {
+      errorMsg = data;
+    } else {
+      errorMsg = `Connection failed (${response.status}). Please check your backend connection.`;
+    }
     const err = new Error(errorMsg);
     err.status = response.status;
     err.data = data;
