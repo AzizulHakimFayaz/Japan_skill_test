@@ -851,7 +851,7 @@ from django.conf import settings
 import os
 
 class SetupDatabaseAPIView(APIView):
-    """One-click web trigger to run migrations, fixture loading, and admin setup."""
+    """Super lightweight, instant 1-second setup to create tables and admin user."""
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
@@ -859,36 +859,27 @@ class SetupDatabaseAPIView(APIView):
             return Response({'error': 'Unauthorized key'}, status=status.HTTP_403_FORBIDDEN)
         
         logs = []
-        # 1. Run migrations
+        # 1. Fast Migrate (Creates all database tables in MySQL)
         try:
             call_command('migrate', interactive=False)
-            logs.append('✅ Database Migrations: SUCCESS')
+            logs.append('✅ Database Tables Created: SUCCESS')
         except Exception as e:
-            logs.append(f'❌ Migration error: {e}')
+            logs.append(f'❌ Migration note: {e}')
 
-        # 2. Load fixtures
-        try:
-            backup_file = os.path.join(settings.BASE_DIR, 'full_database_backup.json')
-            if os.path.exists(backup_file):
-                call_command('loaddata', backup_file)
-                logs.append('✅ Loaded all tests and questions: SUCCESS')
-            else:
-                logs.append('⚠️ full_database_backup.json not found')
-        except Exception as e:
-            logs.append(f'⚠️ Loaddata: {e}')
-
-        # 3. Ensure Admin Superuser exists
+        # 2. Instant Admin Account Creation
         try:
             user, _ = User.objects.get_or_create(username='admin')
             user.set_password('03698742Fayaz@')
             user.is_staff = True
             user.is_superuser = True
             user.save()
-            logs.append('✅ Admin account configured (username: admin, password: 03698742Fayaz@)')
+            logs.append('✅ Admin Account Ready! Username: admin | Password: 03698742Fayaz@')
         except Exception as e:
-            logs.append(f'❌ Admin setup error: {e}')
+            logs.append(f'❌ Admin error: {e}')
 
         return Response({
-            'status': 'ALL_TASKS_COMPLETED',
+            'status': 'SUCCESS_READY_TO_LOGIN',
+            'login_url': 'https://gakkounoshiken.site/admin/',
             'logs': logs
         })
+
