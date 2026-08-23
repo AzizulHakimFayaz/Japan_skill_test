@@ -406,8 +406,9 @@ JAZZMIN_SETTINGS = {
 
     # Custom CSS/JS injected into every admin page
     "custom_css": "css/admin_custom.css",
-    "custom_js": None,
+    "custom_js": "js/admin_sticky_save.js",
 }
+
 
 JAZZMIN_UI_TWEAKS = {
     # Text sizing

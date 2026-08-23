@@ -1,20 +1,16 @@
 /**
- * Gakkou No Shiken Admin — Sticky Quick Save & Keyboard Shortcut (Ctrl+S / Cmd+S)
+ * Gakkou No Shiken Admin — Instant File Auto-Save & Sticky Save Helpers
  */
 document.addEventListener('DOMContentLoaded', function () {
     // 1. Keyboard Shortcut: Ctrl+S / Cmd+S to Quick Save
     document.addEventListener('keydown', function (e) {
         if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
             e.preventDefault();
-            
-            // Find the primary submit button
             const saveBtn = document.querySelector('input[name="_continue"]') || 
                             document.querySelector('input[name="_save"]') || 
                             document.querySelector('button[type="submit"]') ||
                             document.querySelector('.submit-row input[type="submit"]');
-
             if (saveBtn) {
-                // Visual feedback
                 showToastFeedback('💾 Saving changes...');
                 saveBtn.click();
             }
@@ -52,6 +48,118 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // 3. 🚀 Instant Background Auto-Upload for Audio & Image Files
+    document.addEventListener('change', function (e) {
+        if (e.target && e.target.matches('input[type="file"]')) {
+            const input = e.target;
+            if (!input.files || input.files.length === 0) return;
+
+            const file = input.files[0];
+            const inputName = input.name || ''; // e.g. "questions-3-audio", "questions-0-image", "audio", "image"
+
+            // Determine field type (audio or image)
+            let fieldType = 'audio';
+            if (inputName.includes('image') || file.type.startsWith('image/')) {
+                fieldType = 'image';
+            }
+
+            // Find object ID and model
+            let objectId = null;
+            let modelName = 'question';
+
+            // Check if inside an inline formset row (e.g. questions-3-audio)
+            const match = inputName.match(/([a-z_]+)-(\d+)-([a-z_]+)/i);
+            if (match) {
+                const prefix = match[1]; // e.g. "questions", "question_groups", "answer_options"
+                const index = match[2];  // e.g. "3"
+                const field = match[3];  // e.g. "audio"
+                fieldType = field.includes('image') ? 'image' : 'audio';
+
+                if (prefix === 'question_groups') {
+                    modelName = 'questiongroup';
+                } else if (prefix === 'answer_options' || prefix.includes('option')) {
+                    modelName = 'answeroption';
+                } else {
+                    modelName = 'question';
+                }
+
+                const idInput = document.querySelector(`input[name="${prefix}-${index}-id"]`);
+                if (idInput && idInput.value) {
+                    objectId = idInput.value;
+                }
+            } else {
+                // Standalone change form (e.g. editing Question directly)
+                const standaloneId = window.location.pathname.match(/\/(\d+)\/change/);
+                if (standaloneId) {
+                    objectId = standaloneId[1];
+                    if (window.location.pathname.includes('/questiongroup/')) modelName = 'questiongroup';
+                    else if (window.location.pathname.includes('/question/')) modelName = 'question';
+                    else if (window.location.pathname.includes('/answeroption/')) modelName = 'answeroption';
+                }
+            }
+
+            if (!objectId) {
+                showToastFeedback('💡 New item: Click Save Changes once to register it for instant auto-upload.');
+                return;
+            }
+
+            // Create status feedback indicator right next to the file input
+            let statusBadge = input.parentNode.querySelector('.gakkou-autoupload-status');
+            if (!statusBadge) {
+                statusBadge = document.createElement('div');
+                statusBadge.className = 'gakkou-autoupload-status mt-1 font-weight-bold';
+                input.parentNode.appendChild(statusBadge);
+            }
+            statusBadge.innerHTML = `<span class="text-info"><i class="fas fa-spinner fa-spin"></i> Auto-uploading ${file.name}...</span>`;
+
+            // Prepare AJAX payload
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('model', modelName);
+            formData.append('object_id', objectId);
+            formData.append('field', fieldType);
+
+            // Get CSRF Token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+
+            fetch('/api/admin/auto-upload/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success' && data.url) {
+                    statusBadge.innerHTML = `<span class="badge badge-success px-2 py-1" style="font-size:0.85rem;"><i class="fas fa-check-circle"></i> Auto-saved &amp; Live!</span>`;
+                    showToastFeedback(`✅ ${fieldType.toUpperCase()} auto-saved for #${objectId}!`);
+
+                    // Update or insert media preview player right under the field
+                    const previewContainer = input.closest('.form-row') || input.parentNode;
+                    let existingPreview = previewContainer.querySelector('.admin-preview-container') || previewContainer.querySelector('.preview-box');
+                    
+                    if (!existingPreview) {
+                        existingPreview = document.createElement('div');
+                        existingPreview.className = 'admin-preview-container mt-2';
+                        input.parentNode.appendChild(existingPreview);
+                    }
+
+                    if (fieldType === 'audio') {
+                        existingPreview.innerHTML = `<audio controls src="${data.url}" style="height:36px; max-width:320px; border-radius:8px;" autoplay="false"></audio>`;
+                    } else {
+                        existingPreview.innerHTML = `<img src="${data.url}" style="max-height:80px; max-width:140px; border-radius:6px; border:1px solid #ddd; object-fit:contain;" />`;
+                    }
+                } else {
+                    statusBadge.innerHTML = `<span class="text-danger"><i class="fas fa-exclamation-triangle"></i> Upload error: ${data.error || 'Failed'}</span>`;
+                }
+            })
+            .catch(err => {
+                statusBadge.innerHTML = `<span class="text-danger"><i class="fas fa-exclamation-triangle"></i> Upload error</span>`;
+            });
+        }
+    });
+
     function showToastFeedback(msg) {
         let toast = document.getElementById('gakkou-save-toast');
         if (!toast) {
@@ -62,5 +170,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         toast.textContent = msg;
         toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3500);
     }
 });

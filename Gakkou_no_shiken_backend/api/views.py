@@ -885,3 +885,70 @@ class SetupDatabaseAPIView(APIView):
         })
 
 
+class AdminAutoUploadAPIView(APIView):
+    """
+    Instant background AJAX file auto-upload for Django Admin questions, groups, and options.
+    Saves the file immediately upon selection without requiring a full page save.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        if not request.FILES:
+            return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
+
+        uploaded_file = next(iter(request.FILES.values()))
+        model_name = request.data.get('model', 'question').lower()
+        object_id = request.data.get('object_id')
+        field_name = request.data.get('field', 'audio').lower()
+
+        if not object_id:
+            return Response({'error': 'Missing object_id'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            if model_name == 'question':
+                obj = Question.objects.get(pk=object_id)
+                if field_name == 'audio':
+                    obj.audio = uploaded_file
+                    obj.save(update_fields=['audio'])
+                    file_url = obj.audio.url
+                elif field_name == 'image':
+                    obj.image = uploaded_file
+                    obj.save(update_fields=['image'])
+                    file_url = obj.image.url
+                else:
+                    return Response({'error': 'Invalid field'}, status=status.HTTP_400_BAD_REQUEST)
+
+            elif model_name == 'questiongroup':
+                obj = QuestionGroup.objects.get(pk=object_id)
+                if field_name == 'audio':
+                    obj.audio = uploaded_file
+                    obj.save(update_fields=['audio'])
+                    file_url = obj.audio.url
+                elif field_name == 'image':
+                    obj.image = uploaded_file
+                    obj.save(update_fields=['image'])
+                    file_url = obj.image.url
+                else:
+                    return Response({'error': 'Invalid field'}, status=status.HTTP_400_BAD_REQUEST)
+
+            elif model_name == 'answeroption':
+                obj = AnswerOption.objects.get(pk=object_id)
+                obj.image = uploaded_file
+                obj.save(update_fields=['image'])
+                file_url = obj.image.url
+
+            else:
+                return Response({'error': 'Unknown model'}, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({
+                'status': 'success',
+                'url': file_url,
+                'object_id': object_id,
+                'field': field_name,
+                'message': f'✅ {field_name.capitalize()} uploaded and auto-saved successfully!'
+            })
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
