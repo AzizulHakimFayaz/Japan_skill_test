@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { googleAuthLogin } from '@/lib/api';
+import { googleAuthLogin, updateUserProfile } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
+import { User, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
 
 const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
@@ -23,6 +24,14 @@ export default function GoogleSignInButton({
   const [error, setError] = useState(null);
   const buttonRef = useRef(null);
 
+  // Modal state for first-time Google sign-ups
+  const [showUsernameModal, setShowUsernameModal] = useState(false);
+  const [newUserObj, setNewUserObj] = useState(null);
+  const [chosenUsername, setChosenUsername] = useState('');
+  const [chosenTargetExam, setChosenTargetExam] = useState('jft_basic');
+  const [savingUsername, setSavingUsername] = useState(false);
+  const [modalError, setModalError] = useState(null);
+
   const handleCredentialResponse = async (response) => {
     if (!response.credential) return;
 
@@ -32,12 +41,48 @@ export default function GoogleSignInButton({
     try {
       const data = await googleAuthLogin(response.credential);
       if (data?.user) {
-        login(data.user);
-        router.push(next);
+        if (data.is_new_user) {
+          // First time user: Prompt to confirm or choose username
+          setNewUserObj(data.user);
+          setChosenUsername(data.user.username || '');
+          setShowUsernameModal(true);
+          setLoading(false);
+        } else {
+          // Existing user: Log in immediately
+          login(data.user);
+          router.push(next);
+        }
       }
     } catch (err) {
       setError(err.message || 'Google sign-in failed. Please try again.');
       setLoading(false);
+    }
+  };
+
+  const handleConfirmUsername = async (e) => {
+    e.preventDefault();
+    if (!chosenUsername.trim()) {
+      setModalError('Please enter a username.');
+      return;
+    }
+
+    setSavingUsername(true);
+    setModalError(null);
+
+    try {
+      const res = await updateUserProfile({
+        username: chosenUsername.trim(),
+        target_exam: chosenTargetExam,
+      });
+
+      const updatedUser = res?.user || { ...newUserObj, username: chosenUsername.trim() };
+      login(updatedUser);
+      setShowUsernameModal(false);
+      router.push(next);
+    } catch (err) {
+      setModalError(err.message || 'Username might already be taken. Please choose another.');
+    } finally {
+      setSavingUsername(false);
     }
   };
 
@@ -75,14 +120,12 @@ export default function GoogleSignInButton({
     if (loading) return;
 
     if (window.google && window.google.accounts) {
-      // Trigger Google account selector prompt
       window.google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: handleCredentialResponse,
       });
       window.google.accounts.id.prompt((notification) => {
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // If One-tap is suppressed, render temporary standard button to trigger popup
           if (buttonRef.current) {
             window.google.accounts.id.renderButton(buttonRef.current, {
               type: 'standard',
@@ -139,6 +182,82 @@ export default function GoogleSignInButton({
         )}
         <span>{loading ? 'Verifying with Google...' : text}</span>
       </button>
+
+      {/* New Candidate Username Selection Modal */}
+      {showUsernameModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 space-y-5 animate-scale-up">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-red-50 text-japan-red rounded-2xl flex items-center justify-center mx-auto shadow-xs">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-black text-slate-900">Choose Candidate Username</h3>
+              <p className="text-slate-500 text-xs">
+                Welcome, <strong>{newUserObj?.first_name || newUserObj?.email}</strong>! Please choose your candidate username for leaderboards and scorecards.
+              </p>
+            </div>
+
+            {modalError && (
+              <div className="p-3 bg-rose-50 text-rose-800 border border-rose-200 rounded-xl text-xs font-bold text-center animate-fade-in">
+                {modalError}
+              </div>
+            )}
+
+            <form onSubmit={handleConfirmUsername} className="space-y-4">
+              <div>
+                <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1.5">
+                  Candidate Username <span className="text-japan-red">*</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">@</span>
+                  <input
+                    type="text"
+                    value={chosenUsername}
+                    onChange={(e) => setChosenUsername(e.target.value)}
+                    required
+                    autoFocus
+                    className="w-full pl-8 pr-4 py-3 rounded-2xl border border-slate-200 text-sm font-bold text-slate-900 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-mono"
+                    placeholder="e.g. kenji_tanaka"
+                  />
+                </div>
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Letters, numbers, and underscores only. You can change this later.
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1.5">
+                  Target Exam
+                </label>
+                <select
+                  value={chosenTargetExam}
+                  onChange={(e) => setChosenTargetExam(e.target.value)}
+                  className="w-full px-3.5 py-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-japan-red transition-all"
+                >
+                  <option value="jft_basic">JFT-Basic (A2 Standard)</option>
+                  <option value="ssw_nursing">SSW: Nursing Care (介護)</option>
+                  <option value="ssw_food">SSW: Food Service (外食業)</option>
+                  <option value="ssw_agriculture">SSW: Agriculture (農業)</option>
+                  <option value="ssw_construction">SSW: Construction (建設業)</option>
+                  <option value="ssw_manufacturing">SSW: Manufacturing (製造業)</option>
+                  <option value="ssw_accommodation">SSW: Accommodation (宿泊業)</option>
+                  <option value="jlpt_n4">JLPT N4</option>
+                  <option value="jlpt_n3">JLPT N3</option>
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                disabled={savingUsername}
+                className="w-full py-4 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold rounded-2xl text-sm transition-all shadow-lg shadow-red-500/20 active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4"
+              >
+                <span>{savingUsername ? 'Setting up Profile...' : 'Complete & Start Practice'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
