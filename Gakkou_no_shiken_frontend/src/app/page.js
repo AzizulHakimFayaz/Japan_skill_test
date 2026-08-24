@@ -32,16 +32,7 @@ export default async function HomePage() {
         <LiveActivityTicker />
       </div>
 
-      {/* 2. Interactive Student Power Tools (Daily 3D Kanji Flipcard & AI CEFR Score Predictor) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DailyKanjiCard />
-        <ExamScorePredictor />
-      </div>
-
-      {/* 3. Animated Interactive Feature Showcase (Audio Equalizer, Language Lens, IRT Scoring Gauge, Hubs) */}
-      <InteractiveFeatureShowcase />
-
-      {/* 4. Practice Test Categories & Cards Grid */}
+      {/* 2. Practice Test Categories & Cards Grid (Placed Immediately After Banner) */}
       <div id="practice-grid" className="space-y-6 sm:space-y-12">
         <section className="bg-white/95 dark:bg-slate-950/75 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-slate-800/90 p-3.5 sm:p-8 lg:p-10 shadow-lg shadow-slate-200/40 dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] hover:shadow-xl transition-all duration-300">
           <PracticeTestGrid
@@ -61,6 +52,15 @@ export default async function HomePage() {
           />
         </section>
       </div>
+
+      {/* 3. Interactive Student Power Tools (Daily 3D Kanji Flipcard & AI CEFR Score Predictor) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <DailyKanjiCard />
+        <ExamScorePredictor />
+      </div>
+
+      {/* 4. Animated Interactive Feature Showcase (Audio Equalizer, Language Lens, IRT Scoring Gauge, Hubs) */}
+      <InteractiveFeatureShowcase />
 
       {/* 5. Professional Student Exam Guide & Syllabus Blueprint */}
       <StudentExamGuide />
