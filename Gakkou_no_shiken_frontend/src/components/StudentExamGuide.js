@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import ScrollReveal from './ScrollReveal';
 import {
   BookOpen,
   MessageSquare,
@@ -123,28 +124,29 @@ export default function StudentExamGuide() {
   const ActiveIcon = activeSec.icon;
 
   return (
-    <div className="space-y-8 sm:space-y-16 animate-fade-in-up">
+    <div className="space-y-8 sm:space-y-16">
       {/* 1. JFT-Basic 4-Section Exam Blueprint */}
-      <section className="space-y-4 sm:space-y-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4">
-          <div className="space-y-1 sm:space-y-1.5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/60 text-japan-red dark:text-rose-300 text-[10px] sm:text-xs font-black uppercase tracking-wider">
-              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span>Exam Structure &amp; Syllabus</span>
+      <ScrollReveal variant="up" duration={700}>
+        <section className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4">
+            <div className="space-y-1 sm:space-y-1.5">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/60 text-japan-red dark:text-rose-300 text-[10px] sm:text-xs font-black uppercase tracking-wider">
+                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <span>Exam Structure &amp; Syllabus</span>
+              </div>
+              <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                Master the 4 JFT-Basic Sections
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl font-normal">
+                42 questions across 4 core competencies. Target 200+ points to achieve CEFR A2 qualification.
+              </p>
             </div>
-            <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-              Master the 4 JFT-Basic Sections
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl font-normal">
-              42 questions across 4 core competencies. Target 200+ points to achieve CEFR A2 qualification.
-            </p>
-          </div>
 
-          <div className="hidden md:flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
-            <Clock className="w-4 h-4 text-japan-red" />
-            <span>Total Time: 60 Minutes</span>
+            <div className="hidden md:flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+              <Clock className="w-4 h-4 text-japan-red" />
+              <span>Total Time: 60 Minutes</span>
+            </div>
           </div>
-        </div>
 
         {/* --- MOBILE VIEW: Interactive Clean Segmented Tab Switcher (< md) --- */}
         <div className="block md:hidden space-y-3">
@@ -269,163 +271,166 @@ export default function StudentExamGuide() {
           })}
         </div>
       </section>
+      </ScrollReveal>
 
       {/* 2. Study Strategy & Candidate FAQ Toolkit */}
-      <section className="space-y-4">
-        {/* Mobile View Toggle Switcher (< lg) */}
-        <div className="flex lg:hidden items-center p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800">
-          <button
-            onClick={() => setActiveBottomTab('rules')}
-            className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${
-              activeBottomTab === 'rules'
-                ? 'bg-slate-900 dark:bg-slate-800 text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            🎯 Exam Rules
-          </button>
-          <button
-            onClick={() => setActiveBottomTab('faq')}
-            className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${
-              activeBottomTab === 'faq'
-                ? 'bg-slate-900 dark:bg-slate-800 text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            ❓ Common FAQs
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 items-start">
-          {/* Left Column: Prometric CBT Test-Day Strategy Checklist */}
-          <div
-            className={`lg:col-span-5 bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-slate-800 shadow-xl space-y-4 sm:space-y-6 relative overflow-hidden ${
-              activeBottomTab === 'rules' ? 'block' : 'hidden lg:block'
-            }`}
-          >
-            <div className="space-y-1 sm:space-y-2 relative z-10">
-              <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/20 text-[10px] sm:text-[11px] font-black uppercase tracking-wider">
-                <Award className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400" />
-                <span>Test Rules</span>
-              </div>
-              <h3 className="text-lg sm:text-2xl font-black text-white tracking-tight">
-                Test-Day Guidelines &amp; Rules
-              </h3>
-              <p className="text-[11px] sm:text-xs text-slate-300 font-normal">
-                Essential knowledge to maximize your scaled score on exam day.
-              </p>
-            </div>
-
-            <div className="space-y-2.5 sm:space-y-3.5 relative z-10">
-              <div className="flex items-start gap-2.5 sm:gap-3.5 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/[0.05] border border-white/10">
-                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-japan-red/20 text-rose-300 flex items-center justify-center flex-shrink-0">
-                  <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </div>
-                <div>
-                  <strong className="text-xs sm:text-sm font-extrabold text-white block">200 / 250 Passing Standard</strong>
-                  <p className="text-[10px] sm:text-[11px] text-slate-300 mt-0.5 leading-relaxed">
-                    Scaled score of 200+ (80%) qualifies for Japan SSW certificate.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5 sm:gap-3.5 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/[0.05] border border-white/10">
-                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center flex-shrink-0">
-                  <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </div>
-                <div>
-                  <strong className="text-xs sm:text-sm font-extrabold text-white block">60-Minute Non-Stop Timer</strong>
-                  <p className="text-[10px] sm:text-[11px] text-slate-300 mt-0.5 leading-relaxed">
-                    The timer runs continuously without pauses across all 4 sections.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5 sm:gap-3.5 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/[0.05] border border-white/10">
-                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center flex-shrink-0">
-                  <Languages className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </div>
-                <div>
-                  <strong className="text-xs sm:text-sm font-extrabold text-white block">10 Native Language Helpers</strong>
-                  <p className="text-[10px] sm:text-[11px] text-slate-300 mt-0.5 leading-relaxed">
-                    Use in-test translations in English, Bengali, Vietnamese, etc.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-1 sm:pt-2 relative z-10">
-              <Link
-                href="/leaderboard"
-                className="inline-flex items-center justify-center gap-1.5 w-full bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm shadow-md active:scale-95 transition-all"
-              >
-                <span>View Candidate Leaderboard</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
+      <ScrollReveal variant="up" duration={700} delay={100}>
+        <section className="space-y-4">
+          {/* Mobile View Toggle Switcher (< lg) */}
+          <div className="flex lg:hidden items-center p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800">
+            <button
+              onClick={() => setActiveBottomTab('rules')}
+              className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${
+                activeBottomTab === 'rules'
+                  ? 'bg-slate-900 dark:bg-slate-800 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              🎯 Exam Rules
+            </button>
+            <button
+              onClick={() => setActiveBottomTab('faq')}
+              className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${
+                activeBottomTab === 'faq'
+                  ? 'bg-slate-900 dark:bg-slate-800 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              ❓ Common FAQs
+            </button>
           </div>
 
-          {/* Right Column: Frequently Asked Questions Accordion */}
-          <div
-            className={`lg:col-span-7 bg-white dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xs space-y-4 sm:space-y-6 ${
-              activeBottomTab === 'faq' ? 'block' : 'hidden lg:block'
-            }`}
-          >
-            <div className="space-y-1 sm:space-y-1.5">
-              <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-[10px] sm:text-[11px] font-black uppercase tracking-wider">
-                <HelpCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                <span>FAQ</span>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 items-start">
+            {/* Left Column: Prometric CBT Test-Day Strategy Checklist */}
+            <div
+              className={`lg:col-span-5 bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-slate-800 shadow-xl space-y-4 sm:space-y-6 relative overflow-hidden ${
+                activeBottomTab === 'rules' ? 'block' : 'hidden lg:block'
+              }`}
+            >
+              <div className="space-y-1 sm:space-y-2 relative z-10">
+                <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/20 text-[10px] sm:text-[11px] font-black uppercase tracking-wider">
+                  <Award className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400" />
+                  <span>Test Rules</span>
+                </div>
+                <h3 className="text-lg sm:text-2xl font-black text-white tracking-tight">
+                  Test-Day Guidelines &amp; Rules
+                </h3>
+                <p className="text-[11px] sm:text-xs text-slate-300 font-normal">
+                  Essential knowledge to maximize your scaled score on exam day.
+                </p>
               </div>
-              <h3 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                Frequently Asked Questions
-              </h3>
-              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-normal">
-                Quick answers about JFT-Basic exam rules and mock features.
-              </p>
-            </div>
 
-            <div className="space-y-2 sm:space-y-3">
-              {FAQS.map((faq, index) => {
-                const isOpen = openFaq === index;
-                return (
-                  <div
-                    key={index}
-                    className={`rounded-xl sm:rounded-2xl border transition-all duration-200 overflow-hidden ${
-                      isOpen
-                        ? 'border-indigo-300 dark:border-indigo-700/80 bg-indigo-50/30 dark:bg-indigo-950/40'
-                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70'
-                    }`}
-                  >
-                    <button
-                      onClick={() => setOpenFaq(isOpen ? -1 : index)}
-                      className="w-full p-3 sm:p-4 text-left flex items-center justify-between gap-2.5 cursor-pointer"
-                    >
-                      <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white leading-snug">
-                        {faq.q}
-                      </span>
-                      <div
-                        className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-transform ${
-                          isOpen
-                            ? 'bg-indigo-600 text-white rotate-180'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                        }`}
-                      >
-                        <ChevronDown className="w-3.5 h-3.5" />
-                      </div>
-                    </button>
-
-                    {isOpen && (
-                      <div className="px-3 sm:px-4 pb-3 sm:pb-4 text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal animate-fade-in border-t border-indigo-100/60 dark:border-indigo-900/40 pt-2.5">
-                        {faq.a}
-                      </div>
-                    )}
+              <div className="space-y-2.5 sm:space-y-3.5 relative z-10">
+                <div className="flex items-start gap-2.5 sm:gap-3.5 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/[0.05] border border-white/10">
+                  <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-japan-red/20 text-rose-300 flex items-center justify-center flex-shrink-0">
+                    <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </div>
-                );
-              })}
+                  <div>
+                    <strong className="text-xs sm:text-sm font-extrabold text-white block">200 / 250 Passing Standard</strong>
+                    <p className="text-[10px] sm:text-[11px] text-slate-300 mt-0.5 leading-relaxed">
+                      Scaled score of 200+ (80%) qualifies for Japan SSW certificate.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5 sm:gap-3.5 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/[0.05] border border-white/10">
+                  <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  </div>
+                  <div>
+                    <strong className="text-xs sm:text-sm font-extrabold text-white block">60-Minute Non-Stop Timer</strong>
+                    <p className="text-[10px] sm:text-[11px] text-slate-300 mt-0.5 leading-relaxed">
+                      The timer runs continuously without pauses across all 4 sections.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5 sm:gap-3.5 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-white/[0.05] border border-white/10">
+                  <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center flex-shrink-0">
+                    <Languages className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  </div>
+                  <div>
+                    <strong className="text-xs sm:text-sm font-extrabold text-white block">10 Native Language Helpers</strong>
+                    <p className="text-[10px] sm:text-[11px] text-slate-300 mt-0.5 leading-relaxed">
+                      Use in-test translations in English, Bengali, Vietnamese, etc.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-1 sm:pt-2 relative z-10">
+                <Link
+                  href="/leaderboard"
+                  className="inline-flex items-center justify-center gap-1.5 w-full bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm shadow-md active:scale-95 transition-all"
+                >
+                  <span>View Candidate Leaderboard</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Column: Frequently Asked Questions Accordion */}
+            <div
+              className={`lg:col-span-7 bg-white dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xs space-y-4 sm:space-y-6 ${
+                activeBottomTab === 'faq' ? 'block' : 'hidden lg:block'
+              }`}
+            >
+              <div className="space-y-1 sm:space-y-1.5">
+                <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-[10px] sm:text-[11px] font-black uppercase tracking-wider">
+                  <HelpCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <span>FAQ</span>
+                </div>
+                <h3 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                  Frequently Asked Questions
+                </h3>
+                <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-normal">
+                  Quick answers about JFT-Basic exam rules and mock features.
+                </p>
+              </div>
+
+              <div className="space-y-2 sm:space-y-3">
+                {FAQS.map((faq, index) => {
+                  const isOpen = openFaq === index;
+                  return (
+                    <div
+                      key={index}
+                      className={`rounded-xl sm:rounded-2xl border transition-all duration-200 overflow-hidden ${
+                        isOpen
+                          ? 'border-indigo-300 dark:border-indigo-700/80 bg-indigo-50/30 dark:bg-indigo-950/40'
+                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70'
+                      }`}
+                    >
+                      <button
+                        onClick={() => setOpenFaq(isOpen ? -1 : index)}
+                        className="w-full p-3 sm:p-4 text-left flex items-center justify-between gap-2.5 cursor-pointer"
+                      >
+                        <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white leading-snug">
+                          {faq.q}
+                        </span>
+                        <div
+                          className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-transform ${
+                            isOpen
+                              ? 'bg-indigo-600 text-white rotate-180'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                          }`}
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </div>
+                      </button>
+
+                      {isOpen && (
+                        <div className="px-3 sm:px-4 pb-3 sm:pb-4 text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal animate-fade-in border-t border-indigo-100/60 dark:border-indigo-900/40 pt-2.5">
+                          {faq.a}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ScrollReveal>
     </div>
   );
 }

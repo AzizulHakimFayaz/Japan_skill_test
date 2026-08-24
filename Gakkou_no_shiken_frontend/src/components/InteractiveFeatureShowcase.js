@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ScrollReveal from './ScrollReveal';
 import {
   Headphones,
   Languages,
@@ -40,46 +41,49 @@ export default function InteractiveFeatureShowcase() {
   }, []);
 
   return (
-    <div className="space-y-4 sm:space-y-6 animate-fade-in-up">
+    <div className="space-y-4 sm:space-y-6">
       {/* 1. Animated Running Feature Ticker Pill Strip */}
-      <div className="relative overflow-hidden bg-slate-900 dark:bg-slate-950 backdrop-blur-xl rounded-2xl border border-slate-800 p-2 sm:p-2.5 shadow-md">
-        <div className="flex items-center justify-between gap-3">
-          {/* Static Live Indicator */}
-          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-japan-red/20 text-rose-300 border border-japan-red/30 text-[10px] sm:text-[11px] font-black uppercase tracking-wider flex-shrink-0">
-            <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-japan-red animate-ping"></span>
-            <span className="hidden xs:inline">Engine Highlights</span>
-            <span className="xs:hidden">CBT Live</span>
-          </div>
-
-          {/* Marquee Ticker */}
-          <div className="flex-1 overflow-hidden relative flex items-center">
-            <div className="flex items-center gap-4 sm:gap-8 whitespace-nowrap animate-marquee">
-              {LIVE_TICKER_ITEMS.concat(LIVE_TICKER_ITEMS).map((item, idx) => (
-                <div key={idx} className="flex items-center gap-1.5 sm:gap-2">
-                  <span className={`text-[9px] sm:text-[10px] font-black uppercase px-1.5 sm:px-2 py-0.5 rounded-md border ${item.color}`}>
-                    {item.tag}
-                  </span>
-                  <span className="text-[11px] sm:text-xs font-bold text-slate-200">{item.text}</span>
-                  <span className="text-slate-600 text-xs">✦</span>
-                </div>
-              ))}
+      <ScrollReveal variant="up" duration={600}>
+        <div className="relative overflow-hidden bg-slate-900 dark:bg-slate-950 backdrop-blur-xl rounded-2xl border border-slate-800 p-2 sm:p-2.5 shadow-md">
+          <div className="flex items-center justify-between gap-3">
+            {/* Static Live Indicator */}
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-japan-red/20 text-rose-300 border border-japan-red/30 text-[10px] sm:text-[11px] font-black uppercase tracking-wider flex-shrink-0">
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-japan-red animate-ping"></span>
+              <span className="hidden xs:inline">Engine Highlights</span>
+              <span className="xs:hidden">CBT Live</span>
             </div>
-          </div>
 
-          <Link
-            href="/leaderboard"
-            className="hidden sm:inline-flex items-center gap-1 text-[11px] font-extrabold text-amber-400 hover:text-amber-300 transition-colors pr-2 flex-shrink-0 group"
-          >
-            <span>Live Standings</span>
-            <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </Link>
+            {/* Marquee Ticker */}
+            <div className="flex-1 overflow-hidden relative flex items-center">
+              <div className="flex items-center gap-4 sm:gap-8 whitespace-nowrap animate-marquee">
+                {LIVE_TICKER_ITEMS.concat(LIVE_TICKER_ITEMS).map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-1.5 sm:gap-2">
+                    <span className={`text-[9px] sm:text-[10px] font-black uppercase px-1.5 sm:px-2 py-0.5 rounded-md border ${item.color}`}>
+                      {item.tag}
+                    </span>
+                    <span className="text-[11px] sm:text-xs font-bold text-slate-200">{item.text}</span>
+                    <span className="text-slate-600 text-xs">✦</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Link
+              href="/leaderboard"
+              className="hidden sm:inline-flex items-center gap-1 text-[11px] font-extrabold text-amber-400 hover:text-amber-300 transition-colors pr-2 flex-shrink-0 group"
+            >
+              <span>Live Standings</span>
+              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          </div>
         </div>
-      </div>
+      </ScrollReveal>
 
       {/* 2. Three Interactive Animated Feature Hubs (Mobile 2-Col Grid, Desktop 3-Col Grid) */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
         {/* Hub 1: Audio Listening Simulator with Equalizer */}
-        <div className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-lg shadow-slate-200/50 dark:shadow-[0_0_30px_rgba(0,0,0,0.5)] hover:border-japan-red/40 dark:hover:border-rose-600/60 transition-all duration-300 flex flex-col justify-between space-y-3 sm:space-y-4 hover-lift group">
+        <ScrollReveal variant="up" delay={50} duration={700} className="h-full">
+          <div className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-lg shadow-slate-200/50 dark:shadow-[0_0_30px_rgba(0,0,0,0.5)] hover:border-japan-red/40 dark:hover:border-rose-600/60 transition-all duration-300 flex flex-col justify-between space-y-3 sm:space-y-4 hover-lift group h-full">
           <div className="space-y-2 sm:space-y-3">
             <div className="flex items-center justify-between">
               <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-japan-red to-rose-600 text-white flex items-center justify-center shadow-md shadow-red-500/25 group-hover:scale-110 transition-transform">
@@ -120,75 +124,80 @@ export default function InteractiveFeatureShowcase() {
             </div>
           </div>
         </div>
+      </ScrollReveal>
 
-        {/* Hub 2: 10-Language Instant Lens with Rotating Indicator */}
-        <div className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-lg shadow-slate-200/50 dark:shadow-[0_0_30px_rgba(0,0,0,0.5)] hover:border-indigo-500/40 dark:hover:border-indigo-600/60 transition-all duration-300 flex flex-col justify-between space-y-3 sm:space-y-4 hover-lift group">
-          <div className="space-y-2 sm:space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-700 text-white flex items-center justify-center shadow-md shadow-indigo-500/25 group-hover:scale-110 transition-transform">
-                <Languages className="w-4 h-4 sm:w-6 sm:h-6" />
+      {/* Hub 2: 10-Language Instant Lens with Rotating Indicator */}
+        <ScrollReveal variant="up" delay={150} duration={700} className="h-full">
+          <div className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-lg shadow-slate-200/50 dark:shadow-[0_0_30px_rgba(0,0,0,0.5)] hover:border-indigo-500/40 dark:hover:border-indigo-600/60 transition-all duration-300 flex flex-col justify-between space-y-3 sm:space-y-4 hover-lift group h-full">
+            <div className="space-y-2 sm:space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-700 text-white flex items-center justify-center shadow-md shadow-indigo-500/25 group-hover:scale-110 transition-transform">
+                  <Languages className="w-4 h-4 sm:w-6 sm:h-6" />
+                </div>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80 text-[9px] sm:text-[10px] font-black uppercase tracking-wider">
+                  <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-indigo-600 dark:text-indigo-400" />
+                  <span>10 Langs</span>
+                </span>
               </div>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80 text-[9px] sm:text-[10px] font-black uppercase tracking-wider">
-                <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-indigo-600 dark:text-indigo-400" />
-                <span>10 Langs</span>
-              </span>
-            </div>
 
-            <div>
-              <h3 className="text-xs sm:text-lg font-black text-slate-900 dark:text-white leading-snug">
-                Translation Lens
-              </h3>
-              <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 mt-0.5 sm:mt-1 leading-relaxed font-medium line-clamp-2 sm:line-clamp-none">
-                Instant instruction translations in your native language during tests.
-              </p>
-            </div>
-          </div>
-
-          {/* Interactive Rotating Language Badge Carousel */}
-          <div className="bg-slate-950 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 border border-slate-800 flex items-center justify-between shadow-inner">
-            <span className="text-[10px] sm:text-[11px] font-medium text-slate-400">Native:</span>
-            <div className="flex items-center gap-1 sm:gap-2">
-              <div className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg sm:rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-black text-[10px] sm:text-xs shadow-md animate-pulse">
-                {LANG_LIST[activeLangIndex]}
+              <div>
+                <h3 className="text-xs sm:text-lg font-black text-slate-900 dark:text-white leading-snug">
+                  Translation Lens
+                </h3>
+                <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 mt-0.5 sm:mt-1 leading-relaxed font-medium line-clamp-2 sm:line-clamp-none">
+                  Instant instruction translations in your native language during tests.
+                </p>
               </div>
             </div>
+
+            {/* Interactive Rotating Language Badge Carousel */}
+            <div className="bg-slate-950 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 border border-slate-800 flex items-center justify-between shadow-inner">
+              <span className="text-[10px] sm:text-[11px] font-medium text-slate-400">Native:</span>
+              <div className="flex items-center gap-1 sm:gap-2">
+                <div className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg sm:rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-black text-[10px] sm:text-xs shadow-md animate-pulse">
+                  {LANG_LIST[activeLangIndex]}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </ScrollReveal>
 
         {/* Hub 3: CEFR-J Scaled Score & Instant Diagnostic Radar (Full Width on Mobile Row 2) */}
-        <div className="col-span-2 lg:col-span-1 relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-lg shadow-slate-200/50 dark:shadow-[0_0_30px_rgba(0,0,0,0.5)] hover:border-emerald-500/40 dark:hover:border-emerald-600/60 transition-all duration-300 flex flex-col justify-between space-y-3 sm:space-y-4 hover-lift group">
-          <div className="space-y-2 sm:space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/25 group-hover:scale-110 transition-transform">
-                <TrendingUp className="w-4 h-4 sm:w-6 sm:h-6" />
+        <ScrollReveal variant="up" delay={250} duration={700} className="col-span-2 lg:col-span-1 h-full">
+          <div className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-lg shadow-slate-200/50 dark:shadow-[0_0_30px_rgba(0,0,0,0.5)] hover:border-emerald-500/40 dark:hover:border-emerald-600/60 transition-all duration-300 flex flex-col justify-between space-y-3 sm:space-y-4 hover-lift group h-full">
+            <div className="space-y-2 sm:space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/25 group-hover:scale-110 transition-transform">
+                  <TrendingUp className="w-4 h-4 sm:w-6 sm:h-6" />
+                </div>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 text-[9px] sm:text-[10px] font-black uppercase tracking-wider">
+                  <Activity className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-600 dark:text-emerald-400" />
+                  <span>Scaled 10–250</span>
+                </span>
               </div>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 text-[9px] sm:text-[10px] font-black uppercase tracking-wider">
-                <Activity className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-600 dark:text-emerald-400" />
-                <span>Scaled 10–250</span>
-              </span>
+
+              <div>
+                <h3 className="text-xs sm:text-lg font-black text-slate-900 dark:text-white leading-snug">
+                  Instant Scorecard
+                </h3>
+                <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 mt-0.5 sm:mt-1 leading-relaxed font-medium">
+                  Official CEFR-J A2 scaled scoring with 4-section diagnostic accuracy.
+                </p>
+              </div>
             </div>
 
-            <div>
-              <h3 className="text-xs sm:text-lg font-black text-slate-900 dark:text-white leading-snug">
-                Instant Scorecard
-              </h3>
-              <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 mt-0.5 sm:mt-1 leading-relaxed font-medium">
-                Official CEFR-J A2 scaled scoring with 4-section diagnostic accuracy.
-              </p>
+            {/* Interactive Scaled Score Gauge Indicator */}
+            <div className="bg-slate-950 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 border border-slate-800 flex items-center justify-between shadow-inner">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="text-[10px] sm:text-xs font-bold text-slate-300">Passing Benchmark:</span>
+                <strong className="text-[11px] sm:text-xs font-black text-emerald-400 font-mono">200 / 250</strong>
+              </div>
+              <div className="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] sm:text-[10px] font-black">
+                <span>A2 PASS</span>
+              </div>
             </div>
           </div>
-
-          {/* Interactive Scaled Score Gauge Indicator */}
-          <div className="bg-slate-950 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 border border-slate-800 flex items-center justify-between shadow-inner">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="text-[10px] sm:text-xs font-bold text-slate-300">Passing Benchmark:</span>
-              <strong className="text-[11px] sm:text-xs font-black text-emerald-400 font-mono">200 / 250</strong>
-            </div>
-            <div className="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] sm:text-[10px] font-black">
-              <span>A2 PASS</span>
-            </div>
-          </div>
-        </div>
+        </ScrollReveal>
       </div>
     </div>
   );
