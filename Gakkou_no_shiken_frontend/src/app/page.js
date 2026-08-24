@@ -5,8 +5,6 @@ import HeroBannerCarousel from '@/components/HeroBannerCarousel';
 import InteractiveFeatureShowcase from '@/components/InteractiveFeatureShowcase';
 import StudentExamGuide from '@/components/StudentExamGuide';
 import LiveActivityTicker from '@/components/LiveActivityTicker';
-import DailyKanjiCard from '@/components/DailyKanjiCard';
-import ExamScorePredictor from '@/components/ExamScorePredictor';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0; // Always fetch live tests in real-time
@@ -53,16 +51,10 @@ export default async function HomePage() {
         </section>
       </div>
 
-      {/* 3. Interactive Student Power Tools (Daily 3D Kanji Flipcard & AI CEFR Score Predictor) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <DailyKanjiCard />
-        <ExamScorePredictor />
-      </div>
-
-      {/* 4. Animated Interactive Feature Showcase (Audio Equalizer, Language Lens, IRT Scoring Gauge, Hubs) */}
+      {/* 3. Animated Interactive Feature Showcase (Audio Equalizer, Language Lens, IRT Scoring Gauge, Hubs) */}
       <InteractiveFeatureShowcase />
 
-      {/* 5. Professional Student Exam Guide & Syllabus Blueprint */}
+      {/* 4. Professional Student Exam Guide & Syllabus Blueprint */}
       <StudentExamGuide />
     </div>
   );
