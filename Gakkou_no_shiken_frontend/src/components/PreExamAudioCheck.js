@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useLanguage } from './LanguageContext';
-import { Headphones, Volume2, VolumeX, Play, Pause, CheckCircle2, X, AlertTriangle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Headphones, Volume2, Play, Pause, X, AlertTriangle, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, targetUrl }) {
@@ -10,29 +10,33 @@ export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, 
   const router = useRouter();
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.8);
-  const [tested, setTested] = useState(false);
   const audioContextRef = useRef(null);
   const oscillatorRef = useRef(null);
   const gainNodeRef = useRef(null);
 
-  useEffect(() => {
-    return () => {
-      stopAudioTest();
-    };
+  const stopAudioTest = useCallback(() => {
+    if (audioContextRef.current) {
+      try {
+        audioContextRef.current.close();
+      } catch {
+        // ignore
+      }
+      audioContextRef.current = null;
+    }
+    setIsPlaying(false);
   }, []);
 
-  if (!isOpen) return null;
-
-  const playAudioTest = () => {
+  const playAudioTest = useCallback(() => {
     try {
       if (isPlaying) {
         stopAudioTest();
         return;
       }
 
-      // Using Web Audio API to generate a pleasant authentic Prometric chime & voice simulation tone
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      const ctx = new AudioContext();
+      const AudioCtxClass = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext);
+      if (!AudioCtxClass) return;
+
+      const ctx = new AudioCtxClass();
       audioContextRef.current = ctx;
 
       const gain = ctx.createGain();
@@ -40,7 +44,6 @@ export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, 
       gain.connect(ctx.destination);
       gainNodeRef.current = gain;
 
-      // Play two melodic chimes mimicking Japanese testing broadcast
       const now = ctx.currentTime;
       const osc1 = ctx.createOscillator();
       osc1.type = 'sine';
@@ -55,7 +58,6 @@ export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, 
       oscillatorRef.current = osc1;
 
       setIsPlaying(true);
-      setTested(true);
 
       osc1.onended = () => {
         setIsPlaying(false);
@@ -64,17 +66,13 @@ export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, 
       console.warn('Audio context error:', err);
       setIsPlaying(false);
     }
-  };
+  }, [isPlaying, stopAudioTest, volume]);
 
-  const stopAudioTest = () => {
-    if (audioContextRef.current) {
-      try {
-        audioContextRef.current.close();
-      } catch {}
-      audioContextRef.current = null;
-    }
-    setIsPlaying(false);
-  };
+  useEffect(() => {
+    return () => {
+      stopAudioTest();
+    };
+  }, [stopAudioTest]);
 
   const handleVolumeChange = (e) => {
     const val = parseFloat(e.target.value);
@@ -94,6 +92,8 @@ export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, 
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
       <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 animate-scale-in">
@@ -101,7 +101,7 @@ export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, 
         <button
           onClick={() => {
             stopAudioTest();
-            onClose();
+            if (onClose) onClose();
           }}
           className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
         >
@@ -208,7 +208,7 @@ export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, 
             type="button"
             onClick={() => {
               stopAudioTest();
-              onClose();
+              if (onClose) onClose();
             }}
             className="w-full sm:w-1/3 py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >

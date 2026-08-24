@@ -1,9 +1,5 @@
 import './globals.css';
-import { AuthProvider } from '@/components/AuthContext';
-import { ThemeProvider } from '@/components/ThemeContext';
-import { LanguageProvider } from '@/components/LanguageContext';
-import AnimatedThemeBackground from '@/components/AnimatedThemeBackground';
-import AppLayout from '@/components/AppLayout';
+import Providers from '@/components/Providers';
 
 export const metadata = {
   metadataBase: new URL('https://www.gakkounoshiken.site'),
@@ -118,14 +114,7 @@ export default function RootLayout({ children }) {
       </head>
 
       <body className="flex flex-col min-h-full text-slate-800 dark:text-slate-100 bg-transparent antialiased font-sans selection:bg-red-500 selection:text-white relative overflow-x-hidden transition-colors duration-500">
-        <ThemeProvider>
-          <LanguageProvider>
-            <AnimatedThemeBackground />
-            <AuthProvider>
-              <AppLayout>{children}</AppLayout>
-            </AuthProvider>
-          </LanguageProvider>
-        </ThemeProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
