@@ -150,9 +150,12 @@ export default function HeroBannerCarousel() {
             {/* Left Glass Card */}
             <div className="relative w-full max-w-md xl:max-w-lg bg-black/45 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-red-500/35 shadow-[0_0_35px_rgba(220,38,38,0.18)] ring-1 ring-white/15 space-y-3 sm:space-y-4">
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-gradient-to-tr from-japan-red to-rose-600 flex items-center justify-center text-white font-black text-[10px] sm:text-xs shadow-md shadow-red-500/40">
-                  学
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/img/logo.png"
+                  alt="Gakkou No Shiken"
+                  className="w-6 h-6 sm:w-7 sm:h-7 object-contain filter drop-shadow-md"
+                />
                 <span className="text-[10px] sm:text-xs font-black tracking-widest text-slate-200 uppercase">
                   GAKKOU NO SHIKEN
                 </span>
@@ -284,9 +287,12 @@ export default function HeroBannerCarousel() {
             {/* Left Glass Card */}
             <div className="relative w-full max-w-md xl:max-w-lg bg-black/50 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-emerald-500/35 shadow-[0_0_35px_rgba(16,185,129,0.18)] ring-1 ring-white/15 space-y-3 sm:space-y-4">
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white font-black text-[10px] sm:text-xs shadow-md shadow-emerald-500/40">
-                  技
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/img/logo.png"
+                  alt="Gakkou No Shiken"
+                  className="w-6 h-6 sm:w-7 sm:h-7 object-contain filter drop-shadow-md"
+                />
                 <span className="text-[10px] sm:text-xs font-black tracking-widest text-emerald-300 uppercase">
                   SPECIFIED SKILLED WORKER (SSW)
                 </span>
@@ -419,9 +425,12 @@ export default function HeroBannerCarousel() {
             {/* Left Glass Card */}
             <div className="relative w-full max-w-md xl:max-w-lg bg-black/50 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-amber-500/35 shadow-[0_0_35px_rgba(245,158,11,0.18)] ring-1 ring-white/15 space-y-3 sm:space-y-4">
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-gradient-to-tr from-amber-500 to-yellow-600 flex items-center justify-center text-slate-950 font-black text-[10px] sm:text-xs shadow-md shadow-amber-500/40">
-                  順
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/img/logo.png"
+                  alt="Gakkou No Shiken"
+                  className="w-6 h-6 sm:w-7 sm:h-7 object-contain filter drop-shadow-md"
+                />
                 <span className="text-[10px] sm:text-xs font-black tracking-widest text-amber-300 uppercase">
                   NATIONAL STANDINGS &amp; RANKS
                 </span>
