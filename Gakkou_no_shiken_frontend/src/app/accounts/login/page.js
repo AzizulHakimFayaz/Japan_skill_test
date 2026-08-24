@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { loginUser } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
+import GoogleSignInButton from '@/components/GoogleSignInButton';
 
 function LoginForm() {
   const router = useRouter();
@@ -43,8 +44,18 @@ function LoginForm() {
         <img src="/img/logo.png" alt="Gakkou No Shiken" className="h-16 w-auto mx-auto object-contain filter drop-shadow-xs" />
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Candidate Sign In</h1>
         <p className="text-slate-500 text-xs sm:text-sm">
-          Sign in with your username or email address to track your exam performance stats.
+          Sign in to track your exam performance, scores, and rankings.
         </p>
+      </div>
+
+      {/* 1-Click Social Sign-In */}
+      <GoogleSignInButton text="Continue with Google" enableOneTap={true} />
+
+      <div className="relative flex items-center justify-center my-4">
+        <hr className="w-full border-slate-200" />
+        <span className="absolute bg-white px-3 text-[11px] font-extrabold uppercase text-slate-400">
+          or sign in with password
+        </span>
       </div>
 
       {/* Error Alert */}
@@ -53,6 +64,7 @@ function LoginForm() {
           {error}
         </div>
       )}
+
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">

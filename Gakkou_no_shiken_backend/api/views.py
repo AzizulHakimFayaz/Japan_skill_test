@@ -1,5 +1,8 @@
 from collections import OrderedDict, defaultdict
 import json
+import urllib.request
+import re
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db.models import Count
@@ -8,6 +11,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+
 
 from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt
 from accounts.models import UserProfile
@@ -430,7 +434,87 @@ class LoginAPIView(APIView):
         )
 
 
+class GoogleAuthAPIView(APIView):
+    """
+    Authenticates or auto-registers a candidate using Google 1-Click Sign-In (ID Token).
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        id_token = request.data.get('id_token') or request.data.get('credential')
+        if not id_token:
+            return Response({'detail': 'Google ID token credential is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            url = f"https://oauth2.googleapis.com/tokeninfo?id_token={id_token}"
+            req = urllib.request.Request(url, headers={'User-Agent': 'GakkouNoShiken/1.0'})
+            with urllib.request.urlopen(req, timeout=10) as response:
+                payload = json.loads(response.read().decode('utf-8'))
+        except Exception as e:
+            return Response({'detail': f'Failed to verify Google credential with Google servers: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        email = payload.get('email')
+        if not email:
+            return Response({'detail': 'Google account did not return a valid email address.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        email_verified = payload.get('email_verified')
+        if str(email_verified).lower() not in ('true', '1'):
+            return Response({'detail': 'Your Google account email is not verified by Google.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        first_name = payload.get('given_name') or (payload.get('name', '').split(' ')[0] if payload.get('name') else '')
+        last_name = payload.get('family_name') or ''
+        if not last_name and payload.get('name') and ' ' in payload.get('name'):
+            last_name = ' '.join(payload.get('name').split(' ')[1:])
+
+        user = User.objects.filter(email__iexact=email).first()
+        is_new_user = False
+
+        if not user:
+            base_username = email.split('@')[0]
+            base_username = re.sub(r'[^a-zA-Z0-9_]', '', base_username) or 'candidate'
+            username = base_username[:20]
+            counter = 1
+            while User.objects.filter(username__iexact=username).exists():
+                username = f"{base_username[:15]}_{counter}"
+                counter += 1
+
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+            )
+            user.set_unusable_password()
+            user.save()
+            is_new_user = True
+        else:
+            updated = False
+            if not user.first_name and first_name:
+                user.first_name = first_name
+                updated = True
+            if not user.last_name and last_name:
+                user.last_name = last_name
+                updated = True
+            if updated:
+                user.save()
+
+        # Ensure user profile exists
+        UserProfile.objects.get_or_create(user=user)
+
+        tokens = get_tokens_for_user(user)
+        welcome_name = user.first_name or user.username
+        message = f"Welcome to Gakkou No Shiken, {welcome_name}!" if is_new_user else f"Welcome back, {welcome_name}!"
+
+        return Response({
+            'user': UserSerializer(user).data,
+            'tokens': tokens,
+            'is_new_user': is_new_user,
+            'message': message,
+        }, status=status.HTTP_200_OK)
+
+
 class MeAPIView(APIView):
+
     """Returns profile of currently logged-in user."""
     permission_classes = [permissions.IsAuthenticated]
 

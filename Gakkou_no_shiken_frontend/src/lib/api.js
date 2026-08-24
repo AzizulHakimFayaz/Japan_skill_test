@@ -124,7 +124,6 @@ export async function getSswInfo() {
   return apiRequest('/api/info/ssw/');
 }
 
-// ─── Authentication & Profile APIs ───
 export async function loginUser(username, password) {
   const data = await apiRequest('/api/auth/login/', {
     method: 'POST',
@@ -136,6 +135,19 @@ export async function loginUser(username, password) {
   }
   return data;
 }
+
+export async function googleAuthLogin(idToken) {
+  const data = await apiRequest('/api/auth/google/', {
+    method: 'POST',
+    body: JSON.stringify({ id_token: idToken }),
+  });
+  if (data?.tokens?.access) {
+    setAuthTokens(data.tokens.access, data.tokens.refresh);
+    setStoredUser(data.user);
+  }
+  return data;
+}
+
 
 export async function registerUser(username, email, password, passwordConfirm, firstName = '', lastName = '') {
   const data = await apiRequest('/api/auth/register/', {

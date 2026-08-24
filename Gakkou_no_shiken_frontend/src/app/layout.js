@@ -89,6 +89,9 @@ export default function RootLayout({ children }) {
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossOrigin=""
         />
+        {/* Google Identity Services (One-Tap & 1-Click Sign-In) */}
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+
         {/* Google AdSense Account Meta Tag & Script */}
         <meta name="google-adsense-account" content="ca-pub-8435487820435842" />
         <script
@@ -96,6 +99,7 @@ export default function RootLayout({ children }) {
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8435487820435842"
           crossOrigin="anonymous"
         ></script>
+
       </head>
 
 
