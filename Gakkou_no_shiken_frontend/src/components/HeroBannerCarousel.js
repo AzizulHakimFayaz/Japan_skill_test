@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { getLeaderboard } from '@/lib/api';
 import {
   BookOpen,
   Layers,
@@ -31,9 +32,45 @@ export default function HeroBannerCarousel() {
   const totalSlides = 3;
   const slideIntervalRef = useRef(null);
 
+  const [topThree, setTopThree] = useState([
+    { rank: 1, name: 'Kenji Tanaka', username: 'kenji_tanaka', score: 245, exam: 'JFT-Basic A2' },
+    { rank: 2, name: 'Rahim Ahmed', username: 'rahim_ahmed', score: 238, exam: 'SSW Nursing' },
+    { rank: 3, name: 'Aung Min', username: 'aung_min', score: 225, exam: 'SSW Food' },
+  ]);
+
+  useEffect(() => {
+    let isMounted = true;
+    getLeaderboard()
+      .then((data) => {
+        if (isMounted && data?.top_three && data.top_three.length > 0) {
+          const formatted = data.top_three.map((c, i) => ({
+            rank: i + 1,
+            name: c.full_name || c.username || `Candidate #${i + 1}`,
+            username: c.username || `candidate_${i + 1}`,
+            score: c.highest_score || c.avg_score || 200,
+            exam: c.target_exam_display || 'JFT-Basic',
+          }));
+          const defaults = [
+            { rank: 1, name: 'Kenji Tanaka', username: 'kenji_tanaka', score: 245, exam: 'JFT-Basic A2' },
+            { rank: 2, name: 'Rahim Ahmed', username: 'rahim_ahmed', score: 238, exam: 'SSW Nursing' },
+            { rank: 3, name: 'Aung Min', username: 'aung_min', score: 225, exam: 'SSW Food' },
+          ];
+          while (formatted.length < 3) {
+            formatted.push(defaults[formatted.length]);
+          }
+          setTopThree(formatted);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % totalSlides);
   };
+
 
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
@@ -462,45 +499,61 @@ export default function HeroBannerCarousel() {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="p-2.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-between">
+                  <Link
+                    href={topThree[0]?.username ? `/profile/${topThree[0].username}` : '/leaderboard'}
+                    className="p-2.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-between hover:bg-amber-500/25 transition-all group/cand cursor-pointer"
+                  >
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-xl bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow-xs">
+                      <div className="w-7 h-7 rounded-xl bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow-xs flex-shrink-0">
                         1
                       </div>
-                      <div>
-                        <div className="text-xs font-bold text-white">Top Candidate</div>
-                        <div className="text-[9px] text-amber-300 font-semibold">245 Scaled Score</div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold text-white group-hover/cand:text-amber-300 transition-colors truncate max-w-[130px]">
+                          {topThree[0]?.name}
+                        </div>
+                        <div className="text-[9px] text-amber-300 font-semibold">{topThree[0]?.score} Scaled Score</div>
                       </div>
                     </div>
-                    <Crown className="w-4 h-4 text-amber-400" />
-                  </div>
+                    <Crown className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  </Link>
 
-                  <div className="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                  <Link
+                    href={topThree[1]?.username ? `/profile/${topThree[1].username}` : '/leaderboard'}
+                    className="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between hover:bg-slate-800/90 transition-all group/cand cursor-pointer"
+                  >
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-xl bg-slate-300 text-slate-950 font-black text-xs flex items-center justify-center shadow-xs">
+                      <div className="w-7 h-7 rounded-xl bg-slate-300 text-slate-950 font-black text-xs flex items-center justify-center shadow-xs flex-shrink-0">
                         2
                       </div>
-                      <div>
-                        <div className="text-xs font-bold text-white">Second Place</div>
-                        <div className="text-[9px] text-slate-400 font-semibold">238 Scaled Score</div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold text-white group-hover/cand:text-slate-200 transition-colors truncate max-w-[130px]">
+                          {topThree[1]?.name}
+                        </div>
+                        <div className="text-[9px] text-slate-400 font-semibold">{topThree[1]?.score} Scaled Score</div>
                       </div>
                     </div>
-                    <Medal className="w-4 h-4 text-slate-300" />
-                  </div>
+                    <Medal className="w-4 h-4 text-slate-300 flex-shrink-0" />
+                  </Link>
 
-                  <div className="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                  <Link
+                    href={topThree[2]?.username ? `/profile/${topThree[2].username}` : '/leaderboard'}
+                    className="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between hover:bg-slate-800/90 transition-all group/cand cursor-pointer"
+                  >
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-xl bg-amber-700 text-amber-100 font-black text-xs flex items-center justify-center shadow-xs">
+                      <div className="w-7 h-7 rounded-xl bg-amber-700 text-amber-100 font-black text-xs flex items-center justify-center shadow-xs flex-shrink-0">
                         3
                       </div>
-                      <div>
-                        <div className="text-xs font-bold text-white">Third Place</div>
-                        <div className="text-[9px] text-slate-400 font-semibold">225 Scaled Score</div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold text-white group-hover/cand:text-amber-400 transition-colors truncate max-w-[130px]">
+                          {topThree[2]?.name}
+                        </div>
+                        <div className="text-[9px] text-slate-400 font-semibold">{topThree[2]?.score} Scaled Score</div>
                       </div>
                     </div>
-                    <Award className="w-4 h-4 text-amber-600" />
-                  </div>
+                    <Award className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  </Link>
                 </div>
+
 
                 <div className="p-2 rounded-xl bg-slate-900/80 border border-amber-500/30 flex items-center justify-center gap-1.5 text-[10px] sm:text-[11px] font-extrabold text-amber-300">
                   <Trophy className="w-3.5 h-3.5 text-amber-400" />
