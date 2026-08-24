@@ -89,14 +89,14 @@ export default function RootLayout({ children }) {
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossOrigin=""
         />
-        {/* Leaflet JS */}
+        {/* Google AdSense Script */}
         <script
-          src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-          crossOrigin=""
-          defer
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8435487820435842"
+          crossOrigin="anonymous"
         ></script>
       </head>
+
       <body className="flex flex-col min-h-full text-slate-800 bg-slate-50 antialiased font-sans selection:bg-red-500 selection:text-white relative overflow-x-hidden bg-grid-mesh">
         <AuthProvider>
           <AppLayout>{children}</AppLayout>
