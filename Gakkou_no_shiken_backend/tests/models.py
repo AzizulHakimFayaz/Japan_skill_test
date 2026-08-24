@@ -316,8 +316,10 @@ class Attempt(models.Model):
     @property
     def scaled_score(self):
         if self.total_questions > 0:
-            return int(round((self.score / self.total_questions) * 250))
-        return 0
+            pct = self.score / self.total_questions
+            return int(round(10 + (pct * 240)))
+        return 10
+
 
     @property
     def is_passed(self):
