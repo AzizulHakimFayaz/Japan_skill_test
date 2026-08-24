@@ -428,10 +428,13 @@ input:focus, select:focus, textarea:focus, .form-control:focus {
     text-align: center !important;
 }
 
-.login-logo img,
-.login-box .login-logo img,
-.brand-image,
-.login-box img {
+.login-logo a {
+    display: inline-block !important;
+    text-align: center !important;
+}
+
+.login-logo a img:first-child,
+.login-logo > img:first-child {
     max-height: 80px !important;
     max-width: 240px !important;
     width: auto !important;
@@ -441,22 +444,30 @@ input:focus, select:focus, textarea:focus, .form-control:focus {
     display: block !important;
 }
 
-/* Hide duplicate logo-dark completely */
+/* Hide ANY duplicate logo image (e.g. dark mode alternate logo) */
+.login-logo img:nth-of-type(n+2),
+.login-logo a img:nth-of-type(n+2),
+.login-logo a img:not(:first-child),
+.login-logo a + a,
+.login-logo img.logo-dark,
+.login-logo img.brand-image + img,
 img.logo-dark,
-.login-logo .logo-dark,
-.login-box .logo-dark {
+.logo-dark {
     display: none !important;
 }
 
-/* Ensure only one single logo element is visible above the login box */
+/* Hide ANY duplicate login-logo containers */
+.login-page .login-logo ~ .login-logo,
+.login-page .login-logo + .login-logo,
+.login-box .login-logo ~ .login-logo,
 .login-box .card .login-logo,
 .login-box .card-body .login-logo,
 .login-box .card img,
 .login-box .login-card-body img,
-.login-box .login-logo ~ .login-logo,
 .login-box .brand-link {
     display: none !important;
 }
+
 
 .login-box .card {
     background: #1E293B !important;
