@@ -12,6 +12,8 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.management import call_command
+
 
 from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt
 from accounts.models import UserProfile, EmailVerificationOTP
@@ -489,6 +491,7 @@ class VerifyRegistrationOTPAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
+        EmailVerificationOTP.ensure_table_exists()
         email = request.data.get('email', '').strip().lower()
         otp_code = request.data.get('otp_code', '').strip()
 
@@ -539,7 +542,9 @@ class ResendRegistrationOTPAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
+        EmailVerificationOTP.ensure_table_exists()
         email = request.data.get('email', '').strip().lower()
+
         if not email:
             return Response({'detail': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
 

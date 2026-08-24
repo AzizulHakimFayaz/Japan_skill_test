@@ -80,8 +80,37 @@ class EmailVerificationOTP(models.Model):
         return timezone.now() > self.created_at + timedelta(minutes=15)
 
     @classmethod
+    def ensure_table_exists(cls):
+        try:
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS accounts_emailverificationotp (
+                        id integer PRIMARY KEY AUTOINCREMENT,
+                        email varchar(254) NOT NULL,
+                        otp_code varchar(6) NOT NULL,
+                        created_at datetime NOT NULL,
+                        is_verified bool NOT NULL,
+                        username varchar(150) NOT NULL,
+                        first_name varchar(150) NOT NULL,
+                        last_name varchar(150) NOT NULL,
+                        password_hash varchar(255) NOT NULL
+                    );
+                """)
+                cursor.execute("""
+                    CREATE INDEX IF NOT EXISTS accounts_emailverificationotp_email 
+                    ON accounts_emailverificationotp(email);
+                """)
+        except Exception as e:
+            print(f"Table check error: {e}")
+
+    @classmethod
     def create_otp(cls, email, username='', first_name='', last_name='', password=''):
-        cls.objects.filter(email__iexact=email).delete()
+        cls.ensure_table_exists()
+        try:
+            cls.objects.filter(email__iexact=email).delete()
+        except Exception:
+            pass
         code = f"{random.randint(100000, 999999)}"
         return cls.objects.create(
             email=email.strip().lower(),
@@ -93,5 +122,6 @@ class EmailVerificationOTP(models.Model):
         )
 
     def __str__(self):
+
         return f"OTP for {self.email} ({self.otp_code})"
 
