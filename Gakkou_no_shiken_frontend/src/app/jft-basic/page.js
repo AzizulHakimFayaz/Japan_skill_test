@@ -354,6 +354,16 @@ export default function JftBasicPage() {
                 </div>
               </div>
             </div>
+
+            {/* Local Voucher Notice */}
+            <div className="mt-5 p-3.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 text-xs text-indigo-950 dark:text-indigo-200 space-y-1">
+              <strong className="font-extrabold flex items-center gap-1.5 text-indigo-800 dark:text-indigo-300">
+                <span>💡 Bangladesh Candidates Voucher Tip:</span>
+              </strong>
+              <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                If you don&apos;t have an international credit card with dual-currency endorsement, you can purchase official Prometric vouchers in BDT through authorized Bangladesh test center partners (UTC Dhanmondi &amp; Banani) or designated Japanese language training centers.
+              </p>
+            </div>
           </div>
 
           <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">

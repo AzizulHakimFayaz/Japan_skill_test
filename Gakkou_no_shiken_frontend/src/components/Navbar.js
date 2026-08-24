@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from './AuthContext';
 import ThemeToggle from './ThemeToggle';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useLanguage } from './LanguageContext';
 import {
   Trophy,
   Home,
@@ -24,6 +26,7 @@ import {
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
+  const { t } = useLanguage();
   const pathname = usePathname();
 
   const isActive = (path) => pathname === path;
@@ -58,7 +61,7 @@ export default function Navbar() {
 
         {/* Desktop Menu Navigation */}
         <div className="flex items-center gap-2 sm:gap-4">
-          <div className="hidden sm:flex sm:items-center sm:gap-3 lg:gap-4">
+          <div className="hidden sm:flex sm:items-center sm:gap-2.5 lg:gap-3">
             <Link
               href="/"
               className={`text-sm font-bold transition-all duration-200 py-1.5 px-3 rounded-xl flex items-center gap-1.5 ${
@@ -68,7 +71,7 @@ export default function Navbar() {
               }`}
             >
               <Home className="w-4 h-4" />
-              <span>Home</span>
+              <span>{t('home')}</span>
             </Link>
             <Link
               href="/jft-basic"
@@ -79,7 +82,7 @@ export default function Navbar() {
               }`}
             >
               <BookOpen className="w-4 h-4" />
-              <span>JFT-Basic</span>
+              <span>{t('jft_basic')}</span>
             </Link>
             <Link
               href="/ssw-skill-test"
@@ -90,7 +93,7 @@ export default function Navbar() {
               }`}
             >
               <Layers className="w-4 h-4" />
-              <span>SSW Skills</span>
+              <span>{t('ssw_skills')}</span>
             </Link>
             <Link
               href="/leaderboard"
@@ -101,11 +104,16 @@ export default function Navbar() {
               }`}
             >
               <Trophy className="w-4 h-4 text-amber-500" />
-              <span>Leaderboard</span>
+              <span>{t('leaderboard')}</span>
             </Link>
+
+            {/* Language Switcher (EN / BN / JA) */}
+            <LanguageSwitcher />
 
             {/* Dark Mode Theme Toggle Button */}
             <ThemeToggle size="compact" />
+
+            <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-1"></div>
 
             {isAuthenticated && user ? (
               <>
@@ -114,14 +122,13 @@ export default function Navbar() {
                     href={`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 transition-all py-1.5 px-3 rounded-xl hover:bg-red-50/50 dark:hover:bg-slate-800/60 flex items-center gap-1"
+                    className="text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 transition-all py-1.5 px-2.5 rounded-xl hover:bg-red-50/50 dark:hover:bg-slate-800/60 flex items-center gap-1"
                   >
-                    <Shield className="w-4 h-4 text-japan-red" />
-                    <span>Admin</span>
+                    <Shield className="w-3.5 h-3.5 text-japan-red" />
+                    <span>{t('admin_panel')}</span>
                     <ExternalLink className="w-3 h-3 opacity-60" />
                   </a>
                 )}
-                <span className="text-slate-300 dark:text-slate-700">|</span>
                 <Link
                   href="/accounts/my-results"
                   className="flex items-center gap-2 group p-1 pr-3 rounded-2xl hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-all"
@@ -135,34 +142,35 @@ export default function Navbar() {
                 </Link>
                 <button
                   onClick={logout}
-                  className="text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-3.5 py-2 rounded-xl transition-all border border-slate-200 dark:border-slate-700 cursor-pointer flex items-center gap-1.5"
+                  className="text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-xl transition-all border border-slate-200 dark:border-slate-700 cursor-pointer flex items-center gap-1.5"
                 >
                   <LogOut className="w-3.5 h-3.5" />
-                  <span>Sign Out</span>
+                  <span>{t('sign_out')}</span>
                 </button>
               </>
             ) : (
-              <>
+              <div className="flex items-center gap-3">
                 <Link
                   href="/accounts/login"
-                  className="text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 transition-colors px-3 py-2 rounded-xl flex items-center gap-1.5"
+                  className="text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 transition-colors px-2 py-1.5 flex items-center gap-1"
                 >
-                  <LogIn className="w-4 h-4" />
-                  <span>Sign In</span>
+                  <LogIn className="w-3.5 h-3.5 opacity-75" />
+                  <span>{t('sign_in')}</span>
                 </Link>
                 <Link
                   href="/accounts/signup"
-                  className="text-sm font-extrabold bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-red-700 text-white px-5 py-2.5 rounded-xl transition-all shadow-md shadow-red-500/20 hover:shadow-lg hover:shadow-red-500/30 active:scale-95 flex items-center gap-1.5"
+                  className="text-xs sm:text-sm font-extrabold bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-red-700 text-white px-4 sm:px-5 py-2 rounded-xl transition-all shadow-md shadow-red-500/20 hover:shadow-lg hover:shadow-red-500/30 active:scale-95 flex items-center gap-1.5"
                 >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Register</span>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{t('register')}</span>
                 </Link>
-              </>
+              </div>
             )}
           </div>
 
           {/* Mobile Top App Actions (Avatar / Theme Toggle / Menu) */}
           <div className="flex items-center gap-2 sm:hidden">
+            <LanguageSwitcher compact={true} />
             <ThemeToggle size="compact" />
 
             {isAuthenticated && user && (
@@ -189,7 +197,7 @@ export default function Navbar() {
               <div className="flex items-center justify-between px-2 pb-2 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-japan-red animate-pulse"></span>
-                  <span className="text-xs font-black text-slate-800 dark:text-slate-200 tracking-wide">学校の試験 • CBT Portal</span>
+                  <span className="text-xs font-black text-slate-800 dark:text-slate-200 tracking-wide">学校の試験 • {t('cbt_portal')}</span>
                 </div>
                 <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 border border-rose-200/80 dark:border-rose-800/60 px-2 py-0.5 rounded-full uppercase">
                   2026 Live
@@ -203,7 +211,7 @@ export default function Navbar() {
               >
                 <span className="flex items-center gap-2.5">
                   <Home className="w-5 h-5 text-japan-red" />
-                  <span>Home</span>
+                  <span>{t('home')}</span>
                 </span>
                 <ChevronRight className="w-4 h-4 text-slate-400" />
               </Link>
@@ -215,7 +223,7 @@ export default function Navbar() {
               >
                 <span className="flex items-center gap-2.5">
                   <BookOpen className="w-5 h-5 text-japan-red" />
-                  <span>JFT-Basic Overview</span>
+                  <span>{t('jft_basic')}</span>
                 </span>
                 <ChevronRight className="w-4 h-4 text-slate-400" />
               </Link>
@@ -227,7 +235,7 @@ export default function Navbar() {
               >
                 <span className="flex items-center gap-2.5">
                   <Layers className="w-5 h-5 text-japan-red" />
-                  <span>SSW Skill Tests</span>
+                  <span>{t('ssw_skills')}</span>
                 </span>
                 <ChevronRight className="w-4 h-4 text-slate-400" />
               </Link>
@@ -239,7 +247,7 @@ export default function Navbar() {
               >
                 <span className="flex items-center gap-2.5">
                   <Trophy className="w-5 h-5 text-amber-500" />
-                  <span>Leaderboard Standings</span>
+                  <span>{t('leaderboard')}</span>
                 </span>
                 <ChevronRight className="w-4 h-4 text-amber-600" />
               </Link>
@@ -253,7 +261,7 @@ export default function Navbar() {
                   >
                     <span className="flex items-center gap-2.5">
                       <User className="w-5 h-5 text-japan-red" />
-                      <span>My Test Results</span>
+                      <span>{t('my_results')}</span>
                     </span>
                     <ChevronRight className="w-4 h-4 text-slate-400" />
                   </Link>
@@ -272,10 +280,10 @@ export default function Navbar() {
                         logout();
                         setOpen(false);
                       }}
-                      className="text-xs font-bold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors shadow-xs flex items-center gap-1"
+                      className="text-xs font-bold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors shadow-xs flex items-center gap-1 cursor-pointer"
                     >
                       <LogOut className="w-3.5 h-3.5" />
-                      <span>Sign Out</span>
+                      <span>{t('sign_out')}</span>
                     </button>
                   </div>
                 </>
@@ -287,7 +295,7 @@ export default function Navbar() {
                     className="text-center font-bold text-slate-800 dark:text-slate-200 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-95 flex items-center justify-center gap-1.5 text-sm"
                   >
                     <LogIn className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                    <span>Sign In</span>
+                    <span>{t('sign_in')}</span>
                   </Link>
                   <Link
                     href="/accounts/signup"
@@ -295,7 +303,7 @@ export default function Navbar() {
                     className="text-center font-extrabold bg-gradient-to-r from-japan-red to-rose-600 text-white py-3 rounded-2xl shadow-md shadow-red-500/25 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-1.5 text-sm"
                   >
                     <Sparkles className="w-4 h-4" />
-                    <span>Register</span>
+                    <span>{t('register')}</span>
                   </Link>
                 </div>
               )}

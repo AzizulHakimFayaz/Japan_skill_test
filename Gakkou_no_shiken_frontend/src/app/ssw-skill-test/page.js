@@ -195,6 +195,16 @@ export default function SswSkillTestPage() {
             </div>
           </div>
 
+          {/* Local BDT Voucher Advice */}
+          <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-400/30 text-xs text-amber-200 space-y-1">
+            <strong className="text-amber-300 font-extrabold flex items-center gap-1.5">
+              <span>💳 Bangladesh Payment &amp; Voucher Note:</span>
+            </strong>
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              If you do not possess an international dual-currency credit card, you can purchase official Prometric test vouchers in local currency (BDT) directly via Universal Testing Services (UTC Dhanmondi BDJ01 &amp; Banani BDJ02) or authorized test center partners prior to booking your online seat.
+            </p>
+          </div>
+
           <div className="flex flex-wrap gap-4 pt-4">
             <a
               href="https://www.prometric-jp.com/en/ssw/"

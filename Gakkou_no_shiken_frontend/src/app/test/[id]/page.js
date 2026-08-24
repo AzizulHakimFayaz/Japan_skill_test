@@ -68,9 +68,30 @@ export default function QuizPage({ params: paramsPromise }) {
       .then((data) => {
         setQuizData(data);
         const isDemo = Boolean(data.test?.is_actual_exam_demo);
-        setCurrentStep(isDemo ? 0 : 1);
-        if (data.test?.time_limit_seconds) {
-          setTimeLeft(data.test.time_limit_seconds);
+        const sectionParam = searchParams?.get('section');
+
+        let startStep = isDemo ? 0 : 1;
+        let initialTime = data.test?.time_limit_seconds || 3600;
+
+        if (sectionParam && data.steps) {
+          const matchingIndex = data.steps.findIndex((s) => s.section === sectionParam);
+          if (matchingIndex !== -1) {
+            startStep = matchingIndex + 1;
+            const SECTION_DRILL_TIMES = {
+              script_vocab: 12 * 60,
+              conversation: 15 * 60,
+              listening: 20 * 60,
+              reading: 15 * 60,
+            };
+            if (SECTION_DRILL_TIMES[sectionParam]) {
+              initialTime = SECTION_DRILL_TIMES[sectionParam];
+            }
+          }
+        }
+
+        setCurrentStep(startStep);
+        if (initialTime) {
+          setTimeLeft(initialTime);
         }
       })
       .catch((err) => {
@@ -83,7 +104,7 @@ export default function QuizPage({ params: paramsPromise }) {
       .finally(() => {
         setLoading(false);
       });
-  }, [params.id, previewToken, router]);
+  }, [params.id, previewToken, router, searchParams]);
 
 
   // Countdown timer

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { getLeaderboard } from '@/lib/api';
+import { useLanguage } from './LanguageContext';
 import {
   BookOpen,
   Layers,
@@ -24,9 +25,12 @@ import {
   Sparkles,
   ExternalLink,
   MessageSquare,
+  ShieldCheck,
+  Calendar,
 } from 'lucide-react';
 
 export default function HeroBannerCarousel() {
+  const { t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const totalSlides = 3;
@@ -71,7 +75,6 @@ export default function HeroBannerCarousel() {
     setCurrentSlide((prev) => (prev + 1) % totalSlides);
   };
 
-
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
   };
@@ -98,7 +101,7 @@ export default function HeroBannerCarousel() {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* ============================================================
-          SLIDE 1: JFT-BASIC & AUTHENTIC CBT SIMULATOR (Anime Student)
+          SLIDE 1: JFT-BASIC & AUTHENTIC CBT SIMULATOR (Professional CBT)
           ============================================================ */}
       <div
         className={`transition-opacity duration-700 ease-in-out ${
@@ -107,11 +110,11 @@ export default function HeroBannerCarousel() {
       >
         {/* Background Artwork */}
         <div
-          className="absolute inset-0 bg-cover bg-[position:22%_center] sm:bg-[position:28%_center] bg-no-repeat opacity-95 pointer-events-none"
-          style={{ backgroundImage: "url('/img/hero_anime_student.jpg')" }}
+          className="absolute inset-0 bg-cover bg-[position:center_center] bg-no-repeat opacity-95 pointer-events-none"
+          style={{ backgroundImage: "url('/img/hero_professional_cbt.jpg')" }}
         ></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-black/65 pointer-events-none"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-black/75 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/50 pointer-events-none"></div>
 
         {/* Animated Wind Vortex SVG */}
         <svg
@@ -148,7 +151,7 @@ export default function HeroBannerCarousel() {
         <div className="relative z-10 p-4 sm:p-8 lg:p-10 space-y-4 sm:space-y-8">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sm:gap-10">
             {/* Left Glass Card */}
-            <div className="relative w-full max-w-md xl:max-w-lg bg-black/45 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-red-500/35 shadow-[0_0_35px_rgba(220,38,38,0.18)] ring-1 ring-white/15 space-y-3 sm:space-y-4">
+            <div className="relative w-full max-w-md xl:max-w-lg bg-black/60 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-red-500/35 shadow-[0_0_35px_rgba(220,38,38,0.22)] ring-1 ring-white/15 space-y-3 sm:space-y-4">
               <div className="flex items-center gap-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -157,33 +160,33 @@ export default function HeroBannerCarousel() {
                   className="w-6 h-6 sm:w-7 sm:h-7 object-contain filter drop-shadow-md"
                 />
                 <span className="text-[10px] sm:text-xs font-black tracking-widest text-slate-200 uppercase">
-                  GAKKOU NO SHIKEN
+                  GAKKOU NO SHIKEN • CBT 2026
                 </span>
               </div>
 
               <h1 className="text-xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight text-white drop-shadow-md">
-                Master Your{' '}
+                Official CBT Practice for{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-japan-red to-amber-300">
-                  JFT &amp; Skill Tests
+                  Japan Work Visas
                 </span>
               </h1>
 
               <p className="text-[11px] sm:text-sm text-slate-200/95 font-medium leading-relaxed drop-shadow-xs">
-                Authentic computer-based test simulator with 10 native language aids and instant CEFR-J scores.
+                Authentic Prometric computer-based exam simulator for JFT-Basic &amp; SSW Skills with instant CEFR scoring &amp; local venue guides.
               </p>
 
               <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                 <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/25 border border-rose-500/40 text-rose-200 text-[9px] sm:text-[10px] font-bold backdrop-blur-xs">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse"></span>
-                  <span>JFT Portal</span>
+                  <span>JFT-Basic A2</span>
                 </div>
                 <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/25 border border-amber-500/40 text-amber-200 text-[9px] sm:text-[10px] font-bold backdrop-blur-xs">
                   <CheckCircle2 className="w-2.5 h-2.5 text-amber-300" />
-                  <span>Skill Tests</span>
+                  <span>SSW Skills</span>
                 </div>
                 <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-500/40 text-emerald-200 text-[9px] sm:text-[10px] font-bold backdrop-blur-xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  <span>CEFR-J A1–A2</span>
+                  <ShieldCheck className="w-2.5 h-2.5 text-emerald-400" />
+                  <span>Prometric BDJ01/02</span>
                 </div>
               </div>
 
