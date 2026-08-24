@@ -336,10 +336,11 @@ export default function QuizPage({ params: paramsPromise }) {
   const totalStepsInSection = activeSectionSteps.length;
 
   return (
-    <div className="fixed inset-0 z-50 h-screen w-screen m-0 p-0 overflow-hidden font-sans text-slate-900 bg-white flex flex-col justify-between select-none">
+    <div className="fixed inset-0 z-50 h-[100dvh] h-screen w-screen max-h-[100dvh] m-0 p-0 overflow-hidden font-sans text-slate-900 bg-white flex flex-col select-none">
       {/* ==========================================
            TOP HEADER 1: BLACK BAR (Section & Timer)
            ========================================== */}
+
       <header className="bg-black text-white min-h-[2.5rem] py-1.5 px-3 sm:px-4 flex items-center justify-between gap-2 border-b border-slate-800 text-xs font-sans flex-shrink-0">
         <div className="flex items-center gap-2 sm:gap-4 truncate">
           <span className="font-bold whitespace-nowrap bg-slate-800 px-2 py-0.5 rounded text-[11px] sm:text-xs">
@@ -406,9 +407,10 @@ export default function QuizPage({ params: paramsPromise }) {
       {/* ==========================================
            MAIN CONTENT AREA: RESPONSIVE SIDEBAR + CANVAS
            ========================================== */}
-      <div className="flex-1 flex flex-row overflow-hidden relative">
+      <div className="flex-1 min-h-0 flex flex-row overflow-hidden relative">
         {/* Left Navigation Sidebar */}
-        <aside className="w-24 sm:w-36 bg-white border-r border-[#E2E8F0] h-full flex flex-row p-1 sm:p-1.5 gap-1 sm:gap-1.5 flex-shrink-0 select-none overflow-hidden">
+        <aside className="w-24 sm:w-36 bg-white border-r border-[#E2E8F0] h-full min-h-0 flex flex-row p-1 sm:p-1.5 gap-1 sm:gap-1.5 flex-shrink-0 select-none overflow-hidden">
+
           {/* Sub-Column 1: Section Tabs with vertical progress fill */}
           <div className="w-8 sm:w-11 h-full flex flex-col justify-between gap-1 sm:gap-1.5 flex-shrink-0 font-sans py-0.5">
             {/* Section 0: Intro (Visible in Actual Exam Demo) */}
@@ -565,7 +567,8 @@ export default function QuizPage({ params: paramsPromise }) {
 
 
         {/* Right Main Canvas Area */}
-        <main className="flex-1 bg-white h-full overflow-y-auto p-3 sm:p-6 text-slate-900 font-sans">
+        <main className="flex-1 min-h-0 bg-white h-full overflow-y-auto p-3 sm:p-6 text-slate-900 font-sans">
+
           {/* SECTION 0: INTRO CANVAS (Demo only) */}
           {test.is_actual_exam_demo && currentStep === 0 && (
             <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
@@ -735,7 +738,8 @@ export default function QuizPage({ params: paramsPromise }) {
       {/* ==========================================
            BOTTOM CONTROL FOOTER: BLACK BAR
            ========================================== */}
-      <footer className="bg-black text-white min-h-[3.25rem] py-1.5 px-3 sm:px-4 flex items-center justify-between border-t border-black text-xs font-bold flex-shrink-0 select-none z-30">
+      <footer className="bg-black text-white min-h-[3.25rem] py-2 px-3 sm:px-4 flex items-center justify-between border-t border-black text-xs font-bold flex-shrink-0 select-none z-30 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-lg">
+
         {/* Left: CBT Control */}
         <div className="flex items-center gap-2">
           <span className="text-[10px] sm:text-xs text-slate-400 font-mono hidden xs:inline">CBT Control</span>
