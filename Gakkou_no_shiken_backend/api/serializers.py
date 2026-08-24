@@ -84,6 +84,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserProfileUpdateSerializer(serializers.Serializer):
+    username = serializers.CharField(required=False, allow_blank=True, max_length=150)
     first_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
     last_name = serializers.CharField(required=False, allow_blank=True, max_length=150)
     email = serializers.EmailField(required=False, allow_blank=True)
@@ -92,8 +93,17 @@ class UserProfileUpdateSerializer(serializers.Serializer):
     japanese_level = serializers.ChoiceField(choices=UserProfile.JapaneseLevel.choices, required=False)
     location = serializers.CharField(required=False, allow_blank=True, max_length=100)
 
+    def validate_username(self, value):
+        if value:
+            user = self.instance
+            if user and User.objects.filter(username__iexact=value).exclude(pk=user.pk).exists():
+                raise serializers.ValidationError("This username is already taken. Please choose another.")
+        return value
+
     def update(self, instance, validated_data):
         # instance is User
+        if 'username' in validated_data and validated_data['username']:
+            instance.username = validated_data['username'].strip()
         if 'first_name' in validated_data:
             instance.first_name = validated_data['first_name']
         if 'last_name' in validated_data:
@@ -114,6 +124,7 @@ class UserProfileUpdateSerializer(serializers.Serializer):
         profile.save()
 
         return instance
+
 
 
 

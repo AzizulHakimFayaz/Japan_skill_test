@@ -36,6 +36,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
 
   // Edit Profile Modal (if viewing own profile)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editUsername, setEditUsername] = useState('');
   const [editFirstName, setEditFirstName] = useState('');
   const [editLastName, setEditLastName] = useState('');
   const [editBio, setEditBio] = useState('');
@@ -53,6 +54,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
     getCandidateProfile(params.username)
       .then((data) => {
         setCandidate(data);
+        setEditUsername(data.username || '');
         setEditFirstName(data.first_name || '');
         setEditLastName(data.last_name || '');
         setEditBio(data.bio || '');
@@ -74,6 +76,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
     setProfileSuccessMsg(null);
     try {
       const res = await updateUserProfile({
+        username: editUsername,
         first_name: editFirstName,
         last_name: editLastName,
         bio: editBio,
@@ -84,8 +87,13 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
       if (res?.user) {
         if (setUser) setUser(res.user);
         // Refresh candidate view
-        const updated = await getCandidateProfile(candidate.username);
-        setCandidate(updated);
+        const newUsername = res.user.username || editUsername;
+        if (newUsername !== candidate.username) {
+          router.push(`/profile/${newUsername}`);
+        } else {
+          const updated = await getCandidateProfile(newUsername);
+          setCandidate(updated);
+        }
         setProfileSuccessMsg('Profile updated successfully!');
         setTimeout(() => {
           setIsEditModalOpen(false);
@@ -98,6 +106,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
       setSavingProfile(false);
     }
   };
+
 
   if (loading) {
     return (
@@ -520,6 +529,20 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
             )}
 
             <form onSubmit={handleSaveProfile} className="space-y-4">
+              <div>
+                <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">
+                  Candidate Username <span className="text-japan-red">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editUsername}
+                  onChange={(e) => setEditUsername(e.target.value)}
+                  required
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-900 font-mono focus:outline-none focus:border-japan-red"
+                  placeholder="e.g. kenji_tanaka"
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">First Name</label>
@@ -542,6 +565,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
                   />
                 </div>
               </div>
+
 
               <div>
                 <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">Candidate Bio</label>
