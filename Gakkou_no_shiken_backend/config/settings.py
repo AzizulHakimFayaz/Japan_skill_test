@@ -63,6 +63,8 @@ LOGGING = {
 CSRF_TRUSTED_ORIGINS = [
     'https://gakkounoshiken.site',
     'https://www.gakkounoshiken.site',
+    'http://gakkounoshiken.site',
+    'http://www.gakkounoshiken.site',
     'https://japan-skill-test.vercel.app',
     'https://gakkou-no-shiken.vercel.app',
     'https://*.vercel.app',
@@ -89,18 +91,19 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-# Database-Backed Persistent Admin Sessions (Compact 32-byte cookie, Never drops)
+# Database-Backed Persistent Admin Sessions
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 Days
 SESSION_SAVE_EVERY_REQUEST = False      # ONLY write on login/logout (prevents DB lock contention)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-SESSION_COOKIE_NAME = 'gakkou_sessionid'
-CSRF_COOKIE_NAME = 'gakkou_csrftoken'
+SESSION_COOKIE_NAME = 'sessionid'
+CSRF_COOKIE_NAME = 'csrftoken'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
+
 
 
 
