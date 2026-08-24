@@ -22,16 +22,16 @@ export default function MobileDock() {
   const isProfile = pathname?.includes('/my-results') || pathname?.includes('/login') || pathname?.includes('/signup');
 
   return (
-    <nav aria-label="Mobile Navigation" className="fixed bottom-0 inset-x-0 z-50 sm:hidden mobile-app-dock bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-lg">
+    <nav aria-label="Mobile Navigation" className="fixed bottom-0 inset-x-0 z-50 sm:hidden bg-white/95 dark:bg-[#060913]/95 backdrop-blur-xl border-t border-slate-200/90 dark:border-slate-800/90 shadow-lg transition-colors duration-300">
       <div className="grid grid-cols-5 h-14 max-w-lg mx-auto px-1">
         {/* Tab 1: Home */}
         <Link
           href="/"
           className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-all ${
-            isHome ? 'text-japan-red font-black' : 'text-slate-500 hover:text-slate-900 font-medium'
+            isHome ? 'text-japan-red dark:text-rose-400 font-black' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
           }`}
         >
-          <div className={`p-1 rounded-xl transition-all ${isHome ? 'bg-rose-50 text-japan-red' : ''}`}>
+          <div className={`p-1 rounded-xl transition-all ${isHome ? 'bg-rose-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400' : ''}`}>
             <Home className="w-5 h-5" />
           </div>
           <span className="text-[10px] leading-tight">Home</span>
@@ -41,10 +41,10 @@ export default function MobileDock() {
         <Link
           href="/jft-basic"
           className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-all ${
-            isJft ? 'text-japan-red font-black' : 'text-slate-500 hover:text-slate-900 font-medium'
+            isJft ? 'text-japan-red dark:text-rose-400 font-black' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
           }`}
         >
-          <div className={`p-1 rounded-xl transition-all ${isJft ? 'bg-rose-50 text-japan-red' : ''}`}>
+          <div className={`p-1 rounded-xl transition-all ${isJft ? 'bg-rose-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400' : ''}`}>
             <BookOpen className="w-5 h-5" />
           </div>
           <span className="text-[10px] leading-tight">JFT Info</span>
@@ -54,10 +54,10 @@ export default function MobileDock() {
         <Link
           href="/ssw-skill-test"
           className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-all ${
-            isSsw ? 'text-japan-red font-black' : 'text-slate-500 hover:text-slate-900 font-medium'
+            isSsw ? 'text-japan-red dark:text-rose-400 font-black' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
           }`}
         >
-          <div className={`p-1 rounded-xl transition-all ${isSsw ? 'bg-rose-50 text-japan-red' : ''}`}>
+          <div className={`p-1 rounded-xl transition-all ${isSsw ? 'bg-rose-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400' : ''}`}>
             <Layers className="w-5 h-5" />
           </div>
           <span className="text-[10px] leading-tight">SSW</span>
@@ -67,10 +67,10 @@ export default function MobileDock() {
         <Link
           href="/leaderboard"
           className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-all ${
-            isLeaderboard ? 'text-amber-600 font-black' : 'text-slate-500 hover:text-slate-900 font-medium'
+            isLeaderboard ? 'text-amber-600 dark:text-amber-400 font-black' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
           }`}
         >
-          <div className={`p-1 rounded-xl transition-all ${isLeaderboard ? 'bg-amber-50 text-amber-600' : ''}`}>
+          <div className={`p-1 rounded-xl transition-all ${isLeaderboard ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400' : ''}`}>
             <Trophy className="w-5 h-5" />
           </div>
           <span className="text-[10px] leading-tight">Ranks</span>
@@ -81,10 +81,10 @@ export default function MobileDock() {
           <Link
             href="/accounts/my-results"
             className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-all ${
-              isProfile ? 'text-japan-red font-black' : 'text-slate-500 hover:text-slate-900 font-medium'
+              isProfile ? 'text-japan-red dark:text-rose-400 font-black' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
             }`}
           >
-            <div className={`p-1 rounded-xl transition-all ${isProfile ? 'bg-rose-50 text-japan-red' : ''}`}>
+            <div className={`p-1 rounded-xl transition-all ${isProfile ? 'bg-rose-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400' : ''}`}>
               <User className="w-5 h-5" />
             </div>
             <span className="text-[10px] leading-tight truncate max-w-[50px]">{user.username || 'Account'}</span>
@@ -93,10 +93,10 @@ export default function MobileDock() {
           <Link
             href="/accounts/login"
             className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-all ${
-              isProfile ? 'text-japan-red font-black' : 'text-slate-500 hover:text-slate-900 font-medium'
+              isProfile ? 'text-japan-red dark:text-rose-400 font-black' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
             }`}
           >
-            <div className={`p-1 rounded-xl transition-all ${isProfile ? 'bg-rose-50 text-japan-red' : ''}`}>
+            <div className={`p-1 rounded-xl transition-all ${isProfile ? 'bg-rose-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400' : ''}`}>
               <LogIn className="w-5 h-5" />
             </div>
             <span className="text-[10px] leading-tight">Sign In</span>

@@ -27,8 +27,8 @@ const SECTIONS = [
     title_ja: '文字と語彙',
     short_name: 'Vocab',
     badge: 'Section 1',
-    badgeColor: 'bg-rose-50 text-japan-red border-rose-200',
-    iconColor: 'bg-rose-500/10 text-japan-red',
+    badgeColor: 'bg-rose-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-300 border-rose-200 dark:border-rose-800/60',
+    iconColor: 'bg-rose-500/10 text-japan-red dark:text-rose-400',
     icon: BookOpen,
     questions: '12 Questions',
     timeEst: '~12 Mins',
@@ -45,8 +45,8 @@ const SECTIONS = [
     title_ja: '会話と表現',
     short_name: 'Dialogue',
     badge: 'Section 2',
-    badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    iconColor: 'bg-indigo-500/10 text-indigo-600',
+    badgeColor: 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60',
+    iconColor: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
     icon: MessageSquare,
     questions: '12 Questions',
     timeEst: '~15 Mins',
@@ -63,8 +63,8 @@ const SECTIONS = [
     title_ja: '聴解',
     badge: 'Section 3',
     short_name: 'Audio',
-    badgeColor: 'bg-amber-50 text-amber-800 border-amber-200',
-    iconColor: 'bg-amber-500/10 text-amber-600',
+    badgeColor: 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/60',
+    iconColor: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
     icon: Headphones,
     questions: '12 Questions',
     timeEst: '~20 Mins',
@@ -81,8 +81,8 @@ const SECTIONS = [
     title_ja: '読解',
     badge: 'Section 4',
     short_name: 'Reading',
-    badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-    iconColor: 'bg-emerald-500/10 text-emerald-600',
+    badgeColor: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60',
+    iconColor: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
     icon: FileCheck2,
     questions: '6 Questions',
     timeEst: '~13 Mins',
@@ -128,19 +128,19 @@ export default function StudentExamGuide() {
       <section className="space-y-4 sm:space-y-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4">
           <div className="space-y-1 sm:space-y-1.5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-japan-red text-[10px] sm:text-xs font-black uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/60 text-japan-red dark:text-rose-300 text-[10px] sm:text-xs font-black uppercase tracking-wider">
               <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               <span>Exam Structure &amp; Syllabus</span>
             </div>
-            <h2 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               Master the 4 JFT-Basic Sections
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 max-w-2xl font-normal">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl font-normal">
               42 questions across 4 core competencies. Target 200+ points to achieve CEFR A2 qualification.
             </p>
           </div>
 
-          <div className="hidden md:flex items-center gap-2 text-xs font-bold text-slate-500 bg-slate-100 px-4 py-2 rounded-xl">
+          <div className="hidden md:flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
             <Clock className="w-4 h-4 text-japan-red" />
             <span>Total Time: 60 Minutes</span>
           </div>
@@ -149,7 +149,7 @@ export default function StudentExamGuide() {
         {/* --- MOBILE VIEW: Interactive Clean Segmented Tab Switcher (< md) --- */}
         <div className="block md:hidden space-y-3">
           {/* Segmented Pill Tabs */}
-          <div className="grid grid-cols-4 gap-1 p-1 bg-slate-100/90 rounded-2xl border border-slate-200/80">
+          <div className="grid grid-cols-4 gap-1 p-1 bg-slate-100/90 dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800">
             {SECTIONS.map((sec, idx) => {
               const TabIcon = sec.icon;
               const isActive = activeSectionTab === idx;
@@ -159,11 +159,11 @@ export default function StudentExamGuide() {
                   onClick={() => setActiveSectionTab(idx)}
                   className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl text-[10px] font-black transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-white text-slate-900 shadow-xs scale-[1.02]'
-                      : 'text-slate-500 hover:text-slate-800'
+                      ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs scale-[1.02]'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                   }`}
                 >
-                  <TabIcon className={`w-4 h-4 mb-0.5 ${isActive ? 'text-japan-red' : 'text-slate-400'}`} />
+                  <TabIcon className={`w-4 h-4 mb-0.5 ${isActive ? 'text-japan-red dark:text-rose-400' : 'text-slate-400 dark:text-slate-500'}`} />
                   <span className="truncate">{sec.short_name}</span>
                 </button>
               );
@@ -171,17 +171,17 @@ export default function StudentExamGuide() {
           </div>
 
           {/* Active Single Card Display on Mobile */}
-          <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs space-y-3.5 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900/90 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3.5 animate-fade-in">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activeSec.iconColor}`}>
                   <ActiveIcon className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-slate-900 leading-tight">
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white leading-tight">
                     {activeSec.title_en}
                   </h3>
-                  <span className="text-[11px] text-slate-400 font-bold">{activeSec.title_ja}</span>
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500 font-bold">{activeSec.title_ja}</span>
                 </div>
               </div>
               <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md border ${activeSec.badgeColor}`}>
@@ -190,15 +190,15 @@ export default function StudentExamGuide() {
             </div>
 
             <div className="flex items-center gap-2 text-[10px] font-bold">
-              <span className="px-2 py-0.5 bg-slate-100 rounded-md text-slate-700">{activeSec.questions}</span>
-              <span className="px-2 py-0.5 bg-slate-100 rounded-md text-slate-500">{activeSec.timeEst}</span>
+              <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded-md text-slate-700 dark:text-slate-300">{activeSec.questions}</span>
+              <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded-md text-slate-500 dark:text-slate-400">{activeSec.timeEst}</span>
             </div>
 
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
               {activeSec.desc}
             </p>
 
-            <ul className="space-y-1.5 pt-2 border-t border-slate-100 text-[11px] text-slate-600">
+            <ul className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400">
               {activeSec.keyPoints.map((pt, i) => (
                 <li key={i} className="flex items-start gap-1.5">
                   <span className="text-emerald-500 font-bold">✓</span>
@@ -216,7 +216,7 @@ export default function StudentExamGuide() {
             return (
               <div
                 key={sec.id}
-                className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-slate-300 transition-all duration-300 flex flex-col justify-between space-y-5 hover-lift group"
+                className="bg-white dark:bg-slate-900/90 rounded-3xl p-6 border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-xl hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 flex flex-col justify-between space-y-5 hover-lift group"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -229,28 +229,28 @@ export default function StudentExamGuide() {
                   </div>
 
                   <div>
-                    <h3 className="text-base sm:text-lg font-black text-slate-900 leading-snug group-hover:text-japan-red transition-colors">
+                    <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-snug group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors">
                       {sec.title_en}
                     </h3>
-                    <span className="text-xs text-slate-400 font-bold block mt-0.5">{sec.title_ja}</span>
+                    <span className="text-xs text-slate-400 dark:text-slate-500 font-bold block mt-0.5">{sec.title_ja}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold px-2.5 py-1 bg-slate-100 rounded-lg text-slate-700">
+                    <span className="text-[11px] font-bold px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300">
                       {sec.questions}
                     </span>
-                    <span className="text-[11px] font-bold px-2.5 py-1 bg-slate-100 rounded-lg text-slate-500">
+                    <span className="text-[11px] font-bold px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-500 dark:text-slate-400">
                       {sec.timeEst}
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
                     {sec.desc}
                   </p>
 
-                  <ul className="space-y-1.5 pt-2 border-t border-slate-100">
+                  <ul className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
                     {sec.keyPoints.map((pt, i) => (
-                      <li key={i} className="text-[11px] text-slate-500 flex items-start gap-1.5 leading-snug">
+                      <li key={i} className="text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-1.5 leading-snug">
                         <span className="text-emerald-500 font-bold text-xs mt-0.5">✓</span>
                         <span>{pt}</span>
                       </li>
@@ -259,7 +259,7 @@ export default function StudentExamGuide() {
                 </div>
 
                 <div className="pt-2">
-                  <span className="text-xs font-extrabold text-japan-red group-hover:underline flex items-center gap-1">
+                  <span className="text-xs font-extrabold text-japan-red dark:text-rose-400 group-hover:underline flex items-center gap-1">
                     <span>Practice section</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </span>
@@ -273,13 +273,13 @@ export default function StudentExamGuide() {
       {/* 2. Study Strategy & Candidate FAQ Toolkit */}
       <section className="space-y-4">
         {/* Mobile View Toggle Switcher (< lg) */}
-        <div className="flex lg:hidden items-center p-1 bg-slate-100 rounded-2xl border border-slate-200/80">
+        <div className="flex lg:hidden items-center p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800">
           <button
             onClick={() => setActiveBottomTab('rules')}
             className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${
               activeBottomTab === 'rules'
-                ? 'bg-slate-900 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-slate-900 dark:bg-slate-800 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             🎯 Exam Rules
@@ -288,8 +288,8 @@ export default function StudentExamGuide() {
             onClick={() => setActiveBottomTab('faq')}
             className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${
               activeBottomTab === 'faq'
-                ? 'bg-slate-900 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-slate-900 dark:bg-slate-800 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             ❓ Common FAQs
@@ -367,19 +367,19 @@ export default function StudentExamGuide() {
 
           {/* Right Column: Frequently Asked Questions Accordion */}
           <div
-            className={`lg:col-span-7 bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-slate-200/90 shadow-xs space-y-4 sm:space-y-6 ${
+            className={`lg:col-span-7 bg-white dark:bg-slate-900/90 rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xs space-y-4 sm:space-y-6 ${
               activeBottomTab === 'faq' ? 'block' : 'hidden lg:block'
             }`}
           >
             <div className="space-y-1 sm:space-y-1.5">
-              <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] sm:text-[11px] font-black uppercase tracking-wider">
+              <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-[10px] sm:text-[11px] font-black uppercase tracking-wider">
                 <HelpCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>FAQ</span>
               </div>
-              <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
+              <h3 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 Frequently Asked Questions
               </h3>
-              <p className="text-[11px] sm:text-xs text-slate-500 font-normal">
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-normal">
                 Quick answers about JFT-Basic exam rules and mock features.
               </p>
             </div>
@@ -391,19 +391,23 @@ export default function StudentExamGuide() {
                   <div
                     key={index}
                     className={`rounded-xl sm:rounded-2xl border transition-all duration-200 overflow-hidden ${
-                      isOpen ? 'border-indigo-300 bg-indigo-50/30' : 'border-slate-200 bg-white'
+                      isOpen
+                        ? 'border-indigo-300 dark:border-indigo-700/80 bg-indigo-50/30 dark:bg-indigo-950/40'
+                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70'
                     }`}
                   >
                     <button
                       onClick={() => setOpenFaq(isOpen ? -1 : index)}
                       className="w-full p-3 sm:p-4 text-left flex items-center justify-between gap-2.5 cursor-pointer"
                     >
-                      <span className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+                      <span className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white leading-snug">
                         {faq.q}
                       </span>
                       <div
                         className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-transform ${
-                          isOpen ? 'bg-indigo-600 text-white rotate-180' : 'bg-slate-100 text-slate-500'
+                          isOpen
+                            ? 'bg-indigo-600 text-white rotate-180'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                         }`}
                       >
                         <ChevronDown className="w-3.5 h-3.5" />
@@ -411,7 +415,7 @@ export default function StudentExamGuide() {
                     </button>
 
                     {isOpen && (
-                      <div className="px-3 sm:px-4 pb-3 sm:pb-4 text-[11px] sm:text-xs text-slate-600 leading-relaxed font-normal animate-fade-in border-t border-indigo-100/60 pt-2.5">
+                      <div className="px-3 sm:px-4 pb-3 sm:pb-4 text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal animate-fade-in border-t border-indigo-100/60 dark:border-indigo-900/40 pt-2.5">
                         {faq.a}
                       </div>
                     )}

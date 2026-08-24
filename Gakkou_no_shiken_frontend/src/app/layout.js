@@ -1,5 +1,7 @@
 import './globals.css';
 import { AuthProvider } from '@/components/AuthContext';
+import { ThemeProvider } from '@/components/ThemeContext';
+import AnimatedThemeBackground from '@/components/AnimatedThemeBackground';
 import AppLayout from '@/components/AppLayout';
 
 export const metadata = {
@@ -71,16 +73,29 @@ export const metadata = {
   },
 };
 
-
-
-
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="h-full bg-slate-50">
+    <html lang="en" className="h-full bg-slate-50 dark:bg-[#060913]">
       <head>
         <link rel="icon" type="image/png" href="/img/logo.png?v=2" />
         <link rel="shortcut icon" type="image/png" href="/img/logo.png?v=2" />
         <link rel="apple-touch-icon" href="/img/logo.png?v=2" />
+
+        {/* Anti-FOUC Instant Theme Initializer */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var t = localStorage.getItem('gns_theme');
+                if (t === 'dark') {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
 
         {/* Leaflet CSS for maps */}
         <link
@@ -99,15 +114,17 @@ export default function RootLayout({ children }) {
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8435487820435842"
           crossOrigin="anonymous"
         ></script>
-
       </head>
 
-
-      <body className="flex flex-col min-h-full text-slate-800 bg-slate-50 antialiased font-sans selection:bg-red-500 selection:text-white relative overflow-x-hidden bg-grid-mesh">
-        <AuthProvider>
-          <AppLayout>{children}</AppLayout>
-        </AuthProvider>
+      <body className="flex flex-col min-h-full text-slate-800 dark:text-slate-100 bg-transparent antialiased font-sans selection:bg-red-500 selection:text-white relative overflow-x-hidden transition-colors duration-500">
+        <ThemeProvider>
+          <AnimatedThemeBackground />
+          <AuthProvider>
+            <AppLayout>{children}</AppLayout>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
+
