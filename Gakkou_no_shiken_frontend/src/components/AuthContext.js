@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getStoredUser, clearAuthTokens, getMe } from '@/lib/api';
+import { getStoredUser, getAuthToken, clearAuthTokens, getMe } from '@/lib/api';
 
 const AuthContext = createContext({
   user: null,
@@ -22,7 +22,12 @@ export function AuthProvider({ children }) {
     if (stored) {
       setUser(stored);
     }
-    // Validate with backend
+    const token = getAuthToken();
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    // Validate with backend only if token exists
     getMe()
       .then(res => {
         if (res?.user) {

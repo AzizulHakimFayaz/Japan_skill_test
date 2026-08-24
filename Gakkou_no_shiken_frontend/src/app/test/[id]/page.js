@@ -37,7 +37,7 @@ const LANGUAGES_LIST = [
   { key: 'Vietnamese', label: 'Vietnamese (Tiếng Việt)' },
 ];
 
-export default function QuizPage({ params: paramsPromise }) {
+function QuizContent({ params: paramsPromise }) {
   const params = use(paramsPromise);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -924,6 +924,21 @@ export default function QuizPage({ params: paramsPromise }) {
         subtitle="Submitting your answers, calculating official scale scores and performance breakdown..."
       />
     </div>
+  );
+}
+
+export default function QuizPage(props) {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white space-y-4">
+          <div className="w-12 h-12 border-4 border-japan-red border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs font-bold text-slate-400">Loading CBT Simulator...</p>
+        </div>
+      }
+    >
+      <QuizContent {...props} />
+    </React.Suspense>
   );
 }
 

@@ -25,7 +25,9 @@ export default function LeaderboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const fetchLeaderboard = () => {
+    setLoading(true);
+    setError(null);
     getLeaderboard()
       .then((res) => {
         setData(res);
@@ -36,6 +38,10 @@ export default function LeaderboardPage() {
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchLeaderboard();
   }, []);
 
   if (loading) {
@@ -54,9 +60,17 @@ export default function LeaderboardPage() {
           <AlertCircle className="w-8 h-8 text-japan-red" />
         </div>
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">{error}</h2>
-        <Link href="/" className="px-6 py-2.5 bg-japan-red text-white text-xs font-bold rounded-xl">
-          Back to Portal
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={fetchLeaderboard}
+            className="px-6 py-2.5 bg-japan-red hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
+          >
+            Try Again
+          </button>
+          <Link href="/" className="px-6 py-2.5 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl">
+            Back to Portal
+          </Link>
+        </div>
       </div>
     );
   }

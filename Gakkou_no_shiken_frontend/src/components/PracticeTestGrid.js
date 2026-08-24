@@ -36,6 +36,7 @@ export default function PracticeTestGrid({
   const { user, isAuthenticated } = useAuth();
   const { t } = useLanguage();
   const [tests, setTests] = useState(practiceTests || []);
+  const [loading, setLoading] = useState(!practiceTests || practiceTests.length === 0);
   const [userAttemptsMap, setUserAttemptsMap] = useState({});
 
   // Modals state
@@ -46,6 +47,7 @@ export default function PracticeTestGrid({
   useEffect(() => {
     if (practiceTests && practiceTests.length > 0) {
       setTests(practiceTests);
+      setLoading(false);
     }
   }, [practiceTests]);
 
@@ -59,7 +61,10 @@ export default function PracticeTestGrid({
             setTests(list);
           }
         })
-        .catch(() => {});
+        .catch(() => {})
+        .finally(() => {
+          setLoading(false);
+        });
     });
   }, [catKey]);
 
@@ -153,7 +158,27 @@ export default function PracticeTestGrid({
         </div>
       </ScrollReveal>
 
-      {tests.length > 0 ? (
+      {loading && tests.length === 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {[1, 2, 3].map((n) => (
+            <div
+              key={n}
+              className="bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 space-y-4 animate-pulse"
+            >
+              <div className="flex items-center justify-between">
+                <div className="h-5 w-20 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+                <div className="h-5 w-16 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
+              </div>
+              <div className="h-6 w-3/4 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+              <div className="h-4 w-1/2 bg-slate-100 dark:bg-slate-800/60 rounded-md"></div>
+              <div className="h-10 w-full bg-slate-100 dark:bg-slate-800/40 rounded-xl"></div>
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex gap-2">
+                <div className="h-10 w-full bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : tests.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {tests.map((test, idx) => {
             const diff = getDifficultyBadge(test, idx);
