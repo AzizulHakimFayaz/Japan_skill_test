@@ -137,14 +137,14 @@ export default function StudentExamGuide() {
           </div>
         </div>
 
-        {/* 4 Clean Modern Section Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {/* 4 Clean Modern Section Cards (2x2 Grid on Mobile, 4-Col on Desktop) */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6">
           {SECTIONS.map((sec) => {
             const Icon = sec.icon;
             return (
               <div
                 key={sec.id}
-                className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-slate-300 transition-all duration-300 flex flex-col justify-between space-y-5 hover-lift group"
+                className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 border border-slate-200/90 shadow-2xs hover:shadow-xl hover:border-slate-300 transition-all duration-300 flex flex-col justify-between space-y-3 sm:space-y-5 hover-lift group"
               >
                 <div className="space-y-4">
                   {/* Card Header */}
