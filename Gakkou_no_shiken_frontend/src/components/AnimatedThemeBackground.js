@@ -419,22 +419,14 @@ export default function AnimatedThemeBackground() {
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden transition-colors duration-700">
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden transition-colors duration-700">
       {/* Light Mode Clean Canvas Background */}
-      <div
-        className={`absolute inset-0 bg-[#f8fafc] bg-grid-mesh transition-opacity duration-700 ${
-          isDark ? 'opacity-0' : 'opacity-100'
-        }`}
-      >
+      <div className="absolute inset-0 bg-[#f8fafc] bg-grid-mesh dark:hidden block transition-opacity duration-700">
         <div className="absolute inset-0 bg-gradient-to-b from-rose-50/30 via-transparent to-slate-100/50 pointer-events-none"></div>
       </div>
 
       {/* Dark Mode Celestial Night Canvas Background */}
-      <div
-        className={`absolute inset-0 bg-[#060913] transition-opacity duration-700 ${
-          isDark ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
+      <div className="absolute inset-0 bg-[#060913] hidden dark:block transition-opacity duration-700">
         {/* Cyber Grid */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4.5rem_4.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none"></div>
 
@@ -447,7 +439,7 @@ export default function AnimatedThemeBackground() {
       {/* High-Performance 60FPS Ambient Japanese Visual Canvas */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full pointer-events-none"
+        className="absolute inset-0 w-full h-full pointer-events-none z-0"
       />
     </div>
   );

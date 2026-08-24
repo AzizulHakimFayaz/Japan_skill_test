@@ -22,7 +22,7 @@ export default async function HomePage() {
   const skillTests = data?.tests_by_category?.skill || [];
 
   return (
-    <div className="space-y-8 sm:space-y-14">
+    <div className="space-y-6 sm:space-y-12">
       {/* 1. Hero Banner (Interactive Auto-Sliding Glassmorphic Carousel) */}
       <div className="space-y-3">
         <HeroBannerCarousel />
@@ -31,8 +31,8 @@ export default async function HomePage() {
       </div>
 
       {/* 2. Practice Test Categories & Cards Grid (Placed Immediately After Banner) */}
-      <div id="practice-grid" className="space-y-6 sm:space-y-12">
-        <section className="bg-white/95 dark:bg-slate-950/75 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-slate-800/90 p-3.5 sm:p-8 lg:p-10 shadow-lg shadow-slate-200/40 dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] hover:shadow-xl transition-all duration-300">
+      <div id="practice-grid" className="space-y-6 sm:space-y-10">
+        <section className="bg-transparent sm:bg-white/85 sm:dark:bg-slate-950/70 sm:backdrop-blur-xl sm:rounded-3xl sm:border sm:border-slate-200/90 sm:dark:border-slate-800/90 sm:p-8 lg:p-10 sm:shadow-lg sm:shadow-slate-200/40 sm:dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] transition-all duration-300">
           <PracticeTestGrid
             practiceTests={basicTests}
             title="JFT Tests"
@@ -41,7 +41,7 @@ export default async function HomePage() {
           />
         </section>
 
-        <section className="bg-white/95 dark:bg-slate-950/75 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-slate-800/90 p-3.5 sm:p-8 lg:p-10 shadow-lg shadow-slate-200/40 dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] hover:shadow-xl transition-all duration-300">
+        <section className="bg-transparent sm:bg-white/85 sm:dark:bg-slate-950/70 sm:backdrop-blur-xl sm:rounded-3xl sm:border sm:border-slate-200/90 sm:dark:border-slate-800/90 sm:p-8 lg:p-10 sm:shadow-lg sm:shadow-slate-200/40 sm:dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] transition-all duration-300">
           <PracticeTestGrid
             practiceTests={skillTests}
             title="SSW Skill Tests"
