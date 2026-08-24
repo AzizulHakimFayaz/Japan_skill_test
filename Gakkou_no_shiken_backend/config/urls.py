@@ -17,9 +17,12 @@ urlpatterns = [
     path('favicon.ico', RedirectView.as_view(url='/static/img/logo.png', permanent=True)),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path('', RedirectView.as_view(url='https://www.gakkounoshiken.site', permanent=False)),
 
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
+
+    # Catch-all: Automatically forward any student pages to the live frontend
+    re_path(r'^(?P<path>.*)$', RedirectView.as_view(url='https://www.gakkounoshiken.site/%(path)s', permanent=False)),
 ]
+
 
