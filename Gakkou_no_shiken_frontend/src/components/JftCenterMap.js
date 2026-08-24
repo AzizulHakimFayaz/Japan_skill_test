@@ -14,7 +14,7 @@ import {
   Calendar,
   AlertTriangle,
   FileCheck2,
-  Map as MapIcon,
+  Compass,
   ListOrdered,
   Navigation,
 } from 'lucide-react';
@@ -191,7 +191,7 @@ export default function JftCenterMap({ centersData = [] }) {
                   : 'text-slate-600 dark:text-slate-400 font-semibold hover:text-slate-900'
               }`}
             >
-              <MapIcon className="w-3.5 h-3.5 text-japan-red" />
+              <Compass className="w-3.5 h-3.5 text-japan-red" />
               <span>Map View</span>
             </button>
             <button

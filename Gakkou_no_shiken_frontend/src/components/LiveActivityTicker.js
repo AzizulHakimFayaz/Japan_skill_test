@@ -1,48 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from './LanguageContext';
-import { Sparkles, Trophy, CheckCircle2, TrendingUp, Bell, Calendar, MapPin, X, ChevronRight } from 'lucide-react';
-import Link from 'next/link';
-
-const NOTICES = [
-  {
-    icon: Calendar,
-    color: 'text-rose-600 bg-rose-50 dark:bg-rose-950/80 border-rose-200 dark:border-rose-800',
-    tag: 'Test Dates',
-    title: 'Prometric BDJ01 & BDJ02 Seat Alert',
-    desc: 'Upcoming JFT-Basic & SSW seat booking window is open for Dhaka test centers.',
-    link: '#test-centers',
-    time: 'Live',
-  },
-  {
-    icon: Trophy,
-    color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/80 border-amber-200 dark:border-amber-800',
-    tag: 'Top Score',
-    title: 'New High Score Achieved',
-    desc: 'Candidate Kenji scored 240/250 (CEFR A2.2 Pass) on JFT-Basic Mock Exam #1',
-    link: '/leaderboard',
-    time: '3m ago',
-  },
-  {
-    icon: Sparkles,
-    color: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950/80 border-indigo-200 dark:border-indigo-800',
-    tag: '2026 CBT',
-    title: 'Full Prometric Diagnostic Released',
-    desc: 'Official 47-question timed test with instant scale score report is available now.',
-    link: '#mock-tests',
-    time: 'New',
-  },
-  {
-    icon: CheckCircle2,
-    color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/80 border-emerald-200 dark:border-emerald-800',
-    tag: 'Visa Prep',
-    title: '2,900+ Candidates Active',
-    desc: 'Candidates in Bangladesh preparing for Japan Specified Skilled Worker (SSW) visas.',
-    link: '/accounts/signup',
-    time: '24/7',
-  },
-];
+import { Sparkles, Trophy, CheckCircle2, Calendar, X } from 'lucide-react';
 
 export default function LiveActivityTicker() {
   const { t } = useLanguage();
@@ -51,24 +11,62 @@ export default function LiveActivityTicker() {
   const [isPaused, setIsPaused] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
+  const notices = useMemo(
+    () => [
+      {
+        icon: Calendar,
+        color: 'text-rose-600 bg-rose-50 dark:bg-rose-950/80 border-rose-200 dark:border-rose-800',
+        tag: 'Test Dates',
+        title: 'Prometric BDJ01 & BDJ02 Seat Alert',
+        desc: 'Upcoming JFT-Basic & SSW seat booking window is open for Dhaka test centers.',
+        time: 'Live',
+      },
+      {
+        icon: Trophy,
+        color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/80 border-amber-200 dark:border-amber-800',
+        tag: 'Top Score',
+        title: 'New High Score Achieved',
+        desc: 'Candidate Kenji scored 240/250 (CEFR A2.2 Pass) on JFT-Basic Mock Exam #1',
+        time: '3m ago',
+      },
+      {
+        icon: Sparkles,
+        color: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950/80 border-indigo-200 dark:border-indigo-800',
+        tag: '2026 CBT',
+        title: 'Full Prometric Diagnostic Released',
+        desc: 'Official 47-question timed test with instant scale score report is available now.',
+        time: 'New',
+      },
+      {
+        icon: CheckCircle2,
+        color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/80 border-emerald-200 dark:border-emerald-800',
+        tag: 'Visa Prep',
+        title: '2,900+ Candidates Active',
+        desc: 'Candidates in Bangladesh preparing for Japan Specified Skilled Worker (SSW) visas.',
+        time: '24/7',
+      },
+    ],
+    []
+  );
+
   useEffect(() => {
     if (isPaused || dismissed) return;
 
     const timer = setInterval(() => {
       setFade(false);
       setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % NOTICES.length);
+        setCurrentIndex((prev) => (prev + 1) % notices.length);
         setFade(true);
       }, 300);
     }, 5000);
 
     return () => clearInterval(timer);
-  }, [isPaused, dismissed]);
+  }, [isPaused, dismissed, notices.length]);
 
-  if (dismissed) return null;
+  if (dismissed || notices.length === 0) return null;
 
-  const current = NOTICES[currentIndex];
-  const Icon = current.icon;
+  const current = notices[currentIndex] || notices[0];
+  const IconComponent = current.icon;
 
   return (
     <div
@@ -90,7 +88,7 @@ export default function LiveActivityTicker() {
           }`}
         >
           <div className={`w-5 h-5 rounded-lg border flex items-center justify-center flex-shrink-0 ${current.color}`}>
-            <Icon className="w-3 h-3" />
+            <IconComponent className="w-3 h-3" />
           </div>
 
           <span className="hidden md:inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">

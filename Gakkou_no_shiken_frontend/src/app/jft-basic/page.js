@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { getJftInfo } from '@/lib/api';
 import PracticeTestGrid from '@/components/PracticeTestGrid';
-import JftCenterMap from '@/components/JftCenterMap';
+
+const JftCenterMap = dynamic(() => import('@/components/JftCenterMap'), { ssr: false });
 import {
   Laptop,
   Clock,
