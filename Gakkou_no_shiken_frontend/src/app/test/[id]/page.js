@@ -307,23 +307,23 @@ export default function QuizPage({ params: paramsPromise }) {
 
   if (loading) {
     return (
-      <div className="h-screen w-screen bg-white flex flex-col items-center justify-center space-y-4">
+      <div className="h-screen w-screen bg-white dark:bg-[#060913] flex flex-col items-center justify-center space-y-4">
         <div className="w-12 h-12 border-4 border-japan-red border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-sm font-bold text-slate-600">Loading CBT Examination...</p>
+        <p className="text-sm font-bold text-slate-600 dark:text-slate-400">Loading CBT Examination...</p>
       </div>
     );
   }
 
   if (error || !quizData) {
     return (
-      <div className="h-screen w-screen bg-white flex flex-col items-center justify-center p-6 text-center space-y-4">
-        <div className="w-16 h-16 bg-rose-50 text-japan-red rounded-full flex items-center justify-center text-2xl font-black">
+      <div className="h-screen w-screen bg-white dark:bg-[#060913] flex flex-col items-center justify-center p-6 text-center space-y-4">
+        <div className="w-16 h-16 bg-rose-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400 rounded-full flex items-center justify-center text-2xl font-black">
           ⚠
         </div>
-        <h2 className="text-xl font-bold text-slate-900">{error || 'Test not found'}</h2>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">{error || 'Test not found'}</h2>
         <button
           onClick={() => router.push('/')}
-          className="px-6 py-2.5 bg-japan-red text-white text-xs font-bold rounded-xl"
+          className="px-6 py-2.5 bg-japan-red hover:bg-japan-redhover text-white text-xs font-bold rounded-xl cursor-pointer shadow-md"
         >
           Back to Portal
         </button>

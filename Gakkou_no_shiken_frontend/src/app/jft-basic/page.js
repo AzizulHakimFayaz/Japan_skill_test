@@ -59,94 +59,95 @@ export default function JftBasicPage() {
             Japan Foundation Test for{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-japan-red to-rose-300">
               Basic Japanese
-            </span>
+            </span>{' '}
+            (JFT-Basic)
           </h1>
 
           <p className="hidden sm:block text-base sm:text-xl text-slate-300 font-normal leading-relaxed">
-            {jftInfo.purpose ||
-              'The JFT-Basic measures Japanese language communication skills required for daily life and work in Japan under the SSW visa program.'}
+            {jftInfo.overview ||
+              'Computer-Based Testing (CBT) measuring everyday Japanese communicative proficiency for foreign workers.'}
           </p>
 
           <div className="flex flex-wrap items-center gap-2 sm:gap-4 pt-2 sm:pt-4">
             <a
+              href="#mock-tests"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-5 py-3 sm:px-7 sm:py-3.5 rounded-2xl transition-all shadow-lg shadow-red-500/25 hover:shadow-red-500/40 text-xs sm:text-sm active:scale-95"
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>Practice Mock Exams</span>
+              <ChevronDown className="w-4 h-4" />
+            </a>
+            <a
               href="#test-centers"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-5 py-3 sm:px-7 sm:py-3.5 rounded-2xl transition-all shadow-lg shadow-red-500/25 hover:shadow-red-500/40 text-xs sm:text-sm active:scale-95 glow-red"
+              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-5 py-3 sm:px-7 sm:py-3.5 rounded-2xl backdrop-blur-md transition-all text-xs sm:text-sm border border-white/15 hover:border-white/30"
             >
               <MapPin className="w-4 h-4" />
-              <span>Test Centers</span>
+              <span>Test Venues</span>
             </a>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold px-5 py-3 sm:px-7 sm:py-3.5 rounded-2xl backdrop-blur-md transition-all text-xs sm:text-sm border border-white/15 hover:border-white/30"
-            >
-              <span>Mock Exam</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
         </div>
 
-        {/* Decorative Watermark */}
-        <div className="absolute -right-6 -bottom-10 opacity-10 font-black text-9xl tracking-tighter text-white pointer-events-none select-none hidden sm:block">
-          日本語
+        {/* Watermark Japanese Kanji */}
+        <div className="absolute -right-6 -bottom-10 opacity-10 font-black text-9xl tracking-tighter text-rose-300 pointer-events-none select-none hidden sm:block">
+          基礎
         </div>
-        <div className="absolute right-0 top-0 w-96 h-96 rounded-full bg-japan-red/20 blur-3xl pointer-events-none"></div>
       </div>
 
       {/* Exam At-A-Glance Cards Grid */}
       <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift transition-all duration-300 flex items-start gap-4 hover-shine-container animate-fade-in-up delay-75">
-          <div className="w-13 h-13 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
+        <div className="group bg-white dark:bg-slate-900/90 p-6 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-xl hover-lift transition-all duration-300 flex items-start gap-4 hover-shine-container animate-fade-in-up delay-75">
+          <div className="w-13 h-13 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
             <Laptop className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Format</span>
-            <strong className="text-xl font-black text-slate-900 leading-tight block mt-0.5">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider block">Format</span>
+            <strong className="text-xl font-black text-slate-900 dark:text-white leading-tight block mt-0.5">
               {jftInfo.format || 'CBT (Computer-Based)'}
             </strong>
-            <p className="text-xs text-slate-500 mt-1 font-medium">Computer terminal &amp; headphones</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Computer terminal &amp; headphones</p>
           </div>
         </div>
 
-        <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift transition-all duration-300 flex items-start gap-4 hover-shine-container animate-fade-in-up delay-150">
-          <div className="w-13 h-13 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
+        <div className="group bg-white dark:bg-slate-900/90 p-6 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-xl hover-lift transition-all duration-300 flex items-start gap-4 hover-shine-container animate-fade-in-up delay-150">
+          <div className="w-13 h-13 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-100 dark:border-amber-800 flex items-center justify-center text-amber-600 dark:text-amber-400 font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
             <Clock className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Duration</span>
-            <strong className="text-xl font-black text-slate-900 leading-tight block mt-0.5">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider block">Duration</span>
+            <strong className="text-xl font-black text-slate-900 dark:text-white leading-tight block mt-0.5">
               {jftInfo.duration_minutes || 60} Minutes
             </strong>
-            <p className="text-xs text-slate-500 mt-1 font-medium">{jftInfo.total_questions || '50–60 Questions'}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">{jftInfo.total_questions || '50–60 Questions'}</p>
           </div>
         </div>
 
-        <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift transition-all duration-300 flex items-start gap-4 hover-shine-container animate-fade-in-up delay-200">
-          <div className="w-13 h-13 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
+        <div className="group bg-white dark:bg-slate-900/90 p-6 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-xl hover-lift transition-all duration-300 flex items-start gap-4 hover-shine-container animate-fade-in-up delay-200">
+          <div className="w-13 h-13 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Passing Threshold</span>
-            <strong className="text-xl font-black text-slate-900 leading-tight block mt-0.5">200 / 250 (80%)</strong>
-            <p className="text-xs text-slate-500 mt-1 font-medium">Scale score range 10 - 250</p>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider block">Passing Threshold</span>
+            <strong className="text-xl font-black text-slate-900 dark:text-white leading-tight block mt-0.5">200 / 250 (80%)</strong>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Scale score range 10 - 250</p>
           </div>
         </div>
 
-        <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift transition-all duration-300 flex items-start gap-4 hover-shine-container animate-fade-in-up delay-300">
-          <div className="w-13 h-13 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-japan-red font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
+        <div className="group bg-white dark:bg-slate-900/90 p-6 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-xl hover-lift transition-all duration-300 flex items-start gap-4 hover-shine-container animate-fade-in-up delay-300">
+          <div className="w-13 h-13 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-100 dark:border-rose-800 flex items-center justify-center text-japan-red dark:text-rose-400 font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
             <Award className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Level &amp; Validity</span>
-            <strong className="text-xl font-black text-slate-900 leading-tight block mt-0.5">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider block">Level &amp; Validity</span>
+            <strong className="text-xl font-black text-slate-900 dark:text-white leading-tight block mt-0.5">
               {jftInfo.target_level || 'A1 - A2 Level'}
             </strong>
-            <p className="text-xs text-slate-500 mt-1 font-medium">Valid for {jftInfo.validity_years || 2} Years</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Valid for {jftInfo.validity_years || 2} Years</p>
           </div>
         </div>
       </div>
 
       {/* Online Practice Mock Exams Section */}
-      <div id="mock-tests" className="bg-white/90 backdrop-blur-md rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-xl shadow-slate-100">
+      <div id="mock-tests" className="bg-white/90 dark:bg-slate-950/75 backdrop-blur-md rounded-3xl border border-slate-200/90 dark:border-slate-800/90 p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)]">
         <PracticeTestGrid
           practiceTests={practiceTests}
           title="JFT-Basic Practice Mock Exams"
@@ -157,24 +158,24 @@ export default function JftBasicPage() {
 
       {/* Interactive Section Breakdown Tabs */}
       {jftInfo.sections && jftInfo.sections.length > 0 && (
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-xl shadow-slate-100">
+        <div className="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)]">
           <div className="mb-8">
-            <span className="text-xs font-extrabold text-japan-red uppercase tracking-wider block mb-1">Detailed Breakdown</span>
-            <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Exam Sections &amp; Competencies</h2>
-            <p className="text-sm text-slate-500 mt-1">
+            <span className="text-xs font-extrabold text-japan-red dark:text-rose-400 uppercase tracking-wider block mb-1">Detailed Breakdown</span>
+            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Exam Sections &amp; Competencies</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
               The JFT-Basic exam evaluates four core communicative abilities under daily living scenarios in Japan.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 bg-slate-100/80 rounded-2xl mb-8 border border-slate-200/70">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 bg-slate-100/80 dark:bg-slate-800 rounded-2xl mb-8 border border-slate-200/70 dark:border-slate-700">
             {jftInfo.sections.map((sec) => (
               <button
                 key={sec.id}
                 onClick={() => setActiveSection(sec.id)}
                 className={`py-3 px-3 rounded-xl text-xs sm:text-sm transition-all duration-200 text-center cursor-pointer ${
                   activeSection === sec.id
-                    ? 'bg-white text-slate-900 font-extrabold shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 font-semibold'
+                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-extrabold shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold'
                 }`}
               >
                 {sec.name}
@@ -185,17 +186,17 @@ export default function JftBasicPage() {
           {jftInfo.sections.map((sec) =>
             activeSection === sec.id ? (
               <div key={sec.id} className="space-y-6 animate-fade-in">
-                <div className="bg-gradient-to-r from-slate-50 to-indigo-50/30 p-6 sm:p-8 rounded-2xl border border-slate-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="bg-gradient-to-r from-slate-50 to-indigo-50/30 dark:from-slate-800 dark:to-indigo-950/40 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                   <div className="space-y-2">
-                    <span className="inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold">
+                    <span className="inline-block px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 text-xs font-bold">
                       {sec.item_count}
                     </span>
-                    <h3 className="text-2xl font-extrabold text-slate-900">{sec.name}</h3>
-                    <p className="text-base text-slate-600 leading-relaxed max-w-2xl">{sec.description}</p>
+                    <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">{sec.name}</h3>
+                    <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">{sec.description}</p>
                   </div>
-                  <div className="flex-shrink-0 bg-white p-4 rounded-xl border border-slate-200 shadow-2xs text-center min-w-[160px]">
-                    <span className="text-xs text-slate-500 font-bold block uppercase">Section Portion</span>
-                    <strong className="text-2xl font-extrabold text-japan-navy">1/4</strong>
+                  <div className="flex-shrink-0 bg-white dark:bg-slate-800/90 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs text-center min-w-[160px]">
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-bold block uppercase">Section Portion</span>
+                    <strong className="text-2xl font-extrabold text-japan-navy dark:text-white">1/4</strong>
                     <span className="text-[11px] text-slate-400 block mt-0.5">Equal section balance</span>
                   </div>
                 </div>
@@ -255,35 +256,35 @@ export default function JftBasicPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-xl shadow-slate-100 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-xs font-bold uppercase tracking-wider">
+        <div className="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60 text-xs font-bold uppercase tracking-wider">
             Exam Day Checklist
           </div>
-          <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">Test Center Admission Guidelines</h3>
+          <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Test Center Admission Guidelines</h3>
 
-          <ul className="space-y-3.5 text-xs sm:text-sm text-slate-700 font-medium">
+          <ul className="space-y-3.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium">
             <li className="flex items-start gap-3">
-              <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
                 <CheckCircle2 className="w-3.5 h-3.5" />
               </span>
               <span>
-                <strong>Original Machine-Readable Passport:</strong> You must present your valid original passport at venue check-in.
+                <strong className="text-slate-900 dark:text-white">Original Machine-Readable Passport:</strong> You must present your valid original passport at venue check-in.
               </span>
             </li>
             <li className="flex items-start gap-3">
-              <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
                 <CheckCircle2 className="w-3.5 h-3.5" />
               </span>
               <span>
-                <strong>Prometric Admission Ticket:</strong> Printed copy of your test confirmation voucher with your Registration ID.
+                <strong className="text-slate-900 dark:text-white">Prometric Admission Ticket:</strong> Printed copy of your test confirmation voucher with your Registration ID.
               </span>
             </li>
             <li className="flex items-start gap-3">
-              <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
                 <CheckCircle2 className="w-3.5 h-3.5" />
               </span>
               <span>
-                <strong>Arrive 30 Minutes Prior:</strong> Show up early at the Dhaka or Chittagong UTC venue for biometric verification and locker storage.
+                <strong className="text-slate-900 dark:text-white">Arrive 30 Minutes Prior:</strong> Show up early at the Dhaka or Chittagong UTC venue for biometric verification and locker storage.
               </span>
             </li>
           </ul>
@@ -297,45 +298,45 @@ export default function JftBasicPage() {
 
       {/* Prometric Registration Steps & Official Resources */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-6 bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-xl shadow-slate-100 flex flex-col justify-between">
+        <div className="lg:col-span-6 bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] flex flex-col justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-japan-red/10 text-japan-red text-xs font-bold uppercase tracking-wider mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-japan-red/10 text-japan-red dark:text-rose-400 text-xs font-bold uppercase tracking-wider mb-4">
               Step-by-step
             </div>
-            <h3 className="text-2xl font-extrabold text-slate-900 mb-6 tracking-tight">Prometric Registration Workflow</h3>
+            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white mb-6 tracking-tight">Prometric Registration Workflow</h3>
 
-            <div className="space-y-6 relative before:absolute before:left-3.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200">
+            <div className="space-y-6 relative before:absolute before:left-3.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200 dark:before:bg-slate-800">
               <div className="flex items-start gap-4 relative">
                 <span className="w-8 h-8 rounded-full bg-japan-red text-white text-sm font-extrabold flex items-center justify-center flex-shrink-0 shadow-md shadow-red-500/20">
                   1
                 </span>
                 <div>
-                  <strong className="text-base text-slate-900 font-bold block">Create Prometric ID Profile</strong>
-                  <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                  <strong className="text-base text-slate-900 dark:text-white font-bold block">Create Prometric ID Profile</strong>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
                     Register on the Prometric Japan Foundation portal using your machine-readable Passport.
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start gap-4 relative">
-                <span className="w-8 h-8 rounded-full bg-slate-900 text-white text-sm font-extrabold flex items-center justify-center flex-shrink-0">
+                <span className="w-8 h-8 rounded-full bg-slate-900 dark:bg-slate-800 text-white text-sm font-extrabold flex items-center justify-center flex-shrink-0 border border-slate-700">
                   2
                 </span>
                 <div>
-                  <strong className="text-base text-slate-900 font-bold block">Purchase Exam Voucher in BDT</strong>
-                  <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                  <strong className="text-base text-slate-900 dark:text-white font-bold block">Purchase Exam Voucher in BDT</strong>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
                     Vouchers are purchased through authorized Bangladesh bank/mobile payment partners.
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start gap-4 relative">
-                <span className="w-8 h-8 rounded-full bg-slate-900 text-white text-sm font-extrabold flex items-center justify-center flex-shrink-0">
+                <span className="w-8 h-8 rounded-full bg-slate-900 dark:bg-slate-800 text-white text-sm font-extrabold flex items-center justify-center flex-shrink-0 border border-slate-700">
                   3
                 </span>
                 <div>
-                  <strong className="text-base text-slate-900 font-bold block">Reserve Seat &amp; Test Venue</strong>
-                  <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                  <strong className="text-base text-slate-900 dark:text-white font-bold block">Reserve Seat &amp; Test Venue</strong>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
                     Select Prometric UTC Dhaka or Chittagong test center and lock your exam date &amp; time slot.
                   </p>
                 </div>
@@ -346,8 +347,8 @@ export default function JftBasicPage() {
                   4
                 </span>
                 <div>
-                  <strong className="text-base text-slate-900 font-bold block">Attend Exam &amp; Get Immediate Result</strong>
-                  <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                  <strong className="text-base text-slate-900 dark:text-white font-bold block">Attend Exam &amp; Get Immediate Result</strong>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
                     Score card printed immediately on screen at completion. Certificate issued within 5 business days.
                   </p>
                 </div>
@@ -355,12 +356,12 @@ export default function JftBasicPage() {
             </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-slate-100">
+          <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
             <a
               href="https://www.prometric-jp.com/en/jftbasic/"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-6 rounded-2xl transition-all shadow-md text-sm"
+              className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold py-3.5 px-6 rounded-2xl transition-all shadow-md text-sm"
             >
               <span>Open Prometric Official Portal</span>
               <ExternalLink className="w-4 h-4" />
@@ -368,11 +369,11 @@ export default function JftBasicPage() {
           </div>
         </div>
 
-        <div className="lg:col-span-6 bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-xl shadow-slate-100">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60 text-xs font-bold uppercase tracking-wider mb-4">
+        <div className="lg:col-span-6 bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60 text-xs font-bold uppercase tracking-wider mb-4">
             Official Links
           </div>
-          <h3 className="text-2xl font-extrabold text-slate-900 mb-6 tracking-tight">Syllabi &amp; Preparation Resources</h3>
+          <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white mb-6 tracking-tight">Syllabi &amp; Preparation Resources</h3>
 
           <div className="space-y-4">
             {resources.map((res, idx) => (
@@ -381,18 +382,18 @@ export default function JftBasicPage() {
                 href={res.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block p-5 rounded-2xl border border-slate-200/80 hover:border-japan-red/40 hover:bg-red-50/20 transition-all duration-200 group"
+                className="block p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 hover:border-japan-red/40 dark:hover:border-rose-500/40 hover:bg-red-50/20 dark:hover:bg-slate-800/60 transition-all duration-200 group"
               >
                 <div className="flex items-center justify-between gap-3 mb-1.5">
-                  <span className="font-bold text-slate-900 group-hover:text-japan-red text-base transition-colors flex items-center gap-2">
+                  <span className="font-bold text-slate-900 dark:text-white group-hover:text-japan-red dark:group-hover:text-rose-400 text-base transition-colors flex items-center gap-2">
                     <FileCheck2 className="w-4 h-4 text-japan-red" />
                     <span>{res.title}</span>
                   </span>
-                  <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200/60 flex-shrink-0">
+                  <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700 flex-shrink-0">
                     {res.badge}
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{res.description}</p>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{res.description}</p>
               </a>
             ))}
           </div>
@@ -400,35 +401,35 @@ export default function JftBasicPage() {
       </div>
 
       {/* FAQ Accordion */}
-      <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-xl shadow-slate-100">
-        <h2 className="text-2xl font-extrabold text-slate-900 mb-6">Frequently Asked Questions</h2>
+      <div className="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)]">
+        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white mb-6">Frequently Asked Questions</h2>
 
         <div className="space-y-3">
-          <div className="border border-slate-200 rounded-2xl overflow-hidden">
+          <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
             <button
               onClick={() => setOpenFaq(openFaq === 1 ? null : 1)}
-              className="w-full text-left p-4 sm:p-5 font-bold text-slate-800 hover:text-japan-red flex items-center justify-between gap-4 transition-colors cursor-pointer"
+              className="w-full text-left p-4 sm:p-5 font-bold text-slate-800 dark:text-white hover:text-japan-red dark:hover:text-rose-400 flex items-center justify-between gap-4 transition-colors cursor-pointer"
             >
               <span>What is the difference between JFT-Basic and JLPT N4?</span>
               {openFaq === 1 ? <ChevronUp className="w-5 h-5 text-japan-red" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
             </button>
             {openFaq === 1 && (
-              <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 text-sm text-slate-600 leading-relaxed animate-fade-in">
+              <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300 leading-relaxed animate-fade-in">
                 Both JFT-Basic and JLPT N4 fulfill the Japanese language prerequisite for Japan&apos;s Specified Skilled Worker (SSW Type 1) visa. However, JFT-Basic is conducted multiple times a month via Computer-Based Testing (CBT) with instant score reports, whereas JLPT is held only twice a year on paper.
               </div>
             )}
           </div>
 
-          <div className="border border-slate-200 rounded-2xl overflow-hidden">
+          <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
             <button
               onClick={() => setOpenFaq(openFaq === 2 ? null : 2)}
-              className="w-full text-left p-4 sm:p-5 font-bold text-slate-800 hover:text-japan-red flex items-center justify-between gap-4 transition-colors cursor-pointer"
+              className="w-full text-left p-4 sm:p-5 font-bold text-slate-800 dark:text-white hover:text-japan-red dark:hover:text-rose-400 flex items-center justify-between gap-4 transition-colors cursor-pointer"
             >
               <span>Can I retake the test if I fail?</span>
               {openFaq === 2 ? <ChevronUp className="w-5 h-5 text-japan-red" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
             </button>
             {openFaq === 2 && (
-              <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 text-sm text-slate-600 leading-relaxed animate-fade-in">
+              <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300 leading-relaxed animate-fade-in">
                 Yes. Candidates must wait 30 full days after taking a JFT-Basic exam before re-sitting for another attempt.
               </div>
             )}

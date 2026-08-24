@@ -91,53 +91,53 @@ export default function SswSkillTestPage() {
 
       {/* Quick Overview Stats Grid */}
       <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift hover-shine-container transition-all duration-300 flex items-center gap-4 animate-fade-in-up delay-75">
-          <div className="w-13 h-13 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 font-black text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">
+        <div className="group bg-white dark:bg-slate-900/90 p-6 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-xl hover-lift hover-shine-container transition-all duration-300 flex items-center gap-4 animate-fade-in-up delay-75">
+          <div className="w-13 h-13 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-100 dark:border-amber-800 flex items-center justify-center text-amber-600 dark:text-amber-400 font-black text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">
             12+
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Sectors</span>
-            <strong className="text-lg font-black text-slate-900">Occupational Exams</strong>
-            <p className="text-xs text-slate-500 mt-0.5">Nursing, Food, Ag, etc.</p>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider block">Sectors</span>
+            <strong className="text-lg font-black text-slate-900 dark:text-white">Occupational Exams</strong>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Nursing, Food, Ag, etc.</p>
           </div>
         </div>
 
-        <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift hover-shine-container transition-all duration-300 flex items-center gap-4 animate-fade-in-up delay-150">
-          <div className="w-13 h-13 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-black text-xl flex-shrink-0 group-hover:scale-110 transition-transform">
+        <div className="group bg-white dark:bg-slate-900/90 p-6 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-xl hover-lift hover-shine-container transition-all duration-300 flex items-center gap-4 animate-fade-in-up delay-150">
+          <div className="w-13 h-13 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xl flex-shrink-0 group-hover:scale-110 transition-transform">
             CBT
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Format</span>
-            <strong className="text-lg font-black text-slate-900">Written + Practical</strong>
-            <p className="text-xs text-slate-500 mt-0.5">Computer &amp; Skill Test</p>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider block">Format</span>
+            <strong className="text-lg font-black text-slate-900 dark:text-white">Written + Practical</strong>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Computer &amp; Skill Test</p>
           </div>
         </div>
 
-        <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift hover-shine-container transition-all duration-300 flex items-center gap-4 animate-fade-in-up delay-200">
-          <div className="w-13 h-13 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 font-black text-xl flex-shrink-0 group-hover:scale-110 transition-transform">
+        <div className="group bg-white dark:bg-slate-900/90 p-6 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-xl hover-lift hover-shine-container transition-all duration-300 flex items-center gap-4 animate-fade-in-up delay-200">
+          <div className="w-13 h-13 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-black text-xl flex-shrink-0 group-hover:scale-110 transition-transform">
             60%
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Pass Line</span>
-            <strong className="text-lg font-black text-slate-900">60% – 65% Threshold</strong>
-            <p className="text-xs text-slate-500 mt-0.5">Varies by sector standard</p>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider block">Pass Line</span>
+            <strong className="text-lg font-black text-slate-900 dark:text-white">60% – 65% Threshold</strong>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Varies by sector standard</p>
           </div>
         </div>
 
-        <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift hover-shine-container transition-all duration-300 flex items-center gap-4 animate-fade-in-up delay-300">
-          <div className="w-13 h-13 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-japan-red font-black text-xl flex-shrink-0 group-hover:scale-110 transition-transform">
+        <div className="group bg-white dark:bg-slate-900/90 p-6 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-xl hover-lift hover-shine-container transition-all duration-300 flex items-center gap-4 animate-fade-in-up delay-300">
+          <div className="w-13 h-13 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-100 dark:border-rose-800 flex items-center justify-center text-japan-red dark:text-rose-400 font-black text-xl flex-shrink-0 group-hover:scale-110 transition-transform">
             A2
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Prerequisite</span>
-            <strong className="text-lg font-black text-slate-900">JFT-Basic OR N4</strong>
-            <p className="text-xs text-slate-500 mt-0.5">Required for visa</p>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider block">Prerequisite</span>
+            <strong className="text-lg font-black text-slate-900 dark:text-white">JFT-Basic OR N4</strong>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Required for visa</p>
           </div>
         </div>
       </div>
 
       {/* SSW Practice Mock Exams Section */}
-      <div id="mock-tests" className="bg-white/90 backdrop-blur-md rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-xl shadow-slate-100">
+      <div id="mock-tests" className="bg-white/90 dark:bg-slate-950/75 backdrop-blur-md rounded-3xl border border-slate-200/90 dark:border-slate-800/90 p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)]">
         <PracticeTestGrid
           practiceTests={practiceTests}
           title="SSW Skill Practice Mock Exams"

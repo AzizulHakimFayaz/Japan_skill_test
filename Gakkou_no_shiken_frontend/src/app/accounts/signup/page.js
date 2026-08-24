@@ -87,7 +87,6 @@ function SignupForm() {
 
   // Handle OTP digit changes
   const handleOtpChange = (index, value) => {
-    // Handle pasting 6-digit code
     if (value.length > 1) {
       const pasted = value.replace(/\D/g, '').slice(0, 6);
       if (pasted.length > 0) {
@@ -109,7 +108,6 @@ function SignupForm() {
     newDigits[index] = digit;
     setOtpDigits(newDigits);
 
-    // Auto-focus next input
     if (digit && index < 5 && otpInputsRef.current[index + 1]) {
       otpInputsRef.current[index + 1].focus();
     }
@@ -176,27 +174,27 @@ function SignupForm() {
   // ==========================================
   if (step === 'otp') {
     return (
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-100 space-y-6 animate-scale-up">
+      <div className="bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] space-y-6 animate-scale-up">
         {/* Header */}
         <div className="text-center space-y-3">
-          <div className="w-14 h-14 bg-red-50 text-japan-red rounded-2xl flex items-center justify-center mx-auto shadow-xs border border-red-100">
+          <div className="w-14 h-14 bg-red-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400 rounded-2xl flex items-center justify-center mx-auto shadow-xs border border-red-100 dark:border-rose-800/60">
             <Mail className="w-7 h-7 animate-bounce" />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Check Your Inbox</h2>
-          <p className="text-slate-500 text-xs sm:text-sm max-w-sm mx-auto">
-            We sent a 6-digit verification code to <strong className="text-slate-800 font-bold">{email}</strong>.
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Check Your Inbox</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-sm mx-auto">
+            We sent a 6-digit verification code to <strong className="text-slate-800 dark:text-slate-200 font-bold">{email}</strong>.
           </p>
         </div>
 
         {/* Alerts */}
         {otpError && (
-          <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-4 rounded-2xl font-semibold animate-fade-in text-center">
+          <div className="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/80 text-rose-800 dark:text-rose-200 text-xs p-4 rounded-2xl font-semibold animate-fade-in text-center">
             {otpError}
           </div>
         )}
         {otpSuccess && (
-          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-4 rounded-2xl font-semibold animate-fade-in text-center flex items-center justify-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <div className="bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 text-emerald-800 dark:text-emerald-200 text-xs p-4 rounded-2xl font-semibold animate-fade-in text-center flex items-center justify-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>{otpSuccess}</span>
           </div>
         )}
@@ -214,7 +212,7 @@ function SignupForm() {
                 value={digit}
                 onChange={(e) => handleOtpChange(idx, e.target.value)}
                 onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                className="w-11 h-13 sm:w-13 sm:h-15 text-center text-xl sm:text-2xl font-black text-slate-900 bg-slate-50 border-2 border-slate-200 focus:bg-white focus:border-japan-red focus:ring-4 focus:ring-red-100 rounded-2xl transition-all font-mono shadow-xs"
+                className="w-10 h-12 sm:w-13 sm:h-15 text-center text-xl sm:text-2xl font-black text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 focus:border-japan-red dark:focus:border-rose-500 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-950/40 rounded-2xl transition-all font-mono shadow-xs"
               />
             ))}
           </div>
@@ -230,11 +228,11 @@ function SignupForm() {
         </form>
 
         {/* Resend & Back options */}
-        <div className="border-t border-slate-100 pt-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <div className="border-t border-slate-100 dark:border-slate-800 pt-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <button
             type="button"
             onClick={() => setStep('form')}
-            className="text-slate-500 hover:text-slate-800 font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
+            className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Change Email / Edit Details</span>
@@ -244,7 +242,7 @@ function SignupForm() {
             type="button"
             onClick={handleResendOtp}
             disabled={resendCooldown > 0 || resending}
-            className="text-japan-red hover:underline font-bold flex items-center gap-1.5 cursor-pointer disabled:text-slate-400 disabled:no-underline transition-colors"
+            className="text-japan-red dark:text-rose-400 hover:underline font-bold flex items-center gap-1.5 cursor-pointer disabled:text-slate-400 dark:disabled:text-slate-600 disabled:no-underline transition-colors"
           >
             <RotateCcw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
             <span>{resendCooldown > 0 ? `Resend Code (${resendCooldown}s)` : 'Resend Code'}</span>
@@ -258,13 +256,13 @@ function SignupForm() {
   // STEP 1: REGISTRATION DETAILS FORM
   // ==========================================
   return (
-    <div className="bg-white border border-slate-200/90 rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-100 space-y-6">
+    <div className="bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] space-y-6">
       {/* Header */}
       <div className="text-center space-y-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/img/logo.png" alt="Gakkou No Shiken" className="h-16 w-auto mx-auto object-contain filter drop-shadow-xs" />
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Create Candidate Account</h1>
-        <p className="text-slate-500 text-xs sm:text-sm">
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Create Candidate Account</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
           Sign up with 1-click or register with email to start official mock exams.
         </p>
       </div>
@@ -273,15 +271,15 @@ function SignupForm() {
       <GoogleSignInButton text="Sign up with Google" enableOneTap={true} />
 
       <div className="relative flex items-center justify-center my-4">
-        <hr className="w-full border-slate-200" />
-        <span className="absolute bg-white px-3 text-[11px] font-extrabold uppercase text-slate-400">
+        <hr className="w-full border-slate-200 dark:border-slate-800" />
+        <span className="absolute bg-white dark:bg-slate-900 px-3 text-[11px] font-extrabold uppercase text-slate-400">
           or register with details
         </span>
       </div>
 
       {/* Error Alert */}
       {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-4 rounded-2xl font-semibold animate-fade-in">
+        <div className="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/80 text-rose-800 dark:text-rose-200 text-xs p-4 rounded-2xl font-semibold animate-fade-in">
           {error}
         </div>
       )}
@@ -291,7 +289,7 @@ function SignupForm() {
         {/* First & Last Name */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label htmlFor="id_first_name" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">
+            <label htmlFor="id_first_name" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
               First Name
             </label>
             <input
@@ -299,12 +297,12 @@ function SignupForm() {
               id="id_first_name"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
+              className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-950/40 transition-all font-semibold text-slate-800 dark:text-white text-sm"
               placeholder="e.g. Kenji"
             />
           </div>
           <div>
-            <label htmlFor="id_last_name" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">
+            <label htmlFor="id_last_name" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
               Last Name
             </label>
             <input
@@ -312,7 +310,7 @@ function SignupForm() {
               id="id_last_name"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
+              className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-950/40 transition-all font-semibold text-slate-800 dark:text-white text-sm"
               placeholder="e.g. Tanaka"
             />
           </div>
@@ -320,7 +318,7 @@ function SignupForm() {
 
         {/* Username */}
         <div>
-          <label htmlFor="id_username" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">
+          <label htmlFor="id_username" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
             Candidate Username <span className="text-japan-red">*</span>
           </label>
           <div className="relative">
@@ -331,7 +329,7 @@ function SignupForm() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              className="w-full pl-8 pr-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-bold text-slate-900 font-mono text-sm"
+              className="w-full pl-8 pr-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-950/40 transition-all font-bold text-slate-900 dark:text-white font-mono text-sm"
               placeholder="e.g. kenji_tanaka"
             />
           </div>
@@ -339,7 +337,7 @@ function SignupForm() {
 
         {/* Email */}
         <div>
-          <label htmlFor="id_email" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">
+          <label htmlFor="id_email" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
             Email Address <span className="text-japan-red">*</span>
           </label>
           <input
@@ -348,14 +346,14 @@ function SignupForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
+            className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-950/40 transition-all font-semibold text-slate-800 dark:text-white text-sm"
             placeholder="candidate@example.com"
           />
         </div>
 
         {/* Password */}
         <div>
-          <label htmlFor="id_password" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">
+          <label htmlFor="id_password" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
             Password <span className="text-japan-red">*</span>
           </label>
           <input
@@ -364,14 +362,14 @@ function SignupForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
+            className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-950/40 transition-all font-semibold text-slate-800 dark:text-white text-sm"
             placeholder="At least 6 characters"
           />
         </div>
 
         {/* Confirm Password */}
         <div>
-          <label htmlFor="id_password_confirm" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">
+          <label htmlFor="id_password_confirm" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
             Confirm Password <span className="text-japan-red">*</span>
           </label>
           <input
@@ -380,7 +378,7 @@ function SignupForm() {
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-semibold text-slate-800 text-sm"
+            className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-950/40 transition-all font-semibold text-slate-800 dark:text-white text-sm"
             placeholder="Confirm password"
           />
         </div>
@@ -395,14 +393,14 @@ function SignupForm() {
         </button>
       </form>
 
-      <hr className="border-slate-100" />
+      <hr className="border-slate-100 dark:border-slate-800" />
 
       {/* Footer */}
       <div className="text-center text-xs sm:text-sm">
-        <span className="text-slate-500 font-medium">Already have an account?</span>
+        <span className="text-slate-500 dark:text-slate-400 font-medium">Already have an account?</span>
         <Link
           href={`/accounts/login${next ? `?next=${encodeURIComponent(next)}` : ''}`}
-          className="text-japan-red hover:underline font-bold transition-colors ml-1"
+          className="text-japan-red dark:text-rose-400 hover:underline font-bold transition-colors ml-1"
         >
           Sign In
         </Link>
@@ -413,7 +411,7 @@ function SignupForm() {
 
 export default function SignupPage() {
   return (
-    <div className="max-w-md mx-auto py-8 sm:py-16 animate-fade-in">
+    <div className="max-w-md mx-auto py-6 sm:py-12 animate-fade-in-up">
       <Suspense fallback={<div className="p-8 text-center text-sm font-bold text-slate-500">Loading...</div>}>
         <SignupForm />
       </Suspense>

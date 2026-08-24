@@ -86,7 +86,6 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
       });
       if (res?.user) {
         if (setUser) setUser(res.user);
-        // Refresh candidate view
         const newUsername = res.user.username || editUsername;
         if (newUsername !== candidate.username) {
           router.push(`/profile/${newUsername}`);
@@ -107,12 +106,11 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
     }
   };
 
-
   if (loading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
         <div className="w-12 h-12 border-4 border-japan-red border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-sm font-bold text-slate-600">Loading Candidate Profile...</p>
+        <p className="text-sm font-bold text-slate-600 dark:text-slate-400">Loading Candidate Profile...</p>
       </div>
     );
   }
@@ -120,11 +118,11 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
   if (error || !candidate) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
-        <div className="w-16 h-16 bg-rose-50 text-japan-red rounded-full flex items-center justify-center text-2xl font-black">
+        <div className="w-16 h-16 bg-rose-50 dark:bg-rose-950/60 text-japan-red rounded-full flex items-center justify-center text-2xl font-black">
           <User className="w-8 h-8 text-japan-red" />
         </div>
-        <h2 className="text-xl font-bold text-slate-900">Candidate Not Found</h2>
-        <p className="text-xs sm:text-sm text-slate-500 max-w-sm">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Candidate Not Found</h2>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-sm">
           No registered examinee profile was found with the username &quot;@{params?.username}&quot;.
         </p>
         <Link href="/leaderboard" className="px-6 py-2.5 bg-japan-red text-white text-xs font-bold rounded-xl shadow-md">
@@ -154,14 +152,12 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
     <div className="space-y-8 sm:space-y-12 animate-fade-in pb-16">
       {/* 1. Ultra-Premium Candidate Hero Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-[#0d1627] to-slate-900 text-white p-6 sm:p-12 shadow-2xl border border-slate-800/80">
-        {/* Layer 1: Ambient Glow Orbs */}
         <div className="absolute top-0 right-1/4 w-72 h-72 bg-rose-600/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
           {/* Candidate Avatar & Bio Section */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            {/* Dynamic Avatar with Rank Crown / Glow */}
             <div className="relative flex-shrink-0">
               <div
                 className={`w-20 h-20 sm:w-26 sm:h-26 rounded-3xl flex items-center justify-center text-white text-3xl sm:text-5xl font-black shadow-2xl border-4 ${
@@ -298,73 +294,73 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
       {/* 2. Key Metrics Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {/* Metric 1: Leaderboard Standing */}
-        <div className="bg-white p-5 sm:p-7 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-3 hover:border-amber-400/60 transition-all">
+        <div className="bg-white dark:bg-slate-900/90 p-5 sm:p-7 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-3 hover:border-amber-400/60 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500">
+            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Ranking Standing
             </span>
             <Trophy className="w-5 h-5 text-amber-500" />
           </div>
           <div>
-            <strong className="text-2xl sm:text-4xl font-black text-slate-900 leading-none">
+            <strong className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white leading-none">
               {rank ? `#${rank}` : 'Unranked'}
             </strong>
-            <span className="text-[11px] sm:text-xs text-slate-500 font-semibold block mt-1">
+            <span className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold block mt-1">
               {rank ? `Top candidate among ${total_candidates}` : 'Take exams to rank'}
             </span>
           </div>
         </div>
 
         {/* Metric 2: High Scaled Score */}
-        <div className="bg-white p-5 sm:p-7 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-3 hover:border-amber-400/60 transition-all">
+        <div className="bg-white dark:bg-slate-900/90 p-5 sm:p-7 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-3 hover:border-amber-400/60 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500">
+            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Highest Score
             </span>
-            <Target className="w-5 h-5 text-japan-red" />
+            <Target className="w-5 h-5 text-japan-red dark:text-rose-400" />
           </div>
           <div>
             <strong className="text-2xl sm:text-4xl font-black text-amber-500 leading-none">
               {stats.highest_scaled_score || 0}
               <span className="text-sm sm:text-base font-bold text-slate-400 ml-1">/ 250</span>
             </strong>
-            <span className="text-[11px] sm:text-xs text-slate-500 font-semibold block mt-1">
+            <span className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold block mt-1">
               Avg: {stats.avg_scaled_score || 0} pts
             </span>
           </div>
         </div>
 
         {/* Metric 3: Pass Rate */}
-        <div className="bg-white p-5 sm:p-7 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-3 hover:border-emerald-400/60 transition-all">
+        <div className="bg-white dark:bg-slate-900/90 p-5 sm:p-7 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-3 hover:border-emerald-400/60 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500">
+            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Exam Pass Rate
             </span>
             <CheckCircle2 className="w-5 h-5 text-emerald-500" />
           </div>
           <div>
-            <strong className="text-2xl sm:text-4xl font-black text-emerald-600 leading-none">
+            <strong className="text-2xl sm:text-4xl font-black text-emerald-600 dark:text-emerald-400 leading-none">
               {stats.pass_rate || 0}%
             </strong>
-            <span className="text-[11px] sm:text-xs text-slate-500 font-semibold block mt-1">
+            <span className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold block mt-1">
               {stats.passed_attempts || 0} of {stats.total_attempts || 0} passed
             </span>
           </div>
         </div>
 
         {/* Metric 4: CEFR Rating */}
-        <div className="bg-white p-5 sm:p-7 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-3 hover:border-indigo-400/60 transition-all">
+        <div className="bg-white dark:bg-slate-900/90 p-5 sm:p-7 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-3 hover:border-indigo-400/60 transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500">
+            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               CEFR Level
             </span>
             <GraduationCap className="w-5 h-5 text-indigo-500" />
           </div>
           <div>
-            <strong className="text-xl sm:text-3xl font-black text-slate-900 leading-none block">
+            <strong className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white leading-none block">
               {stats.highest_level || 'Below A1'}
             </strong>
-            <span className="text-[11px] sm:text-xs text-slate-500 font-semibold block mt-1">
+            <span className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold block mt-1">
               {stats.highest_scaled_score >= 200 ? 'Official Passing Standard' : 'In Progress'}
             </span>
           </div>
@@ -375,15 +371,15 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
               <Award className="w-6 h-6 text-amber-500" />
               <span>Candidate Achievement Badges</span>
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">
               Badges earned through examination performance and milestones.
             </p>
           </div>
-          <span className="text-xs font-extrabold bg-slate-100 px-3 py-1 rounded-full text-slate-700 border border-slate-200">
+          <span className="text-xs font-extrabold bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
             {achievements.filter((a) => a.unlocked).length} / {achievements.length} Unlocked
           </span>
         </div>
@@ -394,36 +390,36 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
               key={badge.id}
               className={`p-4 sm:p-5 rounded-2xl border transition-all flex items-start gap-3.5 ${
                 badge.unlocked
-                  ? 'bg-white border-slate-200/90 shadow-sm hover:border-amber-400/60 hover:shadow-md'
-                  : 'bg-slate-50/70 border-dashed border-slate-200 opacity-60'
+                  ? 'bg-white dark:bg-slate-900/90 border-slate-200/90 dark:border-slate-800 shadow-sm hover:border-amber-400/60 hover:shadow-md'
+                  : 'bg-slate-50/70 dark:bg-slate-900/40 border-dashed border-slate-200 dark:border-slate-800 opacity-60'
               }`}
             >
               <div
                 className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 shadow-xs ${
                   badge.unlocked
                     ? badge.tier === 'gold'
-                      ? 'bg-amber-100 border border-amber-300'
+                      ? 'bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700'
                       : badge.tier === 'silver'
-                      ? 'bg-slate-100 border border-slate-300'
-                      : 'bg-rose-50 border border-rose-200'
-                    : 'bg-slate-200/70 grayscale'
+                      ? 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700'
+                      : 'bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800'
+                    : 'bg-slate-200/70 dark:bg-slate-800 grayscale'
                 }`}
               >
-                <Award className="w-6 h-6 text-amber-600" />
+                <Award className="w-6 h-6 text-amber-600 dark:text-amber-400" />
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white leading-tight">
                     {badge.title}
                   </h3>
                   {badge.unlocked && (
-                    <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                    <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex items-center gap-1">
                       <Check className="w-2.5 h-2.5" />
                       <span>Earned</span>
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-500 leading-snug font-medium">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug font-medium">
                   {badge.description}
                 </p>
               </div>
@@ -436,63 +432,63 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
       {recent_attempts.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-              <FileText className="w-5 h-5 text-indigo-600" />
+            <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <FileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               <span>Recent Verified Mock Exams</span>
             </h2>
-            <span className="text-xs text-slate-500 font-medium">Last 5 completed attempts</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Last 5 completed attempts</span>
           </div>
 
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden divide-y divide-slate-100">
+          <div className="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
             {recent_attempts.map((att) => (
               <div
                 key={att.id}
-                className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80 transition-colors"
+                className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors"
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs sm:text-sm font-black text-slate-900">
+                    <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
                       {att.test_title}
                     </span>
                     <span
                       className={`text-[9px] sm:text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md ${
                         att.test_category === 'skill'
-                          ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                          : 'bg-indigo-100 text-indigo-900 border border-indigo-300'
+                          ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-800'
+                          : 'bg-indigo-100 dark:bg-indigo-950/80 text-indigo-900 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-800'
                       }`}
                     >
                       {att.test_category === 'skill' ? 'SSW Skill' : 'JFT-Basic'}
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-400 font-medium">
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
                     Completed on {new Date(att.completed_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
 
                 <div className="flex items-center gap-4 self-end sm:self-center">
                   <div className="text-right">
-                    <span className="text-xs sm:text-sm font-black text-slate-900 block">
+                    <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white block">
                       {att.scaled_score} <span className="text-[10px] text-slate-400 font-normal">/ 250</span>
                     </span>
-                    <span className="text-[10px] text-slate-500 font-bold block">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold block">
                       {att.percentage}% accuracy
                     </span>
                   </div>
                   <span
                     className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black uppercase ${
                       att.passed
-                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                        : 'bg-rose-100 text-rose-800 border border-rose-300'
+                        ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700'
+                        : 'bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-700'
                     }`}
                   >
                     {att.passed ? (
                       <>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
                         <span>Passed (A2)</span>
                       </>
                     ) : (
                       <>
-                        <XCircle className="w-3.5 h-3.5 text-rose-700" />
+                        <XCircle className="w-3.5 h-3.5 text-rose-700 dark:text-rose-400" />
                         <span>Not Passed</span>
                       </>
                     )}
@@ -507,30 +503,30 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
       {/* Edit Profile Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 space-y-5 animate-scale-up">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 animate-scale-up">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
                 <Edit3 className="w-5 h-5 text-japan-red" />
-                <h3 className="text-lg font-black text-slate-900">Edit Candidate Profile</h3>
+                <h3 className="text-lg font-black text-slate-900 dark:text-white">Edit Candidate Profile</h3>
               </div>
               <button
                 onClick={() => setIsEditModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 text-xl font-bold w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-white text-xl font-bold w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {profileSuccessMsg && (
-              <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-2xl text-xs font-bold text-center animate-fade-in flex items-center justify-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <div className="p-3 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800/80 rounded-2xl text-xs font-bold text-center animate-fade-in flex items-center justify-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>{profileSuccessMsg}</span>
               </div>
             )}
 
             <form onSubmit={handleSaveProfile} className="space-y-4">
               <div>
-                <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">
+                <label className="block text-xs font-extrabold uppercase text-slate-500 dark:text-slate-400 mb-1">
                   Candidate Username <span className="text-japan-red">*</span>
                 </label>
                 <input
@@ -538,55 +534,54 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
                   value={editUsername}
                   onChange={(e) => setEditUsername(e.target.value)}
                   required
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-900 font-mono focus:outline-none focus:border-japan-red"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-900 dark:text-white font-mono focus:outline-none focus:border-japan-red dark:focus:border-rose-500"
                   placeholder="e.g. kenji_tanaka"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">First Name</label>
+                  <label className="block text-xs font-extrabold uppercase text-slate-500 dark:text-slate-400 mb-1">First Name</label>
                   <input
                     type="text"
                     value={editFirstName}
                     onChange={(e) => setEditFirstName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:border-japan-red"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-japan-red dark:focus:border-rose-500"
                     placeholder="e.g. Kenji"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">Last Name</label>
+                  <label className="block text-xs font-extrabold uppercase text-slate-500 dark:text-slate-400 mb-1">Last Name</label>
                   <input
                     type="text"
                     value={editLastName}
                     onChange={(e) => setEditLastName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:border-japan-red"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-japan-red dark:focus:border-rose-500"
                     placeholder="e.g. Tanaka"
                   />
                 </div>
               </div>
 
-
               <div>
-                <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">Candidate Bio</label>
+                <label className="block text-xs font-extrabold uppercase text-slate-500 dark:text-slate-400 mb-1">Candidate Bio</label>
                 <textarea
                   value={editBio}
                   onChange={(e) => setEditBio(e.target.value)}
                   rows={2}
                   maxLength={500}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-800 focus:outline-none focus:border-japan-red"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-medium text-slate-800 dark:text-white focus:outline-none focus:border-japan-red dark:focus:border-rose-500"
                   placeholder="Share your goals (e.g. Preparing for JFT-Basic & SSW Nursing Care in Tokyo!)"
                 />
-                <span className="text-[10px] text-slate-400 float-right">{editBio.length}/500</span>
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 float-right">{editBio.length}/500</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">Target Examination</label>
+                  <label className="block text-xs font-extrabold uppercase text-slate-500 dark:text-slate-400 mb-1">Target Examination</label>
                   <select
                     value={editTargetExam}
                     onChange={(e) => setEditTargetExam(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-japan-red"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white focus:outline-none focus:border-japan-red dark:focus:border-rose-500"
                   >
                     <option value="jft_basic">JFT-Basic (A2 Standard)</option>
                     <option value="ssw_nursing">SSW: Nursing Care (介護)</option>
@@ -601,11 +596,11 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">Japanese Level</label>
+                  <label className="block text-xs font-extrabold uppercase text-slate-500 dark:text-slate-400 mb-1">Japanese Level</label>
                   <select
                     value={editJapaneseLevel}
                     onChange={(e) => setEditJapaneseLevel(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-japan-red"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white focus:outline-none focus:border-japan-red dark:focus:border-rose-500"
                   >
                     <option value="n5">Beginner (N5 / A1)</option>
                     <option value="n4">Elementary (N4 / A2)</option>
@@ -617,12 +612,12 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
               </div>
 
               <div>
-                <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1">Location / Country</label>
+                <label className="block text-xs font-extrabold uppercase text-slate-500 dark:text-slate-400 mb-1">Location / Country</label>
                 <input
                   type="text"
                   value={editLocation}
                   onChange={(e) => setEditLocation(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-800 focus:outline-none focus:border-japan-red"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-japan-red dark:focus:border-rose-500"
                   placeholder="e.g. Dhaka, Bangladesh or Yangon, Myanmar"
                 />
               </div>
@@ -631,7 +626,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
-                  className="px-5 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                  className="px-5 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
