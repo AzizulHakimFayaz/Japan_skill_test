@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { Search, X, ExternalLink, FileText, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
 
 export default function SswSectorExplorer({ sectorsData = [] }) {
   const [activeFilter, setActiveFilter] = useState('ALL');
@@ -32,8 +33,10 @@ export default function SswSectorExplorer({ sectorsData = [] }) {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200/60 text-xs font-bold uppercase tracking-wider mb-2">
             Specified Skilled Worker (特定技能) Sectors
           </div>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">SSW Industry Sectors & Exam Requirements</h2>
-          <p className="text-sm text-slate-500 mt-1">
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            SSW Industry Sectors &amp; Exam Requirements
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Filter by sector category to view exam subjects, passing scores, and study syllabus links.
           </p>
         </div>
@@ -45,16 +48,9 @@ export default function SswSectorExplorer({ sectorsData = [] }) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search sector name..."
-            className="w-full sm:w-64 pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200/90 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:bg-white transition-all shadow-xs"
+            className="w-full sm:w-64 pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200/90 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 focus:bg-white transition-all shadow-xs"
           />
-          <svg
-            className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
-          </svg>
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
         </div>
       </div>
 
@@ -132,9 +128,10 @@ export default function SswSectorExplorer({ sectorsData = [] }) {
               <div className="flex gap-2">
                 <button
                   onClick={() => setSelectedSectorModal(sec)}
-                  className="flex-1 text-center py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition-all shadow-xs cursor-pointer"
+                  className="flex-1 text-center py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  View Syllabus Breakdown
+                  <span>Syllabus Breakdown</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
                 {sec.sample_pdf && (
                   <a
@@ -143,7 +140,8 @@ export default function SswSectorExplorer({ sectorsData = [] }) {
                     rel="noopener noreferrer"
                     className="py-2.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-extrabold transition-all flex items-center gap-1"
                   >
-                    PDF ↗
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>PDF</span>
                   </a>
                 )}
               </div>
@@ -160,9 +158,9 @@ export default function SswSectorExplorer({ sectorsData = [] }) {
               <h3 className="text-xl font-black text-slate-900">{selectedSectorModal.name}</h3>
               <button
                 onClick={() => setSelectedSectorModal(null)}
-                className="text-slate-400 hover:text-slate-600 text-xl font-bold p-1 cursor-pointer"
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -189,9 +187,10 @@ export default function SswSectorExplorer({ sectorsData = [] }) {
                 href={selectedSectorModal.study_guide_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-900 font-black text-xs shadow-md"
+                className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-900 font-black text-xs shadow-md flex items-center gap-1.5"
               >
-                Open Official Portal ↗
+                <span>Open Official Portal</span>
+                <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
           </div>

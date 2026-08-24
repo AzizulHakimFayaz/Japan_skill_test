@@ -5,6 +5,18 @@ import { getSswInfo } from '@/lib/api';
 import PracticeTestGrid from '@/components/PracticeTestGrid';
 import SswSectorExplorer from '@/components/SswSectorExplorer';
 import JftCenterMap from '@/components/JftCenterMap';
+import {
+  Layers,
+  MapPin,
+  ExternalLink,
+  ArrowRight,
+  Award,
+  CheckCircle2,
+  Calendar,
+  CreditCard,
+  FileCheck2,
+  ChevronDown,
+} from 'lucide-react';
 
 export default function SswSkillTestPage() {
   const [data, setData] = useState(null);
@@ -56,19 +68,16 @@ export default function SswSkillTestPage() {
               href="#ssw-sectors"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black px-5 py-3 sm:px-7 sm:py-3.5 rounded-2xl transition-all shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 text-xs sm:text-sm active:scale-95 glow-amber"
             >
-              Sectors
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
+              <Layers className="w-4 h-4" />
+              <span>Explore Sectors</span>
+              <ChevronDown className="w-4 h-4" />
             </a>
             <a
               href="#ssw-venues"
               className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-5 py-3 sm:px-7 sm:py-3.5 rounded-2xl backdrop-blur-md transition-all text-xs sm:text-sm border border-white/15 hover:border-white/30"
             >
-              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              </svg>
-              Test Venues
+              <MapPin className="w-4 h-4" />
+              <span>Test Venues</span>
             </a>
           </div>
         </div>
@@ -93,35 +102,35 @@ export default function SswSkillTestPage() {
           </div>
         </div>
 
-        <div className="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-md shadow-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-4">
+        <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift hover-shine-container transition-all duration-300 flex items-center gap-4 animate-fade-in-up delay-150">
           <div className="w-13 h-13 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-black text-xl flex-shrink-0 group-hover:scale-110 transition-transform">
             CBT
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">Format</span>
-            <strong className="text-lg font-extrabold text-slate-900">Written + Practical</strong>
+            <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Format</span>
+            <strong className="text-lg font-black text-slate-900">Written + Practical</strong>
             <p className="text-xs text-slate-500 mt-0.5">Computer &amp; Skill Test</p>
           </div>
         </div>
 
-        <div className="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-md shadow-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-4">
+        <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift hover-shine-container transition-all duration-300 flex items-center gap-4 animate-fade-in-up delay-200">
           <div className="w-13 h-13 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 font-black text-xl flex-shrink-0 group-hover:scale-110 transition-transform">
             60%
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">Pass Line</span>
-            <strong className="text-lg font-extrabold text-slate-900">60% – 65% Threshold</strong>
+            <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Pass Line</span>
+            <strong className="text-lg font-black text-slate-900">60% – 65% Threshold</strong>
             <p className="text-xs text-slate-500 mt-0.5">Varies by sector standard</p>
           </div>
         </div>
 
-        <div className="group bg-white p-6 rounded-3xl border border-slate-200/80 shadow-md shadow-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-4">
+        <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift hover-shine-container transition-all duration-300 flex items-center gap-4 animate-fade-in-up delay-300">
           <div className="w-13 h-13 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-japan-red font-black text-xl flex-shrink-0 group-hover:scale-110 transition-transform">
             A2
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block">Prerequisite</span>
-            <strong className="text-lg font-extrabold text-slate-900">JFT-Basic OR JLPT N4</strong>
+            <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Prerequisite</span>
+            <strong className="text-lg font-black text-slate-900">JFT-Basic OR N4</strong>
             <p className="text-xs text-slate-500 mt-0.5">Required for visa</p>
           </div>
         </div>
@@ -161,27 +170,27 @@ export default function SswSkillTestPage() {
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-            <div className="bg-white/10 p-5 rounded-2xl border border-white/10 backdrop-blur-md">
-              <span className="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center mb-3">
-                1
-              </span>
-              <strong className="text-white text-sm font-bold block mb-1">Check Calendar</strong>
+            <div className="bg-white/10 p-5 rounded-2xl border border-white/10 backdrop-blur-md space-y-2">
+              <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center">
+                <Calendar className="w-4 h-4" />
+              </div>
+              <strong className="text-white text-sm font-bold block">1. Check Calendar</strong>
               <p className="text-xs text-slate-300">Prometric releases testing windows monthly for Dhaka and Chittagong.</p>
             </div>
 
-            <div className="bg-white/10 p-5 rounded-2xl border border-white/10 backdrop-blur-md">
-              <span className="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center mb-3">
-                2
-              </span>
-              <strong className="text-white text-sm font-bold block mb-1">Buy Exam Voucher</strong>
+            <div className="bg-white/10 p-5 rounded-2xl border border-white/10 backdrop-blur-md space-y-2">
+              <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center">
+                <CreditCard className="w-4 h-4" />
+              </div>
+              <strong className="text-white text-sm font-bold block">2. Buy Voucher</strong>
               <p className="text-xs text-slate-300">Vouchers must be purchased in BDT prior to seat reservation.</p>
             </div>
 
-            <div className="bg-white/10 p-5 rounded-2xl border border-white/10 backdrop-blur-md">
-              <span className="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center mb-3">
-                3
-              </span>
-              <strong className="text-white text-sm font-bold block mb-1">Combine Results</strong>
+            <div className="bg-white/10 p-5 rounded-2xl border border-white/10 backdrop-blur-md space-y-2">
+              <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center">
+                <FileCheck2 className="w-4 h-4" />
+              </div>
+              <strong className="text-white text-sm font-bold block">3. Combine Results</strong>
               <p className="text-xs text-slate-300">Submit JFT-Basic + SSW Skill Certificate for your SSW Type 1 visa application.</p>
             </div>
           </div>
@@ -191,17 +200,19 @@ export default function SswSkillTestPage() {
               href="https://www.prometric-jp.com/en/ssw/"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black px-7 py-3.5 rounded-2xl transition-all shadow-md text-sm active:scale-95"
+              className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black px-7 py-3.5 rounded-2xl transition-all shadow-md text-sm active:scale-95 flex items-center gap-1.5"
             >
-              Prometric SSW Official Portal ↗
+              <span>Prometric SSW Official Portal</span>
+              <ExternalLink className="w-4 h-4" />
             </a>
             <a
               href="https://www.mofa.go.jp/mofaj/ca/fna/ssw/us/"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white/10 hover:bg-white/20 text-white font-semibold px-7 py-3.5 rounded-2xl border border-white/15 transition-all text-sm"
+              className="bg-white/10 hover:bg-white/20 text-white font-semibold px-7 py-3.5 rounded-2xl border border-white/15 transition-all text-sm flex items-center gap-1.5"
             >
-              MOFA Japan Official Guidelines ↗
+              <span>MOFA Japan Guidelines</span>
+              <ExternalLink className="w-4 h-4" />
             </a>
           </div>
         </div>

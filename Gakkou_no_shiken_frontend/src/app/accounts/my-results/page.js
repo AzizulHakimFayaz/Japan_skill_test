@@ -5,6 +5,21 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getMyResults, updateUserProfile } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
+import {
+  Target,
+  GraduationCap,
+  MapPin,
+  Eye,
+  Edit3,
+  Trophy,
+  X,
+  Check,
+  FileText,
+  CheckCircle2,
+  XCircle,
+  ArrowRight,
+  AlertCircle,
+} from 'lucide-react';
 
 export default function MyResultsPage() {
   const router = useRouter();
@@ -96,7 +111,7 @@ export default function MyResultsPage() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
         <div className="w-16 h-16 bg-rose-50 text-japan-red rounded-full flex items-center justify-center text-2xl font-black">
-          ⚠
+          <AlertCircle className="w-8 h-8 text-japan-red" />
         </div>
         <h2 className="text-xl font-bold text-slate-900">{error}</h2>
         <Link href="/" className="px-6 py-2.5 bg-japan-red text-white text-xs font-bold rounded-xl">
@@ -145,7 +160,7 @@ export default function MyResultsPage() {
               {/* Bio snippet */}
               {profile.bio ? (
                 <p className="text-xs sm:text-sm text-slate-300 font-medium max-w-xl line-clamp-2 italic">
-                  "{profile.bio}"
+                  &quot;{profile.bio}&quot;
                 </p>
               ) : (
                 <p className="text-xs text-slate-400 font-medium">
@@ -156,18 +171,21 @@ export default function MyResultsPage() {
               {/* Badges: Target Exam, Level, Location */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 {profile.target_exam_display && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 text-[11px] font-bold">
-                    🎯 {profile.target_exam_display}
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 text-[11px] font-bold">
+                    <Target className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>{profile.target_exam_display}</span>
                   </span>
                 )}
                 {profile.japanese_level_display && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-200 border border-emerald-500/30 text-[11px] font-bold">
-                    🌸 {profile.japanese_level_display}
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-200 border border-emerald-500/30 text-[11px] font-bold">
+                    <GraduationCap className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>{profile.japanese_level_display}</span>
                   </span>
                 )}
                 {profile.location && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 text-[11px] font-bold">
-                    📍 {profile.location}
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 text-[11px] font-bold">
+                    <MapPin className="w-3.5 h-3.5 text-rose-400" />
+                    <span>{profile.location}</span>
                   </span>
                 )}
               </div>
@@ -181,26 +199,30 @@ export default function MyResultsPage() {
                 href={`/profile/${encodeURIComponent(user.username)}`}
                 className="inline-flex items-center justify-center gap-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 font-bold px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl transition-all text-xs sm:text-sm border border-rose-500/30 active:scale-95 shadow-xs"
               >
-                👁️ View Public Profile
+                <Eye className="w-4 h-4" />
+                <span>View Public Profile</span>
               </Link>
             )}
             <button
               onClick={() => setIsEditModalOpen(true)}
               className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl backdrop-blur-md transition-all text-xs sm:text-sm border border-white/15 cursor-pointer active:scale-95 shadow-xs"
             >
-              ✏️ Edit Profile
+              <Edit3 className="w-4 h-4" />
+              <span>Edit Profile</span>
             </button>
             <Link
               href="/leaderboard"
               className="inline-flex items-center justify-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl transition-all text-xs sm:text-sm border border-amber-500/30 active:scale-95"
             >
-              🏆 Leaderboard
+              <Trophy className="w-4 h-4" />
+              <span>Leaderboard</span>
             </Link>
             <Link
               href="/"
               className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl transition-all shadow-lg shadow-red-500/20 text-xs sm:text-sm active:scale-95"
             >
-              Take Exam →
+              <span>Take Exam</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
             <button
               onClick={logout}
@@ -224,20 +246,21 @@ export default function MyResultsPage() {
           <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 space-y-5 animate-scale-up">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <span className="text-xl">✏️</span>
+                <Edit3 className="w-5 h-5 text-japan-red" />
                 <h3 className="text-lg font-black text-slate-900">Edit Candidate Profile</h3>
               </div>
               <button
                 onClick={() => setIsEditModalOpen(false)}
                 className="text-slate-400 hover:text-slate-700 text-xl font-bold w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 cursor-pointer"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {profileSuccessMsg && (
-              <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-2xl text-xs font-bold text-center animate-fade-in">
-                ✓ {profileSuccessMsg}
+              <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-2xl text-xs font-bold text-center animate-fade-in flex items-center justify-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>{profileSuccessMsg}</span>
               </div>
             )}
 
@@ -346,16 +369,13 @@ export default function MyResultsPage() {
         </div>
       )}
 
-
       {total_attempts > 0 ? (
         <>
           {/* 4 Stat Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             <div className="bg-white p-4 sm:p-7 rounded-2xl sm:rounded-[28px] border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5 btn-touch-active mobile-app-card">
               <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-slate-100/90 border border-slate-200/60 flex items-center justify-center text-slate-700 flex-shrink-0">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
+                <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" />
               </div>
               <div className="space-y-0.5">
                 <span className="text-[10px] sm:text-[11px] text-slate-500 font-extrabold uppercase tracking-wider block">Exams</span>
@@ -366,9 +386,7 @@ export default function MyResultsPage() {
 
             <div className="bg-white p-4 sm:p-7 rounded-2xl sm:rounded-[28px] border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5 btn-touch-active mobile-app-card">
               <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />
               </div>
               <div className="space-y-0.5">
                 <span className="text-[10px] sm:text-[11px] text-slate-500 font-extrabold uppercase tracking-wider block">Pass Rate</span>
@@ -379,9 +397,7 @@ export default function MyResultsPage() {
 
             <div className="bg-white p-4 sm:p-7 rounded-2xl sm:rounded-[28px] border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5 btn-touch-active mobile-app-card">
               <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4m6 12v4m-2-2h4m4-16l-4 4m0 0l-4-4m4 4v12" />
-                </svg>
+                <Target className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
               </div>
               <div className="space-y-0.5">
                 <span className="text-[10px] sm:text-[11px] text-slate-500 font-extrabold uppercase tracking-wider block">Max Score</span>
@@ -394,10 +410,7 @@ export default function MyResultsPage() {
 
             <div className="bg-white p-4 sm:p-7 rounded-2xl sm:rounded-[28px] border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5 btn-touch-active mobile-app-card">
               <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center text-japan-red flex-shrink-0">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-japan-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l9-5-9-5-9 5 9 5z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                </svg>
+                <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-japan-red" />
               </div>
               <div className="space-y-0.5">
                 <span className="text-[10px] sm:text-[11px] text-slate-500 font-extrabold uppercase tracking-wider block">CEFR Level</span>
@@ -492,20 +505,23 @@ export default function MyResultsPage() {
                       <td className="px-6 py-4">
                         {attempt.passed ? (
                           <span className="inline-flex items-center gap-1 py-0.5 px-2.5 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            ✓ PASS
+                            <Check className="w-3 h-3 text-emerald-600" />
+                            <span>PASS</span>
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 py-0.5 px-2.5 rounded-full text-xs font-extrabold bg-rose-50 text-rose-700 border border-rose-200">
-                            NO PASS
+                            <X className="w-3 h-3 text-rose-600" />
+                            <span>NO PASS</span>
                           </span>
                         )}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <Link
                           href={`/attempt/${attempt.id}`}
-                          className="text-xs font-bold text-japan-red hover:underline py-1 px-2 rounded hover:bg-red-50"
+                          className="text-xs font-bold text-japan-red hover:underline py-1 px-2 rounded hover:bg-red-50 inline-flex items-center gap-1"
                         >
-                          View Scorecard →
+                          <span>View Scorecard</span>
+                          <ArrowRight className="w-3 h-3" />
                         </Link>
                       </td>
                     </tr>
@@ -531,11 +547,13 @@ export default function MyResultsPage() {
                     </div>
                     {attempt.passed ? (
                       <span className="inline-flex items-center gap-1 py-0.5 px-2.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 flex-shrink-0">
-                        ✓ PASS
+                        <Check className="w-2.5 h-2.5 text-emerald-600" />
+                        <span>PASS</span>
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 py-0.5 px-2.5 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200 flex-shrink-0">
-                        NO PASS
+                        <X className="w-2.5 h-2.5 text-rose-600" />
+                        <span>NO PASS</span>
                       </span>
                     )}
                   </div>
@@ -545,8 +563,9 @@ export default function MyResultsPage() {
                       <span className="text-slate-400">Score: </span>
                       <strong className="text-slate-900 font-mono">{attempt.scaled_score} / 250</strong>
                     </div>
-                    <Link href={`/attempt/${attempt.id}`} className="text-xs font-extrabold text-japan-red">
-                      View Scorecard →
+                    <Link href={`/attempt/${attempt.id}`} className="text-xs font-extrabold text-japan-red flex items-center gap-1">
+                      <span>View Scorecard</span>
+                      <ArrowRight className="w-3 h-3" />
                     </Link>
                   </div>
                 </div>
@@ -557,8 +576,8 @@ export default function MyResultsPage() {
       ) : (
         /* Empty State */
         <div className="bg-white rounded-3xl border border-slate-200/90 p-8 sm:p-14 text-center space-y-4 shadow-sm">
-          <div className="w-16 h-16 rounded-full bg-red-50 text-japan-red flex items-center justify-center text-2xl font-black mx-auto">
-            📝
+          <div className="w-16 h-16 rounded-full bg-red-50 text-japan-red flex items-center justify-center mx-auto">
+            <FileText className="w-8 h-8 text-japan-red" />
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900">No Exam Attempts Recorded Yet</h3>
           <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
@@ -569,7 +588,8 @@ export default function MyResultsPage() {
               href="/"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-japan-red to-rose-600 text-white font-extrabold px-6 py-3 rounded-2xl text-xs shadow-md shadow-red-500/20 active:scale-95"
             >
-              Browse Practice Exams →
+              <span>Browse Practice Exams</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>

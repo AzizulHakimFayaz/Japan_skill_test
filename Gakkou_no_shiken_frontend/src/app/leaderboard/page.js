@@ -4,6 +4,20 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getLeaderboard } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
+import {
+  Trophy,
+  Crown,
+  Medal,
+  Award,
+  Flame,
+  Target,
+  MapPin,
+  Sparkles,
+  AlertCircle,
+  ArrowRight,
+  User,
+  GraduationCap,
+} from 'lucide-react';
 
 export default function LeaderboardPage() {
   const { user } = useAuth();
@@ -37,7 +51,7 @@ export default function LeaderboardPage() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
         <div className="w-16 h-16 bg-rose-50 text-japan-red rounded-full flex items-center justify-center text-2xl font-black">
-          ⚠
+          <AlertCircle className="w-8 h-8 text-japan-red" />
         </div>
         <h2 className="text-xl font-bold text-slate-900">{error}</h2>
         <Link href="/" className="px-6 py-2.5 bg-japan-red text-white text-xs font-bold rounded-xl">
@@ -60,7 +74,8 @@ export default function LeaderboardPage() {
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-black tracking-wider uppercase">
-              🏆 Official Candidate Standings
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <span>Official Candidate Standings</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
               CBT Exam Leaderboard
@@ -77,9 +92,10 @@ export default function LeaderboardPage() {
             </div>
             <Link
               href="/"
-              className="bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-5 py-3.5 rounded-2xl text-xs sm:text-sm shadow-lg shadow-red-500/25 active:scale-95 transition-all"
+              className="bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-5 py-3.5 rounded-2xl text-xs sm:text-sm shadow-lg shadow-red-500/25 active:scale-95 transition-all flex items-center gap-1.5"
             >
-              Take Mock Exam →
+              <span>Take Mock Exam</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -128,17 +144,16 @@ export default function LeaderboardPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-              <span>👑</span> Top Ranked Candidates
+              <Crown className="w-6 h-6 text-amber-500" />
+              <span>Top Ranked Candidates</span>
             </h2>
             <span className="text-xs text-slate-500 font-bold">Gold, Silver &amp; Bronze Podium</span>
           </div>
 
           {/* 3-Column Olympic Podium Layout: [2nd Silver] [1st Gold (Center Elevated)] [3rd Bronze] */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-end">
-            {/* 🥈 2nd Place (Silver) */}
-
+            {/* 2nd Place (Silver) */}
             {secondPlace ? (
-
               <div className="bg-gradient-to-b from-slate-900 to-slate-950 text-white rounded-3xl p-6 border-2 border-slate-400/50 shadow-xl shadow-slate-900/10 flex flex-col justify-between order-2 md:order-1 relative overflow-hidden group hover:border-slate-300 transition-all">
                 <div className="absolute top-3 right-3 text-2xl font-black opacity-30">#2</div>
                 <div className="space-y-4">
@@ -148,7 +163,8 @@ export default function LeaderboardPage() {
                     </div>
                     <div>
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-400/20 text-slate-300 border border-slate-400/30 text-[10px] font-black uppercase">
-                        🥈 2nd Place
+                        <Medal className="w-3 h-3 text-slate-300" />
+                        <span>2nd Place</span>
                       </span>
                       <h3 className="text-base font-black text-white mt-1 leading-tight line-clamp-1 group-hover/item:text-amber-300 transition-colors">
                         {secondPlace.full_name}
@@ -188,9 +204,10 @@ export default function LeaderboardPage() {
                   </div>
                   <Link
                     href={`/profile/${encodeURIComponent(secondPlace.username)}`}
-                    className="ml-3 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold rounded-xl transition-colors"
+                    className="ml-3 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold rounded-xl transition-colors flex items-center gap-1"
                   >
-                    Profile →
+                    <span>Profile</span>
+                    <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
               </div>
@@ -198,12 +215,14 @@ export default function LeaderboardPage() {
               <div className="hidden md:block"></div>
             )}
 
-            {/* 🥇 1st Place (Gold - Elevated Centerpiece) */}
+            {/* 1st Place (Gold - Elevated Centerpiece) */}
             {firstPlace && (
               <div className="bg-gradient-to-b from-amber-950/80 via-slate-950 to-slate-950 text-white rounded-3xl p-6 sm:p-7 border-2 border-amber-400 shadow-2xl shadow-amber-500/25 flex flex-col justify-between order-1 md:order-2 md:-translate-y-4 relative overflow-hidden group hover:scale-[1.02] transition-all">
                 {/* Crown Glow Accent */}
                 <div className="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-500 animate-shimmer-bar"></div>
-                <div className="absolute top-3 right-3 text-3xl font-black text-amber-400/40">👑 #1</div>
+                <div className="absolute top-3 right-3 text-3xl font-black text-amber-400/40">
+                  <Crown className="w-7 h-7 text-amber-400" />
+                </div>
 
                 <div className="space-y-4">
                   <Link href={`/profile/${encodeURIComponent(firstPlace.username)}`} className="flex items-center gap-3.5 group/item">
@@ -211,8 +230,9 @@ export default function LeaderboardPage() {
                       {firstPlace.full_name.slice(0, 1).toUpperCase()}
                     </div>
                     <div>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/50 text-[11px] font-black uppercase tracking-wide">
-                        🥇 1st Champion
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/50 text-[11px] font-black uppercase tracking-wide">
+                        <Award className="w-3.5 h-3.5 text-amber-400" />
+                        <span>1st Champion</span>
                       </span>
                       <h3 className="text-lg font-black text-white mt-1 leading-tight line-clamp-1 group-hover/item:text-amber-300 transition-colors">
                         {firstPlace.full_name}
@@ -228,15 +248,18 @@ export default function LeaderboardPage() {
                   )}
 
                   <div className="flex flex-wrap gap-1.5">
-                    <span className="text-[10px] font-extrabold px-2.5 py-1 bg-amber-500/20 rounded-lg text-amber-200 border border-amber-500/30">
-                      🎯 {firstPlace.target_exam_display}
+                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 bg-amber-500/20 rounded-lg text-amber-200 border border-amber-500/30">
+                      <Target className="w-3 h-3 text-amber-400" />
+                      <span>{firstPlace.target_exam_display}</span>
                     </span>
-                    <span className="text-[10px] font-extrabold px-2.5 py-1 bg-emerald-500/20 rounded-lg text-emerald-200 border border-emerald-500/30">
-                      🌸 {firstPlace.japanese_level_display}
+                    <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 bg-emerald-500/20 rounded-lg text-emerald-200 border border-emerald-500/30">
+                      <GraduationCap className="w-3 h-3 text-emerald-400" />
+                      <span>{firstPlace.japanese_level_display}</span>
                     </span>
                     {firstPlace.location && (
-                      <span className="text-[10px] font-extrabold px-2.5 py-1 bg-slate-800 rounded-lg text-slate-300 border border-slate-700">
-                        📍 {firstPlace.location}
+                      <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-1 bg-slate-800 rounded-lg text-slate-300 border border-slate-700">
+                        <MapPin className="w-3 h-3 text-rose-400" />
+                        <span>{firstPlace.location}</span>
                       </span>
                     )}
                   </div>
@@ -259,15 +282,16 @@ export default function LeaderboardPage() {
                   </div>
                   <Link
                     href={`/profile/${encodeURIComponent(firstPlace.username)}`}
-                    className="ml-3 px-3.5 py-2 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 text-xs font-black rounded-xl shadow-md transition-all active:scale-95"
+                    className="ml-3 px-3.5 py-2 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 text-xs font-black rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1"
                   >
-                    Profile →
+                    <span>Profile</span>
+                    <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
               </div>
             )}
 
-            {/* 🥉 3rd Place (Bronze) */}
+            {/* 3rd Place (Bronze) */}
             {thirdPlace ? (
               <div className="bg-gradient-to-b from-slate-900 to-slate-950 text-white rounded-3xl p-6 border-2 border-amber-700/50 shadow-xl shadow-slate-900/10 flex flex-col justify-between order-3 relative overflow-hidden group hover:border-amber-600 transition-all">
                 <div className="absolute top-3 right-3 text-2xl font-black opacity-30">#3</div>
@@ -278,7 +302,8 @@ export default function LeaderboardPage() {
                     </div>
                     <div>
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-700/20 text-amber-400 border border-amber-700/30 text-[10px] font-black uppercase">
-                        🥉 3rd Place
+                        <Medal className="w-3 h-3 text-amber-500" />
+                        <span>3rd Place</span>
                       </span>
                       <h3 className="text-base font-black text-white mt-1 leading-tight line-clamp-1 group-hover/item:text-amber-300 transition-colors">
                         {thirdPlace.full_name}
@@ -318,9 +343,10 @@ export default function LeaderboardPage() {
                   </div>
                   <Link
                     href={`/profile/${encodeURIComponent(thirdPlace.username)}`}
-                    className="ml-3 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold rounded-xl transition-colors"
+                    className="ml-3 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold rounded-xl transition-colors flex items-center gap-1"
                   >
-                    Profile →
+                    <span>Profile</span>
+                    <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
               </div>
@@ -331,7 +357,7 @@ export default function LeaderboardPage() {
         </div>
       )}
 
-      {/* 4. Full Standings Table (4th Place Onwards - Unhighlighted) */}
+      {/* 4. Full Standings Table */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight">
@@ -409,9 +435,10 @@ export default function LeaderboardPage() {
                         <td className="py-3 px-4 text-center">
                           <Link
                             href={`/profile/${encodeURIComponent(c.username)}`}
-                            className="px-2.5 py-1 text-xs font-bold text-slate-600 hover:text-japan-red hover:bg-slate-100 rounded-lg transition-colors inline-block"
+                            className="px-2.5 py-1 text-xs font-bold text-slate-600 hover:text-japan-red hover:bg-slate-100 rounded-lg transition-colors inline-flex items-center gap-1"
                           >
-                            View →
+                            <span>View</span>
+                            <ArrowRight className="w-3 h-3" />
                           </Link>
                         </td>
                       </tr>
@@ -427,7 +454,6 @@ export default function LeaderboardPage() {
           </div>
         )}
       </div>
-
     </div>
   );
 }

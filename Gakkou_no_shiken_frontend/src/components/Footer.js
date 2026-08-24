@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { ExternalLink, ShieldCheck, Globe, CheckCircle2 } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -27,13 +28,17 @@ export default function Footer() {
             <Link href="/ssw-skill-test" className="hover:text-japan-red transition-colors">
               SSW Skill Tests
             </Link>
+            <Link href="/leaderboard" className="hover:text-amber-600 transition-colors">
+              Leaderboard
+            </Link>
             <a
               href="https://www.facebook.com/Gakkou.No.Shiken"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-blue-600 transition-colors flex items-center gap-1"
             >
-              Facebook ↗
+              <span>Facebook</span>
+              <ExternalLink className="w-3 h-3 opacity-60" />
             </a>
             <a
               href="https://www.instagram.com/gakkou.no.shiken/"
@@ -41,7 +46,8 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="hover:text-pink-600 transition-colors flex items-center gap-1"
             >
-              Instagram ↗
+              <span>Instagram</span>
+              <ExternalLink className="w-3 h-3 opacity-60" />
             </a>
             <a
               href="https://whatsapp.com/channel/0029Vb8f5nVGOj9mKhSBbp3m"
@@ -49,7 +55,8 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="hover:text-emerald-600 transition-colors flex items-center gap-1"
             >
-              WhatsApp Channel ↗
+              <span>WhatsApp Channel</span>
+              <ExternalLink className="w-3 h-3 opacity-60" />
             </a>
             <a
               href="https://www.prometric-jp.com/en/jftbasic/"
@@ -57,14 +64,16 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="hover:text-japan-red transition-colors flex items-center gap-1"
             >
-              Prometric Portal ↗
+              <span>Prometric Official</span>
+              <ExternalLink className="w-3 h-3 opacity-60" />
             </a>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center">
-          <span className="text-[11px] sm:text-xs text-slate-400 font-mono bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
-            System Ready • CBT Next.js v2.4
+          <span className="text-[11px] sm:text-xs text-slate-500 font-mono bg-slate-100 px-3 py-1 rounded-full border border-slate-200 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span>Prometric CBT Engine Live</span>
           </span>
           <span className="text-[11px] sm:text-xs text-slate-400">
             &copy; 2026 Gakkou No Shiken. All rights reserved.

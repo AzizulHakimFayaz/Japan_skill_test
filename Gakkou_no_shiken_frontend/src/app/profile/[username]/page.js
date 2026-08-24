@@ -5,6 +5,25 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getCandidateProfile, updateUserProfile } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
+import {
+  Trophy,
+  Crown,
+  Medal,
+  Award,
+  Target,
+  MapPin,
+  Edit3,
+  GraduationCap,
+  FileText,
+  CheckCircle2,
+  XCircle,
+  ArrowRight,
+  User,
+  X,
+  Check,
+  Flame,
+  Sparkles,
+} from 'lucide-react';
 
 export default function CandidatePublicProfilePage({ params: paramsPromise }) {
   const params = use(paramsPromise);
@@ -93,11 +112,11 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
         <div className="w-16 h-16 bg-rose-50 text-japan-red rounded-full flex items-center justify-center text-2xl font-black">
-          👤
+          <User className="w-8 h-8 text-japan-red" />
         </div>
         <h2 className="text-xl font-bold text-slate-900">Candidate Not Found</h2>
         <p className="text-xs sm:text-sm text-slate-500 max-w-sm">
-          No registered examinee profile was found with the username "@{params?.username}".
+          No registered examinee profile was found with the username &quot;@{params?.username}&quot;.
         </p>
         <Link href="/leaderboard" className="px-6 py-2.5 bg-japan-red text-white text-xs font-bold rounded-xl shadow-md">
           Explore Leaderboard
@@ -121,14 +140,6 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
     achievements = [],
     recent_attempts = [],
   } = candidate;
-
-  const getRankBadgeStyle = (r) => {
-    if (r === 1) return 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-slate-950 border-amber-300 shadow-amber-500/40';
-    if (r === 2) return 'bg-gradient-to-r from-slate-300 via-slate-200 to-slate-400 text-slate-950 border-slate-200 shadow-slate-400/30';
-    if (r === 3) return 'bg-gradient-to-r from-amber-700 via-amber-600 to-amber-800 text-white border-amber-600 shadow-amber-700/30';
-    if (r) return 'bg-indigo-900/80 text-indigo-200 border-indigo-500/40 shadow-indigo-500/20';
-    return 'bg-slate-800 text-slate-400 border-slate-700';
-  };
 
   return (
     <div className="space-y-8 sm:space-y-12 animate-fade-in pb-16">
@@ -158,9 +169,17 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
               </div>
 
               {/* Rank Badge Indicator */}
-              {rank && rank <= 3 ? (
-                <span className="absolute -bottom-2 -right-2 text-xl sm:text-2xl filter drop-shadow-md">
-                  {rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉'}
+              {rank && rank === 1 ? (
+                <span className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-amber-400 text-slate-950 border-2 border-white flex items-center justify-center shadow-lg">
+                  <Crown className="w-4 h-4" />
+                </span>
+              ) : rank && rank === 2 ? (
+                <span className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-slate-300 text-slate-900 border-2 border-white flex items-center justify-center shadow-lg">
+                  <Medal className="w-4 h-4" />
+                </span>
+              ) : rank && rank === 3 ? (
+                <span className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-amber-700 text-white border-2 border-white flex items-center justify-center shadow-lg">
+                  <Medal className="w-4 h-4" />
                 </span>
               ) : rank ? (
                 <span className="absolute -bottom-2 -right-2 bg-indigo-600 text-white border border-indigo-400 text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full shadow-md">
@@ -199,17 +218,20 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 {target_exam_display && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 text-xs font-bold">
-                    🎯 {target_exam_display}
+                    <Target className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>{target_exam_display}</span>
                   </span>
                 )}
                 {japanese_level_display && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-200 border border-emerald-500/30 text-xs font-bold">
-                    🌸 {japanese_level_display}
+                    <GraduationCap className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>{japanese_level_display}</span>
                   </span>
                 )}
                 {location && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-800/80 text-slate-300 border border-slate-700 text-xs font-bold">
-                    📍 {location}
+                    <MapPin className="w-3.5 h-3.5 text-rose-400" />
+                    <span>{location}</span>
                   </span>
                 )}
                 <span className="text-[11px] text-slate-400 ml-1 font-medium">
@@ -227,7 +249,8 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
                   onClick={() => setIsEditModalOpen(true)}
                   className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold px-5 py-3 rounded-2xl backdrop-blur-md transition-all text-xs sm:text-sm border border-white/15 cursor-pointer active:scale-95 shadow-md"
                 >
-                  ✏️ Edit Profile
+                  <Edit3 className="w-4 h-4" />
+                  <span>Edit Profile</span>
                 </button>
                 <Link
                   href="/accounts/my-results"
@@ -242,13 +265,15 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
                   href="/leaderboard"
                   className="inline-flex items-center justify-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold px-5 py-3 rounded-2xl transition-all text-xs sm:text-sm border border-amber-500/30 active:scale-95"
                 >
-                  🏆 View Leaderboard
+                  <Trophy className="w-4 h-4" />
+                  <span>View Leaderboard</span>
                 </Link>
                 <Link
                   href="/"
-                  className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-6 py-3 rounded-2xl transition-all shadow-lg shadow-red-500/25 text-xs sm:text-sm active:scale-95"
+                  className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-6 py-3 rounded-2xl transition-all shadow-lg shadow-red-500/25 text-xs sm:text-sm active:scale-95 flex items-center gap-1.5"
                 >
-                  Take Exam →
+                  <span>Take Exam</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </>
             )}
@@ -269,7 +294,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
             <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500">
               Ranking Standing
             </span>
-            <span className="text-xl">🏆</span>
+            <Trophy className="w-5 h-5 text-amber-500" />
           </div>
           <div>
             <strong className="text-2xl sm:text-4xl font-black text-slate-900 leading-none">
@@ -287,7 +312,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
             <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500">
               Highest Score
             </span>
-            <span className="text-xl">🎯</span>
+            <Target className="w-5 h-5 text-japan-red" />
           </div>
           <div>
             <strong className="text-2xl sm:text-4xl font-black text-amber-500 leading-none">
@@ -306,7 +331,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
             <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500">
               Exam Pass Rate
             </span>
-            <span className="text-xl">💮</span>
+            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
           </div>
           <div>
             <strong className="text-2xl sm:text-4xl font-black text-emerald-600 leading-none">
@@ -324,7 +349,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
             <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500">
               CEFR Level
             </span>
-            <span className="text-xl">🎓</span>
+            <GraduationCap className="w-5 h-5 text-indigo-500" />
           </div>
           <div>
             <strong className="text-xl sm:text-3xl font-black text-slate-900 leading-none block">
@@ -342,7 +367,8 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-              <span>🏅</span> Candidate Achievement Badges
+              <Award className="w-6 h-6 text-amber-500" />
+              <span>Candidate Achievement Badges</span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
               Badges earned through examination performance and milestones.
@@ -374,7 +400,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
                     : 'bg-slate-200/70 grayscale'
                 }`}
               >
-                {badge.icon}
+                <Award className="w-6 h-6 text-amber-600" />
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
@@ -382,8 +408,9 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
                     {badge.title}
                   </h3>
                   {badge.unlocked && (
-                    <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
-                      ✓ Earned
+                    <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                      <Check className="w-2.5 h-2.5" />
+                      <span>Earned</span>
                     </span>
                   )}
                 </div>
@@ -401,7 +428,8 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-              <span>📋</span> Recent Verified Mock Exams
+              <FileText className="w-5 h-5 text-indigo-600" />
+              <span>Recent Verified Mock Exams</span>
             </h2>
             <span className="text-xs text-slate-500 font-medium">Last 5 completed attempts</span>
           </div>
@@ -442,13 +470,23 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
                     </span>
                   </div>
                   <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase ${
+                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black uppercase ${
                       att.passed
                         ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                         : 'bg-rose-100 text-rose-800 border border-rose-300'
                     }`}
                   >
-                    {att.passed ? '✓ Passed (A2)' : '✕ Not Passed'}
+                    {att.passed ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                        <span>Passed (A2)</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="w-3.5 h-3.5 text-rose-700" />
+                        <span>Not Passed</span>
+                      </>
+                    )}
                   </span>
                 </div>
               </div>
@@ -463,20 +501,21 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
           <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 space-y-5 animate-scale-up">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <span className="text-xl">✏️</span>
+                <Edit3 className="w-5 h-5 text-japan-red" />
                 <h3 className="text-lg font-black text-slate-900">Edit Candidate Profile</h3>
               </div>
               <button
                 onClick={() => setIsEditModalOpen(false)}
                 className="text-slate-400 hover:text-slate-700 text-xl font-bold w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 cursor-pointer"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {profileSuccessMsg && (
-              <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-2xl text-xs font-bold text-center animate-fade-in">
-                ✓ {profileSuccessMsg}
+              <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-2xl text-xs font-bold text-center animate-fade-in flex items-center justify-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>{profileSuccessMsg}</span>
               </div>
             )}
 

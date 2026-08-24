@@ -5,6 +5,17 @@ import Link from 'next/link';
 import { getAttemptResults } from '@/lib/api';
 import { formatPrompt, renderUnderline, getCategoryLabel, getCategoryChipClass } from '@/lib/utils';
 import confetti from 'canvas-confetti';
+import {
+  RotateCcw,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  ArrowRight,
+  FileText,
+  Award,
+  Layers,
+  Sparkles,
+} from 'lucide-react';
 
 export default function AttemptResultsPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
@@ -49,7 +60,7 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
         <div className="w-16 h-16 bg-rose-50 text-japan-red rounded-full flex items-center justify-center text-2xl font-black">
-          ⚠
+          <AlertCircle className="w-8 h-8 text-japan-red" />
         </div>
         <h2 className="text-xl font-bold text-slate-900">{error || 'Score report not available'}</h2>
         <Link href="/" className="px-6 py-2.5 bg-japan-red text-white text-xs font-bold rounded-xl">
@@ -77,8 +88,9 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
       <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 text-slate-700">
-              Exam Completed
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 text-slate-700">
+              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+              <span>Exam Completed</span>
             </span>
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${getCategoryChipClass(test.category)}`}>
               {getCategoryLabel(test.category)}
@@ -91,18 +103,17 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
         <div className="flex flex-wrap gap-2.5">
           <Link
             href={`/test/${test.id}`}
-            className="inline-flex items-center gap-2 py-2 px-4 bg-japan-red hover:bg-japan-redhover text-white text-xs font-bold rounded-xl transition-all shadow-xs"
+            className="inline-flex items-center gap-2 py-2 px-4 bg-japan-red hover:bg-japan-redhover text-white text-xs font-bold rounded-xl transition-all shadow-xs active:scale-95"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3 3L22 4" />
-            </svg>
-            Retake Exam
+            <RotateCcw className="w-4 h-4" />
+            <span>Retake Exam</span>
           </Link>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 py-2 px-4 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl transition-all"
+            className="inline-flex items-center gap-2 py-2 px-4 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl transition-all active:scale-95"
           >
-            All Tests
+            <Layers className="w-4 h-4" />
+            <span>All Tests</span>
           </Link>
         </div>
       </div>
@@ -257,17 +268,13 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
               >
                 {question.is_answered_correctly ? (
                   <>
-                    <svg className="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Correct
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                    <span>Correct</span>
                   </>
                 ) : (
                   <>
-                    <svg className="w-3.5 h-3.5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Incorrect
+                    <XCircle className="w-3.5 h-3.5 text-red-600" />
+                    <span>Incorrect</span>
                   </>
                 )}
               </span>
@@ -330,18 +337,21 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
                     </div>
 
                     {isSelected && isCorrect && (
-                      <span className="text-xs font-bold text-green-700 bg-green-200 px-2 py-0.5 rounded self-start sm:self-auto">
-                        Your Answer (Correct)
+                      <span className="text-xs font-bold text-green-700 bg-green-200 px-2 py-0.5 rounded self-start sm:self-auto flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-green-700" />
+                        <span>Your Answer (Correct)</span>
                       </span>
                     )}
                     {isSelected && !isCorrect && (
-                      <span className="text-xs font-bold text-red-700 bg-red-200 px-2 py-0.5 rounded self-start sm:self-auto">
-                        Your Answer (Incorrect)
+                      <span className="text-xs font-bold text-red-700 bg-red-200 px-2 py-0.5 rounded self-start sm:self-auto flex items-center gap-1">
+                        <XCircle className="w-3 h-3 text-red-700" />
+                        <span>Your Answer (Incorrect)</span>
                       </span>
                     )}
                     {!isSelected && isCorrect && (
-                      <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded self-start sm:self-auto">
-                        Correct Answer
+                      <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded self-start sm:self-auto flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-700" />
+                        <span>Correct Answer</span>
                       </span>
                     )}
                   </div>

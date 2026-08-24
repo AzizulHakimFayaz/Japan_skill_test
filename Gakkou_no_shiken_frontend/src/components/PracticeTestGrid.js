@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { formatTimeLimit, getCategoryLabel } from '@/lib/utils';
 import { useAuth } from './AuthContext';
+import { Lock, Clock, Sparkles, ArrowRight, CheckCircle2, Zap, PlusCircle } from 'lucide-react';
 
 export default function PracticeTestGrid({
   practiceTests = [],
@@ -34,15 +35,16 @@ export default function PracticeTestGrid({
     });
   }, [catKey]);
 
-
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between border-b border-slate-200/80 pb-3 sm:pb-4">
         <div className="flex items-center gap-2.5 sm:gap-3.5">
           <span
-            className={`inline-flex items-center justify-center px-2 h-8 sm:h-10 min-w-[2rem] sm:min-w-[2.5rem] rounded-xl sm:rounded-2xl ${
-              catKey === 'skill' ? 'bg-amber-500' : 'bg-indigo-600'
-            } text-white text-[11px] sm:text-xs font-black shadow-md shadow-slate-200 tracking-wider`}
+            className={`inline-flex items-center justify-center px-2.5 h-8 sm:h-10 min-w-[2.2rem] sm:min-w-[2.5rem] rounded-xl sm:rounded-2xl ${
+              catKey === 'skill'
+                ? 'bg-gradient-to-tr from-amber-600 to-amber-500 shadow-amber-500/20'
+                : 'bg-gradient-to-tr from-rose-600 to-japan-red shadow-red-500/20'
+            } text-white text-[11px] sm:text-xs font-black shadow-md tracking-wider`}
           >
             {catKey === 'skill' ? 'SSW' : 'JFT'}
           </span>
@@ -51,7 +53,7 @@ export default function PracticeTestGrid({
             <p className="text-[10px] sm:text-sm text-slate-500 font-medium mt-0.5 hidden sm:block">{subtitle}</p>
           </div>
         </div>
-        <span className="text-[10px] sm:text-sm text-slate-500 font-bold bg-slate-100 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border border-slate-200 whitespace-nowrap">
+        <span className="text-[10px] sm:text-sm text-slate-600 font-bold bg-slate-100 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full border border-slate-200 whitespace-nowrap">
           {tests.length} {tests.length === 1 ? 'Available Test' : 'Tests'}
         </span>
       </div>
@@ -81,21 +83,23 @@ export default function PracticeTestGrid({
                     {/* Account / Access Badges */}
                     <div className="flex items-center gap-1 self-start flex-shrink-0">
                       {test.is_published === false && (
-                        <span className="inline-flex items-center px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-black bg-amber-100 text-amber-900 border border-amber-300 shadow-xs">
-                          🔒 Draft (Staff Only)
+                        <span className="inline-flex items-center gap-1 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-black bg-amber-100 text-amber-900 border border-amber-300 shadow-xs">
+                          <Lock className="w-2.5 h-2.5" />
+                          <span>Draft (Staff)</span>
                         </span>
                       )}
                       {test.requires_account ? (
-                        <span className="inline-flex items-center px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200/80 shadow-xs">
-                          Req. Login
+                        <span className="inline-flex items-center gap-1 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200/80 shadow-xs">
+                          <Lock className="w-2.5 h-2.5" />
+                          <span>Req. Login</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200/80 shadow-xs">
-                          Free & Open
+                        <span className="inline-flex items-center gap-1 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200/80 shadow-xs">
+                          <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                          <span>Free &amp; Open</span>
                         </span>
                       )}
                     </div>
-
                   </div>
 
                   {/* Category Pill */}
@@ -122,14 +126,7 @@ export default function PracticeTestGrid({
                   {/* Test Metadata */}
                   <div className="flex items-center justify-end text-[10px] sm:text-xs text-slate-500 font-extrabold">
                     <div className="flex items-center gap-1 bg-slate-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg border border-slate-100">
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
+                      <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500" />
                       <span>{formatTimeLimit(test.time_limit_seconds)}</span>
                     </div>
                   </div>
@@ -145,14 +142,7 @@ export default function PracticeTestGrid({
                   >
                     <span className="hidden sm:inline">Start Practice Exam</span>
                     <span className="sm:hidden">Start Exam</span>
-                    <svg
-                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
+                    <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </div>
               </div>
@@ -163,9 +153,7 @@ export default function PracticeTestGrid({
         /* Modern Coming Soon Empty State */
         <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-japan-navy to-slate-950 text-white rounded-3xl p-8 sm:p-12 border border-slate-800 shadow-xl text-center space-y-5">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-black uppercase tracking-widest animate-pulse">
-            <svg className="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
+            <Zap className="w-4 h-4 text-amber-300" />
             <span>Coming Soon</span>
           </div>
 
@@ -192,7 +180,8 @@ export default function PracticeTestGrid({
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black px-6 py-2.5 rounded-xl transition-all text-xs shadow-md"
               >
-                + Add New Test in Django Admin ↗
+                <PlusCircle className="w-4 h-4" />
+                <span>Add New Test in Admin Panel</span>
               </a>
             </div>
           )}

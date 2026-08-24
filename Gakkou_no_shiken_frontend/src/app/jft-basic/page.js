@@ -5,6 +5,21 @@ import Link from 'next/link';
 import { getJftInfo } from '@/lib/api';
 import PracticeTestGrid from '@/components/PracticeTestGrid';
 import JftCenterMap from '@/components/JftCenterMap';
+import {
+  Laptop,
+  Clock,
+  CheckCircle2,
+  Award,
+  MapPin,
+  Download,
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  ArrowRight,
+  ShieldCheck,
+  BookOpen,
+  FileCheck2,
+} from 'lucide-react';
 
 export default function JftBasicPage() {
   const [data, setData] = useState(null);
@@ -57,16 +72,15 @@ export default function JftBasicPage() {
               href="#test-centers"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-5 py-3 sm:px-7 sm:py-3.5 rounded-2xl transition-all shadow-lg shadow-red-500/25 hover:shadow-red-500/40 text-xs sm:text-sm active:scale-95 glow-red"
             >
-              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              </svg>
-              Test Centers
+              <MapPin className="w-4 h-4" />
+              <span>Test Centers</span>
             </a>
             <Link
               href="/"
               className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold px-5 py-3 sm:px-7 sm:py-3.5 rounded-2xl backdrop-blur-md transition-all text-xs sm:text-sm border border-white/15 hover:border-white/30"
             >
-              Mock Exam →
+              <span>Mock Exam</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -82,9 +96,7 @@ export default function JftBasicPage() {
       <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift transition-all duration-300 flex items-start gap-4 hover-shine-container animate-fade-in-up delay-75">
           <div className="w-13 h-13 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
+            <Laptop className="w-6 h-6" />
           </div>
           <div>
             <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Format</span>
@@ -97,9 +109,7 @@ export default function JftBasicPage() {
 
         <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift transition-all duration-300 flex items-start gap-4 hover-shine-container animate-fade-in-up delay-150">
           <div className="w-13 h-13 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <Clock className="w-6 h-6" />
           </div>
           <div>
             <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Duration</span>
@@ -112,9 +122,7 @@ export default function JftBasicPage() {
 
         <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift transition-all duration-300 flex items-start gap-4 hover-shine-container animate-fade-in-up delay-200">
           <div className="w-13 h-13 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <CheckCircle2 className="w-6 h-6" />
           </div>
           <div>
             <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Passing Threshold</span>
@@ -125,9 +133,7 @@ export default function JftBasicPage() {
 
         <div className="group bg-white p-6 rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover-lift transition-all duration-300 flex items-start gap-4 hover-shine-container animate-fade-in-up delay-300">
           <div className="w-13 h-13 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-japan-red font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
+            <Award className="w-6 h-6" />
           </div>
           <div>
             <span className="text-xs text-slate-500 font-extrabold uppercase tracking-wider block">Level &amp; Validity</span>
@@ -223,8 +229,9 @@ export default function JftBasicPage() {
                 </strong>
                 <p className="text-xs text-slate-300">Basic daily greetings, shopping &amp; food ordering</p>
               </div>
-              <span className="text-xs font-extrabold px-3 py-1 bg-amber-400 text-slate-950 rounded-lg shadow-xs">
-                Download Free ↗
+              <span className="text-xs font-extrabold px-3 py-1.5 bg-amber-400 text-slate-950 rounded-lg shadow-xs flex items-center gap-1">
+                <span>Download</span>
+                <Download className="w-3 h-3" />
               </span>
             </a>
 
@@ -240,8 +247,9 @@ export default function JftBasicPage() {
                 </strong>
                 <p className="text-xs text-slate-300">Workplace communication &amp; community living</p>
               </div>
-              <span className="text-xs font-extrabold px-3 py-1 bg-amber-400 text-slate-950 rounded-lg shadow-xs">
-                Download Free ↗
+              <span className="text-xs font-extrabold px-3 py-1.5 bg-amber-400 text-slate-950 rounded-lg shadow-xs flex items-center gap-1">
+                <span>Download</span>
+                <Download className="w-3 h-3" />
               </span>
             </a>
           </div>
@@ -256,7 +264,7 @@ export default function JftBasicPage() {
           <ul className="space-y-3.5 text-xs sm:text-sm text-slate-700 font-medium">
             <li className="flex items-start gap-3">
               <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                ✓
+                <CheckCircle2 className="w-3.5 h-3.5" />
               </span>
               <span>
                 <strong>Original Machine-Readable Passport:</strong> You must present your valid original passport at venue check-in.
@@ -264,7 +272,7 @@ export default function JftBasicPage() {
             </li>
             <li className="flex items-start gap-3">
               <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                ✓
+                <CheckCircle2 className="w-3.5 h-3.5" />
               </span>
               <span>
                 <strong>Prometric Admission Ticket:</strong> Printed copy of your test confirmation voucher with your Registration ID.
@@ -272,7 +280,7 @@ export default function JftBasicPage() {
             </li>
             <li className="flex items-start gap-3">
               <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                ✓
+                <CheckCircle2 className="w-3.5 h-3.5" />
               </span>
               <span>
                 <strong>Arrive 30 Minutes Prior:</strong> Show up early at the Dhaka or Chittagong UTC venue for biometric verification and locker storage.
@@ -354,7 +362,8 @@ export default function JftBasicPage() {
               rel="noopener noreferrer"
               className="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-6 rounded-2xl transition-all shadow-md text-sm"
             >
-              Open Prometric Official Portal ↗
+              <span>Open Prometric Official Portal</span>
+              <ExternalLink className="w-4 h-4" />
             </a>
           </div>
         </div>
@@ -375,8 +384,9 @@ export default function JftBasicPage() {
                 className="block p-5 rounded-2xl border border-slate-200/80 hover:border-japan-red/40 hover:bg-red-50/20 transition-all duration-200 group"
               >
                 <div className="flex items-center justify-between gap-3 mb-1.5">
-                  <span className="font-bold text-slate-900 group-hover:text-japan-red text-base transition-colors">
-                    {res.title}
+                  <span className="font-bold text-slate-900 group-hover:text-japan-red text-base transition-colors flex items-center gap-2">
+                    <FileCheck2 className="w-4 h-4 text-japan-red" />
+                    <span>{res.title}</span>
                   </span>
                   <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200/60 flex-shrink-0">
                     {res.badge}
@@ -400,7 +410,7 @@ export default function JftBasicPage() {
               className="w-full text-left p-4 sm:p-5 font-bold text-slate-800 hover:text-japan-red flex items-center justify-between gap-4 transition-colors cursor-pointer"
             >
               <span>What is the difference between JFT-Basic and JLPT N4?</span>
-              <span className="text-xl font-bold">{openFaq === 1 ? '−' : '+'}</span>
+              {openFaq === 1 ? <ChevronUp className="w-5 h-5 text-japan-red" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
             </button>
             {openFaq === 1 && (
               <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 text-sm text-slate-600 leading-relaxed animate-fade-in">
@@ -415,7 +425,7 @@ export default function JftBasicPage() {
               className="w-full text-left p-4 sm:p-5 font-bold text-slate-800 hover:text-japan-red flex items-center justify-between gap-4 transition-colors cursor-pointer"
             >
               <span>Can I retake the test if I fail?</span>
-              <span className="text-xl font-bold">{openFaq === 2 ? '−' : '+'}</span>
+              {openFaq === 2 ? <ChevronUp className="w-5 h-5 text-japan-red" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
             </button>
             {openFaq === 2 && (
               <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 text-sm text-slate-600 leading-relaxed animate-fade-in">

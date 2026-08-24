@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { MapPin, Search, Building2, ExternalLink, ArrowRight } from 'lucide-react';
 
 export default function JftCenterMap({ centersData = [] }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,7 +68,7 @@ export default function JftCenterMap({ centersData = [] }) {
                   <p class="text-[11px] text-slate-500 font-semibold mb-2">Operator: ${c.operator}</p>
                   ${
                     c.google_map_url
-                      ? `<a href="${c.google_map_url}" target="_blank" rel="noopener" class="inline-block text-[10px] font-bold bg-slate-900 text-white px-2 py-1 rounded">📍 Google Maps ↗</a>`
+                      ? `<a href="${c.google_map_url}" target="_blank" rel="noopener" class="inline-block text-[10px] font-bold bg-slate-900 text-white px-2 py-1 rounded">Google Maps ↗</a>`
                       : ''
                   }
                 </div>
@@ -111,7 +112,7 @@ export default function JftCenterMap({ centersData = [] }) {
             Official Prometric Bangladesh Test Centers
           </div>
           <h3 className="text-2xl font-black text-slate-900 tracking-tight">
-            Prometric Bangladesh Exam Centers (BDJ01 & BDJ02)
+            Prometric Bangladesh Exam Centers (BDJ01 &amp; BDJ02)
           </h3>
           <p className="text-sm text-slate-500 mt-1">
             Official test venues in Bangladesh for JFT-Basic and SSW Skills Evaluation Exams.
@@ -128,14 +129,7 @@ export default function JftCenterMap({ centersData = [] }) {
               placeholder="Search BDJ01, BDJ02, address..."
               className="w-full sm:w-64 pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200/90 rounded-2xl focus:outline-none focus:ring-2 focus:ring-japan-red/20 focus:border-japan-red focus:bg-white transition-all shadow-xs"
             />
-            <svg
-              className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
-            </svg>
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
           </div>
 
           <div className="flex items-center gap-1 bg-slate-100 p-1.5 rounded-2xl border border-slate-200/70">
@@ -193,31 +187,14 @@ export default function JftCenterMap({ centersData = [] }) {
                 {center.name}
               </h4>
 
-              <p className="text-xs font-semibold text-indigo-700 mb-2">
-                🏢 Operating Company: <strong>{center.operator}</strong>
+              <p className="text-xs font-semibold text-indigo-700 mb-2 flex items-center gap-1.5">
+                <Building2 className="w-3.5 h-3.5" />
+                <span>Operating Company: <strong>{center.operator}</strong></span>
               </p>
 
               <p className="text-xs text-slate-600 mb-3 flex items-start gap-1.5 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                <svg
-                  className="w-4 h-4 text-japan-red mt-0.5 flex-shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-                {center.address}
+                <MapPin className="w-4 h-4 text-japan-red mt-0.5 flex-shrink-0" />
+                <span>{center.address}</span>
               </p>
 
               <div className="mt-3 flex items-center justify-between pt-2.5 border-t border-slate-100">
@@ -229,17 +206,17 @@ export default function JftCenterMap({ centersData = [] }) {
                     onClick={(e) => e.stopPropagation()}
                     className="inline-flex items-center gap-1 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-xl transition-all shadow-xs"
                   >
-                    📍 GoogleMap ↗
+                    <MapPin className="w-3 h-3 text-rose-400" />
+                    <span>Google Maps</span>
+                    <ExternalLink className="w-3 h-3 opacity-60" />
                   </a>
                 ) : (
                   <span className="text-xs text-slate-400">Prometric Verified</span>
                 )}
 
                 <span className="text-xs font-bold text-japan-red group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
-                  Show on Map
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
+                  <span>Show on Map</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </span>
               </div>
             </div>
