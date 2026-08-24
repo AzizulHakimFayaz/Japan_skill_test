@@ -89,13 +89,15 @@ export default function RootLayout({ children }) {
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossOrigin=""
         />
-        {/* Google AdSense Script */}
+        {/* Google AdSense Account Meta Tag & Script */}
+        <meta name="google-adsense-account" content="ca-pub-8435487820435842" />
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8435487820435842"
           crossOrigin="anonymous"
         ></script>
       </head>
+
 
       <body className="flex flex-col min-h-full text-slate-800 bg-slate-50 antialiased font-sans selection:bg-red-500 selection:text-white relative overflow-x-hidden bg-grid-mesh">
         <AuthProvider>
