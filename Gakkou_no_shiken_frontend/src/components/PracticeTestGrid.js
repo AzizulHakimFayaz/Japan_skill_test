@@ -1,15 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { formatTimeLimit, getCategoryLabel } from '@/lib/utils';
 import { useAuth } from './AuthContext';
 import { useLanguage } from './LanguageContext';
 import ScrollReveal from './ScrollReveal';
-import PreExamAudioCheck from './PreExamAudioCheck';
-import SectionPracticeModal from './SectionPracticeModal';
-import LeadCaptureModal from './LeadCaptureModal';
 import { getMyResults } from '@/lib/api';
+
+const PreExamAudioCheck = dynamic(() => import('./PreExamAudioCheck'), { ssr: false });
+const SectionPracticeModal = dynamic(() => import('./SectionPracticeModal'), { ssr: false });
+const LeadCaptureModal = dynamic(() => import('./LeadCaptureModal'), { ssr: false });
 import {
   Lock,
   Clock,
