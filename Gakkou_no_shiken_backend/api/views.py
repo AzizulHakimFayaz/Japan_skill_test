@@ -1134,12 +1134,37 @@ class SetupDatabaseAPIView(APIView):
         
         import traceback
         logs = []
-        # 1. Fast Migrate
+        # 1. Fast Migrate & Ensure OTP Table
+        try:
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS accounts_emailverificationotp (
+                        id integer PRIMARY KEY AUTOINCREMENT,
+                        email varchar(254) NOT NULL,
+                        otp_code varchar(6) NOT NULL,
+                        created_at datetime NOT NULL,
+                        is_verified bool NOT NULL,
+                        username varchar(150) NOT NULL,
+                        first_name varchar(150) NOT NULL,
+                        last_name varchar(150) NOT NULL,
+                        password_hash varchar(255) NOT NULL
+                    )
+                """)
+                cursor.execute("""
+                    CREATE INDEX IF NOT EXISTS accounts_emailverificationotp_email 
+                    ON accounts_emailverificationotp(email)
+                """)
+            logs.append('✅ EmailVerificationOTP Table: SUCCESS')
+        except Exception as e:
+            logs.append(f'❌ Table creation error: {e}')
+
         try:
             call_command('migrate', interactive=False)
             logs.append('✅ Database Tables Created: SUCCESS')
         except Exception as e:
             logs.append(f'❌ Migration error: {e}\n{traceback.format_exc()}')
+
 
         # 2. Admin Account Creation
         try:

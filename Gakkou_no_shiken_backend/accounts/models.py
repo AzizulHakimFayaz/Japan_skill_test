@@ -95,14 +95,15 @@ class EmailVerificationOTP(models.Model):
                         first_name varchar(150) NOT NULL,
                         last_name varchar(150) NOT NULL,
                         password_hash varchar(255) NOT NULL
-                    );
+                    )
                 """)
                 cursor.execute("""
                     CREATE INDEX IF NOT EXISTS accounts_emailverificationotp_email 
-                    ON accounts_emailverificationotp(email);
+                    ON accounts_emailverificationotp(email)
                 """)
         except Exception as e:
             print(f"Table check error: {e}")
+
 
     @classmethod
     def create_otp(cls, email, username='', first_name='', last_name='', password=''):
