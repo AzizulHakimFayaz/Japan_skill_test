@@ -15,6 +15,9 @@ urlpatterns = [
     path('info/ssw/', views.SswInfoAPIView.as_view(), name='api_ssw_info'),
 
     # Authentication & User Profile
+    path('auth/send-otp/', views.SendRegistrationOTPAPIView.as_view(), name='api_send_otp'),
+    path('auth/verify-otp/', views.VerifyRegistrationOTPAPIView.as_view(), name='api_verify_otp'),
+    path('auth/resend-otp/', views.ResendRegistrationOTPAPIView.as_view(), name='api_resend_otp'),
     path('auth/register/', views.RegisterAPIView.as_view(), name='api_register'),
     path('auth/signup/', views.RegisterAPIView.as_view(), name='api_signup'),
     path('auth/login/', views.LoginAPIView.as_view(), name='api_login'),
@@ -23,6 +26,7 @@ urlpatterns = [
     path('auth/me/', views.MeAPIView.as_view(), name='api_me'),
     path('auth/profile/', views.ProfileAPIView.as_view(), name='api_profile'),
     path('auth/my-results/', views.MyResultsAPIView.as_view(), name='api_my_results'),
+
 
 
     # Leaderboard & Rankings

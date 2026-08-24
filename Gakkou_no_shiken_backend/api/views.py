@@ -3,6 +3,7 @@ import json
 import urllib.request
 import re
 from django.conf import settings
+from django.core.mail import send_mail
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db.models import Count
@@ -12,10 +13,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-
 from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt
-from accounts.models import UserProfile
+from accounts.models import UserProfile, EmailVerificationOTP
 from tests.data.jft_data import get_jft_info, get_jft_test_centers, get_jft_resources
+
 
 from tests.data.ssw_data import get_ssw_info, get_ssw_sectors, get_ssw_test_centers
 from .serializers import (
@@ -381,7 +382,191 @@ class SswInfoAPIView(APIView):
         })
 
 
+def send_otp_email(email, otp_code, name=''):
+    subject = f"Gakkou No Shiken - Verification Code: {otp_code}"
+    display_name = name.strip() if name else "Candidate"
+
+    html_message = f"""
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"></head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px;">
+      <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 520px; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+        <tr>
+          <td style="background-color: #0f172a; padding: 28px 24px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 800; letter-spacing: 0.5px;">Gakkou No Shiken <span style="color: #ef4444;">学校の試験</span></h1>
+            <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Official CBT Japanese Skill Test Portal</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 32px 28px;">
+            <p style="font-size: 15px; color: #1e293b; margin-top: 0;">Hello <strong>{display_name}</strong>,</p>
+            <p style="font-size: 14px; color: #475569; line-height: 1.6;">Thank you for registering on Gakkou No Shiken. Please use the 6-digit verification code below to verify your email address and activate your candidate profile:</p>
+
+            <div style="background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 20px; text-align: center; margin: 28px 0;">
+              <span style="font-size: 34px; font-weight: 900; letter-spacing: 8px; color: #dc2626; font-family: monospace;">{otp_code}</span>
+            </div>
+
+            <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin-bottom: 0;">
+              ⏳ This code is valid for <strong>15 minutes</strong>.<br>
+              🔒 If you did not create an account on Gakkou No Shiken, you can safely disregard this email.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #f8fafc; padding: 18px 24px; text-align: center; border-top: 1px solid #f1f5f9;">
+            <p style="font-size: 11px; color: #94a3b8; margin: 0;">&copy; Gakkou No Shiken. All rights reserved.</p>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+    """
+    plain_message = f"Hello {display_name},\n\nYour Gakkou No Shiken verification code is: {otp_code}\n\nThis code will expire in 15 minutes.\n\n- Gakkou No Shiken Team"
+
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'Gakkou No Shiken <noreply@gakkounoshiken.site>')
+    try:
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=from_email,
+            recipient_list=[email],
+            html_message=html_message,
+            fail_silently=False
+        )
+        return True
+    except Exception as e:
+        print(f"Error sending verification email: {e}")
+        return False
+
+
+class SendRegistrationOTPAPIView(APIView):
+    """Validates registration data, generates 6-digit OTP, and sends verification email."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username', '').strip()
+        email = request.data.get('email', '').strip().lower()
+        password = request.data.get('password', '')
+        password_confirm = request.data.get('password_confirm', '')
+        first_name = request.data.get('first_name', '').strip()
+        last_name = request.data.get('last_name', '').strip()
+
+        if not username or not email or not password:
+            return Response({'detail': 'Please provide username, email, and password.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if password != password_confirm:
+            return Response({'detail': 'Passwords do not match.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if len(password) < 6:
+            return Response({'detail': 'Password must be at least 6 characters long.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(username__iexact=username).exists():
+            return Response({'detail': 'This username is already taken. Please choose another.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(email__iexact=email).exists():
+            return Response({'detail': 'An account with this email already exists. Please sign in.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp_record = EmailVerificationOTP.create_otp(
+            email=email,
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            password=password
+        )
+
+        send_otp_email(email, otp_record.otp_code, name=first_name or username)
+
+        return Response({
+            'status': 'success',
+            'email': email,
+            'message': f'A 6-digit verification code has been sent to {email}.'
+        }, status=status.HTTP_200_OK)
+
+
+class VerifyRegistrationOTPAPIView(APIView):
+    """Verifies 6-digit OTP, creates the candidate user account, and returns JWT auth tokens."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email', '').strip().lower()
+        otp_code = request.data.get('otp_code', '').strip()
+
+        if not email or not otp_code:
+            return Response({'detail': 'Please provide email and verification code.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp_record = EmailVerificationOTP.objects.filter(email__iexact=email, is_verified=False).order_by('-created_at').first()
+        if not otp_record:
+            return Response({'detail': 'No pending verification found for this email.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if otp_record.is_expired():
+            return Response({'detail': 'Verification code has expired. Please request a new code.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if otp_record.otp_code != otp_code:
+            return Response({'detail': 'Invalid verification code. Please check your inbox.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Ensure username wasn't taken in the interim
+        if User.objects.filter(username__iexact=otp_record.username).exists():
+            return Response({'detail': 'Username was taken during verification. Please restart registration.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(email__iexact=email).exists():
+            return Response({'detail': 'An account with this email already exists. Please sign in.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.create(
+            username=otp_record.username,
+            email=email,
+            first_name=otp_record.first_name,
+            last_name=otp_record.last_name,
+            password=otp_record.password_hash
+        )
+        user.save()
+
+        otp_record.is_verified = True
+        otp_record.save()
+
+        UserProfile.objects.get_or_create(user=user)
+
+        tokens = get_tokens_for_user(user)
+        return Response({
+            'user': UserSerializer(user).data,
+            'tokens': tokens,
+            'message': f'Email verified successfully! Welcome to Gakkou No Shiken, {user.username}!'
+        }, status=status.HTTP_201_CREATED)
+
+
+class ResendRegistrationOTPAPIView(APIView):
+    """Resends a new 6-digit OTP code to the candidate's email."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email', '').strip().lower()
+        if not email:
+            return Response({'detail': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp_record = EmailVerificationOTP.objects.filter(email__iexact=email, is_verified=False).order_by('-created_at').first()
+        if not otp_record:
+            return Response({'detail': 'No pending registration found for this email. Please sign up again.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        new_otp = EmailVerificationOTP.create_otp(
+            email=email,
+            username=otp_record.username,
+            first_name=otp_record.first_name,
+            last_name=otp_record.last_name,
+        )
+        new_otp.password_hash = otp_record.password_hash
+        new_otp.save()
+
+        send_otp_email(email, new_otp.otp_code, name=new_otp.first_name or new_otp.username)
+
+        return Response({
+            'status': 'success',
+            'email': email,
+            'message': 'A new 6-digit verification code has been sent to your email.'
+        }, status=status.HTTP_200_OK)
+
+
 class RegisterAPIView(APIView):
+
     """Registers a new candidate and returns JWT tokens."""
     permission_classes = [permissions.AllowAny]
 

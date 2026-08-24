@@ -444,6 +444,16 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000',
 ]
 
+# Email Configuration (cPanel SMTP / noreply@gakkounoshiken.site)
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = env('EMAIL_HOST', default='localhost')
+EMAIL_PORT = env.int('EMAIL_PORT', default=25)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=False)
+EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL', default=False)
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='Gakkou No Shiken <noreply@gakkounoshiken.site>')
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+
 
 
 

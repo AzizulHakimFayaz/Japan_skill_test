@@ -149,6 +149,39 @@ export async function googleAuthLogin(idToken) {
 }
 
 
+export async function sendRegistrationOTP(username, email, password, passwordConfirm, firstName = '', lastName = '') {
+  return apiRequest('/api/auth/send-otp/', {
+    method: 'POST',
+    body: JSON.stringify({
+      username,
+      first_name: firstName,
+      last_name: lastName,
+      email,
+      password,
+      password_confirm: passwordConfirm,
+    }),
+  });
+}
+
+export async function verifyRegistrationOTP(email, otpCode) {
+  const data = await apiRequest('/api/auth/verify-otp/', {
+    method: 'POST',
+    body: JSON.stringify({ email, otp_code: otpCode }),
+  });
+  if (data?.tokens?.access) {
+    setAuthTokens(data.tokens.access, data.tokens.refresh);
+    setStoredUser(data.user);
+  }
+  return data;
+}
+
+export async function resendRegistrationOTP(email) {
+  return apiRequest('/api/auth/resend-otp/', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
 export async function registerUser(username, email, password, passwordConfirm, firstName = '', lastName = '') {
   const data = await apiRequest('/api/auth/register/', {
     method: 'POST',
@@ -167,6 +200,7 @@ export async function registerUser(username, email, password, passwordConfirm, f
   }
   return data;
 }
+
 
 export async function getMe() {
   return apiRequest('/api/auth/me/');

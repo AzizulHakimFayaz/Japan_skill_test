@@ -56,3 +56,42 @@ def create_or_save_user_profile(sender, instance, created, **kwargs):
     else:
         # Ensure profile exists even for previously created users
         UserProfile.objects.get_or_create(user=instance)
+
+
+import random
+from datetime import timedelta
+from django.utils import timezone
+from django.contrib.auth.hashers import make_password
+
+
+class EmailVerificationOTP(models.Model):
+    """Stores temporary 6-digit verification code and pending candidate registration data."""
+    email = models.EmailField(db_index=True)
+    otp_code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+
+    username = models.CharField(max_length=150, blank=True)
+    first_name = models.CharField(max_length=150, blank=True)
+    last_name = models.CharField(max_length=150, blank=True)
+    password_hash = models.CharField(max_length=255, blank=True)
+
+    def is_expired(self):
+        return timezone.now() > self.created_at + timedelta(minutes=15)
+
+    @classmethod
+    def create_otp(cls, email, username='', first_name='', last_name='', password=''):
+        cls.objects.filter(email__iexact=email).delete()
+        code = f"{random.randint(100000, 999999)}"
+        return cls.objects.create(
+            email=email.strip().lower(),
+            otp_code=code,
+            username=username.strip(),
+            first_name=first_name.strip(),
+            last_name=last_name.strip(),
+            password_hash=make_password(password) if password else ''
+        )
+
+    def __str__(self):
+        return f"OTP for {self.email} ({self.otp_code})"
+
