@@ -2,7 +2,6 @@ import './globals.css';
 import { AuthProvider } from '@/components/AuthContext';
 import { ThemeProvider } from '@/components/ThemeContext';
 import AnimatedThemeBackground from '@/components/AnimatedThemeBackground';
-import PlayfulCatAndMouse from '@/components/PlayfulCatAndMouse';
 import AppLayout from '@/components/AppLayout';
 
 export const metadata = {
@@ -120,7 +119,6 @@ export default function RootLayout({ children }) {
       <body className="flex flex-col min-h-full text-slate-800 dark:text-slate-100 bg-transparent antialiased font-sans selection:bg-red-500 selection:text-white relative overflow-x-hidden transition-colors duration-500">
         <ThemeProvider>
           <AnimatedThemeBackground />
-          <PlayfulCatAndMouse />
           <AuthProvider>
             <AppLayout>{children}</AppLayout>
           </AuthProvider>

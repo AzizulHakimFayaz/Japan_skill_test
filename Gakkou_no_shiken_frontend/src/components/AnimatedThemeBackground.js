@@ -18,18 +18,18 @@ export default function AnimatedThemeBackground() {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    // Mouse interaction coordinates
+    // Mouse coordinates for gentle interaction
     const mouse = {
       x: -1000,
       y: -1000,
-      radius: 120,
+      radius: 140,
       active: false,
     };
 
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
-      initParticles();
+      initElements();
     };
 
     const handleMouseMove = (e) => {
@@ -57,7 +57,165 @@ export default function AnimatedThemeBackground() {
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     document.addEventListener('mouseleave', handleMouseLeave);
 
-    // --- 1. Realistic 3D Tumbling Sakura Petals (桜の花びら) ---
+    // =========================================================================
+    // 1. LUMINESCENT JAPANESE ORIGAMI CRANES (折り紙の鶴 - Orizuru)
+    // =========================================================================
+    class OrigamiCrane {
+      constructor() {
+        this.reset(true);
+      }
+
+      reset(initial = false) {
+        this.x = initial ? Math.random() * width : -80;
+        this.y = Math.random() * (height * 0.7) + 40;
+        this.size = Math.random() * 12 + 16; // 16 to 28px
+        this.speedX = Math.random() * 0.7 + 0.45; // Gentle horizontal glide
+        this.speedY = Math.sin(Math.random() * Math.PI) * 0.2;
+        this.flapPhase = Math.random() * Math.PI * 2;
+        this.flapSpeed = Math.random() * 0.04 + 0.03;
+        this.tilt = (Math.random() - 0.5) * 0.15;
+        this.opacity = Math.random() * 0.35 + 0.4;
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += Math.sin(this.flapPhase * 0.5) * 0.35;
+        this.flapPhase += this.flapSpeed;
+
+        if (this.x > width + 100) {
+          this.reset(false);
+        }
+      }
+
+      draw(isDarkMode) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.tilt);
+
+        const wingFlap = Math.sin(this.flapPhase);
+        const s = this.size;
+
+        ctx.lineWidth = 1.2;
+        if (isDarkMode) {
+          ctx.strokeStyle = `rgba(254, 205, 211, ${this.opacity * 0.8})`;
+          ctx.fillStyle = `rgba(244, 63, 94, ${this.opacity * 0.15})`;
+          ctx.shadowColor = 'rgba(244, 63, 94, 0.4)';
+          ctx.shadowBlur = 8;
+        } else {
+          ctx.strokeStyle = `rgba(225, 29, 72, ${this.opacity * 0.6})`;
+          ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity * 0.4})`;
+          ctx.shadowColor = 'rgba(244, 114, 182, 0.2)';
+          ctx.shadowBlur = 4;
+        }
+
+        // Geometric Origami Crane Silhouette Path
+        ctx.beginPath();
+        // Body triangle
+        ctx.moveTo(0, 0);
+        ctx.lineTo(s * 0.6, -s * 0.2); // Neck
+        ctx.lineTo(s * 0.8, -s * 0.45); // Head / Beak
+        ctx.lineTo(s * 0.5, -s * 0.1);
+        ctx.lineTo(-s * 0.7, s * 0.2); // Tail
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Left Wing
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-s * 0.2, -s * 0.9 * wingFlap);
+        ctx.lineTo(s * 0.4, -s * 0.1);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Right Wing
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-s * 0.15, s * 0.7 * wingFlap);
+        ctx.lineTo(s * 0.35, s * 0.1);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+      }
+    }
+
+    // =========================================================================
+    // 2. BIOLUMINESCENT HOTARU FIREFLIES (蛍)
+    // =========================================================================
+    class HotaruFirefly {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.size = Math.random() * 2.2 + 1.2;
+        this.vx = (Math.random() - 0.5) * 0.6;
+        this.vy = (Math.random() - 0.5) * 0.6;
+        this.pulsePhase = Math.random() * Math.PI * 2;
+        this.pulseSpeed = Math.random() * 0.03 + 0.02;
+        this.baseGlow = Math.random() * 0.4 + 0.4;
+      }
+
+      update() {
+        this.x += this.vx + Math.sin(this.pulsePhase) * 0.3;
+        this.y += this.vy + Math.cos(this.pulsePhase * 0.7) * 0.3;
+        this.pulsePhase += this.pulseSpeed;
+
+        // Gentle cursor attraction
+        if (mouse.active) {
+          const dx = mouse.x - this.x;
+          const dy = mouse.y - this.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < mouse.radius * 1.5 && dist > 20) {
+            this.x += (dx / dist) * 0.4;
+            this.y += (dy / dist) * 0.4;
+          }
+        }
+
+        if (this.x < 0) this.x = width;
+        if (this.x > width) this.x = 0;
+        if (this.y < 0) this.y = height;
+        if (this.y > height) this.y = 0;
+      }
+
+      draw(isDarkMode) {
+        const glow = Math.sin(this.pulsePhase) * 0.35 + 0.65;
+        const currentAlpha = this.baseGlow * glow;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size * 2.5, 0, Math.PI * 2);
+
+        if (isDarkMode) {
+          const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 3.5);
+          grad.addColorStop(0, `rgba(254, 240, 138, ${currentAlpha})`);
+          grad.addColorStop(0.4, `rgba(234, 179, 8, ${currentAlpha * 0.5})`);
+          grad.addColorStop(1, 'rgba(234, 179, 8, 0)');
+          ctx.fillStyle = grad;
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${currentAlpha})`;
+          ctx.shadowColor = '#facc15';
+          ctx.shadowBlur = 10;
+          ctx.fill();
+        } else {
+          ctx.fillStyle = `rgba(245, 158, 11, ${currentAlpha * 0.4})`;
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+
+    // =========================================================================
+    // 3. ORGANIC DRIFTING SAKURA PETALS (桜の花びら)
+    // =========================================================================
     class SakuraPetal {
       constructor() {
         this.reset(true);
@@ -65,16 +223,15 @@ export default function AnimatedThemeBackground() {
 
       reset(initial = false) {
         this.x = Math.random() * width;
-        this.y = initial ? Math.random() * height : -30;
-        this.size = Math.random() * 9 + 7; // 7px to 16px
-        this.speedX = Math.random() * 1.5 + 0.8; // Drifting rightwards
-        this.speedY = Math.random() * 1.2 + 0.9; // Falling down
+        this.y = initial ? Math.random() * height : -25;
+        this.size = Math.random() * 7 + 6;
+        this.speedX = Math.random() * 1.2 + 0.6;
+        this.speedY = Math.random() * 1.1 + 0.7;
         this.rotation = Math.random() * 360;
-        this.rotationSpeed = (Math.random() - 0.5) * 2;
+        this.rotationSpeed = (Math.random() - 0.5) * 1.6;
         this.flip = Math.random() * 360;
         this.flipSpeed = Math.random() * 2 + 1;
-        this.opacity = Math.random() * 0.45 + 0.45;
-        this.colorType = Math.random(); // variation in pink / ruby hues
+        this.opacity = Math.random() * 0.4 + 0.4;
       }
 
       update() {
@@ -83,19 +240,18 @@ export default function AnimatedThemeBackground() {
         this.rotation += this.rotationSpeed;
         this.flip += this.flipSpeed;
 
-        // Interactive mouse repulsion
         if (mouse.active) {
           const dx = this.x - mouse.x;
           const dy = this.y - mouse.y;
           const dist = Math.hypot(dx, dy);
           if (dist < mouse.radius) {
             const force = (mouse.radius - dist) / mouse.radius;
-            this.x += (dx / dist) * force * 5;
-            this.y += (dy / dist) * force * 5;
+            this.x += (dx / dist) * force * 4;
+            this.y += (dy / dist) * force * 4;
           }
         }
 
-        if (this.y > height + 40 || this.x > width + 40) {
+        if (this.y > height + 30 || this.x > width + 30) {
           this.reset(false);
         }
       }
@@ -106,7 +262,6 @@ export default function AnimatedThemeBackground() {
         ctx.rotate((this.rotation * Math.PI) / 180);
         ctx.scale(Math.cos((this.flip * Math.PI) / 180), 1);
 
-        // Path of a delicate Sakura Petal (Heart-like notched petal)
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.bezierCurveTo(-this.size / 2, -this.size / 2, -this.size, this.size / 3, 0, this.size);
@@ -114,22 +269,17 @@ export default function AnimatedThemeBackground() {
         ctx.closePath();
 
         if (isDarkMode) {
-          // Glowing Neon Sakura in Dark Mode
           const grad = ctx.createLinearGradient(0, 0, 0, this.size);
-          grad.addColorStop(0, `rgba(255, 120, 160, ${this.opacity * 0.95})`);
-          grad.addColorStop(0.7, `rgba(220, 38, 38, ${this.opacity * 0.85})`);
-          grad.addColorStop(1, `rgba(180, 20, 80, ${this.opacity * 0.6})`);
+          grad.addColorStop(0, `rgba(255, 140, 180, ${this.opacity * 0.9})`);
+          grad.addColorStop(1, `rgba(220, 38, 38, ${this.opacity * 0.6})`);
           ctx.fillStyle = grad;
-          ctx.shadowColor = 'rgba(244, 63, 94, 0.6)';
-          ctx.shadowBlur = 8;
+          ctx.shadowColor = 'rgba(244, 63, 94, 0.5)';
+          ctx.shadowBlur = 6;
         } else {
-          // Soft Daylight Pink Sakura
           const grad = ctx.createLinearGradient(0, 0, 0, this.size);
-          grad.addColorStop(0, `rgba(255, 182, 193, ${this.opacity * 0.85})`);
-          grad.addColorStop(1, `rgba(244, 114, 182, ${this.opacity * 0.65})`);
+          grad.addColorStop(0, `rgba(255, 192, 203, ${this.opacity * 0.8})`);
+          grad.addColorStop(1, `rgba(244, 114, 182, ${this.opacity * 0.55})`);
           ctx.fillStyle = grad;
-          ctx.shadowColor = 'rgba(244, 114, 182, 0.2)';
-          ctx.shadowBlur = 3;
         }
 
         ctx.fill();
@@ -137,7 +287,9 @@ export default function AnimatedThemeBackground() {
       }
     }
 
-    // --- 2. Twinkling Celestial Constellation Stars (夜空の星) ---
+    // =========================================================================
+    // 4. TWINKLING CELESTIAL STARS & SHOOTING METEORS (夜空の星と流星)
+    // =========================================================================
     class Star {
       constructor() {
         this.reset();
@@ -146,22 +298,16 @@ export default function AnimatedThemeBackground() {
       reset() {
         this.x = Math.random() * width;
         this.y = Math.random() * (height * 0.85);
-        this.size = Math.random() * 1.6 + 0.4;
-        this.baseAlpha = Math.random() * 0.5 + 0.3;
-        this.alpha = this.baseAlpha;
-        this.twinkleSpeed = Math.random() * 0.03 + 0.01;
-        this.twinkleDir = Math.random() > 0.5 ? 1 : -1;
+        this.size = Math.random() * 1.5 + 0.4;
+        this.alpha = Math.random() * 0.5 + 0.3;
+        this.twinkleSpeed = Math.random() * 0.025 + 0.01;
+        this.dir = Math.random() > 0.5 ? 1 : -1;
       }
 
       update() {
-        this.alpha += this.twinkleSpeed * this.twinkleDir;
-        if (this.alpha > 0.95) {
-          this.alpha = 0.95;
-          this.twinkleDir = -1;
-        } else if (this.alpha < 0.15) {
-          this.alpha = 0.15;
-          this.twinkleDir = 1;
-        }
+        this.alpha += this.twinkleSpeed * this.dir;
+        if (this.alpha > 0.9) this.dir = -1;
+        if (this.alpha < 0.2) this.dir = 1;
       }
 
       draw() {
@@ -169,191 +315,80 @@ export default function AnimatedThemeBackground() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
-        ctx.shadowColor = 'rgba(199, 210, 254, 0.8)';
-        ctx.shadowBlur = 6;
+        ctx.shadowColor = 'rgba(224, 231, 255, 0.7)';
+        ctx.shadowBlur = 5;
         ctx.fill();
         ctx.restore();
       }
     }
 
-    // --- 3. Shooting Meteors / Shooting Stars (流星) ---
-    class ShootingStar {
-      constructor() {
-        this.reset();
-      }
-
-      reset() {
-        this.x = Math.random() * width * 1.2;
-        this.y = Math.random() * (height * 0.4);
-        this.length = Math.random() * 140 + 80;
-        this.speed = Math.random() * 12 + 10;
-        this.angle = (Math.PI / 4) + (Math.random() - 0.5) * 0.2; // approx 45 degrees
-        this.active = false;
-        this.timer = Math.random() * 250 + 80; // random delay between spawns
-        this.opacity = 0;
-      }
-
-      update() {
-        if (!this.active) {
-          this.timer--;
-          if (this.timer <= 0) {
-            this.active = true;
-            this.opacity = 1;
-            this.x = Math.random() * (width * 0.9);
-            this.y = Math.random() * (height * 0.35);
-          }
-          return;
-        }
-
-        this.x += Math.cos(this.angle) * this.speed;
-        this.y += Math.sin(this.angle) * this.speed;
-        this.opacity -= 0.022;
-
-        if (this.opacity <= 0 || this.x > width + 100 || this.y > height + 100) {
-          this.reset();
-        }
-      }
-
-      draw() {
-        if (!this.active || this.opacity <= 0) return;
-        ctx.save();
-        ctx.beginPath();
-        const tailX = this.x - Math.cos(this.angle) * this.length;
-        const tailY = this.y - Math.sin(this.angle) * this.length;
-
-        const grad = ctx.createLinearGradient(tailX, tailY, this.x, this.y);
-        grad.addColorStop(0, 'rgba(255, 255, 255, 0)');
-        grad.addColorStop(0.7, `rgba(254, 240, 138, ${this.opacity * 0.7})`);
-        grad.addColorStop(1, `rgba(255, 255, 255, ${this.opacity})`);
-
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = 2.2;
-        ctx.lineCap = 'round';
-        ctx.moveTo(tailX, tailY);
-        ctx.lineTo(this.x, this.y);
-        ctx.stroke();
-
-        // Shooting Star Glowing Head
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-        ctx.shadowColor = '#facc15';
-        ctx.shadowBlur = 12;
-        ctx.fill();
-
-        ctx.restore();
-      }
-    }
-
-    // Initialize Particle Arrays
+    // Instantiate Element Pools
+    let cranes = [];
+    let hotaru = [];
     let petals = [];
     let stars = [];
-    let shootingStars = [];
 
-    const initParticles = () => {
-      const petalCount = width < 768 ? 22 : 45;
-      petals = Array.from({ length: petalCount }, () => new SakuraPetal());
-
-      const starCount = width < 768 ? 40 : 85;
-      stars = Array.from({ length: starCount }, () => new Star());
-
-      shootingStars = Array.from({ length: 3 }, () => new ShootingStar());
+    const initElements = () => {
+      const isMobile = width < 768;
+      cranes = Array.from({ length: isMobile ? 3 : 5 }, () => new OrigamiCrane());
+      hotaru = Array.from({ length: isMobile ? 12 : 24 }, () => new HotaruFirefly());
+      petals = Array.from({ length: isMobile ? 18 : 35 }, () => new SakuraPetal());
+      stars = Array.from({ length: isMobile ? 35 : 70 }, () => new Star());
     };
 
-    initParticles();
+    initElements();
 
-    // Aurora Wave Phase
     let auroraPhase = 0;
 
-    // --- Main Render Loop ---
+    // --- Main Rendering Loop ---
     const render = () => {
       ctx.clearRect(0, 0, width, height);
-      auroraPhase += 0.008;
+      auroraPhase += 0.006;
 
       const isCurrentDark = document.documentElement.classList.contains('dark');
 
       if (isCurrentDark) {
-        // --- 1. Draw Flowing Neon Aurora Waveforms ---
+        // Subtle Aurora Waveform
         ctx.save();
         ctx.globalCompositeOperation = 'screen';
-
-        // Ribbon 1 (Emerald / Cyan Wave)
         ctx.beginPath();
         ctx.moveTo(0, height * 0.75);
-        for (let x = 0; x <= width; x += 30) {
-          const y =
-            height * 0.65 +
-            Math.sin(x * 0.002 + auroraPhase) * 60 +
-            Math.sin(x * 0.004 + auroraPhase * 1.5) * 30;
+        for (let x = 0; x <= width; x += 40) {
+          const y = height * 0.65 + Math.sin(x * 0.002 + auroraPhase) * 45;
           ctx.lineTo(x, y);
         }
         ctx.lineTo(width, height);
         ctx.lineTo(0, height);
         ctx.closePath();
 
-        const auroraGrad1 = ctx.createLinearGradient(0, height * 0.5, width, height);
-        auroraGrad1.addColorStop(0, 'rgba(16, 185, 129, 0.05)');
-        auroraGrad1.addColorStop(0.5, 'rgba(6, 182, 212, 0.08)');
-        auroraGrad1.addColorStop(1, 'rgba(99, 102, 241, 0.04)');
-        ctx.fillStyle = auroraGrad1;
+        const grad = ctx.createLinearGradient(0, height * 0.5, width, height);
+        grad.addColorStop(0, 'rgba(6, 182, 212, 0.04)');
+        grad.addColorStop(0.5, 'rgba(99, 102, 241, 0.05)');
+        grad.addColorStop(1, 'rgba(244, 63, 94, 0.03)');
+        ctx.fillStyle = grad;
         ctx.fill();
-
-        // Ribbon 2 (Ruby / Indigo Wave)
-        ctx.beginPath();
-        ctx.moveTo(0, height * 0.55);
-        for (let x = 0; x <= width; x += 35) {
-          const y =
-            height * 0.48 +
-            Math.cos(x * 0.0025 + auroraPhase * 0.8) * 50 +
-            Math.sin(x * 0.0035 + auroraPhase) * 25;
-          ctx.lineTo(x, y);
-        }
-        ctx.lineTo(width, height);
-        ctx.lineTo(0, height);
-        ctx.closePath();
-
-        const auroraGrad2 = ctx.createLinearGradient(0, height * 0.35, width, height * 0.85);
-        auroraGrad2.addColorStop(0, 'rgba(220, 38, 38, 0.04)');
-        auroraGrad2.addColorStop(0.5, 'rgba(168, 85, 247, 0.07)');
-        auroraGrad2.addColorStop(1, 'rgba(59, 130, 246, 0.03)');
-        ctx.fillStyle = auroraGrad2;
-        ctx.fill();
-
         ctx.restore();
 
-        // --- 2. Draw Twinkling Stars ---
+        // Stars
         for (let i = 0; i < stars.length; i++) {
           stars[i].update();
           stars[i].draw();
         }
 
-        // --- 3. Draw Shooting Meteors ---
-        for (let i = 0; i < shootingStars.length; i++) {
-          shootingStars[i].update();
-          shootingStars[i].draw();
-        }
-
-        // --- 4. Interactive Mouse Aura (Follows cursor smoothly) ---
-        if (mouse.active) {
-          ctx.save();
-          const mouseGlow = ctx.createRadialGradient(
-            mouse.x,
-            mouse.y,
-            0,
-            mouse.x,
-            mouse.y,
-            mouse.radius * 1.5
-          );
-          mouseGlow.addColorStop(0, 'rgba(244, 63, 94, 0.12)');
-          mouseGlow.addColorStop(0.5, 'rgba(99, 102, 241, 0.06)');
-          mouseGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-          ctx.fillStyle = mouseGlow;
-          ctx.fillRect(0, 0, width, height);
-          ctx.restore();
+        // Fireflies
+        for (let i = 0; i < hotaru.length; i++) {
+          hotaru[i].update();
+          hotaru[i].draw(true);
         }
       }
 
-      // --- 5. Draw Tumbling 3D Sakura Petals (Both Modes) ---
+      // Origami Cranes (Both Modes)
+      for (let i = 0; i < cranes.length; i++) {
+        cranes[i].update();
+        cranes[i].draw(isCurrentDark);
+      }
+
+      // Sakura Petals (Both Modes)
       for (let i = 0; i < petals.length; i++) {
         petals[i].update();
         petals[i].draw(isCurrentDark);
@@ -364,7 +399,6 @@ export default function AnimatedThemeBackground() {
 
     render();
 
-    // Pause rendering when tab is hidden to preserve battery
     const handleVisibilityChange = () => {
       if (document.hidden) {
         cancelAnimationFrame(animationFrameId);
@@ -392,8 +426,7 @@ export default function AnimatedThemeBackground() {
           isDark ? 'opacity-0' : 'opacity-100'
         }`}
       >
-        {/* Soft daylight morning gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-rose-50/40 via-transparent to-slate-100/60 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-rose-50/30 via-transparent to-slate-100/50 pointer-events-none"></div>
       </div>
 
       {/* Dark Mode Celestial Night Canvas Background */}
@@ -402,16 +435,16 @@ export default function AnimatedThemeBackground() {
           isDark ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        {/* Cyberpunk Grid Background */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b18_1px,transparent_1px),linear-gradient(to_bottom,#1e293b18_1px,transparent_1px)] bg-[size:4.5rem_4.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none"></div>
+        {/* Cyber Grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4.5rem_4.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none"></div>
 
-        {/* Ambient Glowing Nebula Blobs */}
-        <div className="absolute -top-32 -left-32 w-[38rem] h-[38rem] rounded-full bg-gradient-to-br from-indigo-600/20 via-purple-600/15 to-transparent blur-[120px] pointer-events-none"></div>
-        <div className="absolute -top-20 -right-20 w-[35rem] h-[35rem] rounded-full bg-gradient-to-bl from-japan-red/20 via-rose-600/10 to-transparent blur-[130px] pointer-events-none"></div>
-        <div className="absolute bottom-10 left-1/3 w-[45rem] h-[45rem] rounded-full bg-gradient-to-tr from-cyan-500/10 via-emerald-500/10 to-transparent blur-[140px] pointer-events-none"></div>
+        {/* Ambient Glowing Nebula Glows */}
+        <div className="absolute -top-32 -left-32 w-[38rem] h-[38rem] rounded-full bg-gradient-to-br from-indigo-600/18 via-purple-600/12 to-transparent blur-[120px] pointer-events-none"></div>
+        <div className="absolute -top-20 -right-20 w-[35rem] h-[35rem] rounded-full bg-gradient-to-bl from-japan-red/18 via-rose-600/10 to-transparent blur-[130px] pointer-events-none"></div>
+        <div className="absolute bottom-10 left-1/3 w-[45rem] h-[45rem] rounded-full bg-gradient-to-tr from-cyan-500/10 via-emerald-500/08 to-transparent blur-[140px] pointer-events-none"></div>
       </div>
 
-      {/* High-Performance 60FPS Interactive Canvas (Sakura Petals, Stars, Meteors, Aurora) */}
+      {/* High-Performance 60FPS Ambient Japanese Visual Canvas */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
