@@ -491,7 +491,6 @@ class VerifyRegistrationOTPAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        EmailVerificationOTP.ensure_table_exists()
         email = request.data.get('email', '').strip().lower()
         otp_code = request.data.get('otp_code', '').strip()
 
@@ -542,7 +541,6 @@ class ResendRegistrationOTPAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        EmailVerificationOTP.ensure_table_exists()
         email = request.data.get('email', '').strip().lower()
 
         if not email:
