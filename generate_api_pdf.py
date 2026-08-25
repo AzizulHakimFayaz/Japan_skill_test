@@ -42,7 +42,7 @@ class NumberedCanvas(canvas.Canvas):
         
         # Footer
         self.line(54, 45, 558, 45)
-        self.drawString(54, 32, "https://www.gakkounoshiken.site/api/  •  Mobile App & Client Specification")
+        self.drawString(54, 32, "https://gakkounoshiken.site/api/  •  Mobile App & Client Specification")
         self.drawRightString(558, 32, f"Page {self._pageNumber} of {page_count}")
         self.restoreState()
 
@@ -227,8 +227,8 @@ def create_api_documentation_pdf(filename="Gakkou_No_Shiken_API_Documentation.pd
     # Meta Overview Box
     meta_data = [
         [
-            Paragraph("<b>Base URL (Production):</b>", table_cell_bold),
-            Paragraph("<font color='#0284c7'>https://www.gakkounoshiken.site/api/</font>", table_cell_code)
+            Paragraph("<b>Base URL (Production API):</b>", table_cell_bold),
+            Paragraph("<font color='#0284c7'><b>https://gakkounoshiken.site/api/</b> (Do NOT use 'www')</font>", table_cell_code)
         ],
         [
             Paragraph("<b>Base URL (Local Dev):</b>", table_cell_bold),
@@ -950,7 +950,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
-  static const String baseUrl = "https://www.gakkounoshiken.site/api";
+  static const String baseUrl = "https://gakkounoshiken.site/api";
   static final _storage = FlutterSecureStorage();
 
   // Helper to get stored access token
@@ -1045,7 +1045,7 @@ class ApiService {
 
     # Build Document
     doc.build(story, canvasmaker=NumberedCanvas)
-    print(f"✅ PDF successfully generated: {filename}")
+    print(f"SUCCESS: PDF generated -> {filename}")
 
 
 if __name__ == "__main__":

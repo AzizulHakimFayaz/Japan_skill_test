@@ -1,14 +1,14 @@
-# Gakkou No Shiken (学校の試験) — Official REST API Specification
-**Version 2.0 (2026 Edition)** • *Bangladesh's #1 Japanese Exam & CBT Portal*
-
----
-
 ## 🌐 1. Base URLs & Environments
 
-| Environment | Base URL |
-| :--- | :--- |
-| **Production Server** | `https://www.gakkounoshiken.site/api/` |
-| **Local Development** | `http://127.0.0.1:8000/api/` |
+| Environment | Base URL | Notes |
+| :--- | :--- | :--- |
+| **Production Server** | **`https://gakkounoshiken.site/api/`** | **Do NOT use `www.`** (`www` is routed to Vercel frontend, root domain points to cPanel Django API) |
+| **Local Development** | `http://127.0.0.1:8000/api/` | Run via `python manage.py runserver` |
+
+> ⚠️ **IMPORTANT FOR APP DEVELOPERS**:
+> Always use `https://gakkounoshiken.site/api/` (WITHOUT `www.`).
+> - `https://gakkounoshiken.site/api/` → **Active Live cPanel Django REST API (200 OK)**
+> - `https://www.gakkounoshiken.site` → Vercel Next.js Web Frontend
 
 - **Protocol**: HTTPS (Production), HTTP (Local Dev)
 - **Data Exchange Format**: `application/json; charset=utf-8`
