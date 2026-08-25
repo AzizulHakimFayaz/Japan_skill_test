@@ -1,304 +1,305 @@
-# 📚 Gakkou No Shiken (学校の試験) - REST API Documentation
-
-**Base Production URL**: `https://japanskilltest-production.up.railway.app`  
-**Local Development URL**: `http://127.0.0.1:8000`
-
-All endpoints accept and return `application/json` unless stated otherwise.
+# Gakkou No Shiken (学校の試験) — Official REST API Specification
+**Version 2.0 (2026 Edition)** • *Bangladesh's #1 Japanese Exam & CBT Portal*
 
 ---
 
-## 📑 Table of Contents
-1. [Authentication & Authorization](#1-authentication--authorization)
-   - [Register / Sign Up](#11-register--sign-up)
-   - [Login](#12-login)
-   - [Refresh JWT Token](#13-refresh-jwt-token)
-   - [Get Current User Profile](#14-get-current-user-profile)
-   - [Get Candidate Exam History & Stats](#15-get-candidate-exam-history--stats)
-2. [Practice Tests & CBT Examination](#2-practice-tests--cbt-examination)
-   - [List All Practice Tests](#21-list-all-practice-tests)
-   - [Get Test Details](#22-get-test-details)
-   - [Get Full CBT Quiz Data](#23-get-full-cbt-quiz-data)
-   - [Submit Quiz Answers](#24-submit-quiz-answers)
-   - [Get Official Score Report & Review](#25-get-official-score-report--review)
-3. [Informational & Syllabus Data](#3-informational--syllabus-data)
-   - [JFT-Basic Overview & Centers](#31-jft-basic-overview--centers)
-   - [SSW Sectors & Venues](#32-ssw-sectors--venues)
+## 🌐 1. Base URLs & Environments
+
+| Environment | Base URL |
+| :--- | :--- |
+| **Production Server** | `https://www.gakkounoshiken.site/api/` |
+| **Local Development** | `http://127.0.0.1:8000/api/` |
+
+- **Protocol**: HTTPS (Production), HTTP (Local Dev)
+- **Data Exchange Format**: `application/json; charset=utf-8`
+- **Authentication Scheme**: JWT (JSON Web Token) — `Authorization: Bearer <access_token>`
 
 ---
 
-## 1. Authentication & Authorization
+## 🔐 2. Authentication & Authorization
 
-All protected endpoints require the following HTTP header:
+Protected endpoints require a valid JWT access token passed in the request header:
 ```http
-Authorization: Bearer <your_access_token>
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-### 1.1 Register / Sign Up
-Create a new student candidate account.
+### Token Lifecycle
+1. **Access Token**: Short-lived (typically 60 minutes) used for API requests.
+2. **Refresh Token**: Long-lived (typically 7–30 days) used to request new access tokens via `POST /api/auth/token/refresh/`.
 
-- **Endpoint**: `POST /api/auth/register/` (or `POST /api/auth/signup/`)
-- **Access**: Public
+---
+
+## 📋 3. Endpoint Reference Index
+
+### Authentication & Candidate Profile (`/api/auth/`)
+- `POST /api/auth/send-otp/` — Send 6-digit registration OTP to email
+- `POST /api/auth/verify-otp/` — Verify OTP, create account & return JWT tokens
+- `POST /api/auth/resend-otp/` — Resend verification OTP
+- `POST /api/auth/login/` — Candidate login with username or email
+- `POST /api/auth/google/` — Google 1-Click / OAuth ID token sign-in
+- `POST /api/auth/token/refresh/` — Refresh expired JWT access token
+- `GET  /api/auth/me/` — Retrieve currently authenticated user profile
+- `GET  /api/auth/profile/` — Fetch editable candidate profile details
+- `PUT  /api/auth/profile/` — Update candidate profile (target exam, Japanese level, bio)
+- `GET  /api/auth/my-results/` — Candidate exam history, scaled scores & chart analytics
+
+### Tests & CBT Examination Engine (`/api/tests/`)
+- `GET  /api/tests/` — List all practice tests (filtered by `?category=basic|skill`)
+- `GET  /api/tests/<id>/` — Single test metadata
+- `GET  /api/tests/<id>/quiz/` — Structured CBT steps, questions, audio & 10 language translations
+- `POST /api/tests/<id>/submit/` — Submit candidate answers & compute raw score
+- `GET  /api/attempts/<id>/` — Official CEFR scorecard, 10–250 scaled score & review
+
+### Information & Test Venues (`/api/info/`)
+- `GET  /api/info/jft/` — JFT-Basic overview, syllabus & Prometric Bangladesh test centers
+- `GET  /api/info/ssw/` — SSW visa overview, 12 industrial sectors & venue guides
+
+### Leaderboard & Public Candidate Profiles (`/api/leaderboard/`, `/api/candidates/`)
+- `GET  /api/leaderboard/` — Candidate national rankings (Tests passed, scaled score)
+- `GET  /api/candidates/<username>/` — Public candidate profile with achievement badges
+
+---
+
+## 🛠 4. Detailed Endpoint Specifications
+
+### 4.1. Send Registration OTP
+* **Endpoint**: `POST /api/auth/send-otp/`
+* **Auth Required**: No (Public)
+* **Description**: Validates candidate registration details, creates a secure OTP record, and sends a 6-digit code to the user's email.
 
 #### Request Body
 ```json
 {
-  "username": "tanaka2026",
-  "email": "tanaka@example.com",
-  "password": "SecurePassword123!",
-  "password_confirm": "SecurePassword123!"
+  "username": "tanvir_japan",
+  "email": "tanvir@example.com",
+  "password": "Password123!",
+  "password_confirm": "Password123!",
+  "first_name": "Tanvir",
+  "last_name": "Ahmed"
 }
 ```
 
-#### Success Response (`201 Created`)
+#### Response (200 OK)
+```json
+{
+  "status": "success",
+  "email": "tanvir@example.com",
+  "message": "A 6-digit verification code has been sent to tanvir@example.com."
+}
+```
+
+---
+
+### 4.2. Verify OTP & Activate Account
+* **Endpoint**: `POST /api/auth/verify-otp/`
+* **Auth Required**: No (Public)
+* **Description**: Verifies the 6-digit code, activates candidate user account, and returns JWT tokens.
+
+#### Request Body
+```json
+{
+  "email": "tanvir@example.com",
+  "otp_code": "839201"
+}
+```
+
+#### Response (201 Created)
 ```json
 {
   "user": {
-    "id": 12,
-    "username": "tanaka2026",
-    "email": "tanaka@example.com",
-    "is_staff": false
+    "id": 42,
+    "username": "tanvir_japan",
+    "first_name": "Tanvir",
+    "last_name": "Ahmed",
+    "full_name": "Tanvir Ahmed",
+    "email": "tanvir@example.com",
+    "is_staff": false,
+    "profile": {
+      "bio": "",
+      "target_exam": "jft_basic",
+      "target_exam_display": "JFT-Basic (A2 Standard)",
+      "japanese_level": "n4",
+      "japanese_level_display": "Elementary (N4 / A2)",
+      "location": "Dhaka, Bangladesh"
+    }
   },
   "tokens": {
-    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    "access": "eyJhbGciOi...",
+    "refresh": "eyJhbGciOi..."
   },
-  "message": "Welcome to JFT Practice, tanaka2026!"
+  "message": "Email verified successfully! Welcome to Gakkou No Shiken, tanvir_japan!"
 }
 ```
 
 ---
 
-### 1.2 Login
-Authenticate using username **or** email address.
-
-- **Endpoint**: `POST /api/auth/login/`
-- **Access**: Public
+### 4.3. Candidate Login
+* **Endpoint**: `POST /api/auth/login/`
+* **Auth Required**: No (Public)
+* **Description**: Authenticate with either Username OR Email + Password.
 
 #### Request Body
 ```json
 {
-  "username": "tanaka@example.com",
-  "password": "SecurePassword123!"
+  "username": "tanvir@example.com",
+  "password": "Password123!"
 }
 ```
 
-#### Success Response (`200 OK`)
+#### Response (200 OK)
 ```json
 {
   "user": {
-    "id": 12,
-    "username": "tanaka2026",
-    "email": "tanaka@example.com",
-    "is_staff": false
+    "id": 42,
+    "username": "tanvir_japan",
+    "full_name": "Tanvir Ahmed",
+    "email": "tanvir@example.com",
+    "is_staff": false,
+    "profile": {
+      "target_exam": "jft_basic",
+      "japanese_level": "n4"
+    }
   },
   "tokens": {
-    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    "access": "eyJhbGciOi...",
+    "refresh": "eyJhbGciOi..."
   },
-  "message": "Welcome back, tanaka2026!"
+  "message": "Welcome back, tanvir_japan!"
 }
 ```
 
 ---
 
-### 1.3 Refresh JWT Token
-Obtain a new access token when the current token expires.
-
-- **Endpoint**: `POST /api/auth/token/refresh/`
-- **Access**: Public
+### 4.4. Google 1-Click / OAuth Sign-In
+* **Endpoint**: `POST /api/auth/google/`
+* **Auth Required**: No (Public)
+* **Description**: Verifies Google ID token from Google Identity Services. Automatically provisions user account if new.
 
 #### Request Body
 ```json
 {
-  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI..."
 }
 ```
 
-#### Success Response (`200 OK`)
-```json
-{
-  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
----
-
-### 1.4 Get Current User Profile
-Fetch account details of the authenticated candidate.
-
-- **Endpoint**: `GET /api/auth/me/`
-- **Access**: Authenticated (`Bearer <token>`)
-
-#### Success Response (`200 OK`)
+#### Response (200 OK)
 ```json
 {
   "user": {
-    "id": 12,
-    "username": "tanaka2026",
-    "email": "tanaka@example.com",
-    "is_staff": false
-  }
+    "id": 45,
+    "username": "tanvir_ahmed",
+    "full_name": "Tanvir Ahmed",
+    "email": "tanvir.google@gmail.com"
+  },
+  "tokens": {
+    "access": "...",
+    "refresh": "..."
+  },
+  "is_new_user": false,
+  "message": "Welcome back, Tanvir!"
 }
 ```
 
 ---
 
-### 1.5 Get Candidate Exam History & Stats
-Returns comprehensive candidate analytics: pass rate, CEFR level, section correct percentages, historical attempts, and score progression chart data.
+### 4.5. Candidate Exam History & Analytics
+* **Endpoint**: `GET /api/auth/my-results/`
+* **Auth Required**: Yes (`Authorization: Bearer <access_token>`)
+* **Description**: Provides candidate summary stats, scaled scores, pass rates, 4-section breakdown, and chart coordinates.
 
-- **Endpoint**: `GET /api/auth/my-results/`
-- **Access**: Authenticated (`Bearer <token>`)
-
-#### Success Response (`200 OK`)
+#### Response (200 OK)
 ```json
 {
-  "total_attempts": 3,
-  "passed_attempts": 2,
-  "pass_rate": 67,
+  "total_attempts": 5,
+  "passed_attempts": 3,
+  "pass_rate": 60,
   "highest_scaled_score": 218,
-  "avg_scaled_score": 195,
+  "avg_scaled_score": 194,
   "highest_level": "A2.2 (A2)",
   "section_stats": [
-    {
-      "key": "script_vocab",
-      "name_en": "Script & Vocabulary",
-      "name_ja": "文字と語彙",
-      "correct": 30,
-      "total": 36,
-      "pct": 83,
-      "color": "rose"
-    },
-    {
-      "key": "conversation",
-      "name_en": "Conversation & Expression",
-      "name_ja": "会話と表現",
-      "correct": 28,
-      "total": 36,
-      "pct": 78,
-      "color": "indigo"
-    },
-    {
-      "key": "listening",
-      "name_en": "Listening Comprehension",
-      "name_ja": "聴解",
-      "correct": 22,
-      "total": 30,
-      "pct": 73,
-      "color": "amber"
-    },
-    {
-      "key": "reading",
-      "name_en": "Reading Comprehension",
-      "name_ja": "読解",
-      "correct": 25,
-      "total": 33,
-      "pct": 76,
-      "color": "emerald"
-    }
+    { "key": "script_vocab", "name_en": "Script & Vocabulary", "correct": 48, "total": 60, "pct": 80 },
+    { "key": "conversation", "name_en": "Conversation & Expression", "correct": 45, "total": 60, "pct": 75 },
+    { "key": "listening", "name_en": "Listening Comprehension", "correct": 50, "total": 60, "pct": 83 },
+    { "key": "reading", "name_en": "Reading Comprehension", "correct": 42, "total": 60, "pct": 70 }
   ],
   "attempts": [
     {
-      "id": 58,
-      "test_id": 5,
-      "test_title": "JFT-Basic Mock Test 1",
+      "id": 108,
+      "test_id": 1,
+      "test_title": "JFT-Basic Official Practice Mock Test 1",
       "test_category": "basic",
       "score": 38,
-      "total_questions": 45,
-      "percentage": 84,
-      "scaled_score": 212,
+      "total_questions": 42,
+      "percentage": 90,
+      "scaled_score": 226,
       "assessment_level": "A2.2 (A2)",
       "passed": true,
-      "completed_at": "2026-08-23T12:30:15.000Z"
+      "completed_at": "2026-08-24T18:30:00Z"
     }
   ],
   "chart_data": {
-    "labels": ["Aug 21, 10:15", "Aug 22, 14:20", "Aug 23, 12:30"],
-    "scores": [168, 195, 212],
-    "titles": ["JFT Mock 1", "JFT Mock 1", "JFT Mock 1"]
+    "labels": ["Aug 20, 14:00", "Aug 22, 10:30", "Aug 24, 18:30"],
+    "scores": [180, 195, 226],
+    "titles": ["Mock 1", "Mock 1", "Mock 1"]
   }
 }
 ```
 
 ---
 
-## 2. Practice Tests & CBT Examination
+### 4.6. List Practice Tests
+* **Endpoint**: `GET /api/tests/`
+* **Query Parameters**: `?category=basic` or `?category=skill`
+* **Auth Required**: No (Public)
 
-### 2.1 List All Practice Tests
-Fetch all published mock tests.
-
-- **Endpoint**: `GET /api/tests/`
-- **Access**: Public
-- **Query Parameters (Optional)**:
-  - `category`: Filter by `basic` (JFT-Basic) or `skill` (SSW Skills)
-  - `requires_account`: Filter by `true` or `false`
-
-#### Success Response (`200 OK`)
+#### Response (200 OK)
 ```json
 {
-  "count": 4,
   "tests": [
     {
-      "id": 5,
-      "title": "JFT-Basic Mock Test 1",
-      "description": "Full official Prometric format test with 45 questions across 4 sections.",
+      "id": 1,
+      "title": "JFT-Basic Official Practice Mock Test 1",
+      "description": "Authentic 60-minute Prometric simulation with 42 questions and audio listening.",
       "category": "basic",
       "requires_account": false,
       "is_published": true,
       "is_actual_exam_demo": true,
       "time_limit_seconds": 3600,
-      "created_at": "2026-08-23T05:30:00Z",
-      "question_count": 45
+      "question_count": 42
+    },
+    {
+      "id": 2,
+      "title": "JFT-Basic Official Practice Mock Test 2",
+      "category": "basic",
+      "requires_account": true,
+      "time_limit_seconds": 3600,
+      "question_count": 42
     }
-  ]
+  ],
+  "tests_by_category": {
+    "basic": [ ... ],
+    "skill": [ ... ]
+  }
 }
 ```
 
 ---
 
-### 2.2 Get Test Details
-- **Endpoint**: `GET /api/tests/<id>/`
-- **Access**: Public
+### 4.7. Get Structured CBT Quiz Data
+* **Endpoint**: `GET /api/tests/<id>/quiz/`
+* **Auth Required**: Conditional (Required if `test.requires_account == true`)
+* **Description**: Returns CBT test screen steps, questions, options, audio URL, image URL, and 10 language translation aids.
 
-#### Success Response (`200 OK`)
-```json
-{
-  "id": 5,
-  "title": "JFT-Basic Mock Test 1",
-  "description": "Official 45 questions format",
-  "category": "basic",
-  "requires_account": false,
-  "is_published": true,
-  "is_actual_exam_demo": true,
-  "time_limit_seconds": 3600,
-  "created_at": "2026-08-23T05:30:00Z",
-  "question_count": 45
-}
-```
-
----
-
-### 2.3 Get Full CBT Quiz Data
-Returns the structured Computer-Based Testing (CBT) screens with QuestionGroups, Questions, Media, and Multi-language Translations.
-
-- **Endpoint**: `GET /api/tests/<id>/quiz/`
-- **Access**: Public (or Authenticated if `test.requires_account = true`)
-
-#### Success Response (`200 OK`)
+#### Response (200 OK)
 ```json
 {
   "test": {
-    "id": 5,
-    "title": "JFT-Basic Mock Test 1",
-    "description": "...",
-    "category": "basic",
-    "requires_account": false,
-    "is_published": true,
-    "is_actual_exam_demo": true,
-    "time_limit_seconds": 3600,
-    "question_count": 45
+    "id": 1,
+    "title": "JFT-Basic Official Practice Mock Test 1",
+    "time_limit_seconds": 3600
   },
-  "total_questions": 45,
-  "total_steps": 38,
+  "total_questions": 42,
+  "total_steps": 35,
   "steps": [
     {
       "step_number": 1,
@@ -307,76 +308,30 @@ Returns the structured Computer-Based Testing (CBT) screens with QuestionGroups,
       "questions": [
         {
           "id": 101,
-          "type": "image",
+          "type": "single_choice",
           "section": "script_vocab",
-          "instruction": "Look at the illustration and choose the correct word.",
-          "resolved_instruction": "Look at the illustration and choose the correct word.",
-          "prompt": "",
-          "image_url": "https://res.cloudinary.com/demo/image/upload/v1/glasses.jpg",
+          "instruction": "次のことばの読み方として最もよいものを、1・2・3・4から一つえらんでください。",
+          "resolved_instruction": "Choose the correct reading for the underlined word.",
+          "prompt": "あしたは <ins>雨</ins> がふります。",
+          "image_url": null,
           "audio_url": null,
           "translations": {
-            "English": "Look at the illustration and choose the correct word.",
-            "Bengali": "ছবিটি দেখুন এবং সঠিক শব্দটি বেছে নিন।",
-            "Indonesian": "Lihat ilustrasi dan pilih kata yang benar.",
-            "Vietnamese": "Hãy nhìn hình minh họa và chọn từ đúng."
+            "en": "Tomorrow it will rain.",
+            "bn": "আগামীকাল বৃষ্টি হবে।",
+            "vi": "Ngày mai trời sẽ mưa.",
+            "id": "Besok akan turun hujan.",
+            "my": "မနက်ဖြန် မိုးရွာမည်။",
+            "ne": "भोलि पानी पर्नेछ।",
+            "th": "พรุ่งนี้ฝนจะตก",
+            "zh": "明天会下雨。",
+            "mn": "Маргааш бороо орно.",
+            "km": "ថ្ងៃស្អែកនឹងមានភ្លៀងធ្លាក់។"
           },
-          "order_index": 1,
-          "group_id": null,
           "options": [
-            { "id": 401, "label": "トケイ", "image_url": null, "order_index": 1 },
-            { "id": 402, "label": "メガネ", "image_url": null, "order_index": 2 },
-            { "id": 403, "label": "カバン", "image_url": null, "order_index": 3 },
-            { "id": 404, "label": "クツ", "image_url": null, "order_index": 4 }
-          ]
-        }
-      ]
-    },
-    {
-      "step_number": 37,
-      "section": "reading",
-      "group": {
-        "id": 8,
-        "title": "Reading Passage F - Iroha Town Map",
-        "instruction": "You are looking at a map of Iroha Town. Answer questions (1) and (2).",
-        "image_url": "https://res.cloudinary.com/demo/image/upload/v1/map.png",
-        "audio_url": null,
-        "order_index": 44
-      },
-      "questions": [
-        {
-          "id": 144,
-          "type": "image",
-          "section": "reading",
-          "instruction": "",
-          "resolved_instruction": "You are looking at a map of Iroha Town. Answer questions (1) and (2).",
-          "prompt": "夕日が きれいに 見えるのは どこですか。",
-          "image_url": "https://res.cloudinary.com/demo/image/upload/v1/map.png",
-          "audio_url": null,
-          "translations": {},
-          "order_index": 44,
-          "group_id": 8,
-          "options": [
-            { "id": 501, "label": "やしが浜", "image_url": null, "order_index": 1 },
-            { "id": 502, "label": "花山公園", "image_url": null, "order_index": 2 },
-            { "id": 503, "label": "夕日の丘展望台", "image_url": null, "order_index": 3 }
-          ]
-        },
-        {
-          "id": 145,
-          "type": "image",
-          "section": "reading",
-          "instruction": "",
-          "resolved_instruction": "You are looking at a map of Iroha Town. Answer questions (1) and (2).",
-          "prompt": "いろはそばが 食べられるのは どこですか。",
-          "image_url": "https://res.cloudinary.com/demo/image/upload/v1/map.png",
-          "audio_url": null,
-          "translations": {},
-          "order_index": 45,
-          "group_id": 8,
-          "options": [
-            { "id": 504, "label": "もみじ庵", "image_url": null, "order_index": 1 },
-            { "id": 505, "label": "いろはカフェ", "image_url": null, "order_index": 2 },
-            { "id": 506, "label": "花山公園", "image_url": null, "order_index": 3 }
+            { "id": 401, "label": "あめ", "image_url": null, "order_index": 1 },
+            { "id": 402, "label": "ゆき", "image_url": null, "order_index": 2 },
+            { "id": 403, "label": "かぜ", "image_url": null, "order_index": 3 },
+            { "id": 404, "label": "くもり", "image_url": null, "order_index": 4 }
           ]
         }
       ]
@@ -387,110 +342,71 @@ Returns the structured Computer-Based Testing (CBT) screens with QuestionGroups,
 
 ---
 
-### 2.4 Submit Quiz Answers
-Submits candidate answers, calculates score, and records an `Attempt`.
-
-- **Endpoint**: `POST /api/tests/<id>/submit/`
-- **Access**: Public (Stores user if JWT header is attached)
+### 4.8. Submit Quiz Answers
+* **Endpoint**: `POST /api/tests/<id>/submit/`
+* **Auth Required**: Conditional (Required if `test.requires_account == true`)
 
 #### Request Body
-Format: `{"answers": { "<question_id>": <option_id> }}`
 ```json
 {
   "answers": {
-    "101": 402,
-    "102": 405,
-    "144": 503,
-    "145": 504
+    "101": 401,
+    "102": 406,
+    "103": 412,
+    "104": null
   }
 }
 ```
 
-#### Success Response (`201 Created`)
+#### Response (201 Created)
 ```json
 {
-  "attempt_id": 59,
-  "score": 38,
-  "total_questions": 45,
+  "attempt_id": 158,
+  "score": 35,
+  "total_questions": 42,
   "message": "Quiz submitted successfully!"
 }
 ```
 
 ---
 
-### 2.5 Get Official Score Report & Review
-Returns the official score breakdown, Prometric scaled score (10–250), assessment level, section breakdown, and detailed question-by-question answer review.
+### 4.9. Get Official Scorecard & Answer Review
+* **Endpoint**: `GET /api/attempts/<id>/`
+* **Auth Required**: Conditional (Required for private user attempts)
 
-- **Endpoint**: `GET /api/attempts/<id>/`
-- **Access**: Public (or Owner only if test requires an account)
-
-#### Success Response (`200 OK`)
+#### Response (200 OK)
 ```json
 {
   "attempt": {
-    "id": 59,
-    "score": 38,
-    "total_questions": 45,
-    "percentage": 84,
-    "scaled_score": 212,
-    "scaled_score_percent": 84.17,
-    "assessment_level": "A2.2 (A2)",
+    "id": 158,
+    "score": 35,
+    "total_questions": 42,
+    "percentage": 83.3,
     "passed": true,
-    "completed_at": "2026-08-23T12:35:00Z"
+    "scaled_score": 210,
+    "assessment_level": "A2.2 (A2)",
+    "scaled_score_percent": 83.3,
+    "completed_at": "2026-08-25T10:15:00Z"
   },
   "test": {
-    "id": 5,
-    "title": "JFT-Basic Mock Test 1",
-    "category": "basic"
+    "id": 1,
+    "title": "JFT-Basic Official Practice Mock Test 1"
   },
   "section_breakdown": {
-    "script_vocab": {
-      "name_ja": "文字と語彙",
-      "name_en": "Script and Vocabulary",
-      "correct": 10,
-      "total": 12,
-      "pct": 83
-    },
-    "conversation": {
-      "name_ja": "会話と表現",
-      "name_en": "Conversation and Expression",
-      "correct": 10,
-      "total": 12,
-      "pct": 83
-    },
-    "listening": {
-      "name_ja": "聴解",
-      "name_en": "Listening Comprehension",
-      "correct": 9,
-      "total": 10,
-      "pct": 90
-    },
-    "reading": {
-      "name_ja": "読解",
-      "name_en": "Reading Comprehension",
-      "correct": 9,
-      "total": 11,
-      "pct": 82
-    }
+    "script_vocab": { "name_ja": "文字と語彙", "name_en": "Script and Vocabulary", "correct": 10, "total": 12, "pct": 83 },
+    "conversation": { "name_ja": "会話と表現", "name_en": "Conversation and Expression", "correct": 10, "total": 12, "pct": 83 },
+    "listening": { "name_ja": "聴解", "name_en": "Listening Comprehension", "correct": 8, "total": 10, "pct": 80 },
+    "reading": { "name_ja": "読解", "name_en": "Reading Comprehension", "correct": 7, "total": 8, "pct": 88 }
   },
   "questions": [
     {
       "id": 101,
-      "type": "image",
-      "section": "script_vocab",
-      "instruction": "Look at the illustration and choose the correct word.",
-      "resolved_instruction": "Look at the illustration and choose the correct word.",
-      "prompt": "",
-      "image_url": "https://res.cloudinary.com/demo/image/upload/v1/glasses.jpg",
-      "audio_url": null,
-      "order_index": 1,
-      "selected_option_id": 402,
+      "prompt": "あしたは <ins>雨</ins> がふります。",
+      "selected_option_id": 401,
       "is_answered_correctly": true,
       "options": [
-        { "id": 401, "label": "トケイ", "image_url": null, "is_correct": false, "order_index": 1 },
-        { "id": 402, "label": "メガネ", "image_url": null, "is_correct": true, "order_index": 2 },
-        { "id": 403, "label": "カバン", "image_url": null, "is_correct": false, "order_index": 3 },
-        { "id": 404, "label": "クツ", "image_url": null, "is_correct": false, "order_index": 4 }
+        { "id": 401, "label": "あめ", "is_correct": true },
+        { "id": 402, "label": "ゆき", "is_correct": false }
       ]
     }
   ]
@@ -499,55 +415,108 @@ Returns the official score breakdown, Prometric scaled score (10–250), assessm
 
 ---
 
-## 3. Informational & Syllabus Data
+### 4.10. National Leaderboard
+* **Endpoint**: `GET /api/leaderboard/`
+* **Auth Required**: No (Public)
 
-### 3.1 JFT-Basic Overview & Centers
-- **Endpoint**: `GET /api/info/jft/`
-- **Access**: Public
-- **Returns**: Exam structure, time limits, test center map locations (Japan & Asia), and learning resources.
-
-### 3.2 SSW Sectors & Venues
-- **Endpoint**: `GET /api/info/ssw/`
-- **Access**: Public
-- **Returns**: Specified Skilled Worker (SSW) 14+ industrial sectors (Nursing Care, Food Service, Agriculture, Construction, etc.) and testing center venues.
+#### Response (200 OK)
+```json
+{
+  "total_candidates": 84,
+  "top_three": [
+    {
+      "rank": 1,
+      "username": "fayaz_sensei",
+      "full_name": "Azizul Hakim Fayaz",
+      "passed_attempts": 12,
+      "highest_score": 248,
+      "avg_score": 238,
+      "pass_rate": 100,
+      "target_exam_display": "JFT-Basic"
+    }
+  ],
+  "rankings": [ ... ],
+  "current_user_rank": {
+    "rank": 5,
+    "highest_score": 218
+  }
+}
+```
 
 ---
 
-## 🛠 Mobile App Integration (Flutter / React Native / Swift / Kotlin)
+## 📱 5. Mobile App Integration Example (Flutter / Dart)
 
-### Quick Example (Dart / Flutter):
 ```dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-const String baseUrl = 'https://japanskilltest-production.up.railway.app';
+class GakkouApiService {
+  static const String baseUrl = "https://www.gakkounoshiken.site/api";
+  static final _storage = const FlutterSecureStorage();
 
-// 1. Fetch Quiz Data
-Future<Map<String, dynamic>> fetchQuizData(int testId) async {
-  final res = await http.get(Uri.parse('$baseUrl/api/tests/$testId/quiz/'));
-  if (res.statusCode == 200) {
-    return jsonDecode(res.body);
+  // Helper for Headers
+  static Future<Map<String, String>> _headers({bool auth = false}) async {
+    final map = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Accept': 'application/json',
+    };
+    if (auth) {
+      final token = await _storage.read(key: 'jwt_access_token');
+      if (token != null) {
+        map['Authorization'] = 'Bearer $token';
+      }
+    }
+    return map;
   }
-  throw Exception('Failed to load quiz');
-}
 
-// 2. Submit Answers
-Future<int> submitExam(int testId, Map<String, int> answers, {String? authToken}) async {
-  final headers = {'Content-Type': 'application/json'};
-  if (authToken != null) {
-    headers['Authorization'] = 'Bearer $authToken';
+  // 1. Candidate Login
+  static Future<Map<String, dynamic>> login(String usernameOrEmail, String password) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/login/'),
+      headers: await _headers(),
+      body: jsonEncode({'username': usernameOrEmail, 'password': password}),
+    );
+    final data = jsonDecode(utf8.decode(response.bodyBytes));
+    if (response.statusCode == 200) {
+      await _storage.write(key: 'jwt_access_token', value: data['tokens']['access']);
+      await _storage.write(key: 'jwt_refresh_token', value: data['tokens']['refresh']);
+    }
+    return data;
   }
 
-  final res = await http.post(
-    Uri.parse('$baseUrl/api/tests/$testId/submit/'),
-    headers: headers,
-    body: jsonEncode({'answers': answers}),
-  );
-
-  if (res.statusCode == 201) {
-    final data = jsonDecode(res.body);
-    return data['attempt_id'];
+  // 2. Fetch CBT Quiz Steps
+  static Future<Map<String, dynamic>> getQuizData(int testId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/tests/$testId/quiz/'),
+      headers: await _headers(auth: true),
+    );
+    return jsonDecode(utf8.decode(response.bodyBytes));
   }
-  throw Exception('Failed to submit exam');
+
+  // 3. Submit Answers
+  static Future<Map<String, dynamic>> submitQuiz(int testId, Map<String, dynamic> answers) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/tests/$testId/submit/'),
+      headers: await _headers(auth: true),
+      body: jsonEncode({'answers': answers}),
+    );
+    return jsonDecode(utf8.decode(response.bodyBytes));
+  }
 }
 ```
+
+---
+
+## 🚦 6. Standard HTTP Status Codes
+
+| Status Code | Meaning | Action / Description |
+| :--- | :--- | :--- |
+| **`200 OK`** | Success | Request succeeded. Response contains requested data. |
+| **`201 Created`** | Created | User account created, OTP verified, or test attempt saved. |
+| **`400 Bad Request`** | Validation Error | Missing fields, password mismatch, or invalid OTP code. |
+| **`401 Unauthorized`** | Auth Required | Missing or expired JWT access token. Trigger refresh token flow. |
+| **`403 Forbidden`** | Permission Denied | Attempting to view another candidate's private results or draft tests. |
+| **`404 Not Found`** | Not Found | Target test ID, attempt ID, or username does not exist. |
+| **`500 Internal Error`** | Server Error | Unexpected server error. Client should prompt retry. |
