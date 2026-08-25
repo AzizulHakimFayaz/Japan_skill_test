@@ -5,7 +5,7 @@ import { useLanguage } from './LanguageContext';
 import { Headphones, Volume2, Play, Pause, X, AlertTriangle, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, targetUrl }) {
+export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, targetUrl, isFree = false, catKey = 'basic' }) {
   const { t } = useLanguage();
   const router = useRouter();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -94,6 +94,36 @@ export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, 
 
   if (!isOpen) return null;
 
+  const getModalTheme = () => {
+    if (isFree) {
+      return {
+        badge: 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800/80',
+        waveActive: 'bg-gradient-to-t from-emerald-500 to-teal-400',
+        playBtn: isPlaying ? 'bg-amber-500 text-slate-950 hover:bg-amber-400' : 'bg-emerald-600 hover:bg-emerald-700 text-white',
+        sliderAccent: 'accent-emerald-500',
+        proceedBtn: 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-500/25',
+      };
+    }
+    if (catKey === 'skill') {
+      return {
+        badge: 'bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border-amber-200/80 dark:border-amber-800/80',
+        waveActive: 'bg-gradient-to-t from-amber-500 to-amber-300',
+        playBtn: isPlaying ? 'bg-amber-500 text-slate-950 hover:bg-amber-400' : 'bg-amber-500 hover:bg-amber-600 text-slate-950',
+        sliderAccent: 'accent-amber-500',
+        proceedBtn: 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 shadow-amber-500/25',
+      };
+    }
+    return {
+      badge: 'bg-rose-50 dark:bg-rose-950/80 text-japan-red dark:text-rose-400 border-rose-200/80 dark:border-rose-800/80',
+      waveActive: 'bg-gradient-to-t from-japan-red to-amber-400',
+      playBtn: isPlaying ? 'bg-amber-500 text-slate-950 hover:bg-amber-400' : 'bg-japan-red hover:bg-rose-700 text-white',
+      sliderAccent: 'accent-japan-red',
+      proceedBtn: 'bg-gradient-to-r from-japan-red via-rose-600 to-japan-red hover:from-japan-redhover hover:to-red-700 text-white shadow-red-500/25',
+    };
+  };
+
+  const modalTheme = getModalTheme();
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
       <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 animate-scale-in">
@@ -110,7 +140,7 @@ export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, 
 
         {/* Modal Header */}
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/80 text-japan-red dark:text-rose-400 border border-rose-200/80 dark:border-rose-800/80 text-[10px] font-black uppercase tracking-wider">
+          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-wider ${modalTheme.badge}`}>
             <Headphones className="w-3.5 h-3.5" />
             <span>Official CBT Readiness Check</span>
           </div>
@@ -137,11 +167,7 @@ export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, 
             <button
               type="button"
               onClick={playAudioTest}
-              className={`px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer ${
-                isPlaying
-                  ? 'bg-amber-500 text-slate-950 hover:bg-amber-400'
-                  : 'bg-japan-red hover:bg-rose-700 text-white'
-              }`}
+              className={`px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer ${modalTheme.playBtn}`}
             >
               {isPlaying ? (
                 <>
@@ -167,7 +193,7 @@ export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, 
                   transition: 'height 150ms ease-in-out',
                 }}
                 className={`w-1 rounded-full ${
-                  isPlaying ? 'bg-gradient-to-t from-japan-red to-amber-400' : 'bg-slate-700'
+                  isPlaying ? modalTheme.waveActive : 'bg-slate-700'
                 }`}
               />
             ))}
@@ -183,7 +209,7 @@ export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, 
               step="0.05"
               value={volume}
               onChange={handleVolumeChange}
-              className="w-full accent-japan-red cursor-pointer"
+              className={`w-full cursor-pointer ${modalTheme.sliderAccent}`}
             />
             <span className="text-[11px] font-mono font-bold text-slate-500 w-10 text-right">
               {Math.round(volume * 100)}%
@@ -218,7 +244,7 @@ export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, 
           <button
             type="button"
             onClick={handleConfirmAndProceed}
-            className="w-full sm:w-2/3 py-3 rounded-xl bg-gradient-to-r from-japan-red via-rose-600 to-japan-red hover:from-japan-redhover hover:to-red-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-red-500/25 transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+            className={`w-full sm:w-2/3 py-3 rounded-xl font-black text-xs sm:text-sm shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer ${modalTheme.proceedBtn}`}
           >
             <ShieldCheck className="w-4 h-4" />
             <span>{t('audio_confirmed')}</span>

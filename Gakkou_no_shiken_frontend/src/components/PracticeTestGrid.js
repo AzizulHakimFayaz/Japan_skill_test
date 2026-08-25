@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { formatTimeLimit, getCategoryLabel } from '@/lib/utils';
 import { useAuth } from './AuthContext';
@@ -19,7 +20,6 @@ import {
   Bell,
 } from 'lucide-react';
 
-const PreExamAudioCheck = dynamic(() => import('./PreExamAudioCheck'), { ssr: false });
 const LeadCaptureModal = dynamic(() => import('./LeadCaptureModal'), { ssr: false });
 
 export default function PracticeTestGrid({
@@ -35,7 +35,6 @@ export default function PracticeTestGrid({
   const [userAttemptsMap, setUserAttemptsMap] = useState({});
 
   // Modals state
-  const [audioCheckModal, setAudioCheckModal] = useState({ isOpen: false, testId: null, testTitle: '' });
   const [leadModal, setLeadModal] = useState(false);
 
   useEffect(() => {
@@ -107,12 +106,39 @@ export default function PracticeTestGrid({
     };
   };
 
-  const openAudioCheck = (test) => {
-    setAudioCheckModal({
-      isOpen: true,
-      testId: test.id,
-      testTitle: test.title,
-    });
+  const getCardTheme = (test) => {
+    const isFree = !test.requires_account;
+    if (isFree) {
+      return {
+        isFree: true,
+        topBar: 'bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600',
+        cardBorderHover: 'hover:border-emerald-500/40 dark:hover:border-emerald-400/50',
+        cardGlowHover: 'hover:shadow-emerald-500/10 dark:hover:shadow-[0_0_25px_rgba(16,185,129,0.15)]',
+        titleHover: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400',
+        button: 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-500/25',
+        badge: 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 shadow-2xs',
+      };
+    }
+    if (catKey === 'skill') {
+      return {
+        isFree: false,
+        topBar: 'bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600',
+        cardBorderHover: 'hover:border-amber-500/40 dark:hover:border-amber-400/50',
+        cardGlowHover: 'hover:shadow-amber-500/10 dark:hover:shadow-[0_0_25px_rgba(245,158,11,0.15)]',
+        titleHover: 'group-hover:text-amber-600 dark:group-hover:text-amber-400',
+        button: 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 shadow-amber-500/20',
+        badge: 'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+      };
+    }
+    return {
+      isFree: false,
+      topBar: 'bg-gradient-to-r from-japan-red via-rose-500 to-rose-600',
+      cardBorderHover: 'hover:border-japan-red/40 dark:hover:border-rose-500/50',
+      cardGlowHover: 'hover:shadow-red-500/10 dark:hover:shadow-[0_0_25px_rgba(220,38,38,0.12)]',
+      titleHover: 'group-hover:text-japan-red dark:group-hover:text-rose-400',
+      button: 'bg-gradient-to-r from-japan-red via-rose-600 to-japan-red hover:from-japan-redhover hover:to-red-700 text-white shadow-red-500/20',
+      badge: 'bg-rose-50 dark:bg-rose-950/70 text-japan-red dark:text-rose-300 border-rose-200/80 dark:border-rose-800/80',
+    };
   };
 
   return (
@@ -165,6 +191,7 @@ export default function PracticeTestGrid({
           {tests.map((test, idx) => {
             const diff = getDifficultyBadge(test, idx);
             const userAttempt = userAttemptsMap[test.id];
+            const cardTheme = getCardTheme(test);
 
             return (
               <ScrollReveal
@@ -174,15 +201,9 @@ export default function PracticeTestGrid({
                 duration={600}
                 className="h-full"
               >
-                <div className="group bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl hover:border-japan-red/40 dark:hover:border-rose-500/50 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-[0_0_25px_rgba(220,38,38,0.12)] transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-xs h-full">
+                <div className={`group bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl ${cardTheme.cardBorderHover} hover:shadow-xl ${cardTheme.cardGlowHover} transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-xs h-full`}>
                   {/* Top Clean Brand Accent Strip */}
-                  <div
-                    className={`h-1 sm:h-1.5 w-full ${
-                      catKey === 'skill'
-                        ? 'bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600'
-                        : 'bg-gradient-to-r from-japan-red via-rose-500 to-rose-600'
-                    }`}
-                  ></div>
+                  <div className={`h-1 sm:h-1.5 w-full ${cardTheme.topBar}`}></div>
 
                   <div className="p-2.5 sm:p-6 flex-grow flex flex-col justify-between space-y-2 sm:space-y-4">
                     <div className="space-y-2 sm:space-y-3">
@@ -203,13 +224,13 @@ export default function PracticeTestGrid({
                               <span>{userAttempt.scaled_score}/250</span>
                             </span>
                           ) : test.requires_account ? (
-                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md sm:rounded-lg text-[8px] sm:text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                            <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md sm:rounded-lg text-[8px] sm:text-[10px] font-extrabold border ${cardTheme.badge}`}>
                               <Lock className="w-2 h-2 sm:w-2.5 sm:h-2.5" />
                               <span className="hidden xs:inline">{t('requires_login')}</span>
                               <span className="xs:hidden">Login</span>
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md sm:rounded-lg text-[8px] sm:text-[10px] font-extrabold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                            <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md sm:rounded-lg text-[8px] sm:text-[10px] font-extrabold border ${cardTheme.badge}`}>
                               <CheckCircle2 className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-emerald-500" />
                               <span>{t('free_open')}</span>
                             </span>
@@ -218,7 +239,7 @@ export default function PracticeTestGrid({
                       </div>
 
                       {/* Card Title */}
-                      <h3 className="text-xs sm:text-lg font-black text-slate-900 dark:text-white group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors leading-snug line-clamp-2">
+                      <h3 className={`text-xs sm:text-lg font-black text-slate-900 dark:text-white ${cardTheme.titleHover} transition-colors leading-snug line-clamp-2`}>
                         {test.title}
                       </h3>
 
@@ -240,21 +261,16 @@ export default function PracticeTestGrid({
                       </p>
                     </div>
 
-                    {/* Card Action: Only Start Exam */}
+                    {/* Card Action: Direct Start Exam Link */}
                     <div className="pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800">
-                      <button
-                        type="button"
-                        onClick={() => openAudioCheck(test)}
-                        className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-4 rounded-xl font-black text-[11px] sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${
-                          catKey === 'skill'
-                            ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 shadow-amber-500/20'
-                            : 'bg-gradient-to-r from-japan-red via-rose-600 to-japan-red hover:from-japan-redhover hover:to-red-700 text-white shadow-red-500/20'
-                        }`}
+                      <Link
+                        href={`/test/${test.id}`}
+                        className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-4 rounded-xl font-black text-[11px] sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${cardTheme.button}`}
                       >
                         <Headphones className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span>{t('start_exam')}</span>
                         <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-1 transition-transform" />
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -302,14 +318,6 @@ export default function PracticeTestGrid({
           </div>
         </div>
       )}
-
-      {/* Pre-Exam Audio Check Modal */}
-      <PreExamAudioCheck
-        isOpen={audioCheckModal.isOpen}
-        onClose={() => setAudioCheckModal({ isOpen: false, testId: null, testTitle: '' })}
-        testId={audioCheckModal.testId}
-        testTitle={audioCheckModal.testTitle}
-      />
 
       {/* Lead Capture Notification Modal */}
       <LeadCaptureModal
