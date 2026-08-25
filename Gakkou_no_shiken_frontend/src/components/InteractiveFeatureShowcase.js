@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 
 const LIVE_TICKER_ITEMS = [
+  { text: "🇧🇩 Bangladesh's 1st CBT Platform", tag: 'FIRST IN BD', color: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
   { text: 'JFT-Basic 2026 Format', tag: 'OFFICIAL', color: 'bg-rose-500/15 text-rose-300 border-rose-500/30' },
   { text: 'Prometric 60-Min CBT Timer', tag: 'REALISTIC', color: 'bg-amber-500/15 text-amber-300 border-amber-500/30' },
   { text: '10-Language Instant Helper', tag: 'IN-TEST', color: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30' },

@@ -152,6 +152,14 @@ export default function HeroBannerCarousel() {
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sm:gap-10">
             {/* Left Glass Card */}
             <div className="relative w-full max-w-md xl:max-w-lg bg-black/60 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-red-500/35 shadow-[0_0_35px_rgba(220,38,38,0.22)] ring-1 ring-white/15 space-y-3 sm:space-y-4">
+              {/* Bangladesh's #1 Platform Pill Badge (Inspired by Image 3) */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-400/50 shadow-md shadow-emerald-500/20 text-emerald-300 text-[10px] sm:text-xs font-black tracking-wide">
+                <span className="text-xs sm:text-sm">🇧🇩</span>
+                <span className="text-emerald-300">
+                  Bangladesh&apos;s #1 JFT-Basic &amp; SSW Mock Test Platform
+                </span>
+              </div>
+
               <div className="flex items-center gap-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -165,14 +173,14 @@ export default function HeroBannerCarousel() {
               </div>
 
               <h1 className="text-xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight text-white drop-shadow-md">
-                Official CBT Practice for{' '}
+                JFT-Basic &amp; SSW{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-japan-red to-amber-300">
-                  Japan Work Visas
+                  CBT Mock Exams
                 </span>
               </h1>
 
               <p className="text-[11px] sm:text-sm text-slate-200/95 font-medium leading-relaxed drop-shadow-xs">
-                Authentic Prometric computer-based exam simulator for JFT-Basic &amp; SSW Skills with instant CEFR scoring &amp; local venue guides.
+                Bangladesh&apos;s 1st official Prometric computer-based test simulator for JFT-Basic &amp; SSW Skills with instant CEFR scoring &amp; local venue guides.
               </p>
 
               <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
@@ -289,6 +297,14 @@ export default function HeroBannerCarousel() {
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sm:gap-10">
             {/* Left Glass Card */}
             <div className="relative w-full max-w-md xl:max-w-lg bg-black/50 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-emerald-500/35 shadow-[0_0_35px_rgba(16,185,129,0.18)] ring-1 ring-white/15 space-y-3 sm:space-y-4">
+              {/* Bangladesh's #1 SSW Platform Pill Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-400/50 shadow-md shadow-emerald-500/20 text-emerald-300 text-[10px] sm:text-xs font-black tracking-wide">
+                <span className="text-xs sm:text-sm">🇧🇩</span>
+                <span className="text-emerald-300">
+                  Bangladesh&apos;s #1 SSW Skills CBT Mock Test Platform
+                </span>
+              </div>
+
               <div className="flex items-center gap-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -309,7 +325,7 @@ export default function HeroBannerCarousel() {
               </h2>
 
               <p className="text-[11px] sm:text-sm text-slate-200/95 font-medium leading-relaxed drop-shadow-xs">
-                Prepare for official Prometric exams in Nursing Care, Food Service, Agriculture, and 12 Specified Skilled Worker sectors.
+                Prepare for official Prometric exams in Nursing Care, Food Service, Agriculture, and 12 Specified Skilled Worker sectors with Bangladesh&apos;s leading CBT system.
               </p>
 
               <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
@@ -427,6 +443,14 @@ export default function HeroBannerCarousel() {
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sm:gap-10">
             {/* Left Glass Card */}
             <div className="relative w-full max-w-md xl:max-w-lg bg-black/50 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-amber-500/35 shadow-[0_0_35px_rgba(245,158,11,0.18)] ring-1 ring-white/15 space-y-3 sm:space-y-4">
+              {/* Bangladesh's #1 Ranking Pill Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-400/50 shadow-md shadow-amber-500/20 text-amber-300 text-[10px] sm:text-xs font-black tracking-wide">
+                <span className="text-xs sm:text-sm">🇧🇩</span>
+                <span className="text-amber-300">
+                  Bangladesh&apos;s #1 CBT Leaderboard &amp; Ranking
+                </span>
+              </div>
+
               <div className="flex items-center gap-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img

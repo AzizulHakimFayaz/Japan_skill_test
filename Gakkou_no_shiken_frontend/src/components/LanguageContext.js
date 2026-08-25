@@ -21,8 +21,8 @@ const TRANSLATIONS = {
     live_stream: 'Live Activity',
     
     // Hero & Headers
-    hero_title: 'Official Japan Visa CBT Examination Portal',
-    hero_subtitle: 'Authentic Prometric CBT simulations for JFT-Basic & Specified Skilled Worker (SSW) exams with immediate CEFR scoring.',
+    hero_title: "Bangladesh's #1 JFT-Basic & SSW Skills CBT Exam Platform",
+    hero_subtitle: "Bangladesh's 1st authentic Prometric CBT examination simulator with native listening audio, 10 language aids, and immediate CEFR scoring.",
     start_mock_exam: 'Start Mock Exam',
     explore_test_centers: 'Test Venues (BDJ01 & BDJ02)',
     
@@ -99,8 +99,8 @@ const TRANSLATIONS = {
     live_stream: 'লাইভ আপডেট',
     
     // Hero & Headers
-    hero_title: 'জাপান ভিসা সিবিটি পরীক্ষার প্রস্তুতি পোর্টাল',
-    hero_subtitle: 'জেএফটি-বেসিক ও স্পেসিফাইড স্কিল্ড ওয়ার্কার (SSW) পরীক্ষার অফিশিয়াল প্রমেট্রিক সিবিটি মক টেস্ট এবং তাৎক্ষণিক সিইএফআর স্কোরিং।',
+    hero_title: 'বাংলাদেশের ১ম ও শীর্ষ জেএফটি-বেসিক ও এসএসডব্লিউ সিবিটি মক টেস্ট পোর্টাল',
+    hero_subtitle: 'জাপান ভিসা পরীক্ষার জন্য দেশের ১ম অফিশিয়াল প্রমেট্রিক সিবিটি মক টেস্ট, অডিও লিসেনিং ও তাৎক্ষণিক সিইএফআর স্কোরিং প্ল্যাটফর্ম।',
     start_mock_exam: 'মক টেস্ট শুরু করুন',
     explore_test_centers: 'পরীক্ষা কেন্দ্রসমূহ (BDJ01 ও BDJ02)',
     
@@ -177,8 +177,8 @@ const TRANSLATIONS = {
     live_stream: 'ライブ活動',
     
     // Hero & Headers
-    hero_title: '公式 日本語・就労資格CBT試験対策ポータル',
-    hero_subtitle: 'JFT-Basicおよび特定技能（SSW）評価試験の本番仕様CBTシミュレーションと即時CEFR採点。',
+    hero_title: 'バングラデシュ初 JFT-Basic & 特定技能（SSW）公式仕様CBT模擬試験ポータル',
+    hero_subtitle: 'バングラデシュ初の本格的プロメトリックCBT試験シミュレーター。ネイティブ聴解音声と即時CEFR採点システム。',
     start_mock_exam: '模擬試験を開始',
     explore_test_centers: '試験会場案内 (BDJ01 & BDJ02)',
     

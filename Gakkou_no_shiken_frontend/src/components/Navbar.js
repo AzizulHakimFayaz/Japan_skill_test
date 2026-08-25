@@ -40,20 +40,21 @@ export default function Navbar() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/img/logo.png"
-              alt="Gakkou No Shiken"
+              alt="Gakkou No Shiken - JFT & SSW CBT Mock Test"
               className="h-9 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform duration-300 filter drop-shadow-sm"
             />
             <div className="flex flex-col justify-center">
               <div className="flex items-center gap-1.5">
-                <span className="font-black text-lg sm:text-xl tracking-tight text-slate-900 dark:text-white leading-none">
+                <span className="font-black text-base sm:text-xl tracking-tight text-slate-900 dark:text-white leading-none">
                   Gakkou No <span className="text-japan-red">Shiken</span>
                 </span>
                 <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/60 text-japan-red border border-rose-200/80 dark:border-rose-800/60 text-[9px] font-black tracking-wider uppercase">
                   CBT 2026
                 </span>
               </div>
-              <div className="mt-0.5 text-[10px] sm:text-[11px] font-black tracking-widest leading-none">
-                <span className="text-japan-red">学校の試験</span>
+              <div className="mt-0.5 text-[9px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-tight leading-none flex items-center gap-1">
+                <span className="text-japan-red font-black">JFT &amp; SSW Mock Tests</span>
+                <span className="hidden md:inline text-slate-400 dark:text-slate-500">• BD&apos;s #1 Portal</span>
               </div>
             </div>
           </Link>

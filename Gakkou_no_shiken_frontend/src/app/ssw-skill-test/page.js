@@ -48,8 +48,8 @@ export default function SswSkillTestPage() {
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-950 via-slate-900 to-japan-navy text-white p-6 sm:p-14 shadow-2xl shadow-slate-900/30 border border-slate-800/80 animate-fade-in-up">
         <div className="relative z-10 max-w-4xl space-y-4 sm:space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-[10px] sm:text-xs font-black tracking-wider uppercase backdrop-blur-md">
-            <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-            Specified Skilled Worker Visa Prerequisite
+            <span>🇧🇩</span>
+            <span>Bangladesh&apos;s #1 SSW Skills CBT Mock Test Platform</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1]">

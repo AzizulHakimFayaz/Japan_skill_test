@@ -4,20 +4,25 @@ import Providers from '@/components/Providers';
 export const metadata = {
   metadataBase: new URL('https://www.gakkounoshiken.site'),
   title: {
-    default: 'Gakkou No Shiken (学校の試験) | Official Japanese CBT Exam Portal',
-    template: '%s | Gakkou No Shiken',
+    default: "JFT-Basic & SSW Skill CBT Mock Test | Bangladesh's #1 Japanese Exam Platform - Gakkou No Shiken",
+    template: '%s | JFT-Basic & SSW Mock Test Platform',
   },
   description:
-    'Practice official Computer-Based Testing (CBT) mock tests for JFT-Basic & Specified Skilled Worker (SSW) exams with authentic Prometric UI, audio listening, instant CEFR scoring, and leaderboards.',
+    "Bangladesh's 1st & #1 official Computer-Based Testing (CBT) mock exam platform for JFT-Basic & SSW (Specified Skilled Worker) exams. Authentic Prometric CBT simulations, native listening audio, 10 language aids, and instant CEFR score reports.",
   keywords: [
     'JFT-Basic practice exam',
     'JFT mock test online',
-    'SSW skill exam preparation',
+    'JFT mock test Bangladesh',
+    'SSW skill mock test',
+    'SSW exam Bangladesh',
     'Specified Skilled Worker Japanese test',
-    'Prometric CBT practice',
+    'Prometric CBT practice Bangladesh',
+    'JFT listening practice online',
     'Gakkou No Shiken',
     '学校の試験',
-    'Japanese test online with audio',
+    'Japanese CBT test Bangladesh',
+    'JFT BDJ01 BDJ02 mock exam',
+    'SSW nursing food agriculture CBT test',
   ],
   authors: [{ name: 'Gakkou No Shiken' }],
   creator: 'Gakkou No Shiken',
@@ -37,24 +42,24 @@ export const metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://www.gakkounoshiken.site',
-    siteName: 'Gakkou No Shiken (学校の試験)',
-    title: 'Gakkou No Shiken | Japanese JFT-Basic & SSW CBT Exam Portal',
+    siteName: "JFT-Basic & SSW CBT Mock Test Platform | Bangladesh's #1",
+    title: "JFT-Basic & SSW Skill CBT Mock Test | Bangladesh's #1 Japanese Exam Platform",
     description:
-      'Prepare for your official Japanese Prometric exam with live timed CBT tests, native listening audio, and instant CEFR score reports.',
+      "Bangladesh's 1st authentic Prometric CBT examination simulator for JFT-Basic & SSW skills with native listening audio and instant CEFR score reports.",
     images: [
       {
         url: '/img/logo.png',
         width: 512,
         height: 512,
-        alt: 'Gakkou No Shiken Logo',
+        alt: 'JFT-Basic & SSW Skill CBT Mock Test Logo',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Gakkou No Shiken | Japanese JFT-Basic & SSW CBT Exam Portal',
+    title: "JFT-Basic & SSW Skill CBT Mock Test | Bangladesh's #1 Japanese Exam Platform",
     description:
-      'Prepare for your official Japanese Prometric exam with live timed CBT tests, native listening audio, and instant CEFR score reports.',
+      "Bangladesh's 1st authentic Prometric CBT examination simulator for JFT-Basic & SSW skills with native listening audio and instant CEFR score reports.",
     images: ['/img/logo.png'],
   },
   verification: {
@@ -62,11 +67,12 @@ export const metadata = {
   },
   icons: {
     icon: [
-      { url: '/img/logo.png?v=2', sizes: 'any' },
-      { url: '/img/logo.png?v=2', type: 'image/png' },
+      { url: '/favicon.ico?v=5', sizes: 'any' },
+      { url: '/img/logo.png?v=5', type: 'image/png' },
+      { url: '/icon.png?v=5', sizes: '512x512', type: 'image/png' },
     ],
-    shortcut: '/img/logo.png?v=2',
-    apple: '/img/logo.png?v=2',
+    shortcut: '/favicon.ico?v=5',
+    apple: '/apple-icon.png?v=5',
   },
 };
 
@@ -74,9 +80,31 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className="h-full bg-slate-50 dark:bg-[#060913]">
       <head>
-        <link rel="icon" type="image/png" href="/img/logo.png?v=2" />
-        <link rel="shortcut icon" type="image/png" href="/img/logo.png?v=2" />
-        <link rel="apple-touch-icon" href="/img/logo.png?v=2" />
+        <link rel="icon" type="image/png" href="/img/logo.png?v=5" />
+        <link rel="shortcut icon" href="/favicon.ico?v=5" />
+        <link rel="apple-touch-icon" href="/apple-icon.png?v=5" />
+
+        {/* Schema.org EducationalOrganization & WebSite JSON-LD for Google Rich Snippets & Brand Logo */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'EducationalOrganization',
+              name: "JFT-Basic & SSW Skill CBT Mock Test Platform",
+              alternateName: [
+                'Gakkou No Shiken',
+                "Bangladesh's #1 Japanese CBT Exam Platform",
+                '学校の試験',
+              ],
+              url: 'https://www.gakkounoshiken.site',
+              logo: 'https://www.gakkounoshiken.site/img/logo.png',
+              image: 'https://www.gakkounoshiken.site/img/logo.png',
+              description:
+                "Bangladesh's 1st and leading Computer-Based Testing (CBT) mock exam platform for JFT-Basic and SSW skill evaluation tests.",
+            }),
+          }}
+        />
 
         {/* Anti-FOUC Instant Theme Initializer */}
         <script
