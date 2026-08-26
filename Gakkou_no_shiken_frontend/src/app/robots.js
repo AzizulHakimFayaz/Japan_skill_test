@@ -4,9 +4,29 @@ export default function robots() {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/api/'],
+        disallow: [
+          '/admin/',
+          '/api/',
+          '/attempt/',
+          '/accounts/my-results/',
+          '/*?*preview=',
+          '/*?*token=',
+        ],
+      },
+      {
+        userAgent: 'Googlebot',
+        allow: '/',
+        disallow: [
+          '/admin/',
+          '/api/',
+          '/attempt/',
+          '/accounts/my-results/',
+          '/*?*preview=',
+          '/*?*token=',
+        ],
       },
     ],
     sitemap: 'https://www.gakkounoshiken.site/sitemap.xml',
+    host: 'https://www.gakkounoshiken.site',
   };
 }

@@ -87,25 +87,50 @@ export default function RootLayout({ children }) {
         <link rel="shortcut icon" href="/favicon.ico?v=5" />
         <link rel="apple-touch-icon" href="/apple-icon.png?v=5" />
 
-        {/* Schema.org EducationalOrganization & WebSite JSON-LD for Google Rich Snippets & Brand Logo */}
+        {/* Schema.org EducationalOrganization & WebSite JSON-LD for Google Rich Snippets & Brand Knowledge Graph */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'EducationalOrganization',
-              name: "JFT-Basic & SSW Skill CBT Mock Test Platform",
-              alternateName: [
-                'Gakkou No Shiken',
-                "Bangladesh's #1 Japanese CBT Exam Platform",
-                '学校の試験',
-              ],
-              url: 'https://www.gakkounoshiken.site',
-              logo: 'https://www.gakkounoshiken.site/img/logo.png',
-              image: 'https://www.gakkounoshiken.site/img/logo.png',
-              description:
-                "Bangladesh's 1st and leading Computer-Based Testing (CBT) mock exam platform for JFT-Basic and SSW skill evaluation tests.",
-            }),
+            __html: JSON.stringify([
+              {
+                '@context': 'https://schema.org',
+                '@type': 'WebSite',
+                name: 'Gakkou No Shiken',
+                alternateName: [
+                  'JFT-Basic & SSW CBT Mock Test Platform',
+                  '学校の試験',
+                  'GakkouNoShiken',
+                ],
+                url: 'https://www.gakkounoshiken.site',
+                potentialAction: {
+                  '@type': 'SearchAction',
+                  target: {
+                    '@type': 'EntryPoint',
+                    urlTemplate: 'https://www.gakkounoshiken.site/?q={search_term_string}',
+                  },
+                  'query-input': 'required name=search_term_string',
+                },
+              },
+              {
+                '@context': 'https://schema.org',
+                '@type': 'EducationalOrganization',
+                name: 'JFT-Basic & SSW Skill CBT Mock Test Platform - Gakkou No Shiken',
+                alternateName: [
+                  'Gakkou No Shiken',
+                  "Bangladesh's #1 Japanese CBT Exam Platform",
+                  '学校の試験',
+                ],
+                url: 'https://www.gakkounoshiken.site',
+                logo: 'https://www.gakkounoshiken.site/img/logo.png',
+                image: 'https://www.gakkounoshiken.site/img/logo.png',
+                description:
+                  "Bangladesh's 1st and leading Computer-Based Testing (CBT) mock exam platform for JFT-Basic and SSW skill evaluation tests with native audio and CEFR score reports.",
+                sameAs: [
+                  'https://www.facebook.com/gakkounoshiken',
+                  'https://www.youtube.com/@gakkounoshiken',
+                ],
+              },
+            ]),
           }}
         />
 
