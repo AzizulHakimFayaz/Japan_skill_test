@@ -1,7 +1,7 @@
 export const metadata = {
-  title: "JFT-Basic CBT Mock Tests & Prometric Exam Guide | Bangladesh's #1",
+  title: "JFT Mock Test Online 2026 | Free JFT-Basic CBT Practice Exam Bangladesh",
   description:
-    'Practice authentic JFT-Basic Computer-Based Testing (CBT) mock exams online. Featuring native audio, 4-section breakdown, Dhaka & Chittagong test center guides, and official Irodori learning resources.',
+    'Take free JFT mock tests online. Authentic Prometric Computer-Based Testing (CBT) simulator with native audio, 60-minute timed exam, 4-section breakdown, and Dhaka & Chittagong test center guides.',
   alternates: {
     canonical: 'https://www.gakkounoshiken.site/jft-basic',
   },

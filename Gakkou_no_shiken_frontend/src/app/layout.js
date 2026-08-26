@@ -7,11 +7,11 @@ export const metadata = {
     canonical: 'https://www.gakkounoshiken.site',
   },
   title: {
-    default: "JFT-Basic & SSW Skill CBT Mock Test | Bangladesh's #1 Japanese Exam Platform - Gakkou No Shiken",
-    template: '%s | JFT-Basic & SSW Mock Test Platform',
+    default: "JFT Mock Test & SSW CBT Practice Platform | Bangladesh's #1 - Gakkou No Shiken",
+    template: '%s | JFT Mock Test Platform',
   },
   description:
-    "Bangladesh's 1st & #1 official Computer-Based Testing (CBT) mock exam platform for JFT-Basic & SSW (Specified Skilled Worker) exams. Authentic Prometric CBT simulations, native listening audio, 10 language aids, and instant CEFR score reports.",
+    "Take free JFT Mock Tests online with authentic Prometric CBT interface, native listening audio, 10 language aids, and instant CEFR score report. Bangladesh's #1 Japanese CBT exam platform.",
   keywords: [
     'JFT-Basic practice exam',
     'JFT mock test online',
