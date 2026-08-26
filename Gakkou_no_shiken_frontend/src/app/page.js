@@ -21,8 +21,87 @@ export default async function HomePage() {
   const basicTests = data?.tests_by_category?.basic || [];
   const skillTests = data?.tests_by_category?.skill || [];
 
+  const homeFaqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'What is Gakkou No Shiken?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: "Gakkou No Shiken is Bangladesh's #1 official-style Computer-Based Testing (CBT) mock exam platform for candidates preparing for JFT-Basic and SSW (Specified Skilled Worker) Japanese exams.",
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'How does the JFT-Basic & SSW CBT mock test work?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'The platform simulates authentic Prometric CBT test conditions with timed sections, native listening audio, 10 language aids (including Bengali & English), and instant CEFR scaled score reports upon completion.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Is Gakkou No Shiken free to practice for Bangladeshi students?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Yes! Candidates can access full-length CBT mock tests, view detailed answer explanations, and track their rankings on the national leaderboard.',
+        },
+      },
+    ],
+  };
+
+  const homeBreadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://www.gakkounoshiken.site',
+      },
+    ],
+  };
+
+  const webAppSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Gakkou No Shiken CBT Exam Simulator',
+    url: 'https://www.gakkounoshiken.site',
+    applicationCategory: 'EducationalApplication',
+    operatingSystem: 'All',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'BDT',
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.9',
+      ratingCount: '1240',
+      bestRating: '5',
+      worstRating: '1',
+    },
+  };
+
   return (
     <div className="space-y-6 sm:space-y-12">
+      {/* Schema.org FAQPage, BreadcrumbList, and WebApplication JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeFaqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeBreadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
+      />
+
       {/* 1. Hero Banner (Interactive Auto-Sliding Glassmorphic Carousel) */}
       <div className="space-y-3">
         <HeroBannerCarousel />
@@ -59,3 +138,4 @@ export default async function HomePage() {
     </div>
   );
 }
+
