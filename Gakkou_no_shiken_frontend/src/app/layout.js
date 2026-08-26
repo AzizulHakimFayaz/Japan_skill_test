@@ -3,6 +3,9 @@ import Providers from '@/components/Providers';
 
 export const metadata = {
   metadataBase: new URL('https://www.gakkounoshiken.site'),
+  alternates: {
+    canonical: 'https://www.gakkounoshiken.site',
+  },
   title: {
     default: "JFT-Basic & SSW Skill CBT Mock Test | Bangladesh's #1 Japanese Exam Platform - Gakkou No Shiken",
     template: '%s | JFT-Basic & SSW Mock Test Platform',
