@@ -453,7 +453,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class GakkouApiService {
-  static const String baseUrl = "https://www.gakkounoshiken.site/api";
+  static const String baseUrl = "https://gakkounoshiken.site/api";
   static final _storage = const FlutterSecureStorage();
 
   // Helper for Headers
