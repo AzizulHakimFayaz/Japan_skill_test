@@ -408,9 +408,6 @@ u {
         background-color: #F8FAFC;
         -webkit-overflow-scrolling: touch;
     }
-    .mobile-footer-hide {
-        display: none !important;
-    }
     .mobile-app-card {
         border-radius: 16px;
     }
