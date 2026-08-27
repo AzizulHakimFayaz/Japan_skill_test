@@ -23,8 +23,13 @@ export default function ScrollReveal({
 }) {
   const ref = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(true);
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsDesktop(window.innerWidth >= 768);
+    }
+
     const node = ref.current;
     if (!node) return;
 
@@ -43,7 +48,7 @@ export default function ScrollReveal({
       },
       {
         threshold,
-        rootMargin: '0px 0px -40px 0px', // Trigger slightly before it hits bottom
+        rootMargin: '0px 0px -30px 0px',
       }
     );
 
@@ -56,31 +61,40 @@ export default function ScrollReveal({
 
   // Initial hidden state styles based on variant
   const getInitialTransform = () => {
+    const isMobile = !isDesktop;
+    const offset = isMobile ? 20 : 36;
     switch (variant) {
       case 'up':
-        return 'translate3d(0, 36px, 0) scale(0.96)';
+        return `translate3d(0, ${offset}px, 0) scale(${isMobile ? 0.98 : 0.96})`;
       case 'down':
-        return 'translate3d(0, -36px, 0) scale(0.96)';
+        return `translate3d(0, -${offset}px, 0) scale(${isMobile ? 0.98 : 0.96})`;
       case 'left':
-        return 'translate3d(-40px, 0, 0) scale(0.96)';
+        return `translate3d(-${offset}px, 0, 0) scale(${isMobile ? 0.98 : 0.96})`;
       case 'right':
-        return 'translate3d(40px, 0, 0) scale(0.96)';
+        return `translate3d(${offset}px, 0, 0) scale(${isMobile ? 0.98 : 0.96})`;
       case 'zoom':
-        return 'translate3d(0, 20px, 0) scale(0.88)';
+        return `translate3d(0, 12px, 0) scale(${isMobile ? 0.94 : 0.88})`;
       case 'blur':
-        return 'translate3d(0, 24px, 0) scale(0.95)';
+        return `translate3d(0, 16px, 0) scale(0.96)`;
       default:
-        return 'translate3d(0, 32px, 0) scale(0.96)';
+        return `translate3d(0, ${offset}px, 0) scale(0.96)`;
     }
   };
 
-  const style = {
-    opacity: isVisible ? 1 : 0,
-    transform: isVisible ? 'translate3d(0, 0, 0) scale(1)' : getInitialTransform(),
-    filter: isVisible ? 'blur(0px)' : variant === 'blur' ? 'blur(8px)' : 'blur(4px)',
-    transition: `opacity ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, filter ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
-    willChange: 'opacity, transform, filter',
-  };
+  // Desktop keeps full rich blur effects; Mobile uses ultra-fast GPU transform & opacity
+  const style = isDesktop
+    ? {
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translate3d(0, 0, 0) scale(1)' : getInitialTransform(),
+        filter: isVisible ? 'blur(0px)' : variant === 'blur' ? 'blur(8px)' : 'blur(4px)',
+        transition: `opacity ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, filter ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
+        willChange: 'opacity, transform, filter',
+      }
+    : {
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translate3d(0, 0, 0) scale(1)' : getInitialTransform(),
+        transition: `opacity ${Math.min(duration, 500)}ms ease-out ${Math.min(delay, 100)}ms, transform ${Math.min(duration, 500)}ms ease-out ${Math.min(delay, 100)}ms`,
+      };
 
   return (
     <div ref={ref} style={style} className={className}>
