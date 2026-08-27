@@ -6,122 +6,25 @@ import {
   Home,
   ChevronRight,
   Sparkles,
-  BookOpen,
+  Laptop,
   Headphones,
-  CheckCircle2,
   Trophy,
-  Calculator,
   ArrowRight,
   Clock,
-  Laptop,
-  HelpCircle,
-  ShieldCheck,
-  Zap,
+  CheckCircle2,
+  Lock,
   Volume2,
   Flag,
-  RotateCcw,
-  Check,
   UserCheck,
+  Zap,
+  Award,
+  BookOpen,
   ChevronDown,
   ChevronUp,
+  Layers,
+  ShieldCheck,
 } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
-
-const STEPS = [
-  {
-    step: '01',
-    title: 'Choose Your Exam Category or Study Tool',
-    title_bn: 'আপনার পরীক্ষা বা প্র্যাকটিস টুল নির্বাচন করুন',
-    icon: BookOpen,
-    iconColor: 'from-rose-500 to-red-600',
-    desc: 'Select between JFT-Basic (A2 Japanese Language Proficiency) or Specified Skilled Worker (SSW) skill tests for Caregiving, Food Service, Agriculture, etc. You can also explore our free daily study tools like Kanji Flashcards and Salary Calculators.',
-    desc_bn: 'JFT-Basic A2 জাপানি ভাষা পরীক্ষা অথবা SSW নার্সিং/কেয়ারগিভিং, ফুড সার্ভিস পরীক্ষার মক টেস্ট নির্বাচন করুন। অথবা ফ্রি ফ্ল্যাশ কার্ড ও স্যালারি ক্যালকুলেটর ব্যবহার করুন।',
-    tips: [
-      'Mock Test 01 is 100% Free & Open with No Account Required.',
-      'Tests are structured exactly like real Prometric CBT test centers in Dhaka and Chittagong.',
-    ],
-  },
-  {
-    step: '02',
-    title: 'One-Click Sign In (Save Results & Rank on Leaderboard)',
-    title_bn: '১-ক্লিকে সাইন ইন করুন (ফলাফল সংরক্ষণ ও র‍্যাংকিং)',
-    icon: UserCheck,
-    iconColor: 'from-indigo-500 to-blue-600',
-    desc: 'While free demo tests can be taken anonymously, signing in with your Google account or email unlocks all full-length mock exams, saves your attempt history, tracks score progress, and ranks you on the National Bangladesh Leaderboard.',
-    desc_bn: 'গুগল অ্যাকাউন্ট দিয়ে ১-ক্লিকে সাইন ইন করলে সব মক টেস্ট আনলক হবে এবং আপনার পরীক্ষার ফলাফল ও জাতীয় র‍্যাংকিং সংরক্ষিত থাকবে।',
-    tips: [
-      'Completely free instant sign in with Google.',
-      'Track your CEFR A2 score improvement over time.',
-    ],
-  },
-  {
-    step: '03',
-    title: 'Experience Authentic Prometric CBT Exam Interface',
-    title_bn: 'আসল প্রমেট্রিক কম্পিউটার টেস্ট ইন্টারফেসে পরীক্ষা দিন',
-    icon: Laptop,
-    iconColor: 'from-emerald-500 to-teal-600',
-    desc: 'Enter the 60-minute Computer-Based Testing simulator. The test includes 4 timed sections: Script & Vocabulary (文字・語彙), Conversation & Expression (会話・表現), Listening Comprehension (聴解), and Reading (読解).',
-    desc_bn: 'ঠিক ৬০ মিনিটের আসল পরীক্ষার ইন্টারফেসে ৪টি সেকশনে পরীক্ষা দিন: শব্দভাণ্ডার, কথোপকথন, অডিও লিসেনিং ও রিডিং।',
-    tips: [
-      'Use headphones for high-fidelity native Japanese listening audio questions.',
-      'Use the "Flag Question" (🚩) feature to mark difficult questions and review before submitting.',
-      'Single-play native audio mimics real Prometric exam restrictions.',
-    ],
-  },
-  {
-    step: '04',
-    title: 'Instant CEFR Scaled Score Diagnostic Report',
-    title_bn: 'তাৎক্ষণিক ফলাফল ও বিস্তারিত অ্যানালাইসিস রিপোর্ট',
-    icon: Trophy,
-    iconColor: 'from-amber-500 to-yellow-600',
-    desc: 'Upon completing your exam, you immediately receive a 250-point scaled score report, Pass/Fail status (Passing mark: 200/250 points, 80%), and section-by-section performance breakdown with correct answers and explanations.',
-    desc_bn: 'পরীক্ষা শেষ হওয়ামাত্র ২৫০ স্কেলের তাৎক্ষণিক মার্কশিট ও প্রতিটি প্রশ্নের সঠিক উত্তর এবং বাংলা ব্যাখ্যা দেখতে পাবেন। পাস মার্ক: ২০০/২৫০।',
-    tips: [
-      'Detailed question review reveals correct answers, Bengali explanations, and listening transcripts.',
-      'Top scorers automatically feature on the Bangladesh National Leaderboard.',
-    ],
-  },
-  {
-    step: '05',
-    title: 'Daily Practice Tools & Career Calculators',
-    title_bn: 'প্রতিদিনের ফ্ল্যাশ কার্ড ও জাপান ক্যারিয়ার টুলস',
-    icon: Zap,
-    iconColor: 'from-purple-500 to-pink-600',
-    desc: 'Supplement your mock exam prep with our dedicated standalone tools: Daily Kanji & Vocab Flashcards with native audio, Japan SSW Salary & Cost of Living Calculator (in JPY & BDT), and Rapid Particle Quiz Drill rooms.',
-    desc_bn: 'মক টেস্টের পাশাপাশি অডিওসহ শব্দভাণ্ডার ফ্ল্যাশ কার্ড, জাপান স্যালারি ক্যালকুলেটর ও গ্রামার প্র্যাকটিস টুল ব্যবহার করে প্রস্তুতি মজবুত করুন।',
-    tips: [
-      'Access anytime from the top "Tools" menu on desktop or mobile.',
-      'Practice 10-minute daily vocabulary drills for maximum retention.',
-    ],
-  },
-];
-
-const FAQS = [
-  {
-    q: 'Are the mock tests on Gakkou No Shiken free to take?',
-    q_bn: 'পরীক্ষাগুলো কি সম্পূর্ণ ফ্রি?',
-    a: 'Yes! Mock Test 01 and diagnostic sample exams are 100% free with no registration required. All other full-length mock tests are free to access by creating a free student account via Google or email.',
-    a_bn: 'হ্যাঁ! মক টেস্ট ০১ সহ ফ্রি টেস্টগুলো কোনো রেজিস্ট্রেশন ছাড়াই দেওয়া যায়। বাকি টেস্টগুলো ফ্রি গুগল সাইন-ইন করলেই আনলক হয়ে যায়।',
-  },
-  {
-    q: 'How does the scoring system match the real JFT-Basic exam?',
-    q_bn: 'ফলাফলের স্কেলিং কি আসল পরীক্ষার মতো?',
-    a: 'Real JFT-Basic Prometric exams use an Item Response Theory (IRT) scaled scoring algorithm ranging from 10 to 250 points. A score of 200 or higher (80%) is required to achieve CEFR A2 level and pass. Our platform calculates scaled scores and section breakdowns in the exact same format.',
-    a_bn: 'আসল জেএফটি পরীক্ষার মতো আমাদের প্ল্যাটফর্মেও ২৫০ স্কেলের স্কোর এবং ২০০ পেলে পাস (CEFR A2) সার্টিফিকেট প্রদান করা হয়।',
-  },
-  {
-    q: 'Can I take the mock tests on my mobile phone?',
-    q_bn: 'মোবাইল দিয়ে কি পরীক্ষা দেওয়া যাবে?',
-    a: 'Yes! Our website is 100% responsive and works smoothly on smartphones, tablets, laptops, and desktop computers. However, for the most authentic CBT simulation experience, taking the test on a laptop or desktop computer with headphones is recommended.',
-    a_bn: 'হ্যাঁ! মোবাইল, ট্যাব ও কম্পিউটার সব ডিভাইসেই সুন্দরভাবে পরীক্ষা দেওয়া যায়। তবে হেডফোনসহ কম্পিউটারে দেওয়া বেশি উপকারী।',
-  },
-  {
-    q: 'How many times can I retake a mock test?',
-    q_bn: 'একটি পরীক্ষা কতবার দেওয়া যায়?',
-    a: 'Unlimited times! You can retake any mock test as many times as you like to practice your speed, timing, and listening comprehension. Your highest score will be shown on your profile and leaderboard.',
-    a_bn: 'যতবার খুশি আনলিমিটেড বার পরীক্ষা দিতে পারবেন। আপনার সর্বোচ্চ স্কোরটি প্রোফাইল ও লিডারবোর্ডে প্রদর্শিত হবে।',
-  },
-];
 
 export default function HowItWorksPage() {
   const [openFaq, setOpenFaq] = useState(null);
@@ -131,8 +34,8 @@ export default function HowItWorksPage() {
   };
 
   return (
-    <div className="space-y-8 sm:space-y-12 animate-fade-in max-w-5xl mx-auto">
-      {/* Breadcrumb */}
+    <div className="space-y-12 sm:space-y-20 animate-fade-in max-w-6xl mx-auto pb-12">
+      {/* Top Breadcrumb */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
         <Link href="/" className="hover:text-japan-red dark:hover:text-rose-400 flex items-center gap-1">
           <Home className="w-3.5 h-3.5" />
@@ -142,175 +45,368 @@ export default function HowItWorksPage() {
         <span className="text-slate-900 dark:text-white font-bold">How It Works</span>
       </nav>
 
-      {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-japan-navy text-white p-6 sm:p-12 border border-slate-800 shadow-2xl space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-black uppercase">
-          <Sparkles className="w-3.5 h-3.5 text-japan-red" />
-          <span>Platform User Guide (ব্যবহারের নির্দেশিকা)</span>
+      {/* =========================================================================
+          SECTION 1: HERO & 3 STAT CARDS ON GLOWING CURVED HORIZON (Video 00:01-00:04)
+         ========================================================================= */}
+      <div className="relative overflow-hidden rounded-3xl bg-[#070913] border border-slate-800/90 p-6 sm:p-12 lg:p-16 shadow-[0_0_50px_rgba(0,0,0,0.8)] text-center">
+        {/* Ambient Top Radial Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-b from-indigo-600/20 via-purple-600/10 to-transparent blur-3xl pointer-events-none"></div>
+
+        {/* Top Social Proof Avatar Bubble Stack */}
+        <div className="relative z-10 inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/80 shadow-lg mb-6 backdrop-blur-md">
+          <div className="flex -space-x-2">
+            <span className="w-6 h-6 rounded-full bg-rose-500 text-[10px] font-black text-white flex items-center justify-center ring-2 ring-slate-900">
+              FA
+            </span>
+            <span className="w-6 h-6 rounded-full bg-indigo-500 text-[10px] font-black text-white flex items-center justify-center ring-2 ring-slate-900">
+              RH
+            </span>
+            <span className="w-6 h-6 rounded-full bg-emerald-500 text-[10px] font-black text-white flex items-center justify-center ring-2 ring-slate-900">
+              MK
+            </span>
+            <span className="w-6 h-6 rounded-full bg-amber-500 text-[10px] font-black text-slate-950 flex items-center justify-center ring-2 ring-slate-900">
+              +1k
+            </span>
+          </div>
+          <span className="text-xs font-bold text-slate-200">
+            1,200+ Examinees already testing their skills
+          </span>
         </div>
 
-        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
-          How Gakkou No Shiken Works &amp; How to Use It
+        {/* Main Headline */}
+        <h1 className="relative z-10 text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.15] max-w-3xl mx-auto">
+          Pass Your Japanese CBT Exam &amp; Get Certified in 3 Simple Steps!
         </h1>
 
-        <p className="text-slate-300 text-xs sm:text-base max-w-2xl leading-relaxed">
-          Master the official Prometric Computer-Based Testing (CBT) simulator, practice full-length JFT-Basic &amp; SSW mock tests, and utilize free Japanese study tools.
+        <p className="relative z-10 text-xs sm:text-base text-slate-400 font-medium max-w-xl mx-auto mt-3 leading-relaxed">
+          Sign up for free, experience authentic Prometric Computer-Based Testing, and get your instant CEFR A2 score diagnostic.
         </p>
 
-        <div className="flex flex-wrap items-center gap-3 pt-2">
+        {/* 3 Metric Cards with Ambient Backlight Glow */}
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mt-10 max-w-4xl mx-auto text-left">
+          {/* Left Card: 250 Scale */}
+          <div className="relative bg-[#0c1020]/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between space-y-4 hover:border-indigo-500/40 transition-all">
+            <div className="space-y-1">
+              <div className="text-3xl sm:text-4xl font-black text-white font-mono tracking-tight">
+                250 Pts
+              </div>
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                Full CBT Scale
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-slate-800/80">
+              <span>Authentic Prometric</span>
+              <span className="font-mono text-indigo-400 font-bold">4 Sections</span>
+            </div>
+          </div>
+
+          {/* Center Featured Card: 200+ Target with Glow */}
+          <div className="relative bg-gradient-to-b from-[#161430] to-[#0c0d1c] border-2 border-purple-500/60 rounded-3xl p-6 shadow-[0_0_40px_rgba(168,85,247,0.25)] flex flex-col justify-between space-y-4 transform md:-translate-y-2 transition-all">
+            {/* Top Recommended Tag */}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[10px] font-black uppercase tracking-wider shadow-md">
+              Passing Benchmark
+            </div>
+
+            <div className="space-y-1 pt-1">
+              <div className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-white to-purple-200 font-mono tracking-tight">
+                200+ Pts
+              </div>
+              <div className="text-xs font-bold text-purple-300 uppercase tracking-wider">
+                Pass Mark (80%)
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-xs text-slate-300 pt-3 border-t border-purple-900/50">
+              <span className="text-purple-300 font-bold">CEFR A2 Level</span>
+              <span className="font-mono text-white font-bold">Official</span>
+            </div>
+          </div>
+
+          {/* Right Card: 100% Free Start */}
+          <div className="relative bg-[#0c1020]/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between space-y-4 hover:border-emerald-500/40 transition-all">
+            <div className="space-y-1">
+              <div className="text-3xl sm:text-4xl font-black text-white font-mono tracking-tight">
+                100% Free
+              </div>
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                Instant Access
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-slate-800/80">
+              <span>Free Diagnostics</span>
+              <span className="font-mono text-emerald-400 font-bold">No Card Req</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Curved Glowing Horizon Arch with Floating CTA Button (Video 00:04) */}
+        <div className="relative mt-12 pt-8">
+          {/* Curved glowing neon light beam */}
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-indigo-500/20 via-purple-600/10 to-transparent rounded-[100%] blur-xl pointer-events-none"></div>
+          <div className="absolute inset-x-12 bottom-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent blur-xs"></div>
+          <div className="absolute inset-x-4 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent"></div>
+
           <Link
-            href="/tests"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-black px-6 py-3 rounded-2xl shadow-lg shadow-red-500/25 text-xs sm:text-sm active:scale-95 transition-all"
+            href="/accounts/signup"
+            className="relative z-10 inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-black text-xs sm:text-sm shadow-[0_0_30px_rgba(168,85,247,0.5)] active:scale-95 transition-all cursor-pointer"
           >
-            <Laptop className="w-4 h-4" />
-            <span>Browse Mock Exams</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link
-            href="/tools"
-            className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold px-6 py-3 rounded-2xl border border-white/15 text-xs sm:text-sm transition-all"
-          >
-            <Zap className="w-4 h-4 text-amber-400" />
-            <span>Explore Free Study Tools</span>
+            <span>Create Free Account &rarr;</span>
           </Link>
         </div>
       </div>
 
-      {/* Step-by-Step Interactive Guide */}
-      <div className="space-y-6 sm:space-y-8">
-        <div className="text-center space-y-1.5 max-w-xl mx-auto">
-          <span className="text-xs font-black uppercase tracking-wider text-japan-red dark:text-rose-400">
-            5 Simple Steps to Exam Success
-          </span>
-          <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            How to Use the Platform
+      {/* =========================================================================
+          SECTION 2: 3-STEP USER JOURNEY CARDS WITH UI PREVIEWS (Video 00:06-00:09)
+         ========================================================================= */}
+      <div className="space-y-8">
+        {/* Section Header */}
+        <div className="text-center space-y-2 max-w-xl mx-auto">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 text-[10px] font-black uppercase tracking-wider">
+            <span>How It Works</span>
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+            How To Test Your Skill in 3 Steps
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Follow this guide to get the most authentic CBT exam experience and boost your CEFR score.
+            Sign up, take the authentic CBT examination, and get your CEFR diagnostic score.
           </p>
         </div>
 
-        <div className="space-y-5">
-          {STEPS.map((st, idx) => {
-            const Icon = st.icon;
-            return (
-              <ScrollReveal key={st.step} variant="up" delay={idx * 60} duration={500}>
-                <div className="bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm hover:shadow-xl transition-all space-y-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
-                    <div className="flex items-center gap-3.5">
-                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${st.iconColor} text-white flex items-center justify-center shadow-md flex-shrink-0`}>
-                        <Icon className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">
-                          STEP {st.step}
-                        </span>
-                        <h3 className="text-base sm:text-xl font-black text-slate-900 dark:text-white leading-snug">
-                          {st.title}
-                        </h3>
-                        <p className="text-xs text-japan-red dark:text-rose-400 font-bold mt-0.5">
-                          {st.title_bn}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+        {/* 3 Step Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* STEP 0.1: SIGN UP & PICK YOUR EXAM */}
+          <ScrollReveal variant="up" delay={50} duration={500}>
+            <div className="bg-[#080b18] border border-slate-800 rounded-3xl p-6 flex flex-col justify-between h-full shadow-xl hover:border-slate-700 transition-all space-y-6">
+              {/* Step Number Tag */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-black text-slate-500 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                  <span>0.1</span>
+                </span>
+                <span className="text-[10px] font-bold text-indigo-400 bg-indigo-950/60 border border-indigo-800/80 px-2 py-0.5 rounded-full uppercase">
+                  Step 1
+                </span>
+              </div>
 
-                  <div className="space-y-3">
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-                      {st.desc}
-                    </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                      {st.desc_bn}
-                    </p>
-                  </div>
+              {/* Top Interactive UI Preview Box */}
+              <div className="h-44 rounded-2xl bg-gradient-to-b from-[#0e142e] to-[#0a0d1e] border border-slate-800/90 p-4 flex flex-col items-center justify-center space-y-3 relative overflow-hidden shadow-inner">
+                {/* Ambient glow */}
+                <div className="absolute inset-0 bg-indigo-500/5 blur-xl pointer-events-none"></div>
 
-                  <div className="bg-slate-50 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 space-y-2">
-                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">
-                      Key Highlights &amp; Pro-Tips:
-                    </span>
-                    {st.tips.map((tip, tIdx) => (
-                      <div key={tIdx} className="flex items-start gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-                        <span>{tip}</span>
-                      </div>
-                    ))}
+                <div className="w-full max-w-[200px] p-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-center space-y-1 shadow-md">
+                  <span className="text-[9px] font-bold text-slate-400 block uppercase">1-Click Fast Access</span>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-slate-950 text-[11px] font-black shadow-xs">
+                    <span>Sign in with Google</span>
+                    <ArrowRight className="w-3 h-3 text-japan-red" />
                   </div>
                 </div>
-              </ScrollReveal>
-            );
-          })}
+
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-300 text-[10px] font-black">
+                  <BookOpen className="w-3 h-3 text-japan-red" />
+                  <span>JFT-Basic A2 Mock 01</span>
+                </div>
+              </div>
+
+              {/* Title & Description */}
+              <div className="space-y-2">
+                <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
+                  Sign Up &amp; Pick Your Exam
+                </h3>
+                <p className="text-xs text-japan-red font-bold">
+                  ফ্রি সাইন-আপ করুন ও পরীক্ষা নির্বাচন করুন
+                </p>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Sign up for free in 1 click with Google or email. Choose between JFT-Basic A2 Japanese language or SSW skill tests for Caregiving, Food Service, Agriculture, and more.
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* STEP 0.2: TAKE EXAM & TEST YOUR SKILL */}
+          <ScrollReveal variant="up" delay={120} duration={500}>
+            <div className="bg-[#080b18] border border-slate-800 rounded-3xl p-6 flex flex-col justify-between h-full shadow-xl hover:border-slate-700 transition-all space-y-6">
+              {/* Step Number Tag */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-black text-slate-500 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                  <span>0.2</span>
+                </span>
+                <span className="text-[10px] font-bold text-purple-400 bg-purple-950/60 border border-purple-800/80 px-2 py-0.5 rounded-full uppercase">
+                  Step 2
+                </span>
+              </div>
+
+              {/* Top Interactive UI Preview Box: CBT HUD */}
+              <div className="h-44 rounded-2xl bg-gradient-to-b from-[#140e2e] to-[#0a0d1e] border border-slate-800/90 p-4 flex flex-col items-center justify-center space-y-2.5 relative overflow-hidden shadow-inner">
+                {/* Ambient glow */}
+                <div className="absolute inset-0 bg-purple-500/5 blur-xl pointer-events-none"></div>
+
+                {/* Prometric Timer & HUD */}
+                <div className="w-full max-w-[210px] flex items-center justify-between bg-slate-900/90 border border-slate-700/90 px-3 py-1.5 rounded-xl text-[10px] font-mono shadow-md">
+                  <span className="flex items-center gap-1 text-amber-400 font-bold">
+                    <Clock className="w-3 h-3" />
+                    <span>59:42</span>
+                  </span>
+                  <span className="text-purple-300 font-bold">Section 3 / 4</span>
+                </div>
+
+                {/* Animated Audio Player */}
+                <div className="w-full max-w-[210px] p-2 rounded-xl bg-purple-950/40 border border-purple-800/60 flex items-center justify-between gap-2 shadow-xs">
+                  <Volume2 className="w-4 h-4 text-purple-400 animate-pulse" />
+                  <div className="flex items-center gap-1 h-3 flex-1 justify-center">
+                    <span className="w-1 h-2 bg-purple-400 rounded-full animate-bounce"></span>
+                    <span className="w-1 h-3 bg-purple-300 rounded-full animate-bounce delay-75"></span>
+                    <span className="w-1 h-1.5 bg-purple-500 rounded-full animate-bounce delay-150"></span>
+                    <span className="w-1 h-3 bg-purple-400 rounded-full animate-bounce"></span>
+                  </div>
+                  <span className="text-[9px] font-bold text-slate-300">Listening Q14</span>
+                </div>
+
+                <div className="flex items-center gap-2 text-[9px] text-slate-400">
+                  <span className="flex items-center gap-1"><Flag className="w-2.5 h-2.5 text-rose-400" /> Flag</span>
+                  <span>•</span>
+                  <span>Keyboard: Alt+N</span>
+                </div>
+              </div>
+
+              {/* Title & Description */}
+              <div className="space-y-2">
+                <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
+                  Take Exam &amp; Test Your Skill
+                </h3>
+                <p className="text-xs text-japan-red font-bold">
+                  আসল CBT ইন্টারফেসে পরীক্ষা দিন ও দক্ষতা যাচাই করুন
+                </p>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Enter the 60-minute Prometric CBT simulator. Practice timed sections (Vocabulary, Conversation, Native Audio Listening, and Reading) with headphones.
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* STEP 0.3: GET INSTANT SCORE & RANK */}
+          <ScrollReveal variant="up" delay={180} duration={500}>
+            <div className="bg-[#080b18] border border-slate-800 rounded-3xl p-6 flex flex-col justify-between h-full shadow-xl hover:border-slate-700 transition-all space-y-6">
+              {/* Step Number Tag */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-black text-slate-500 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span>0.3</span>
+                </span>
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2 py-0.5 rounded-full uppercase">
+                  Step 3
+                </span>
+              </div>
+
+              {/* Top Interactive UI Preview Box: Floating Reward Badges */}
+              <div className="h-44 rounded-2xl bg-gradient-to-b from-[#0e2e1c] to-[#0a0d1e] border border-slate-800/90 p-4 flex flex-col items-center justify-center space-y-2 relative overflow-hidden shadow-inner">
+                {/* Ambient glow */}
+                <div className="absolute inset-0 bg-emerald-500/5 blur-xl pointer-events-none"></div>
+
+                {/* Score Pill Badge */}
+                <div className="px-3.5 py-1.5 rounded-xl bg-emerald-500 text-slate-950 text-xs font-black shadow-lg shadow-emerald-500/20 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-slate-950" />
+                  <span>218 / 250 • PASSED!</span>
+                </div>
+
+                {/* CEFR Level Tag */}
+                <div className="px-3 py-1 rounded-lg bg-slate-900/90 border border-slate-700 text-[10px] font-black text-emerald-300 flex items-center gap-1 shadow-sm">
+                  <Award className="w-3.5 h-3.5 text-amber-400" />
+                  <span>CEFR A2 Certified Level</span>
+                </div>
+
+                {/* Leaderboard Rank */}
+                <div className="text-[9px] font-bold text-slate-400 flex items-center gap-1">
+                  <Trophy className="w-3 h-3 text-amber-400" />
+                  <span>Ranked #3 on National Leaderboard</span>
+                </div>
+              </div>
+
+              {/* Title & Description */}
+              <div className="space-y-2">
+                <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
+                  Get Instant Score &amp; Review
+                </h3>
+                <p className="text-xs text-japan-red font-bold">
+                  তাৎক্ষণিক ফলাফল, বাংলা ব্যাখ্যা ও র‍্যাংকিং
+                </p>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Immediately receive your 250-point score breakdown, correct answers with Bengali grammar explanations, and see your rank on the Bangladesh Leaderboard.
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
         </div>
       </div>
 
-      {/* Prometric CBT Simulator Interface Anatomy */}
-      <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-japan-navy text-white border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-6">
-        <div className="space-y-2 text-center sm:text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-black uppercase">
-            <Laptop className="w-3.5 h-3.5 text-emerald-400" />
-            <span>CBT Exam Screen Anatomy</span>
-          </div>
-          <h3 className="text-xl sm:text-3xl font-black text-white">
-            Prometric Kiosk Controls &amp; Features
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-            During the exam, familiarize yourself with these official CBT controls to maximize your score:
+      {/* =========================================================================
+          SECTION 3: GIANT OBSIDIAN GLASS CARD WITH GLOWING NEON BORDER (Video 00:11-00:14)
+         ========================================================================= */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0c0d1c] via-[#070914] to-[#120e24] border-2 border-indigo-500/40 p-8 sm:p-14 shadow-[0_0_60px_rgba(99,102,241,0.2)] text-center space-y-6">
+        {/* Corner & Perimeter Ambient Neon Flares */}
+        <div className="absolute -top-12 -left-12 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
+
+        <div className="relative z-10 space-y-2 max-w-xl mx-auto">
+          <span className="text-xs font-black uppercase tracking-wider text-purple-400">
+            Start Your Journey to Japan Today
+          </span>
+          <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+            Ready to Test Your Japanese Skills?
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Take a 100% free official-format JFT-Basic CBT mock test right now. No credit card required.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
-            <div className="flex items-center gap-2 text-amber-400 font-bold text-xs">
-              <Clock className="w-4 h-4" />
-              <span>Section Countdown Timer</span>
-            </div>
-            <p className="text-[11px] text-slate-300 leading-relaxed">
-              Always visible in the top header. Shows exactly how many minutes and seconds remain in the active section.
-            </p>
-          </div>
+        <div className="relative z-10 flex flex-wrap items-center justify-center gap-3 pt-2">
+          <Link
+            href="/tests"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-japan-red via-rose-600 to-japan-red hover:from-japan-redhover hover:to-red-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-red-500/30 active:scale-95 transition-all cursor-pointer"
+          >
+            <Laptop className="w-4 h-4" />
+            <span>Start Free Mock Exam Now &rarr;</span>
+          </Link>
 
-          <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
-            <div className="flex items-center gap-2 text-rose-400 font-bold text-xs">
-              <Volume2 className="w-4 h-4" />
-              <span>Single-Play Audio</span>
-            </div>
-            <p className="text-[11px] text-slate-300 leading-relaxed">
-              In Listening Comprehension, audio plays native Japanese conversations according to official Prometric rules.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
-            <div className="flex items-center gap-2 text-indigo-400 font-bold text-xs">
-              <Flag className="w-4 h-4" />
-              <span>Flag for Review (🚩)</span>
-            </div>
-            <p className="text-[11px] text-slate-300 leading-relaxed">
-              Tag difficult questions to quickly jump back and review before clicking Final Submit.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
-            <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs">
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Instant CEFR Scoring</span>
-            </div>
-            <p className="text-[11px] text-slate-300 leading-relaxed">
-              Instant 250-scale scoring and detailed answer keys with Bengali explanations right after submission.
-            </p>
-          </div>
+          <Link
+            href="/tools"
+            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 text-xs sm:text-sm transition-all"
+          >
+            <Zap className="w-4 h-4 text-amber-400" />
+            <span>Practice Tools (Flashcards &amp; Salary)</span>
+          </Link>
         </div>
       </div>
 
-      {/* Frequently Asked Questions (Accordion) */}
-      <div className="space-y-4">
-        <div className="text-center space-y-1 max-w-lg mx-auto">
+      {/* =========================================================================
+          SECTION 4: FREQUENTLY ASKED QUESTIONS (FAQ)
+         ========================================================================= */}
+      <div className="space-y-4 max-w-3xl mx-auto">
+        <div className="text-center space-y-1">
           <span className="text-xs font-black uppercase text-japan-red dark:text-rose-400">FAQ</span>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            Frequently Asked Questions
+            Common Questions
           </h3>
         </div>
 
         <div className="space-y-3">
-          {FAQS.map((faq, idx) => (
+          {[
+            {
+              q: 'How do I take my first mock exam?',
+              q_bn: 'আমি কীভাবে প্রথম পরীক্ষাটি দেব?',
+              a: 'Simply go to the Mock Tests catalog or click "Start Exam" on Mock Test 01. It is 100% free with no sign-up required. If you sign in with Google, your scores will be saved on your profile.',
+            },
+            {
+              q: 'What is the passing score for JFT-Basic A2?',
+              q_bn: 'পাস মার্ক কত?',
+              a: 'The official JFT-Basic exam is scored out of 250 points. A score of 200 or above (80%) is required to pass and receive the CEFR A2 certificate.',
+            },
+            {
+              q: 'Can I practice on mobile or do I need a computer?',
+              q_bn: 'মোবাইলে পরীক্ষা দেওয়া যাবে কি?',
+              a: 'You can practice on smartphones, tablets, or computers. For the authentic Prometric test center simulation, taking it on a computer with headphones is recommended.',
+            },
+          ].map((faq, idx) => (
             <div
               key={idx}
               className="bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs"
@@ -336,34 +432,13 @@ export default function HowItWorksPage() {
               </button>
 
               {openFaq === idx && (
-                <div className="px-4 pb-4 sm:px-5 sm:pb-5 text-xs text-slate-600 dark:text-slate-300 space-y-2 border-t border-slate-100 dark:border-slate-800 pt-3 animate-fade-in font-medium leading-relaxed">
-                  <p>{faq.a}</p>
-                  <p className="text-slate-500 dark:text-slate-400">{faq.a_bn}</p>
+                <div className="px-4 pb-4 sm:px-5 sm:pb-5 text-xs text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-slate-800 pt-3 font-medium leading-relaxed">
+                  {faq.a}
                 </div>
               )}
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Bottom CTA Banner */}
-      <div className="bg-gradient-to-r from-rose-600 via-japan-red to-rose-700 text-white rounded-3xl p-6 sm:p-10 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="space-y-2 text-center md:text-left max-w-xl">
-          <h3 className="text-xl sm:text-3xl font-black text-white tracking-tight">
-            Ready to Test Your Japanese Skills?
-          </h3>
-          <p className="text-xs sm:text-sm text-rose-100 font-normal leading-relaxed">
-            Take a 100% free official-format JFT-Basic CBT mock test right now and find out your CEFR A2 score!
-          </p>
-        </div>
-
-        <Link
-          href="/tests"
-          className="bg-white hover:bg-slate-100 text-slate-950 font-black px-8 py-3.5 rounded-2xl shadow-xl text-xs sm:text-sm active:scale-95 transition-all flex items-center gap-2 flex-shrink-0 cursor-pointer"
-        >
-          <span>Start Free Exam Now</span>
-          <ArrowRight className="w-4 h-4" />
-        </Link>
       </div>
     </div>
   );
