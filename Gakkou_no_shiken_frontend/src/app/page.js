@@ -116,6 +116,7 @@ export default async function HomePage() {
             title="JFT Tests"
             subtitle="Beginner-friendly Japanese language evaluation tests."
             catKey="basic"
+            seeAllHref="/tests?category=basic"
           />
         </section>
 
@@ -125,6 +126,7 @@ export default async function HomePage() {
             title="SSW Skill Tests"
             subtitle="Technical and workplace skill assessment practice exams."
             catKey="skill"
+            seeAllHref="/tests?category=skill"
           />
         </section>
       </div>
