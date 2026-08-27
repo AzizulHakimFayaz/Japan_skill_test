@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Home,
@@ -10,24 +10,29 @@ import {
   Trophy,
   Laptop,
   Zap,
-  MessageCircle,
+  ArrowRight,
+  Clock,
+  Volume2,
+  Flag,
+  Award,
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
 
 export default function HowItWorksPage() {
-  const [heroPhase, setHeroPhase] = useState(0); // 0: initial, 1: center card bloom, 2: all settled
+  const [heroPhase, setHeroPhase] = useState(0); // 0: initial, 1: center bloom, 2: all settled
   const [activeSlot, setActiveSlot] = useState(1);
   const [cursorTapped, setCursorTapped] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-
-  const pinnedSectionRef = useRef(null);
+  const [openFaq, setOpenFaq] = useState(null);
 
   // 1. Initial Page Load Hero Stagger Sequence
   useEffect(() => {
     // Phase 1: Center promoted card blooms in first alone with bright glow
-    const t1 = setTimeout(() => setHeroPhase(1), 150);
+    const t1 = setTimeout(() => setHeroPhase(1), 100);
     // Phase 2: Left and right cards settle, rays expand, CTA button fades in
-    const t2 = setTimeout(() => setHeroPhase(2), 650);
+    const t2 = setTimeout(() => setHeroPhase(2), 500);
 
     // Looping Reward Slot Carousel (Runs continuously, independent of scroll)
     const slotInterval = setInterval(() => {
@@ -48,44 +53,15 @@ export default function HowItWorksPage() {
     };
   }, []);
 
-  // 2. Scroll-Jacked / Pinned Section Timeline Driver (Section 7.5 B)
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!pinnedSectionRef.current) return;
-      const rect = pinnedSectionRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const totalScrollable = rect.height - windowHeight;
-
-      if (totalScrollable <= 0) return;
-
-      // Calculate how far we've scrolled inside the pinned track
-      const currentScroll = -rect.top;
-      const progress = Math.max(0, Math.min(1, currentScroll / totalScrollable));
-      setScrollProgress(progress);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const slotRewards = [
     { title: '250 Pts Mock Exam', sub: 'Prometric CBT 4 Sections', icon: Laptop, tag: 'Official' },
     { title: '218 / 250 • PASSED!', sub: 'Instant CEFR Scaled Score', icon: Trophy, tag: 'Unlocked 🔓' },
     { title: 'CEFR A2 Certified', sub: 'Japan Visa Ready Score', icon: CheckCircle2, tag: 'Top 3 BD' },
   ];
 
-  // Scrubbed Timeline Calculation for "How It Works"
-  // Hairline grid: 0% -> 25%
-  const gridOpacity = Math.min(1, Math.max(0.15, scrollProgress * 4));
-  // Heading wipe: 15% -> 40%
-  const headingProgress = Math.max(0, Math.min(1, (scrollProgress - 0.1) / 0.25));
-  // Card 1 (Left): 30% -> 50%
-  const c1Progress = Math.max(0, Math.min(1, (scrollProgress - 0.28) / 0.22));
-  // Card 2 (Middle): 50% -> 72%
-  const c2Progress = Math.max(0, Math.min(1, (scrollProgress - 0.50) / 0.22));
-  // Card 3 (Right): 72% -> 95%
-  const c3Progress = Math.max(0, Math.min(1, (scrollProgress - 0.72) / 0.23));
+  const toggleFaq = (idx) => {
+    setOpenFaq(openFaq === idx ? null : idx);
+  };
 
   return (
     <div className="space-y-8 max-w-[1360px] mx-auto pb-16">
@@ -102,24 +78,23 @@ export default function HowItWorksPage() {
       {/* =========================================================================
           1. PAGE SHELL: BEZEL-LESS DEVICE FRAME (~24-32px radius, #05060a background)
          ========================================================================= */}
-      <div className="relative rounded-[24px] sm:rounded-[32px] bg-[#05060a] border border-slate-800/80 shadow-[0_0_80px_rgba(0,0,0,0.95)] overflow-hidden p-4 sm:p-8 lg:p-12 space-y-16 sm:space-y-24 text-slate-100 selection:bg-indigo-500 selection:text-white">
+      <div className="relative rounded-[24px] sm:rounded-[32px] bg-[#05060a] border border-slate-800/80 shadow-[0_0_80px_rgba(0,0,0,0.95)] p-4 sm:p-8 lg:p-12 space-y-16 sm:space-y-24 text-slate-100 selection:bg-indigo-500 selection:text-white">
         
         {/* =========================================================================
             2. GLOBAL BACKGROUND SYSTEM (Starfield + Radial Nebula Glows + Sunburst Rays)
            ========================================================================= */}
         {/* Sparse Fixed Starfield Layer */}
-        <div className="absolute inset-0 bg-[radial-gradient(#ffffff18_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-40"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(#ffffff18_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-40 rounded-[24px] sm:rounded-[32px]"></div>
 
         {/* Soft Radial Nebula Glows */}
         <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[850px] h-[450px] bg-gradient-to-b from-indigo-600/25 via-purple-600/15 to-transparent blur-[130px] pointer-events-none"></div>
-        <div className="absolute top-[800px] left-1/4 w-[500px] h-[500px] bg-blue-600/10 blur-[140px] pointer-events-none"></div>
+        <div className="absolute top-[600px] left-1/4 w-[500px] h-[500px] bg-blue-600/10 blur-[140px] pointer-events-none"></div>
         <div className="absolute bottom-20 right-1/4 w-[600px] h-[400px] bg-purple-600/15 blur-[140px] pointer-events-none"></div>
 
         {/* =========================================================================
             3. SECTION: HERO (Headline + Avatar Badge + 3 Hero Cards + Light Horizon)
-               Scroll Behavior: Plain Scroll (Moves up together, no parallax)
            ========================================================================= */}
-        <section className="relative text-center pt-4 sm:pt-10 space-y-8">
+        <section className="relative text-center pt-4 sm:pt-8 space-y-8">
           
           {/* Top Social Avatar Badge */}
           <div
@@ -175,7 +150,7 @@ export default function HowItWorksPage() {
                 <div className="text-4xl sm:text-5xl font-black text-white font-mono tracking-tight">
                   250 Pts
                 </div>
-                <div className="text-xs font-bold text-slate-400">
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                   full cbt scale
                 </div>
               </div>
@@ -199,7 +174,7 @@ export default function HowItWorksPage() {
                 <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-white to-purple-300 font-mono tracking-tight">
                   200+ Pts
                 </div>
-                <div className="text-xs font-bold text-purple-300">
+                <div className="text-xs font-bold text-purple-300 uppercase tracking-wider">
                   in passing score (CEFR A2)
                 </div>
               </div>
@@ -221,7 +196,7 @@ export default function HowItWorksPage() {
                 <div className="text-4xl sm:text-5xl font-black text-white font-mono tracking-tight">
                   100%
                 </div>
-                <div className="text-xs font-bold text-slate-400">
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                   free simulator
                 </div>
               </div>
@@ -256,77 +231,46 @@ export default function HowItWorksPage() {
         </section>
 
         {/* =========================================================================
-            4. SECTION: "HOW IT WORKS" SCROLL-JACKED / PINNED TRACK (Section 7.5 B)
-               Pins in place; scroll scrubs the internal reveal sequence; reverses if scrolled up
+            4. SECTION: "HOW IT WORKS" 3-STEP SCHEMATIC GRID (SCROLL-REVEALED)
            ========================================================================= */}
-        <div ref={pinnedSectionRef} className="relative min-h-[220vh] sm:min-h-[260vh]">
-          {/* Sticky Viewport Anchor */}
-          <div className="sticky top-6 sm:top-14 min-h-[85vh] flex flex-col justify-center space-y-8">
-            
-            {/* Scroll-Driven Eyebrow + Character Wipe Heading */}
+        <section className="relative space-y-10 pt-4">
+          
+          {/* Eyebrow Pill + Heading */}
+          <ScrollReveal variant="up" delay={50} duration={600}>
             <div className="text-center space-y-3 max-w-xl mx-auto">
-              <div
-                style={{ opacity: gridOpacity }}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 text-[10px] font-black uppercase tracking-wider transition-opacity duration-300"
-              >
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 text-[10px] font-black uppercase tracking-wider">
                 <span>How It Works</span>
               </div>
-
-              {/* Progressive Left-to-Right Wipe Heading */}
-              <h2
-                style={{
-                  opacity: Math.max(0.3, headingProgress),
-                  transform: `translateY(${(1 - headingProgress) * 16}px)`,
-                  backgroundImage: `linear-gradient(90deg, #ffffff ${headingProgress * 100}%, rgba(255,255,255,0.2) ${headingProgress * 100}%)`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-                className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight transition-all duration-300"
-              >
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
                 How To Join &amp; Pass
               </h2>
+              <p className="text-xs sm:text-sm text-slate-400">
+                Follow these 3 easy steps to prepare for your Japan CBT evaluation test:
+              </p>
             </div>
+          </ScrollReveal>
 
-            {/* 3-Column Schematic Grid with Hairline Dividers & Corner Joint Dots */}
-            <div
-              style={{
-                borderColor: `rgba(255, 255, 255, ${0.05 + gridOpacity * 0.15})`,
-              }}
-              className="relative border rounded-3xl bg-[#080911]/90 backdrop-blur-xl overflow-hidden shadow-2xl transition-colors duration-500"
-            >
-              {/* Grid Joint Dots at Four Corners */}
-              <span
-                style={{ opacity: gridOpacity }}
-                className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-slate-700 bg-slate-900 z-20 transition-opacity duration-300"
-              ></span>
-              <span
-                style={{ opacity: gridOpacity }}
-                className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-slate-700 bg-slate-900 z-20 transition-opacity duration-300"
-              ></span>
-              <span
-                style={{ opacity: gridOpacity }}
-                className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 w-3 h-3 rounded-full border border-slate-700 bg-slate-900 z-20 transition-opacity duration-300"
-              ></span>
-              <span
-                style={{ opacity: gridOpacity }}
-                className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 w-3 h-3 rounded-full border border-slate-700 bg-slate-900 z-20 transition-opacity duration-300"
-              ></span>
+          {/* 3-Column Schematic Grid with Hairline Dividers & Corner Joint Dots */}
+          <div className="relative border border-white/10 rounded-3xl bg-[#080911]/90 backdrop-blur-xl overflow-hidden shadow-2xl">
+            {/* Grid Joint Dots at Four Corners */}
+            <span className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-slate-700 bg-slate-900 z-20"></span>
+            <span className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-slate-700 bg-slate-900 z-20"></span>
+            <span className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 w-3 h-3 rounded-full border border-slate-700 bg-slate-900 z-20"></span>
+            <span className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 w-3 h-3 rounded-full border border-slate-700 bg-slate-900 z-20"></span>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
-                
-                {/* --- CARD 1: (Scroll Scrubbed 30% -> 50%) --- */}
-                <div
-                  style={{
-                    opacity: c1Progress,
-                    transform: `translateY(${(1 - c1Progress) * 32}px) scale(${0.96 + c1Progress * 0.04})`,
-                  }}
-                  className="p-6 sm:p-8 flex flex-col justify-between space-y-6 relative group transition-all duration-300"
-                >
+            <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
+              
+              {/* --- CARD 1: JOIN THE WAITLIST / PRACTICE (Scroll-triggered delay: 100ms) --- */}
+              <ScrollReveal variant="up" delay={100} duration={700} className="h-full">
+                <div className="p-6 sm:p-8 flex flex-col justify-between space-y-6 relative group h-full">
                   {/* Index Label */}
                   <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-400">
                     <span className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
                       <span>0.1</span>
+                    </span>
+                    <span className="text-[10px] font-bold text-indigo-400 bg-indigo-950/60 border border-indigo-800/80 px-2 py-0.5 rounded-full uppercase">
+                      Step 1
                     </span>
                   </div>
 
@@ -354,25 +298,27 @@ export default function HowItWorksPage() {
                     <h3 className="text-lg sm:text-xl font-black text-white">
                       Join the practice portal
                     </h3>
+                    <p className="text-xs text-indigo-400 font-bold">
+                      ফ্রি সাইন-আপ করুন ও পরীক্ষা নির্বাচন করুন
+                    </p>
                     <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                       Maximize your exam score potential by testing authentic Prometric format CBT mocks with native audio.
                     </p>
                   </div>
                 </div>
+              </ScrollReveal>
 
-                {/* --- CARD 2: (Scroll Scrubbed 50% -> 72%) --- */}
-                <div
-                  style={{
-                    opacity: c2Progress,
-                    transform: `translateY(${(1 - c2Progress) * 32}px) scale(${0.96 + c2Progress * 0.04})`,
-                  }}
-                  className="p-6 sm:p-8 flex flex-col justify-between space-y-6 relative group transition-all duration-300"
-                >
+              {/* --- CARD 2: NETWORK / STUDY GROUP GRAPH (Scroll-triggered delay: 250ms) --- */}
+              <ScrollReveal variant="up" delay={250} duration={700} className="h-full">
+                <div className="p-6 sm:p-8 flex flex-col justify-between space-y-6 relative group h-full">
                   {/* Index Label */}
                   <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-400">
                     <span className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
                       <span>0.2</span>
+                    </span>
+                    <span className="text-[10px] font-bold text-purple-400 bg-purple-950/60 border border-purple-800/80 px-2 py-0.5 rounded-full uppercase">
+                      Step 2
                     </span>
                   </div>
 
@@ -414,25 +360,27 @@ export default function HowItWorksPage() {
                     <h3 className="text-lg sm:text-xl font-black text-white">
                       Challenge friends to climb the leaderboard
                     </h3>
+                    <p className="text-xs text-purple-400 font-bold">
+                      বন্ধুদের সাথে প্রতিযোগিতা করুন ও র‍্যাংক বাড়ান
+                    </p>
                     <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                       Compare scaled score benchmarks with peer examinees across Bangladesh and track weekly rank improvements.
                     </p>
                   </div>
                 </div>
+              </ScrollReveal>
 
-                {/* --- CARD 3: (Scroll Scrubbed 72% -> 95%) --- */}
-                <div
-                  style={{
-                    opacity: c3Progress,
-                    transform: `translateY(${(1 - c3Progress) * 32}px) scale(${0.96 + c3Progress * 0.04})`,
-                  }}
-                  className="p-6 sm:p-8 flex flex-col justify-between space-y-6 relative group transition-all duration-300"
-                >
+              {/* --- CARD 3: VERTICAL SLOTTED REWARD CAROUSEL (Scroll-triggered delay: 400ms) --- */}
+              <ScrollReveal variant="up" delay={400} duration={700} className="h-full">
+                <div className="p-6 sm:p-8 flex flex-col justify-between space-y-6 relative group h-full">
                   {/* Index Label */}
                   <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-400">
                     <span className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                       <span>0.3</span>
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2 py-0.5 rounded-full uppercase">
+                      Step 3
                     </span>
                   </div>
 
@@ -443,7 +391,7 @@ export default function HowItWorksPage() {
                       return (
                         <div
                           key={rIdx}
-                          className={`w-full max-w-[230px] p-2 rounded-xl transition-all duration-500 flex items-center justify-between border ${
+                          className={`w-full max-w-[230px] p-2.5 rounded-xl transition-all duration-500 flex items-center justify-between border ${
                             isSelected
                               ? 'bg-gradient-to-r from-[#1c1c38] to-[#121426] border-purple-500/80 shadow-[0_0_20px_rgba(168,85,247,0.3)] scale-105 z-10'
                               : 'bg-slate-900/40 border-white/5 opacity-40 scale-95'
@@ -469,20 +417,22 @@ export default function HowItWorksPage() {
                     <h3 className="text-lg sm:text-xl font-black text-white">
                       Get certified &amp; rewarded
                     </h3>
+                    <p className="text-xs text-emerald-400 font-bold">
+                      সার্টিফিকেট ও তাৎক্ষণিক ফলাফল অর্জন করুন
+                    </p>
                     <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                       Receive instant CEFR A2 diagnostic verification reports, detailed answer explanations, and exam completion badges.
                     </p>
                   </div>
                 </div>
+              </ScrollReveal>
 
-              </div>
             </div>
-
           </div>
-        </div>
+        </section>
 
         {/* =========================================================================
-            5. SECTION: FINAL CTA PANEL (Simple on-enter reveal, no pin)
+            5. SECTION: FINAL CTA PANEL (Scroll-Triggered + Chasing Comet Border Beam)
            ========================================================================= */}
         <ScrollReveal variant="up" delay={100} duration={800}>
           <section className="relative overflow-hidden rounded-3xl bg-[#080914] border border-white/10 p-8 sm:p-14 text-center space-y-6 shadow-2xl">
@@ -492,23 +442,100 @@ export default function HowItWorksPage() {
 
             {/* Inner Content */}
             <div className="relative z-10 space-y-3 max-w-xl mx-auto">
+              <span className="text-xs font-black uppercase tracking-wider text-indigo-400">
+                Official Prometric CBT Simulator
+              </span>
               <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
                 Join the Practice Portal
               </h2>
               <p className="text-xs sm:text-sm text-slate-400">
-                Get your official Prometric CBT mock exam link right now:
+                Get your official Prometric CBT mock exam link right now. Free diagnostic tests with zero registration fee.
               </p>
             </div>
 
-            <div className="relative z-10 pt-2">
+            <div className="relative z-10 flex flex-wrap items-center justify-center gap-3 pt-2">
               <Link
-                href="/accounts/signup"
+                href="/tests"
                 className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-[#5b5bf0] to-[#3b82f6] hover:from-[#4f4fe0] hover:to-[#2563eb] text-white font-black text-xs sm:text-sm shadow-[0_0_35px_rgba(91,91,240,0.6)] active:scale-95 transition-all cursor-pointer"
               >
-                <span>Join Practice &rarr;</span>
+                <Laptop className="w-4 h-4" />
+                <span>Start Free Mock Exam Now &rarr;</span>
+              </Link>
+
+              <Link
+                href="/tools"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 text-xs sm:text-sm transition-all"
+              >
+                <Zap className="w-4 h-4 text-amber-400" />
+                <span>Practice Tools (Flashcards &amp; Salary)</span>
               </Link>
             </div>
           </section>
+        </ScrollReveal>
+
+        {/* =========================================================================
+            6. SECTION: FAQ ACCORDION (SCROLL-TRIGGERED)
+           ========================================================================= */}
+        <ScrollReveal variant="up" delay={100} duration={600}>
+          <div className="space-y-4 max-w-3xl mx-auto pt-4">
+            <div className="text-center space-y-1">
+              <span className="text-xs font-black uppercase text-indigo-400">FAQ</span>
+              <h3 className="text-xl sm:text-2xl font-black text-white">
+                Frequently Asked Questions
+              </h3>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                {
+                  q: 'How do I take my first mock exam?',
+                  q_bn: 'আমি কীভাবে প্রথম পরীক্ষাটি দেব?',
+                  a: 'Simply go to the Mock Tests catalog or click "Start Exam" on Mock Test 01. It is 100% free with no sign-up required. If you sign in with Google, your scores will be saved on your profile.',
+                },
+                {
+                  q: 'What is the passing score for JFT-Basic A2?',
+                  q_bn: 'পাস মার্ক কত?',
+                  a: 'The official JFT-Basic exam is scored out of 250 points. A score of 200 or above (80%) is required to pass and receive the CEFR A2 certificate.',
+                },
+                {
+                  q: 'Can I practice on mobile or do I need a computer?',
+                  q_bn: 'মোবাইলে পরীক্ষা দেওয়া যাবে কি?',
+                  a: 'You can practice on smartphones, tablets, or computers. For the authentic Prometric test center simulation, taking it on a computer with headphones is recommended.',
+                },
+              ].map((faq, idx) => (
+                <div
+                  key={idx}
+                  className="bg-[#080911] border border-white/10 rounded-2xl overflow-hidden shadow-xs"
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleFaq(idx)}
+                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 cursor-pointer hover:bg-white/5 transition-colors"
+                  >
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-white">
+                        {faq.q}
+                      </h4>
+                      <span className="text-[11px] text-indigo-400 font-bold block mt-0.5">
+                        {faq.q_bn}
+                      </span>
+                    </div>
+                    {openFaq === idx ? (
+                      <ChevronUp className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                    )}
+                  </button>
+
+                  {openFaq === idx && (
+                    <div className="px-4 pb-4 sm:px-5 sm:pb-5 text-xs text-slate-300 border-t border-white/5 pt-3 font-medium leading-relaxed">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         </ScrollReveal>
 
       </div>
