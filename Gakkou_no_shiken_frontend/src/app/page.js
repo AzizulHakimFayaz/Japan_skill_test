@@ -6,8 +6,7 @@ import InteractiveFeatureShowcase from '@/components/InteractiveFeatureShowcase'
 import StudentExamGuide from '@/components/StudentExamGuide';
 import LiveActivityTicker from '@/components/LiveActivityTicker';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0; // Always fetch live tests in real-time
+export const revalidate = 60; // Incremental Static Regeneration (revalidate at most every 60 seconds)
 
 export default async function HomePage() {
   let data = { tests: [], tests_by_category: { basic: [], skill: [] }, section_specs: [] };

@@ -51,16 +51,21 @@ async function apiRequest(endpoint, options = {}) {
     ...(options.headers || {}),
   };
 
-
   if (token && !headers['Authorization']) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(url, {
+  const fetchOptions = {
     ...options,
     headers,
-    cache: options.cache || 'no-store',
-  });
+  };
+
+  // On server, add a 6-second timeout safeguard to prevent serverless hanging
+  if (typeof window === 'undefined' && !fetchOptions.signal) {
+    fetchOptions.signal = AbortSignal.timeout(6000);
+  }
+
+  const response = await fetch(url, fetchOptions);
 
   const isJson = response.headers.get('content-type')?.includes('application/json');
   const data = isJson ? await response.json() : await response.text();
@@ -90,19 +95,17 @@ async function apiRequest(endpoint, options = {}) {
 // ─── Tests & Quiz APIs ───
 export async function getTests(category = '') {
   const query = category ? `?category=${encodeURIComponent(category)}` : '';
-  return apiRequest(`/api/tests/${query}`, { cache: 'no-store' });
+  return apiRequest(`/api/tests/${query}`, { next: { revalidate: 60 } });
 }
 
-
 export async function getTestDetail(id) {
-  return apiRequest(`/api/tests/${id}/`);
+  return apiRequest(`/api/tests/${id}/`, { next: { revalidate: 300 } });
 }
 
 export async function getQuizData(id, preview = null) {
   const query = preview ? `?preview=${preview}` : '';
-  return apiRequest(`/api/tests/${id}/quiz/${query}`);
+  return apiRequest(`/api/tests/${id}/quiz/${query}`, { cache: 'no-store' });
 }
-
 
 export async function submitQuiz(id, answers) {
   return apiRequest(`/api/tests/${id}/submit/`, {
@@ -112,16 +115,16 @@ export async function submitQuiz(id, answers) {
 }
 
 export async function getAttemptResults(id) {
-  return apiRequest(`/api/attempts/${id}/`);
+  return apiRequest(`/api/attempts/${id}/`, { cache: 'no-store' });
 }
 
 // ─── Static / Overview Data ───
 export async function getJftInfo() {
-  return apiRequest('/api/info/jft/');
+  return apiRequest('/api/info/jft/', { next: { revalidate: 3600 } });
 }
 
 export async function getSswInfo() {
-  return apiRequest('/api/info/ssw/');
+  return apiRequest('/api/info/ssw/', { next: { revalidate: 3600 } });
 }
 
 export async function loginUser(username, password) {

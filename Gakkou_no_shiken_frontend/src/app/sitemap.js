@@ -1,6 +1,5 @@
 import { getTests } from '@/lib/api';
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // Refresh sitemap hourly
 
 export default async function sitemap() {

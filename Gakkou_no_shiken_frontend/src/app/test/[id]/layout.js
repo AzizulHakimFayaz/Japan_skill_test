@@ -1,11 +1,18 @@
 import { getTestDetail } from '@/lib/api';
+import { cache } from 'react';
+
+export const revalidate = 300; // Cache test metadata and layout for 5 minutes
+
+const getCachedTestDetail = cache(async (id) => {
+  return getTestDetail(id);
+});
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const id = resolvedParams?.id;
 
   try {
-    const test = await getTestDetail(id);
+    const test = await getCachedTestDetail(id);
     const testTitle = test?.title || `Mock Test #${id}`;
     const categoryName = test?.category === 'skill' ? 'SSW Skill Test' : 'JFT-Basic';
     const totalQ = test?.total_questions || test?.questions_count || 60;
@@ -63,7 +70,7 @@ export default async function TestDetailLayout({ children, params }) {
 
   let test = null;
   try {
-    test = await getTestDetail(id);
+    test = await getCachedTestDetail(id);
   } catch {}
 
   const testTitle = test?.title || `Mock Test #${id}`;
