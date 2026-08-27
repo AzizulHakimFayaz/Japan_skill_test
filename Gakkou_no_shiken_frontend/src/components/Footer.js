@@ -22,6 +22,12 @@ export default function Footer() {
             <Link href="/" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors">
               Home
             </Link>
+            <Link href="/how-it-works" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors font-bold">
+              How It Works
+            </Link>
+            <Link href="/tools" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors">
+              Study Tools
+            </Link>
             <Link href="/jft-basic" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors">
               JFT-Basic Info
             </Link>

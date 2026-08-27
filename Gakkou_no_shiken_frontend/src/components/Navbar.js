@@ -21,6 +21,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  HelpCircle,
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -117,6 +118,17 @@ export default function Navbar() {
             >
               <Trophy className="w-4 h-4 text-amber-500" />
               <span>{t('leaderboard')}</span>
+            </Link>
+            <Link
+              href="/how-it-works"
+              className={`text-sm font-bold transition-all duration-200 py-1.5 px-3 rounded-xl flex items-center gap-1.5 ${
+                isActive('/how-it-works')
+                  ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
+                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <HelpCircle className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+              <span>Guide</span>
             </Link>
 
             {/* Language Switcher (EN / BN / JA) */}
@@ -274,6 +286,18 @@ export default function Navbar() {
                   <span>{t('leaderboard')}</span>
                 </span>
                 <ChevronRight className="w-4 h-4 text-amber-600" />
+              </Link>
+
+              <Link
+                href="/how-it-works"
+                onClick={() => setOpen(false)}
+                className="px-4 py-3 rounded-2xl text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+              >
+                <span className="flex items-center gap-2.5">
+                  <HelpCircle className="w-5 h-5 text-japan-red" />
+                  <span>How It Works &amp; Exam Guide</span>
+                </span>
+                <ChevronRight className="w-4 h-4 text-slate-400" />
               </Link>
 
               {isAuthenticated && user ? (
