@@ -496,3 +496,27 @@ u {
 .animate-sound-4 { animation: soundWave 0.8s ease-in-out infinite 0.2s; }
 .animate-sound-5 { animation: soundWave 0.8s ease-in-out infinite 0.4s; }
 
+@keyframes rayPulse {
+    0%, 100% { opacity: 0.2; transform: scale(1) rotate(0deg); }
+    50% { opacity: 0.4; transform: scale(1.05) rotate(4deg); }
+}
+
+@keyframes radarPulse {
+    0% { transform: scale(0.6); opacity: 0.9; }
+    100% { transform: scale(2.4); opacity: 0; }
+}
+
+@keyframes borderBeamChaser {
+    0% { offset-distance: 0%; }
+    100% { offset-distance: 100%; }
+}
+
+.animate-ray-pulse {
+    animation: rayPulse 10s ease-in-out infinite;
+}
+
+.animate-radar-pulse {
+    animation: radarPulse 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+

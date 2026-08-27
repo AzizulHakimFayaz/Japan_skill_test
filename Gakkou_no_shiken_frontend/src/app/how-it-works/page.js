@@ -3,479 +3,455 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  Home,
-  ChevronRight,
   Sparkles,
-  Laptop,
-  Headphones,
-  Trophy,
   ArrowRight,
-  Clock,
-  CheckCircle2,
-  Volume2,
-  Flag,
-  UserCheck,
-  Zap,
-  Award,
-  BookOpen,
-  ChevronDown,
-  ChevronUp,
   MousePointer2,
-  Layers,
-  Sparkle,
+  Lock,
+  Unlock,
+  CheckCircle2,
+  Trophy,
+  Laptop,
+  Zap,
+  Globe,
+  ExternalLink,
+  MessageCircle,
+  HelpCircle,
 } from 'lucide-react';
-import ScrollReveal from '@/components/ScrollReveal';
 
 export default function HowItWorksPage() {
-  const [openFaq, setOpenFaq] = useState(null);
-  const [timerSeconds, setTimerSeconds] = useState(3582); // 59:42 in seconds
-  const [clicked, setClicked] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [activeSlot, setActiveSlot] = useState(1);
+  const [cursorTapped, setCursorTapped] = useState(false);
 
-  // Live countdown timer simulation for Step 2
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimerSeconds((prev) => (prev > 0 ? prev - 1 : 3600));
-    }, 1000);
-    return () => clearInterval(interval);
+    setMounted(true);
+
+    // Reward Slot Carousel Cycling (every 2.5s)
+    const slotInterval = setInterval(() => {
+      setActiveSlot((prev) => (prev + 1) % 3);
+    }, 2500);
+
+    // Simulated Cursor Tap Loop (every 2.8s)
+    const cursorInterval = setInterval(() => {
+      setCursorTapped(true);
+      setTimeout(() => setCursorTapped(false), 500);
+    }, 2800);
+
+    return () => {
+      clearInterval(slotInterval);
+      clearInterval(cursorInterval);
+    };
   }, []);
 
-  // Periodic click animation trigger for Step 1
-  useEffect(() => {
-    const clickInterval = setInterval(() => {
-      setClicked(true);
-      setTimeout(() => setClicked(false), 600);
-    }, 3000);
-    return () => clearInterval(clickInterval);
-  }, []);
-
-  const formatTimer = (secs) => {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
-
-  const toggleFaq = (idx) => {
-    setOpenFaq(openFaq === idx ? null : idx);
-  };
+  const slotRewards = [
+    { title: '250 Pts Mock Exam', sub: 'Prometric CBT 4 Sections', icon: Laptop, tag: 'Official' },
+    { title: '218 / 250 • PASSED!', sub: 'Instant CEFR Scaled Score', icon: Trophy, tag: 'Unlocked 🔓' },
+    { title: 'CEFR A2 Certified', sub: 'Japan Visa Ready Score', icon: CheckCircle2, tag: 'Top 3 BD' },
+  ];
 
   return (
-    <div className="space-y-16 sm:space-y-24 animate-fade-in max-w-6xl mx-auto pb-16">
-      {/* Top Breadcrumb */}
-      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-        <Link href="/" className="hover:text-japan-red dark:hover:text-rose-400 flex items-center gap-1">
-          <Home className="w-3.5 h-3.5" />
-          <span>Home</span>
-        </Link>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-        <span className="text-slate-900 dark:text-white font-bold">How It Works</span>
-      </nav>
-
+    <div className="min-h-screen bg-[#0d1424] p-3 sm:p-6 lg:p-8 font-sans text-slate-100 selection:bg-indigo-500 selection:text-white">
       {/* =========================================================================
-          SECTION 1: HERO & 3 STAT CARDS ON GLOWING CURVED HORIZON (Video 00:01-00:04)
+          1. PAGE SHELL: BEZEL-LESS DEVICE FRAME (~24px radius, #05060a background)
          ========================================================================= */}
-      <div className="relative overflow-hidden rounded-3xl bg-[#060814] border border-slate-800/90 p-6 sm:p-12 lg:p-16 shadow-[0_0_60px_rgba(0,0,0,0.85)] text-center">
-        {/* Ambient Top Radiant Glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-b from-purple-600/25 via-indigo-600/15 to-transparent blur-3xl pointer-events-none"></div>
+      <div className="relative mx-auto max-w-[1360px] rounded-[24px] sm:rounded-[32px] bg-[#05060a] border border-slate-800/80 shadow-[0_0_80px_rgba(0,0,0,0.95)] overflow-hidden p-4 sm:p-8 lg:p-12 space-y-16 sm:space-y-24">
+        
+        {/* =========================================================================
+            2. GLOBAL BACKGROUND SYSTEM (Starfield + Radial Nebula Glows + Sunburst Rays)
+           ========================================================================= */}
+        {/* Fixed Starfield Layer */}
+        <div className="absolute inset-0 bg-[radial-gradient(#ffffff15_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-40"></div>
 
-        {/* Ambient Micro Stars / Dust */}
-        <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none opacity-60"></div>
+        {/* Soft Radial Nebula Glows */}
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-indigo-600/20 via-purple-600/10 to-transparent blur-[120px] pointer-events-none"></div>
+        <div className="absolute top-[800px] left-1/4 w-[500px] h-[500px] bg-blue-600/10 blur-[140px] pointer-events-none"></div>
+        <div className="absolute bottom-20 right-1/4 w-[600px] h-[400px] bg-purple-600/15 blur-[140px] pointer-events-none"></div>
 
-        {/* Top Social Proof Avatar Stack */}
-        <div className="relative z-10 inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/80 shadow-lg mb-6 backdrop-blur-md">
-          <div className="flex -space-x-2">
-            <span className="w-6 h-6 rounded-full bg-rose-500 text-[10px] font-black text-white flex items-center justify-center ring-2 ring-slate-900">
-              FA
-            </span>
-            <span className="w-6 h-6 rounded-full bg-indigo-500 text-[10px] font-black text-white flex items-center justify-center ring-2 ring-slate-900">
-              RH
-            </span>
-            <span className="w-6 h-6 rounded-full bg-emerald-500 text-[10px] font-black text-white flex items-center justify-center ring-2 ring-slate-900">
-              MK
-            </span>
-            <span className="w-6 h-6 rounded-full bg-amber-500 text-[10px] font-black text-slate-950 flex items-center justify-center ring-2 ring-slate-900">
-              +1k
-            </span>
-          </div>
-          <span className="text-xs font-bold text-slate-200">
-            1,200+ Examinees already testing their skills
-          </span>
-        </div>
-
-        {/* Main Headline */}
-        <h1 className="relative z-10 text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.15] max-w-3xl mx-auto">
-          Pass Your Japanese CBT Exam &amp; Get Certified in 3 Simple Steps!
-        </h1>
-
-        <p className="relative z-10 text-xs sm:text-base text-slate-400 font-medium max-w-xl mx-auto mt-3 leading-relaxed">
-          Sign up for free, experience authentic Prometric Computer-Based Testing, and get your instant CEFR A2 score diagnostic.
-        </p>
-
-        {/* 3 Metric Cards with Ambient Backlight Glow */}
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mt-10 max-w-4xl mx-auto text-left">
-          {/* Left Card: 250 Scale */}
-          <div className="relative bg-[#0b0e20]/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between space-y-4 hover:border-indigo-500/50 hover:shadow-indigo-500/10 transition-all duration-300 group">
-            <div className="space-y-1">
-              <div className="text-3xl sm:text-4xl font-black text-white font-mono tracking-tight group-hover:text-indigo-400 transition-colors">
-                250 Pts
-              </div>
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Full CBT Scale
-              </div>
+        {/* =========================================================================
+            3. SECTION: NAVBAR (Persistent inside frame, transparent floating)
+           ========================================================================= */}
+        <header className="relative z-20 flex items-center justify-between py-2 border-b border-white/5">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2.5 group">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/img/logo.png"
+              alt="Gakkou No Shiken"
+              className="h-8 sm:h-9 w-auto object-contain group-hover:scale-105 transition-transform"
+            />
+            <div className="flex items-center gap-1.5 font-black text-sm sm:text-base tracking-tight text-white">
+              <span>Gakkou No</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-japan-red">Shiken</span>
             </div>
-            <div className="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-slate-800/80">
-              <span>Authentic Prometric</span>
-              <span className="font-mono text-indigo-400 font-bold">4 Sections</span>
-            </div>
-          </div>
-
-          {/* Center Featured Card: 200+ Target with Radiant Glow */}
-          <div className="relative bg-gradient-to-b from-[#181436] to-[#0c0d1e] border-2 border-purple-500/70 rounded-3xl p-6 shadow-[0_0_50px_rgba(168,85,247,0.3)] flex flex-col justify-between space-y-4 transform md:-translate-y-2 transition-all duration-300">
-            {/* Top Recommended Tag */}
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3.5 py-0.5 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[10px] font-black uppercase tracking-wider shadow-md">
-              Passing Benchmark
-            </div>
-
-            <div className="space-y-1 pt-1">
-              <div className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-white to-purple-300 font-mono tracking-tight">
-                200+ Pts
-              </div>
-              <div className="text-xs font-bold text-purple-300 uppercase tracking-wider">
-                Pass Mark (80%)
-              </div>
-            </div>
-            <div className="flex items-center justify-between text-xs text-slate-300 pt-3 border-t border-purple-900/60">
-              <span className="text-purple-300 font-bold">CEFR A2 Level</span>
-              <span className="font-mono text-white font-bold">Official</span>
-            </div>
-          </div>
-
-          {/* Right Card: 100% Free Start */}
-          <div className="relative bg-[#0b0e20]/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between space-y-4 hover:border-emerald-500/50 hover:shadow-emerald-500/10 transition-all duration-300 group">
-            <div className="space-y-1">
-              <div className="text-3xl sm:text-4xl font-black text-white font-mono tracking-tight group-hover:text-emerald-400 transition-colors">
-                100% Free
-              </div>
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Instant Access
-              </div>
-            </div>
-            <div className="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-slate-800/80">
-              <span>Free Diagnostics</span>
-              <span className="font-mono text-emerald-400 font-bold">No Card Req</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Curved Glowing Horizon Arch with Floating CTA Button (Video 00:04) */}
-        <div className="relative mt-14 pt-8">
-          {/* Curved glowing neon light beam with breathing pulse */}
-          <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-indigo-500/25 via-purple-600/15 to-transparent rounded-[100%] blur-2xl pointer-events-none animate-horizon-pulse"></div>
-          <div className="absolute inset-x-8 bottom-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent blur-xs"></div>
-          <div className="absolute inset-x-2 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent"></div>
-
-          <Link
-            href="/accounts/signup"
-            className="relative z-10 inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-black text-xs sm:text-sm shadow-[0_0_35px_rgba(168,85,247,0.6)] active:scale-95 transition-all cursor-pointer"
-          >
-            <span>Create Free Account &rarr;</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* =========================================================================
-          SECTION 2: 3-STEP USER JOURNEY CARDS WITH UI PREVIEWS (Video 00:06-00:09)
-         ========================================================================= */}
-      <div className="space-y-10">
-        {/* Section Header */}
-        <div className="text-center space-y-2 max-w-xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 text-[10px] font-black uppercase tracking-wider">
-            <span>How It Works</span>
-          </div>
-          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-            How To Test Your Skill in 3 Steps
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Sign up, take the authentic CBT examination, and get your CEFR diagnostic score.
-          </p>
-        </div>
-
-        {/* 3 Step Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* STEP 0.1: SIGN UP & PICK YOUR EXAM (Animated Cursor + Google Button) */}
-          <ScrollReveal variant="up" delay={50} duration={500}>
-            <div className="bg-[#080b18] border border-slate-800 rounded-3xl p-6 flex flex-col justify-between h-full shadow-xl hover:border-slate-700 transition-all space-y-6 group">
-              {/* Step Number Tag */}
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-black text-slate-500 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-                  <span>0.1</span>
-                </span>
-                <span className="text-[10px] font-bold text-indigo-400 bg-indigo-950/60 border border-indigo-800/80 px-2.5 py-0.5 rounded-full uppercase">
-                  Step 1
-                </span>
-              </div>
-
-              {/* Top Interactive UI Preview Box: Clickable Mock Google Button with Cursor */}
-              <div className="h-48 rounded-2xl bg-gradient-to-b from-[#0e142e] to-[#0a0d1e] border border-slate-800/90 p-4 flex flex-col items-center justify-center space-y-3 relative overflow-hidden shadow-inner">
-                <div className="absolute inset-0 bg-indigo-500/5 blur-xl pointer-events-none"></div>
-
-                <div className="w-full max-w-[210px] p-3 rounded-2xl bg-slate-900/90 border border-slate-700 text-center space-y-2 shadow-lg relative">
-                  <span className="text-[9px] font-bold text-slate-400 block uppercase">1-Click Fast Sign Up</span>
-                  
-                  {/* Mock Button with Interactive Click Simulation */}
-                  <div
-                    className={`inline-flex items-center justify-center gap-2 w-full py-2 px-3 rounded-xl bg-white text-slate-950 text-xs font-black shadow-md transition-transform duration-200 ${
-                      clicked ? 'scale-95 bg-slate-100' : 'scale-100'
-                    }`}
-                  >
-                    <span>Sign in with Google</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-japan-red" />
-                  </div>
-
-                  {/* Animated Mock Cursor */}
-                  <div className="absolute right-6 bottom-1 pointer-events-none animate-cursor-tap">
-                    <MousePointer2 className="w-5 h-5 text-amber-400 fill-amber-400 drop-shadow-md" />
-                  </div>
-                </div>
-
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-300 text-[10px] font-black">
-                  <BookOpen className="w-3 h-3 text-japan-red" />
-                  <span>JFT-Basic A2 Mock 01</span>
-                </div>
-              </div>
-
-              {/* Title & Description */}
-              <div className="space-y-2">
-                <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
-                  Sign Up &amp; Pick Your Exam
-                </h3>
-                <p className="text-xs text-japan-red font-bold">
-                  ফ্রি সাইন-আপ করুন ও পরীক্ষা নির্বাচন করুন
-                </p>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Sign up for free in 1 click with Google or email. Choose between JFT-Basic A2 Japanese language or SSW skill tests for Caregiving, Food Service, Agriculture, and more.
-                </p>
-              </div>
-            </div>
-          </ScrollReveal>
-
-          {/* STEP 0.2: TAKE EXAM & TEST YOUR SKILL (Live Timer + Dancing Audio Bars) */}
-          <ScrollReveal variant="up" delay={120} duration={500}>
-            <div className="bg-[#080b18] border border-slate-800 rounded-3xl p-6 flex flex-col justify-between h-full shadow-xl hover:border-slate-700 transition-all space-y-6 group">
-              {/* Step Number Tag */}
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-black text-slate-500 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-                  <span>0.2</span>
-                </span>
-                <span className="text-[10px] font-bold text-purple-400 bg-purple-950/60 border border-purple-800/80 px-2.5 py-0.5 rounded-full uppercase">
-                  Step 2
-                </span>
-              </div>
-
-              {/* Top Interactive UI Preview Box: Real-Time Timer HUD & Audio Wave */}
-              <div className="h-48 rounded-2xl bg-gradient-to-b from-[#140e2e] to-[#0a0d1e] border border-slate-800/90 p-4 flex flex-col items-center justify-center space-y-3 relative overflow-hidden shadow-inner">
-                <div className="absolute inset-0 bg-purple-500/5 blur-xl pointer-events-none"></div>
-
-                {/* Live Ticking Prometric Timer */}
-                <div className="w-full max-w-[210px] flex items-center justify-between bg-slate-900/90 border border-slate-700/90 px-3 py-1.5 rounded-xl text-[10px] font-mono shadow-md">
-                  <span className="flex items-center gap-1 text-amber-400 font-bold">
-                    <Clock className="w-3 h-3 text-amber-400" />
-                    <span>{formatTimer(timerSeconds)}</span>
-                  </span>
-                  <span className="text-purple-300 font-bold">Section 3 / 4</span>
-                </div>
-
-                {/* Dancing Audio Waveform */}
-                <div className="w-full max-w-[210px] p-2.5 rounded-xl bg-purple-950/50 border border-purple-800/70 flex items-center justify-between gap-2 shadow-xs">
-                  <Volume2 className="w-4 h-4 text-purple-400 animate-pulse" />
-                  <div className="flex items-center gap-1 h-5 flex-1 justify-center">
-                    <span className="w-1 bg-purple-400 rounded-full animate-sound-1"></span>
-                    <span className="w-1 bg-purple-300 rounded-full animate-sound-2"></span>
-                    <span className="w-1 bg-purple-500 rounded-full animate-sound-3"></span>
-                    <span className="w-1 bg-purple-400 rounded-full animate-sound-4"></span>
-                    <span className="w-1 bg-purple-300 rounded-full animate-sound-5"></span>
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-300">Listening Q14</span>
-                </div>
-
-                <div className="flex items-center gap-2 text-[9px] text-slate-400">
-                  <span className="flex items-center gap-1"><Flag className="w-2.5 h-2.5 text-rose-400" /> Flag</span>
-                  <span>•</span>
-                  <span>Keyboard: Alt+N</span>
-                </div>
-              </div>
-
-              {/* Title & Description */}
-              <div className="space-y-2">
-                <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
-                  Take Exam &amp; Test Your Skill
-                </h3>
-                <p className="text-xs text-japan-red font-bold">
-                  আসল CBT ইন্টারফেসে পরীক্ষা দিন ও দক্ষতা যাচাই করুন
-                </p>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Enter the 60-minute Prometric CBT simulator. Practice timed sections (Vocabulary, Conversation, Native Audio Listening, and Reading) with headphones.
-                </p>
-              </div>
-            </div>
-          </ScrollReveal>
-
-          {/* STEP 0.3: GET INSTANT SCORE & RANK (Floating Levitation Badges) */}
-          <ScrollReveal variant="up" delay={180} duration={500}>
-            <div className="bg-[#080b18] border border-slate-800 rounded-3xl p-6 flex flex-col justify-between h-full shadow-xl hover:border-slate-700 transition-all space-y-6 group">
-              {/* Step Number Tag */}
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-black text-slate-500 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  <span>0.3</span>
-                </span>
-                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-0.5 rounded-full uppercase">
-                  Step 3
-                </span>
-              </div>
-
-              {/* Top Interactive UI Preview Box: Floating Floating Badges */}
-              <div className="h-48 rounded-2xl bg-gradient-to-b from-[#0e2e1c] to-[#0a0d1e] border border-slate-800/90 p-4 flex flex-col items-center justify-center space-y-2 relative overflow-hidden shadow-inner">
-                <div className="absolute inset-0 bg-emerald-500/5 blur-xl pointer-events-none"></div>
-
-                {/* Score Pill Badge with Floating Animation */}
-                <div className="px-3.5 py-1.5 rounded-xl bg-emerald-500 text-slate-950 text-xs font-black shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 animate-float-gentle">
-                  <CheckCircle2 className="w-4 h-4 text-slate-950" />
-                  <span>218 / 250 • PASSED!</span>
-                </div>
-
-                {/* CEFR Level Tag */}
-                <div className="px-3 py-1 rounded-lg bg-slate-900/90 border border-slate-700 text-[10px] font-black text-emerald-300 flex items-center gap-1 shadow-sm">
-                  <Award className="w-3.5 h-3.5 text-amber-400" />
-                  <span>CEFR A2 Certified Level</span>
-                </div>
-
-                {/* Leaderboard Rank */}
-                <div className="text-[9px] font-bold text-slate-400 flex items-center gap-1">
-                  <Trophy className="w-3 h-3 text-amber-400" />
-                  <span>Ranked #3 on National Leaderboard</span>
-                </div>
-              </div>
-
-              {/* Title & Description */}
-              <div className="space-y-2">
-                <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
-                  Get Instant Score &amp; Review
-                </h3>
-                <p className="text-xs text-japan-red font-bold">
-                  তাৎক্ষণিক ফলাফল, বাংলা ব্যাখ্যা ও র‍্যাংকিং
-                </p>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Immediately receive your 250-point score breakdown, correct answers with Bengali grammar explanations, and see your rank on the Bangladesh Leaderboard.
-                </p>
-              </div>
-            </div>
-          </ScrollReveal>
-        </div>
-      </div>
-
-      {/* =========================================================================
-          SECTION 3: GIANT OBSIDIAN GLASS CARD WITH GLOWING NEON BORDER (Video 00:11-00:14)
-         ========================================================================= */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0c0d1c] via-[#070914] to-[#120e24] border-2 border-indigo-500/50 p-8 sm:p-14 shadow-[0_0_70px_rgba(99,102,241,0.25)] text-center space-y-6">
-        {/* Corner & Perimeter Ambient Neon Flares */}
-        <div className="absolute -top-12 -left-12 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
-
-        <div className="relative z-10 space-y-2 max-w-xl mx-auto">
-          <span className="text-xs font-black uppercase tracking-wider text-purple-400">
-            Start Your Journey to Japan Today
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-            Ready to Test Your Japanese Skills?
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            Take a 100% free official-format JFT-Basic CBT mock test right now. No credit card required.
-          </p>
-        </div>
-
-        <div className="relative z-10 flex flex-wrap items-center justify-center gap-3 pt-2">
-          <Link
-            href="/tests"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-japan-red via-rose-600 to-japan-red hover:from-japan-redhover hover:to-red-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-red-500/30 active:scale-95 transition-all cursor-pointer"
-          >
-            <Laptop className="w-4 h-4" />
-            <span>Start Free Mock Exam Now &rarr;</span>
           </Link>
 
-          <Link
-            href="/tools"
-            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 text-xs sm:text-sm transition-all"
-          >
-            <Zap className="w-4 h-4 text-amber-400" />
-            <span>Practice Tools (Flashcards &amp; Salary)</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* =========================================================================
-          SECTION 4: FREQUENTLY ASKED QUESTIONS (FAQ)
-         ========================================================================= */}
-      <div className="space-y-4 max-w-3xl mx-auto">
-        <div className="text-center space-y-1">
-          <span className="text-xs font-black uppercase text-japan-red dark:text-rose-400">FAQ</span>
-          <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            Common Questions
-          </h3>
-        </div>
-
-        <div className="space-y-3">
-          {[
-            {
-              q: 'How do I take my first mock exam?',
-              q_bn: 'আমি কীভাবে প্রথম পরীক্ষাটি দেব?',
-              a: 'Simply go to the Mock Tests catalog or click "Start Exam" on Mock Test 01. It is 100% free with no sign-up required. If you sign in with Google, your scores will be saved on your profile.',
-            },
-            {
-              q: 'What is the passing score for JFT-Basic A2?',
-              q_bn: 'পাস মার্ক কত?',
-              a: 'The official JFT-Basic exam is scored out of 250 points. A score of 200 or above (80%) is required to pass and receive the CEFR A2 certificate.',
-            },
-            {
-              q: 'Can I practice on mobile or do I need a computer?',
-              q_bn: 'মোবাইলে পরীক্ষা দেওয়া যাবে কি?',
-              a: 'You can practice on smartphones, tablets, or computers. For the authentic Prometric test center simulation, taking it on a computer with headphones is recommended.',
-            },
-          ].map((faq, idx) => (
-            <div
-              key={idx}
-              className="bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs"
+          {/* Right Action Links */}
+          <div className="flex items-center gap-3 sm:gap-6">
+            <Link
+              href="/tools"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white transition-colors"
             >
-              <button
-                type="button"
-                onClick={() => toggleFaq(idx)}
-                className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
-              >
-                <div>
-                  <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
-                    {faq.q}
-                  </h4>
-                  <span className="text-[11px] text-japan-red dark:text-rose-400 font-bold block mt-0.5">
-                    {faq.q_bn}
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span>Study Tools</span>
+            </Link>
+
+            <a
+              href="https://whatsapp.com/channel/0029Vb8f5nVGOj9mKhSBbp3m"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-emerald-400 transition-colors"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>Community</span>
+            </a>
+
+            {/* Primary Pill Button with Indigo-to-Blue Gradient */}
+            <Link
+              href="/accounts/signup"
+              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-[#5b5bf0] to-[#3b82f6] hover:from-[#4f4fe0] hover:to-[#2563eb] text-white font-black text-xs shadow-lg shadow-indigo-500/25 active:scale-95 transition-all"
+            >
+              <span>Join Practice &rarr;</span>
+            </Link>
+          </div>
+        </header>
+
+        {/* =========================================================================
+            4. SECTION: HERO (Headline + Avatar Badge + 3 Hero Cards + Light Horizon)
+           ========================================================================= */}
+        <section className="relative text-center pt-6 sm:pt-12 space-y-8">
+          {/* Headline */}
+          <div className="space-y-4 max-w-3xl mx-auto">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
+              Join 1,000+ Examinees Who Already Signed Up &amp; Get Certified!
+            </h1>
+
+            {/* Avatar Pill Tag */}
+            <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 shadow-lg backdrop-blur-md">
+              <div className="flex -space-x-2">
+                <span className="w-6 h-6 rounded-full bg-rose-500 text-[9px] font-black text-white flex items-center justify-center ring-2 ring-[#05060a]">
+                  FA
+                </span>
+                <span className="w-6 h-6 rounded-full bg-indigo-500 text-[9px] font-black text-white flex items-center justify-center ring-2 ring-[#05060a]">
+                  RH
+                </span>
+                <span className="w-6 h-6 rounded-full bg-emerald-500 text-[9px] font-black text-white flex items-center justify-center ring-2 ring-[#05060a]">
+                  MK
+                </span>
+                <span className="w-6 h-6 rounded-full bg-amber-500 text-[9px] font-black text-slate-950 flex items-center justify-center ring-2 ring-[#05060a]">
+                  +1k
+                </span>
+              </div>
+              <span className="text-xs font-bold text-slate-200">
+                50+ Candidates already practicing at our live portal
+              </span>
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-400 font-medium max-w-md mx-auto">
+              Test your Japanese communicative competence and win top ranks:
+            </p>
+          </div>
+
+          {/* 3-Card Row with Center Card Visually Promoted */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto text-left items-center pt-4">
+            {/* Left Card: 250 Scale */}
+            <div className="relative bg-[#090b14]/90 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-7 shadow-2xl flex flex-col justify-between h-[230px] hover:border-indigo-500/40 transition-all">
+              <div className="space-y-1">
+                <div className="text-4xl sm:text-5xl font-black text-white font-mono tracking-tight">
+                  250 Pts
+                </div>
+                <div className="text-xs font-bold text-slate-400">
+                  full cbt scale
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-xs text-slate-400 pt-4 border-t border-white/5">
+                <span>For TOP 50 on the leaderboard</span>
+                <span className="px-2 py-0.5 rounded-md bg-white/5 font-mono text-[10px] text-slate-300">50x</span>
+              </div>
+            </div>
+
+            {/* Center Card: Promoted with Radiant Purple Glow and Taller Height */}
+            <div className="relative bg-gradient-to-b from-[#141228] via-[#0d0d1e] to-[#070712] border-2 border-purple-500/80 rounded-3xl p-6 sm:p-8 shadow-[0_0_60px_rgba(168,85,247,0.35)] flex flex-col justify-between h-[260px] transform md:-translate-y-3 transition-all">
+              {/* Corner Glow Flare */}
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-20 bg-purple-500/30 rounded-full blur-2xl pointer-events-none"></div>
+
+              <div className="space-y-1 relative z-10">
+                <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-white to-purple-300 font-mono tracking-tight">
+                  200+ Pts
+                </div>
+                <div className="text-xs font-bold text-purple-300">
+                  in passing score (CEFR A2)
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-xs text-purple-200 pt-4 border-t border-purple-900/50 relative z-10">
+                <span>For TOP 3 rankers</span>
+                <span className="px-2 py-0.5 rounded-md bg-purple-500/20 font-mono text-[10px] text-purple-300 font-bold border border-purple-500/30">3x</span>
+              </div>
+            </div>
+
+            {/* Right Card: 100% Free Access */}
+            <div className="relative bg-[#090b14]/90 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-7 shadow-2xl flex flex-col justify-between h-[230px] hover:border-blue-500/40 transition-all">
+              <div className="space-y-1">
+                <div className="text-4xl sm:text-5xl font-black text-white font-mono tracking-tight">
+                  100%
+                </div>
+                <div className="text-xs font-bold text-slate-400">
+                  free simulator
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-xs text-slate-400 pt-4 border-t border-white/5">
+                <span>For Everybody on the platform</span>
+                <span className="px-2 py-0.5 rounded-md bg-white/5 font-mono text-[10px] text-slate-300">Unlimited</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Curved Radiant Horizon Light Arch with Rotating Rays (Video 00:04) */}
+          <div className="relative mt-8 pt-10">
+            {/* Pulsing Sunburst Fanning Rays */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[850px] h-[320px] bg-[radial-gradient(ellipse_at_center,rgba(91,91,240,0.3)_0%,rgba(139,92,246,0.15)_45%,transparent_75%)] rounded-[100%] blur-3xl pointer-events-none animate-ray-pulse"></div>
+            
+            {/* Crisp Horizon Line Stroke */}
+            <div className="absolute inset-x-16 bottom-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent blur-xs"></div>
+            <div className="absolute inset-x-4 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
+
+            {/* Primary Pill Button resting on Horizon */}
+            <Link
+              href="/accounts/signup"
+              className="relative z-10 inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-[#5b5bf0] via-[#4f4fe0] to-[#3b82f6] hover:from-[#4f4fe0] hover:to-[#2563eb] text-white font-black text-xs sm:text-sm shadow-[0_0_40px_rgba(91,91,240,0.6)] active:scale-95 transition-all cursor-pointer"
+            >
+              <span>Join Practice &rarr;</span>
+            </Link>
+          </div>
+        </section>
+
+        {/* =========================================================================
+            5. SECTION: "HOW IT WORKS" 3-STEP SCHEMATIC GRID WITH HAIRLINE DIVIDERS & JOINT DOTS
+           ========================================================================= */}
+        <section className="relative space-y-10 pt-8">
+          {/* Eyebrow Pill Label + Section Heading */}
+          <div className="text-center space-y-3 max-w-xl mx-auto">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 text-[10px] font-black uppercase tracking-wider">
+              <span>How It Works</span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
+              How To Join &amp; Pass
+            </h2>
+          </div>
+
+          {/* 3-Column Schematic Grid with Hairline Dividers & Corner Joint Dots */}
+          <div className="relative border border-white/10 rounded-3xl bg-[#080911]/80 backdrop-blur-xl overflow-hidden shadow-2xl">
+            {/* Grid Joint Dots at Four Corners */}
+            <span className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-slate-700 bg-slate-900 z-20"></span>
+            <span className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-slate-700 bg-slate-900 z-20"></span>
+            <span className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 w-3 h-3 rounded-full border border-slate-700 bg-slate-900 z-20"></span>
+            <span className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 w-3 h-3 rounded-full border border-slate-700 bg-slate-900 z-20"></span>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
+              
+              {/* --- CARD 1: JOIN THE WAITLIST / PRACTICE (Autoplaying Fake Cursor Demo) --- */}
+              <div className="p-6 sm:p-8 flex flex-col justify-between space-y-6 relative group">
+                {/* Index Label */}
+                <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-400">
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                    <span>0.1</span>
                   </span>
                 </div>
-                {openFaq === idx ? (
-                  <ChevronUp className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                )}
-              </button>
 
-              {openFaq === idx && (
-                <div className="px-4 pb-4 sm:px-5 sm:pb-5 text-xs text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-slate-800 pt-3 font-medium leading-relaxed">
-                  {faq.a}
+                {/* Inner Demo Box: Dot-Grid + Centered Pill Button + Simulated Cursor */}
+                <div className="h-52 rounded-2xl bg-[#0b0d1a] border border-white/10 p-4 flex flex-col items-center justify-center relative overflow-hidden shadow-inner bg-[radial-gradient(#ffffff0f_1px,transparent_1px)] [background-size:12px_12px]">
+                  <div className="relative">
+                    {/* Simulated Pill Button */}
+                    <div
+                      className={`inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#5b5bf0] to-[#3b82f6] text-white text-xs font-black shadow-lg transition-transform duration-200 ${
+                        cursorTapped ? 'scale-95 shadow-indigo-500/40' : 'scale-100 shadow-indigo-500/20'
+                      }`}
+                    >
+                      <span>Join Practice &rarr;</span>
+                    </div>
+
+                    {/* Simulated Cursor Icon drifting and tapping */}
+                    <div className="absolute -right-2 -bottom-3 pointer-events-none animate-cursor-tap">
+                      <MousePointer2 className="w-6 h-6 text-white fill-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                {/* Title & Body Description */}
+                <div className="space-y-2">
+                  <h3 className="text-lg sm:text-xl font-black text-white">
+                    Join the practice portal
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                    Maximize your exam score potential by testing authentic Prometric format CBT mocks with native audio.
+                  </p>
+                </div>
+              </div>
+
+              {/* --- CARD 2: NETWORK / STUDY GROUP GRAPH (Node-Graph Radar Animation) --- */}
+              <div className="p-6 sm:p-8 flex flex-col justify-between space-y-6 relative group">
+                {/* Index Label */}
+                <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-400">
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                    <span>0.2</span>
+                  </span>
+                </div>
+
+                {/* Inner Demo Box: Central Node + Secondary Nodes + SVG Bezier Lines + Radar Pulse */}
+                <div className="h-52 rounded-2xl bg-[#0b0d1a] border border-white/10 p-4 flex items-center justify-center relative overflow-hidden shadow-inner">
+                  {/* Radar Pulse Wave behind center */}
+                  <div className="absolute w-24 h-24 rounded-full border border-purple-500/40 bg-purple-500/10 animate-radar-pulse pointer-events-none"></div>
+
+                  {/* SVG Connecting Bezier Lines */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none stroke-purple-500/40 stroke-2 fill-none">
+                    <path d="M 120 100 Q 150 40 220 55" strokeDasharray="3 3" />
+                    <path d="M 120 100 Q 80 150 50 140" strokeDasharray="3 3" />
+                    <path d="M 120 100 Q 170 160 210 145" strokeDasharray="3 3" />
+                  </svg>
+
+                  {/* Central Main Avatar Node */}
+                  <div className="relative z-10 w-12 h-12 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 border-2 border-white/80 flex items-center justify-center text-white shadow-xl">
+                    <span className="text-xs font-black">You</span>
+                  </div>
+
+                  {/* Top-Right Secondary Node */}
+                  <div className="absolute top-8 right-12 w-8 h-8 rounded-full bg-slate-800 border border-purple-400/60 flex items-center justify-center text-[10px] text-purple-300 font-bold shadow-md">
+                    RH
+                  </div>
+
+                  {/* Bottom-Left Secondary Node */}
+                  <div className="absolute bottom-9 left-10 w-8 h-8 rounded-full bg-slate-800 border border-indigo-400/60 flex items-center justify-center text-[10px] text-indigo-300 font-bold shadow-md">
+                    FA
+                  </div>
+
+                  {/* Bottom-Right Node */}
+                  <div className="absolute bottom-9 right-14 w-8 h-8 rounded-full bg-slate-800 border border-pink-400/60 flex items-center justify-center text-[10px] text-pink-300 font-bold shadow-md">
+                    MK
+                  </div>
+                </div>
+
+                {/* Title & Body Description */}
+                <div className="space-y-2">
+                  <h3 className="text-lg sm:text-xl font-black text-white">
+                    Challenge friends to climb the leaderboard
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                    Compare scaled score benchmarks with peer examinees across Bangladesh and track weekly rank improvements.
+                  </p>
+                </div>
+              </div>
+
+              {/* --- CARD 3: VERTICAL SLOTTED REWARD CAROUSEL (Scrolling Reward Pills) --- */}
+              <div className="p-6 sm:p-8 flex flex-col justify-between space-y-6 relative group">
+                {/* Index Label */}
+                <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-400">
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span>0.3</span>
+                  </span>
+                </div>
+
+                {/* Inner Demo Box: Vertical Slot Carousel */}
+                <div className="h-52 rounded-2xl bg-[#0b0d1a] border border-white/10 p-3 flex flex-col items-center justify-center space-y-2 relative overflow-hidden shadow-inner">
+                  {slotRewards.map((reward, rIdx) => {
+                    const isSelected = activeSlot === rIdx;
+                    return (
+                      <div
+                        key={rIdx}
+                        className={`w-full max-w-[230px] p-2 rounded-xl transition-all duration-500 flex items-center justify-between border ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-[#1c1c38] to-[#121426] border-purple-500/80 shadow-[0_0_20px_rgba(168,85,247,0.3)] scale-105 z-10'
+                            : 'bg-slate-900/40 border-white/5 opacity-40 scale-95'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <reward.icon className={`w-4 h-4 ${isSelected ? 'text-purple-400' : 'text-slate-500'}`} />
+                          <div>
+                            <div className="text-[11px] font-black text-white">{reward.title}</div>
+                            <div className="text-[9px] text-slate-400">{reward.sub}</div>
+                          </div>
+                        </div>
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${isSelected ? 'bg-purple-500/20 text-purple-300' : 'text-slate-500'}`}>
+                          {reward.tag}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Title & Body Description */}
+                <div className="space-y-2">
+                  <h3 className="text-lg sm:text-xl font-black text-white">
+                    Get certified &amp; rewarded
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                    Receive instant CEFR A2 diagnostic verification reports, detailed answer explanations, and exam completion badges.
+                  </p>
+                </div>
+              </div>
+
             </div>
-          ))}
-        </div>
+          </div>
+        </section>
+
+        {/* =========================================================================
+            6. SECTION: FINAL CTA PANEL (Animated Perimeter Chasing Border Beam "Comet Light")
+           ========================================================================= */}
+        <section className="relative overflow-hidden rounded-3xl bg-[#080914] border border-white/10 p-8 sm:p-14 text-center space-y-6 shadow-2xl">
+          {/* Animated Glowing Comet Light Border Beam running around perimeter */}
+          <div className="absolute -inset-[2px] rounded-3xl bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,transparent_270deg,#5b5bf0_320deg,#38bdf8_360deg)] animate-spin-ring opacity-90 pointer-events-none"></div>
+          <div className="absolute inset-[2px] rounded-3xl bg-[#070913] pointer-events-none"></div>
+
+          {/* Inner Content */}
+          <div className="relative z-10 space-y-3 max-w-xl mx-auto">
+            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+              Join the Practice Portal
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400">
+              Get your official Prometric CBT mock exam link right now:
+            </p>
+          </div>
+
+          <div className="relative z-10 pt-2">
+            <Link
+              href="/accounts/signup"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-[#5b5bf0] to-[#3b82f6] hover:from-[#4f4fe0] hover:to-[#2563eb] text-white font-black text-xs sm:text-sm shadow-[0_0_35px_rgba(91,91,240,0.6)] active:scale-95 transition-all cursor-pointer"
+            >
+              <span>Join Practice &rarr;</span>
+            </Link>
+          </div>
+        </section>
+
+        {/* =========================================================================
+            7. SECTION: FOOTER (Single row inside frame, transparent background)
+           ========================================================================= */}
+        <footer className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/5 text-xs text-slate-500">
+          <div className="flex items-center gap-2 font-bold text-slate-400">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/img/logo.png" alt="Logo" className="h-5 w-auto" />
+            <span>GAKKOU NO SHIKEN</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-5 font-semibold">
+            <Link href="/" className="hover:text-slate-300 transition-colors">
+              Home
+            </Link>
+            <Link href="/jft-basic" className="hover:text-slate-300 transition-colors">
+              JFT-Basic
+            </Link>
+            <Link href="/ssw-skill-test" className="hover:text-slate-300 transition-colors">
+              SSW Skills
+            </Link>
+            <Link href="/leaderboard" className="hover:text-slate-300 transition-colors">
+              Leaderboard
+            </Link>
+            <Link href="/tools" className="hover:text-slate-300 transition-colors">
+              Tools
+            </Link>
+          </div>
+        </footer>
+
       </div>
     </div>
   );
