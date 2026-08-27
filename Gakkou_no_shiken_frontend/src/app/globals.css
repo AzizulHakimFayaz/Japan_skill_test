@@ -439,3 +439,60 @@ u {
         scroll-behavior: auto !important;
     }
 }
+
+/* --- Cinematic Horizon & 3D Video Styles --- */
+@keyframes horizonPulse {
+    0%, 100% {
+        opacity: 0.75;
+        transform: scaleX(1) scaleY(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scaleX(1.04) scaleY(1.15);
+    }
+}
+
+@keyframes floatGentle {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+@keyframes soundWave {
+    0%, 100% { height: 6px; }
+    50% { height: 22px; }
+}
+
+@keyframes cursorTap {
+    0%, 100% { transform: scale(1) translate(0, 0); }
+    40% { transform: scale(1) translate(-2px, -2px); }
+    50% { transform: scale(0.85) translate(0, 0); }
+    60% { transform: scale(1.05) translate(0, 0); }
+}
+
+@keyframes borderBeamRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.animate-horizon-pulse {
+    animation: horizonPulse 4s ease-in-out infinite;
+}
+
+.animate-float-gentle {
+    animation: floatGentle 3s ease-in-out infinite;
+}
+
+.animate-cursor-tap {
+    animation: cursorTap 2.5s ease-in-out infinite;
+}
+
+.animate-sound-1 { animation: soundWave 0.8s ease-in-out infinite 0.1s; }
+.animate-sound-2 { animation: soundWave 0.8s ease-in-out infinite 0.3s; }
+.animate-sound-3 { animation: soundWave 0.8s ease-in-out infinite 0.5s; }
+.animate-sound-4 { animation: soundWave 0.8s ease-in-out infinite 0.2s; }
+.animate-sound-5 { animation: soundWave 0.8s ease-in-out infinite 0.4s; }
+
