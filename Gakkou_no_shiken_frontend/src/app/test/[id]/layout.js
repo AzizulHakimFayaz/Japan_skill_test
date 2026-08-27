@@ -1,7 +1,24 @@
-import { getTestDetail } from '@/lib/api';
+import { getTestDetail, getTests } from '@/lib/api';
 import { cache } from 'react';
 
 export const revalidate = 300; // Cache test metadata and layout for 5 minutes
+
+export async function generateStaticParams() {
+  try {
+    const data = await getTests();
+    const testsList = data?.tests || [
+      ...(data?.tests_by_category?.basic || []),
+      ...(data?.tests_by_category?.skill || []),
+    ];
+    if (testsList && testsList.length > 0) {
+      const ids = Array.from(new Set(testsList.map((t) => String(t.id))));
+      return ids.map((id) => ({ id }));
+    }
+  } catch (e) {
+    // fallback test ids
+  }
+  return [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }, { id: '5' }, { id: '6' }];
+}
 
 const getCachedTestDetail = cache(async (id) => {
   return getTestDetail(id);
