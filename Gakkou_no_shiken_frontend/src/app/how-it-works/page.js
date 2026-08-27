@@ -3,36 +3,30 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  Home,
-  ChevronRight,
+  Sparkles,
+  ArrowRight,
   MousePointer2,
   CheckCircle2,
   Trophy,
   Laptop,
   Zap,
-  ArrowRight,
-  Clock,
-  Volume2,
-  Flag,
-  Award,
-  BookOpen,
-  ChevronDown,
-  ChevronUp,
+  MessageCircle,
+  Home,
+  ChevronRight,
 } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
 
 export default function HowItWorksPage() {
-  const [heroPhase, setHeroPhase] = useState(0); // 0: initial, 1: center bloom, 2: all settled
+  const [heroPhase, setHeroPhase] = useState(0); // 0: dark bloom, 1: center card bloom, 2: all settled
   const [activeSlot, setActiveSlot] = useState(1);
   const [cursorTapped, setCursorTapped] = useState(false);
-  const [openFaq, setOpenFaq] = useState(null);
 
-  // 1. Initial Page Load Hero Stagger Sequence
+  // Initial Load-In Animation Sequence (Hero only, plays once on load)
   useEffect(() => {
-    // Phase 1: Center promoted card blooms in first alone with bright glow
-    const t1 = setTimeout(() => setHeroPhase(1), 100);
-    // Phase 2: Left and right cards settle, rays expand, CTA button fades in
-    const t2 = setTimeout(() => setHeroPhase(2), 500);
+    // Phase 1: Center card appears first alone with bright purple bloom
+    const t1 = setTimeout(() => setHeroPhase(1), 200);
+    // Phase 2: Left and right cards settle, fanning sunburst rays expand, CTA fades in
+    const t2 = setTimeout(() => setHeroPhase(2), 700);
 
     // Looping Reward Slot Carousel (Runs continuously, independent of scroll)
     const slotInterval = setInterval(() => {
@@ -59,77 +53,109 @@ export default function HowItWorksPage() {
     { title: 'CEFR A2 Certified', sub: 'Japan Visa Ready Score', icon: CheckCircle2, tag: 'Top 3 BD' },
   ];
 
-  const toggleFaq = (idx) => {
-    setOpenFaq(openFaq === idx ? null : idx);
-  };
-
   return (
-    <div className="space-y-8 max-w-[1360px] mx-auto pb-16">
-      {/* Top Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 px-2 sm:px-4">
-        <Link href="/" className="hover:text-japan-red dark:hover:text-rose-400 flex items-center gap-1">
-          <Home className="w-3.5 h-3.5" />
-          <span>Home</span>
-        </Link>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-        <span className="text-slate-900 dark:text-white font-bold">How It Works &amp; Guide</span>
-      </nav>
-
+    <div className="min-h-screen bg-[#0b101e] p-2 sm:p-5 lg:p-7 flex flex-col justify-start font-sans text-slate-100 selection:bg-indigo-500 selection:text-white">
+      
       {/* =========================================================================
-          1. PAGE SHELL: BEZEL-LESS DEVICE FRAME (~24-32px radius, #05060a background)
+          1. PAGE SHELL: BEZEL-LESS DEVICE FRAME (~24px radius, #05060a background)
          ========================================================================= */}
-      <div className="relative rounded-[24px] sm:rounded-[32px] bg-[#05060a] border border-slate-800/80 shadow-[0_0_80px_rgba(0,0,0,0.95)] p-4 sm:p-8 lg:p-12 space-y-16 sm:space-y-24 text-slate-100 selection:bg-indigo-500 selection:text-white">
+      <div className="relative mx-auto w-full max-w-[1380px] rounded-[24px] sm:rounded-[32px] bg-[#05060a] border border-slate-800/80 shadow-[0_0_90px_rgba(0,0,0,0.98)] overflow-hidden p-4 sm:p-8 lg:p-12 space-y-16 sm:space-y-24">
         
         {/* =========================================================================
             2. GLOBAL BACKGROUND SYSTEM (Starfield + Radial Nebula Glows + Sunburst Rays)
            ========================================================================= */}
-        {/* Sparse Fixed Starfield Layer */}
-        <div className="absolute inset-0 bg-[radial-gradient(#ffffff18_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-40 rounded-[24px] sm:rounded-[32px]"></div>
+        {/* Fixed Starfield Layer */}
+        <div className="absolute inset-0 bg-[radial-gradient(#ffffff18_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-40"></div>
 
         {/* Soft Radial Nebula Glows */}
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[850px] h-[450px] bg-gradient-to-b from-indigo-600/25 via-purple-600/15 to-transparent blur-[130px] pointer-events-none"></div>
-        <div className="absolute top-[600px] left-1/4 w-[500px] h-[500px] bg-blue-600/10 blur-[140px] pointer-events-none"></div>
+        <div className="absolute top-8 left-1/2 -translate-x-1/2 w-[850px] h-[450px] bg-gradient-to-b from-indigo-600/25 via-purple-600/15 to-transparent blur-[130px] pointer-events-none"></div>
+        <div className="absolute top-[650px] left-1/4 w-[500px] h-[500px] bg-blue-600/10 blur-[140px] pointer-events-none"></div>
         <div className="absolute bottom-20 right-1/4 w-[600px] h-[400px] bg-purple-600/15 blur-[140px] pointer-events-none"></div>
 
         {/* =========================================================================
-            3. SECTION: HERO (Headline + Avatar Badge + 3 Hero Cards + Light Horizon)
+            3. SECTION: NAVBAR (Persistent, top of frame, floats transparently)
            ========================================================================= */}
-        <section className="relative text-center pt-4 sm:pt-8 space-y-8">
-          
-          {/* Top Social Avatar Badge */}
-          <div
-            className={`inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 shadow-lg backdrop-blur-md transition-all duration-700 ${
-              heroPhase >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3'
-            }`}
-          >
-            <div className="flex -space-x-2">
-              <span className="w-6 h-6 rounded-full bg-rose-500 text-[9px] font-black text-white flex items-center justify-center ring-2 ring-[#05060a]">
-                FA
-              </span>
-              <span className="w-6 h-6 rounded-full bg-indigo-500 text-[9px] font-black text-white flex items-center justify-center ring-2 ring-[#05060a]">
-                RH
-              </span>
-              <span className="w-6 h-6 rounded-full bg-emerald-500 text-[9px] font-black text-white flex items-center justify-center ring-2 ring-[#05060a]">
-                MK
-              </span>
-              <span className="w-6 h-6 rounded-full bg-amber-500 text-[9px] font-black text-slate-950 flex items-center justify-center ring-2 ring-[#05060a]">
-                +1k
-              </span>
+        <header className="relative z-20 flex items-center justify-between py-2 border-b border-white/5">
+          {/* Logo Left */}
+          <Link href="/" className="flex items-center gap-2.5 group">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/img/logo.png"
+              alt="Gakkou No Shiken"
+              className="h-8 sm:h-9 w-auto object-contain group-hover:scale-105 transition-transform"
+            />
+            <div className="flex items-center gap-1.5 font-black text-sm sm:text-base tracking-tight text-white">
+              <span>Gakkou No</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-japan-red">Shiken</span>
             </div>
-            <span className="text-xs font-bold text-slate-200">
-              1,200+ Examinees already practicing at our live portal
-            </span>
-          </div>
+          </Link>
 
-          {/* Headline */}
+          {/* Right Action Links */}
+          <div className="flex items-center gap-3 sm:gap-6">
+            <Link
+              href="/tools"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white transition-colors"
+            >
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span>Study Tools</span>
+            </Link>
+
+            <a
+              href="https://whatsapp.com/channel/0029Vb8f5nVGOj9mKhSBbp3m"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-emerald-400 transition-colors"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>Community</span>
+            </a>
+
+            {/* Primary Pill Button with Indigo-to-Blue Gradient */}
+            <Link
+              href="/accounts/signup"
+              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-[#5b5bf0] to-[#3b82f6] hover:from-[#4f4fe0] hover:to-[#2563eb] text-white font-black text-xs shadow-lg shadow-indigo-500/25 active:scale-95 transition-all"
+            >
+              <span>Join Practice &rarr;</span>
+            </Link>
+          </div>
+        </header>
+
+        {/* =========================================================================
+            4. SECTION: HERO (Matching Screenshots 1, 2 & 3)
+           ========================================================================= */}
+        <section className="relative text-center pt-4 sm:pt-10 space-y-8">
+          
+          {/* Main Headline */}
           <div
-            className={`space-y-4 max-w-3xl mx-auto transition-all duration-700 delay-100 ${
+            className={`space-y-4 max-w-3xl mx-auto transition-all duration-700 ${
               heroPhase >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
           >
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
               Join 1,000+ Examinees Who Already Signed Up &amp; Get Certified!
             </h1>
+
+            {/* Stacked Avatar Group Tag */}
+            <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 shadow-lg backdrop-blur-md">
+              <div className="flex -space-x-2">
+                <span className="w-6 h-6 rounded-full bg-rose-500 text-[9px] font-black text-white flex items-center justify-center ring-2 ring-[#05060a]">
+                  FA
+                </span>
+                <span className="w-6 h-6 rounded-full bg-indigo-500 text-[9px] font-black text-white flex items-center justify-center ring-2 ring-[#05060a]">
+                  RH
+                </span>
+                <span className="w-6 h-6 rounded-full bg-emerald-500 text-[9px] font-black text-white flex items-center justify-center ring-2 ring-[#05060a]">
+                  MK
+                </span>
+                <span className="w-6 h-6 rounded-full bg-amber-500 text-[9px] font-black text-slate-950 flex items-center justify-center ring-2 ring-[#05060a]">
+                  +1k
+                </span>
+              </div>
+              <span className="text-xs font-bold text-slate-200">
+                50+ Candidates already practicing at our live portal
+              </span>
+            </div>
+
             <p className="text-xs sm:text-sm text-slate-400 font-medium max-w-md mx-auto">
               Test your Japanese communicative competence and win top ranks:
             </p>
@@ -168,6 +194,7 @@ export default function HowItWorksPage() {
                   : 'opacity-0 scale-90 shadow-none'
               }`}
             >
+              {/* Center Glow Flare */}
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-20 bg-purple-500/30 rounded-full blur-2xl pointer-events-none"></div>
 
               <div className="space-y-1 relative z-10">
@@ -231,9 +258,9 @@ export default function HowItWorksPage() {
         </section>
 
         {/* =========================================================================
-            4. SECTION: "HOW IT WORKS" 3-STEP SCHEMATIC GRID (SCROLL-REVEALED)
+            5. SECTION: "HOW IT WORKS" (Matching Screenshots 4 & 5)
            ========================================================================= */}
-        <section className="relative space-y-10 pt-4">
+        <section className="relative space-y-10 pt-6">
           
           {/* Eyebrow Pill + Heading */}
           <ScrollReveal variant="up" delay={50} duration={600}>
@@ -260,7 +287,7 @@ export default function HowItWorksPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
               
-              {/* --- CARD 1: JOIN THE WAITLIST / PRACTICE (Scroll-triggered delay: 100ms) --- */}
+              {/* --- CARD 1: JOIN THE WAITLIST / PRACTICE --- */}
               <ScrollReveal variant="up" delay={100} duration={700} className="h-full">
                 <div className="p-6 sm:p-8 flex flex-col justify-between space-y-6 relative group h-full">
                   {/* Index Label */}
@@ -308,7 +335,7 @@ export default function HowItWorksPage() {
                 </div>
               </ScrollReveal>
 
-              {/* --- CARD 2: NETWORK / STUDY GROUP GRAPH (Scroll-triggered delay: 250ms) --- */}
+              {/* --- CARD 2: NETWORK / STUDY GROUP GRAPH --- */}
               <ScrollReveal variant="up" delay={250} duration={700} className="h-full">
                 <div className="p-6 sm:p-8 flex flex-col justify-between space-y-6 relative group h-full">
                   {/* Index Label */}
@@ -370,7 +397,7 @@ export default function HowItWorksPage() {
                 </div>
               </ScrollReveal>
 
-              {/* --- CARD 3: VERTICAL SLOTTED REWARD CAROUSEL (Scroll-triggered delay: 400ms) --- */}
+              {/* --- CARD 3: VERTICAL SLOTTED REWARD CAROUSEL --- */}
               <ScrollReveal variant="up" delay={400} duration={700} className="h-full">
                 <div className="p-6 sm:p-8 flex flex-col justify-between space-y-6 relative group h-full">
                   {/* Index Label */}
@@ -432,7 +459,7 @@ export default function HowItWorksPage() {
         </section>
 
         {/* =========================================================================
-            5. SECTION: FINAL CTA PANEL (Scroll-Triggered + Chasing Comet Border Beam)
+            6. SECTION: FINAL CTA PANEL (Scroll-Triggered + Chasing Comet Border Beam)
            ========================================================================= */}
         <ScrollReveal variant="up" delay={100} duration={800}>
           <section className="relative overflow-hidden rounded-3xl bg-[#080914] border border-white/10 p-8 sm:p-14 text-center space-y-6 shadow-2xl">
@@ -474,69 +501,33 @@ export default function HowItWorksPage() {
         </ScrollReveal>
 
         {/* =========================================================================
-            6. SECTION: FAQ ACCORDION (SCROLL-TRIGGERED)
+            7. SECTION: FOOTER (Single row inside frame, clean text links)
            ========================================================================= */}
-        <ScrollReveal variant="up" delay={100} duration={600}>
-          <div className="space-y-4 max-w-3xl mx-auto pt-4">
-            <div className="text-center space-y-1">
-              <span className="text-xs font-black uppercase text-indigo-400">FAQ</span>
-              <h3 className="text-xl sm:text-2xl font-black text-white">
-                Frequently Asked Questions
-              </h3>
-            </div>
-
-            <div className="space-y-3">
-              {[
-                {
-                  q: 'How do I take my first mock exam?',
-                  q_bn: 'আমি কীভাবে প্রথম পরীক্ষাটি দেব?',
-                  a: 'Simply go to the Mock Tests catalog or click "Start Exam" on Mock Test 01. It is 100% free with no sign-up required. If you sign in with Google, your scores will be saved on your profile.',
-                },
-                {
-                  q: 'What is the passing score for JFT-Basic A2?',
-                  q_bn: 'পাস মার্ক কত?',
-                  a: 'The official JFT-Basic exam is scored out of 250 points. A score of 200 or above (80%) is required to pass and receive the CEFR A2 certificate.',
-                },
-                {
-                  q: 'Can I practice on mobile or do I need a computer?',
-                  q_bn: 'মোবাইলে পরীক্ষা দেওয়া যাবে কি?',
-                  a: 'You can practice on smartphones, tablets, or computers. For the authentic Prometric test center simulation, taking it on a computer with headphones is recommended.',
-                },
-              ].map((faq, idx) => (
-                <div
-                  key={idx}
-                  className="bg-[#080911] border border-white/10 rounded-2xl overflow-hidden shadow-xs"
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleFaq(idx)}
-                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 cursor-pointer hover:bg-white/5 transition-colors"
-                  >
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-black text-white">
-                        {faq.q}
-                      </h4>
-                      <span className="text-[11px] text-indigo-400 font-bold block mt-0.5">
-                        {faq.q_bn}
-                      </span>
-                    </div>
-                    {openFaq === idx ? (
-                      <ChevronUp className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                    )}
-                  </button>
-
-                  {openFaq === idx && (
-                    <div className="px-4 pb-4 sm:px-5 sm:pb-5 text-xs text-slate-300 border-t border-white/5 pt-3 font-medium leading-relaxed">
-                      {faq.a}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+        <footer className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/5 text-xs text-slate-500">
+          <div className="flex items-center gap-2 font-bold text-slate-400">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/img/logo.png" alt="Logo" className="h-5 w-auto" />
+            <span>GAKKOU NO SHIKEN</span>
           </div>
-        </ScrollReveal>
+
+          <div className="flex flex-wrap items-center gap-5 font-semibold">
+            <Link href="/" className="hover:text-slate-300 transition-colors">
+              Home
+            </Link>
+            <Link href="/jft-basic" className="hover:text-slate-300 transition-colors">
+              JFT-Basic
+            </Link>
+            <Link href="/ssw-skill-test" className="hover:text-slate-300 transition-colors">
+              SSW Skills
+            </Link>
+            <Link href="/leaderboard" className="hover:text-slate-300 transition-colors">
+              Leaderboard
+            </Link>
+            <Link href="/tools" className="hover:text-slate-300 transition-colors">
+              Tools
+            </Link>
+          </div>
+        </footer>
 
       </div>
     </div>
