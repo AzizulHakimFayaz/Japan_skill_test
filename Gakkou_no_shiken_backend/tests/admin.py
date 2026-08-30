@@ -42,6 +42,7 @@ class QuestionInline(admin.StackedInline):
         'group',
         'instruction',
         'prompt',
+        'audio_script',
         ('image', 'image_preview'),
         ('audio', 'audio_preview'),
         'edit_question_link',
@@ -97,8 +98,8 @@ class QuestionInline(admin.StackedInline):
 class QuestionGroupInlineForTest(admin.StackedInline):
     model = QuestionGroup
     extra = 0
-    fields = ('title', 'instruction', ('image', 'image_preview'), 'order_index', 'edit_group_link')
-    readonly_fields = ('image_preview', 'edit_group_link')
+    fields = ('title', 'instruction', 'audio_script', ('image', 'image_preview'), ('audio', 'audio_preview'), 'order_index', 'edit_group_link')
+    readonly_fields = ('image_preview', 'audio_preview', 'edit_group_link')
     ordering = ('order_index',)
 
     def image_preview(self, obj):
@@ -112,6 +113,17 @@ class QuestionGroupInlineForTest(admin.StackedInline):
         return format_html('<span class="text-muted font-italic" style="font-size:0.75rem;">No image uploaded</span>')
     image_preview.short_description = 'Preview'
 
+    def audio_preview(self, obj):
+        if obj.audio:
+            return format_html(
+                '<div class="admin-preview-container">'
+                '<audio controls style="max-width:160px; height:32px;" src="{}"></audio>'
+                '</div>',
+                obj.audio.url
+            )
+        return format_html('<span class="text-muted font-italic" style="font-size:0.75rem;">No audio uploaded</span>')
+    audio_preview.short_description = 'Audio Preview'
+
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(q_count=models.Count('questions', distinct=True))
 
@@ -120,14 +132,14 @@ class QuestionGroupInlineForTest(admin.StackedInline):
             url = reverse('admin:tests_questiongroup_change', args=[obj.id])
             count = getattr(obj, 'q_count', obj.questions.count())
             return format_html(
-                '<a href="{}" target="_blank" class="btn btn-sm btn-info font-weight-bold">'
-                '<i class="fas fa-layer-group"></i> Add / Edit Sub-Questions &amp; Prompts ({} questions)'
+                '<a href="{}" target="_blank" class="btn btn-sm btn-info">'
+                '<i class="fas fa-layer-group"></i> Manage Group &amp; Questions ({} questions)'
                 '</a>',
                 url, count
             )
         return format_html(
-            '<span class="text-muted font-italic">'
-            '<i class="fas fa-info-circle"></i> Save test first to add questions to this group'
+            '<span class="text-muted font-weight-bold" style="font-size:0.85rem;">'
+            '<i class="fas fa-info-circle"></i> Save test first to manage group'
             '</span>'
         )
     edit_group_link.short_description = 'Actions'
@@ -222,8 +234,10 @@ class TestAdmin(admin.ModelAdmin):
                 print("[CSV-IMPORT v3] Processing POST...", file=sys.stderr, flush=True)
                 test_id = request.POST.get('test_id')
                 clear_existing = str(request.POST.get('clear_existing', '')).lower() in ['true', 'on', '1', 'yes']
+                auto_generate_audio = str(request.POST.get('auto_generate_audio', 'true')).lower() in ['true', 'on', '1', 'yes']
                 csv_file = request.FILES.get('csv_file')
-                print(f"[CSV-IMPORT v3] test_id={test_id}, has_file={csv_file is not None}, clear={clear_existing}", file=sys.stderr, flush=True)
+                print(f"[CSV-IMPORT v3] test_id={test_id}, has_file={csv_file is not None}, clear={clear_existing}, auto_audio={auto_generate_audio}", file=sys.stderr, flush=True)
+
 
                 if not test_id or not csv_file:
                     return HttpResponse(self._import_result_html(
@@ -240,7 +254,7 @@ class TestAdmin(admin.ModelAdmin):
                         deleted_g = test_obj.question_groups.all().delete()
                         print(f"[CSV-IMPORT v3] Cleared existing: questions={deleted_q}, groups={deleted_g}", file=sys.stderr, flush=True)
 
-                    created_count, errors = import_questions_from_csv(test_obj, csv_file)
+                    created_count, errors = import_questions_from_csv(test_obj, csv_file, auto_generate_audio=auto_generate_audio)
                     print(f"[CSV-IMPORT v3] Import complete: created={created_count}, errors={len(errors)}", file=sys.stderr, flush=True)
 
                     from tests.signals import invalidate_test_cache
@@ -403,6 +417,7 @@ class GroupQuestionInline(admin.StackedInline):
         'test',
         'instruction',
         'prompt',
+        'audio_script',
         ('image', 'audio'),
         'edit_question_link',
     )
@@ -431,18 +446,18 @@ class GroupQuestionInline(admin.StackedInline):
 class QuestionGroupAdmin(admin.ModelAdmin):
     list_display = ('title_display', 'test', 'question_count', 'has_image', 'has_audio', 'order_index')
     list_filter = ('test',)
-    search_fields = ('title', 'instruction', 'test__title')
+    search_fields = ('title', 'instruction', 'test__title', 'audio_script')
     inlines = [GroupQuestionInline]
     readonly_fields = ('image_preview', 'audio_preview')
     ordering = ('test', 'order_index')
     save_on_top = True
+    actions = ['generate_group_tts_audio_action']
 
     class Media:
         css = {'all': ('css/admin_custom.css',)}
         js = ('js/admin_sticky_save.js',)
 
     fieldsets = (
-
         ('Group Info', {
             'fields': ('test', 'title', 'order_index'),
             'description': 'Create a group to share one image/audio passage across multiple questions.',
@@ -451,11 +466,29 @@ class QuestionGroupAdmin(admin.ModelAdmin):
             'fields': ('instruction',),
             'description': 'This instruction is shown above all questions in this group.',
         }),
-        ('Shared Media', {
-            'fields': ('image', 'image_preview', 'audio', 'audio_preview'),
-            'description': 'Upload the shared reading passage image or listening audio clip.',
+        ('Shared Media & AI Audio (TTS)', {
+            'fields': ('audio_script', ('audio', 'audio_preview'), ('image', 'image_preview')),
+            'description': 'Enter dialogue script [Speaker], [Sentence] to auto-generate speech with AI, or upload files directly.',
         }),
     )
+
+    @admin.action(description="🎤 Generate / Regenerate AI Audio (TTS) from Script")
+    def generate_group_tts_audio_action(self, request, queryset):
+        from .audio_generator import generate_and_save_group_audio
+        count = 0
+        failed = 0
+        for group in queryset:
+            if group.audio_script:
+                if generate_and_save_group_audio(group, overwrite=True):
+                    count += 1
+                else:
+                    failed += 1
+            else:
+                failed += 1
+        if count > 0:
+            self.message_user(request, f"Successfully generated AI audio for {count} question group(s).", messages.SUCCESS)
+        if failed > 0:
+            self.message_user(request, f"Could not generate audio for {failed} group(s). Please make sure audio_script is filled.", messages.WARNING)
 
     def title_display(self, obj):
         return obj.title or f"Group #{obj.pk}"
@@ -524,36 +557,52 @@ class QuestionAdmin(admin.ModelAdmin):
     )
 
     list_filter = ('test', 'section', 'type', 'group')
-    search_fields = ('prompt', 'test__title')
+    search_fields = ('prompt', 'test__title', 'audio_script')
     inlines = [AnswerOptionInline]
     ordering = ('test', 'order_index')
     readonly_fields = ('image_preview', 'audio_preview')
     list_per_page = 25
     save_on_top = True
+    actions = ['generate_tts_audio_action']
 
     class Media:
         css = {'all': ('css/admin_custom.css',)}
         js = ('js/admin_sticky_save.js',)
 
     fieldsets = (
-
         ('Question Content', {
             'fields': ('test', 'group', 'section', 'type', 'instruction', 'prompt', 'order_index'),
             'description': 'Link to a Question Group to share an image/audio passage across multiple questions.',
         }),
-
-
+        ('AI Voice (TTS) & Media Attachments', {
+            'fields': ('audio_script', ('audio', 'audio_preview'), ('image', 'image_preview')),
+            'description': 'Provide dialogue script [Speaker], [Sentence] to automatically generate speech with AI, or upload audio/image files.',
+        }),
         ('Multi-Language Overlay', {
             'fields': ('translations',),
             'classes': ('collapse',),
             'description': 'Optional custom JSON dictionary mapping languages (English, Chinese, Indonesian, Khmer, Mongolian, Myanmar, Nepali, Thai, Vietnamese) to translations.',
         }),
-        ('Media Attachments', {
-            'fields': ('image', 'image_preview', 'audio', 'audio_preview'),
-            'classes': ('collapse',),
-            'description': 'Upload an image or audio file depending on the question type.',
-        }),
     )
+
+    @admin.action(description="🎤 Generate / Regenerate AI Audio (TTS) from Script")
+    def generate_tts_audio_action(self, request, queryset):
+        from .audio_generator import generate_and_save_question_audio
+        count = 0
+        failed = 0
+        for q in queryset:
+            if q.audio_script or (q.type in ['audio', 'image_audio'] and q.prompt):
+                if generate_and_save_question_audio(q, overwrite=True):
+                    count += 1
+                else:
+                    failed += 1
+            else:
+                failed += 1
+        if count > 0:
+            self.message_user(request, f"Successfully generated AI audio for {count} question(s).", messages.SUCCESS)
+        if failed > 0:
+            self.message_user(request, f"Could not generate audio for {failed} question(s). Ensure audio_script or dialogue prompt is set.", messages.WARNING)
+
 
 
     def prompt_snippet(self, obj):

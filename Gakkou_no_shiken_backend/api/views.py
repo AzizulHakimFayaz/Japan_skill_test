@@ -1132,9 +1132,24 @@ class SetupDatabaseAPIView(APIView):
         
         import traceback
         logs = []
-        # 1. Fast Migrate & Ensure OTP Table
+        
+        # 0. Auto-Install edge-tts, pydub if missing
+        try:
+            import edge_tts
+            logs.append('✅ edge-tts is already installed')
+        except ImportError:
+            import sys, subprocess
+            proc = subprocess.run([sys.executable, "-m", "pip", "install", "edge-tts", "pydub"], capture_output=True, text=True)
+            if proc.returncode == 0:
+                logs.append('✅ edge-tts and pydub installed successfully!')
+            else:
+                logs.append(f'❌ Pip install error: {proc.stderr}')
+
+
+        # 1. Fast Migrate & Ensure OTP & audio_script Columns
         try:
             from django.db import connection
+
             with connection.cursor() as cursor:
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS accounts_emailverificationotp (
@@ -1153,15 +1168,24 @@ class SetupDatabaseAPIView(APIView):
                     CREATE INDEX IF NOT EXISTS accounts_emailverificationotp_email 
                     ON accounts_emailverificationotp(email)
                 """)
-            logs.append('✅ EmailVerificationOTP Table: SUCCESS')
+                try:
+                    cursor.execute("ALTER TABLE tests_question ADD COLUMN audio_script text DEFAULT ''")
+                except Exception:
+                    pass
+                try:
+                    cursor.execute("ALTER TABLE tests_questiongroup ADD COLUMN audio_script text DEFAULT ''")
+                except Exception:
+                    pass
+            logs.append('✅ EmailVerificationOTP & audio_script Columns: SUCCESS')
         except Exception as e:
-            logs.append(f'❌ Table creation error: {e}')
+            logs.append(f'❌ Table/Column creation error: {e}')
 
         try:
             call_command('migrate', interactive=False)
-            logs.append('✅ Database Tables Created: SUCCESS')
+            logs.append('✅ Database Migrations: SUCCESS')
         except Exception as e:
             logs.append(f'❌ Migration error: {e}\n{traceback.format_exc()}')
+
 
 
         # 2. Admin Account Creation

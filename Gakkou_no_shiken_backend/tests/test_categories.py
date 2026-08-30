@@ -60,30 +60,23 @@ class TestCategoryTestCase(TestCase):
         self.assertEqual(t.category, Test.Category.BASIC)
 
     def test_landing_groups_by_category(self):
-        """The landing page renders both category sections and the right tests."""
-        response = self.client.get(reverse("landing_page"))
+        """The API returns both category sections and the right tests."""
+        response = self.client.get(reverse("api_tests_list"))
         self.assertEqual(response.status_code, 200)
 
-        # Both section headings appear.
-        self.assertContains(response, "JFT Tests")
-        self.assertContains(response, "SSW Skill Tests")
+        data = response.json()
+        self.assertIn("tests_by_category", data)
+        self.assertIn("basic", data["tests_by_category"])
+        self.assertIn("skill", data["tests_by_category"])
+
+        basic_titles = [t['title'] for t in data["tests_by_category"]["basic"]]
+        skill_titles = [t['title'] for t in data["tests_by_category"]["skill"]]
 
         # Published tests appear; the draft does not.
-        self.assertContains(response, self.basic_test.title)
-        self.assertContains(response, self.skill_test.title)
-        self.assertNotContains(response, self.draft_basic.title)
-
-        # Categories pass through to template via tests_by_category dict.
-        ctx = response.context
-        self.assertIn("tests_by_category", ctx)
-        self.assertIn(Test.Category.BASIC, ctx["tests_by_category"])
-        self.assertIn(Test.Category.SKILL, ctx["tests_by_category"])
-        # Only published tests should be in each list.
-        basic_titles = [t.title for t in ctx["tests_by_category"][Test.Category.BASIC]]
-        skill_titles = [t.title for t in ctx["tests_by_category"][Test.Category.SKILL]]
         self.assertIn(self.basic_test.title, basic_titles)
-        self.assertNotIn(self.draft_basic.title, basic_titles)
         self.assertIn(self.skill_test.title, skill_titles)
+        self.assertNotIn(self.draft_basic.title, basic_titles)
+
 
     def test_admin_list_filter_includes_category(self):
         """Admin ModelAdmin exposes `category` in list_filter (smoke-check the

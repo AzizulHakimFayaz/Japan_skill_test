@@ -41,6 +41,7 @@
                     <li>Download the <strong>Sample CSV Template</strong> using the top right button.</li>
                     <li>Open it in <strong>Google Sheets</strong> or <strong>Microsoft Excel</strong>.</li>
                     <li>Fill in your questions across the 4 sections: <code>script_vocab</code>, <code>conversation</code>, <code>listening</code>, or <code>reading</code>.</li>
+                    <li><strong>AI Audio Generation:</strong> Add an <code>audio_script</code> column with dialogues like <code>[Nanami], [田中さん、今週の日曜日に...], [Keita], [日曜日ですね。...]</code> to automatically generate multi-speaker Japanese audio!</li>
                     <li>Use the <code>group_title</code> column (e.g., <em>"Reading Passage 1"</em>) to group multiple questions under the same reading passage or audio clip!</li>
                     <li>Set <code>correct_option</code> to <strong>1</strong>, <strong>2</strong>, <strong>3</strong>, or <strong>4</strong> matching the correct answer choice.</li>
                     <li>In Google Sheets: Click <strong>File &gt; Download &gt; Comma-separated values (.csv)</strong>.</li>
@@ -72,12 +73,20 @@
                     <input type="file" name="csv_file" id="csv_file" accept=".csv" required class="form-control-file p-2" style="border: 1px dashed var(--gakkou-border-light); border-radius: var(--gakkou-radius-md); background: var(--gakkou-bg); color: var(--gakkou-text-main);">
                 </div>
 
+                <div class="form-group form-check mb-3">
+                    <input type="checkbox" name="auto_generate_audio" id="auto_generate_audio" value="true" checked class="form-check-input">
+                    <label for="auto_generate_audio" class="form-check-label font-weight-bold text-success" style="font-size: 0.875rem;">
+                        <i class="fas fa-volume-up mr-1"></i> Auto-generate AI Voice Audio (TTS) for questions with dialogue scripts
+                    </label>
+                </div>
+
                 <div class="form-group form-check mb-4">
                     <input type="checkbox" name="clear_existing" id="clear_existing" value="true" class="form-check-input">
                     <label for="clear_existing" class="form-check-label font-weight-bold text-danger" style="font-size: 0.875rem;">
                         Clear existing questions for this test before importing
                     </label>
                 </div>
+
 
                 <div class="pt-3 border-top d-flex gap-2">
                     <button type="submit" class="btn btn-success">

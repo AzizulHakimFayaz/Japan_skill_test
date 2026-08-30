@@ -32,46 +32,54 @@ TYPE_MAP = {
 }
 
 def generate_sample_csv_string():
-    """Generates a sample CSV template string for bulk question import with QuestionGroup support."""
+    """Generates a sample CSV template string for bulk question import with QuestionGroup and Audio Script support."""
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow([
-        'group_title', 'section', 'type', 'instruction', 'prompt',
+        'group_title', 'section', 'type', 'instruction', 'prompt', 'audio_script',
         'option_1', 'option_2', 'option_3', 'option_4',
         'correct_option', 'order_index'
     ])
     writer.writerow([
         '', 'Script and Vocabulary', 'text', 'How do you write the __underlined__ kanji word in hiragana? Choose the correct one.',
-        '__水道__が こわれた ときは、 ここに でんわして ください。',
+        '__水道__が こわれた ときは、 ここに でんわして ください。', '',
         'すいどう', 'すいとう', 'ずいどう', '',
         '1', '1'
     ])
     writer.writerow([
         '', 'Conversation and Expression', 'text', 'Complete the sentence:',
-        'わたしは はるが ______ です。 (I like spring.)',
+        'わたしは はるが ______ です。 (I like spring.)', '',
         'すき (suki)', 'きらい (kirai)', 'へた (heta)', '',
         '1', '2'
     ])
     writer.writerow([
-        'Reading Passage 1 - Town Magazine', 'Reading Comprehension', 'image',
-        'You are reading a town public magazine. Answer questions (1) and (2).',
-        '(1) フェスティバルに 行った 人は 何が できましたか。',
-        '歌と おどりを 見ること', 'がっきを 買うこと', 'アクセサリーを 作ること', '',
+        '', 'Listening Comprehension', 'audio', 'Listen to the audio and choose the correct answer.',
+        '何曜日に バーベキューを しますか。 (What day will they have a barbecue?)',
+        '[Nanami], [田中さん、今週の日曜日にみんなでバーベキューをしませんか。], [Keita], [日曜日ですね。行きたいんですが、日曜日はちょっと用事があって……。土曜日なら大丈夫ですけど。], [Nanami], [あ、そうですか。じゃあ、他の人にも聞いて、土曜日にしましょう！]',
+        '土曜日', '日曜日', '金曜日', '',
         '1', '3'
     ])
     writer.writerow([
         'Reading Passage 1 - Town Magazine', 'Reading Comprehension', 'image',
         'You are reading a town public magazine. Answer questions (1) and (2).',
-        '(2) ホアさんは スピーチコンテストに 参加して どう 思いましたか。',
-        'スピーチの けいけんが なかったけど、うまく いった', '自分の スピーチを わられて、かなしかった', '日本人の 英語の スピーチが 上手で、びっくりした', '',
+        '(1) フェスティバルに 行った 人は 何が できましたか。', '',
+        '歌と おどりを 見ること', 'がっきを 買うこと', 'アクセサリーを 作ること', '',
         '1', '4'
+    ])
+    writer.writerow([
+        'Reading Passage 1 - Town Magazine', 'Reading Comprehension', 'image',
+        'You are reading a town public magazine. Answer questions (1) and (2).',
+        '(2) ホアさんは スピーチコンテストに 参加して どう 思いましたか。', '',
+        'スピーチの けいけんが なかったけど、うまく いった', '自分の スピーチを わられて、かなしかった', '日本人の 英語の スピーチが 上手で、びっくりした', '',
+        '1', '5'
     ])
     return output.getvalue()
 
 
-def import_questions_from_csv(test_instance, file_stream):
+def import_questions_from_csv(test_instance, file_stream, auto_generate_audio=True):
     """
     Parses a CSV file or file-like object and creates Questions, QuestionGroups, and AnswerOptions for test_instance.
+    If auto_generate_audio is True, generates TTS audio files for any rows with an audio_script.
     Returns (created_count, errors_list).
     """
     raw_bytes = None
@@ -138,7 +146,7 @@ def import_questions_from_csv(test_instance, file_stream):
         return ''
 
     # First pass: collect all groups needed
-    groups_to_create = {}  # title -> (instruction, order_idx)
+    groups_to_create = {}  # title -> (instruction, order_idx, audio_script)
     rows_data = []
 
     row_num = 1
@@ -150,13 +158,14 @@ def import_questions_from_csv(test_instance, file_stream):
 
         prompt = get_val(clean_row, 'prompt', 'question', 'question_text', 'question text', 'problem', 'text', 'item')
         instruction = get_val(clean_row, 'instruction', 'instructions', 'pre_prompt', 'guide', 'direction', 'directions')
+        audio_script = get_val(clean_row, 'audio_script', 'audio script', 'dialogue', 'script', 'audio_text', 'tts_script', 'tts')
 
         opt1 = get_val(clean_row, 'option_1', 'option 1', 'option1', 'option_a', 'option a', 'a', 'choice_1', 'choice 1')
         opt2 = get_val(clean_row, 'option_2', 'option 2', 'option2', 'option_b', 'option b', 'b', 'choice_2', 'choice 2')
         opt3 = get_val(clean_row, 'option_3', 'option 3', 'option3', 'option_c', 'option c', 'c', 'choice_3', 'choice 3')
         opt4 = get_val(clean_row, 'option_4', 'option 4', 'option4', 'option_d', 'option d', 'd', 'choice_4', 'choice 4')
 
-        if not prompt and not opt1:
+        if not prompt and not opt1 and not audio_script:
             continue
 
         sec_str = get_val(clean_row, 'section', 'part', 'category', 'type_section').lower()
@@ -164,6 +173,11 @@ def import_questions_from_csv(test_instance, file_stream):
 
         type_str = get_val(clean_row, 'type', 'question_type', 'q_type').lower()
         type_val = TYPE_MAP.get(type_str, Question.QuestionType.TEXT)
+
+        # Auto-promote to audio type if section is listening or audio script is given without type
+        if audio_script and type_val == Question.QuestionType.TEXT:
+            if section_val == Question.Section.LISTENING:
+                type_val = Question.QuestionType.AUDIO
 
         try:
             order_raw = get_val(clean_row, 'order_index', 'order', 'no', 'number', 'q_num')
@@ -175,7 +189,7 @@ def import_questions_from_csv(test_instance, file_stream):
         if group_title:
             group_title_safe = str(group_title).strip()[:250]
             if group_title_safe not in groups_to_create:
-                groups_to_create[group_title_safe] = (instruction, order_idx)
+                groups_to_create[group_title_safe] = (instruction, order_idx, audio_script if not prompt else '')
 
         # Determine correct option index
         correct_raw = str(get_val(clean_row, 'correct_option', 'correct option', 'correct_answer', 'correct answer', 'answer', 'correct', 'key', 'ans') or '1').strip().lower()
@@ -211,6 +225,7 @@ def import_questions_from_csv(test_instance, file_stream):
             'type': type_val,
             'instruction': instruction,
             'prompt': prompt,
+            'audio_script': str(audio_script).strip() if audio_script else '',
             'translations': custom_translations if custom_translations else {},
             'order_index': order_idx,
             'group_title': str(group_title).strip()[:250] if group_title else None,
@@ -221,11 +236,11 @@ def import_questions_from_csv(test_instance, file_stream):
     with transaction.atomic():
         # Batch create all groups at once
         created_groups = {}
-        for title, (instr, oidx) in groups_to_create.items():
+        for title, (instr, oidx, g_script) in groups_to_create.items():
             group_obj, _ = QuestionGroup.objects.get_or_create(
                 test=test_instance,
                 title=title,
-                defaults={'instruction': instr, 'order_index': oidx}
+                defaults={'instruction': instr, 'order_index': oidx, 'audio_script': g_script}
             )
             created_groups[title] = group_obj
 
@@ -240,6 +255,7 @@ def import_questions_from_csv(test_instance, file_stream):
                 type=rd['type'],
                 instruction=rd['instruction'],
                 prompt=rd['prompt'],
+                audio_script=rd['audio_script'],
                 translations=rd['translations'],
                 order_index=rd['order_index'],
             ))
@@ -261,5 +277,32 @@ def import_questions_from_csv(test_instance, file_stream):
         AnswerOption.objects.bulk_create(option_objects)
         created_count = len(created_questions)
 
+    # Auto-generate TTS audio if requested (outside transaction so files save safely)
+    if auto_generate_audio:
+        try:
+            from .audio_generator import generate_and_save_question_audio, generate_and_save_group_audio
+            
+            # Generate for questions with audio_script
+            for q, rd in zip(created_questions, rows_data):
+                script = rd.get('audio_script', '').strip()
+                if script:
+                    try:
+                        success = generate_and_save_question_audio(q, script_text=script, overwrite=True)
+                        if not success:
+                            errors.append(f"Could not generate TTS audio for Question #{q.order_index} (empty speech output).")
+                    except Exception as tts_err:
+                        errors.append(f"TTS Audio generation error for Question #{q.order_index}: {str(tts_err)}")
+
+            # Generate for groups with audio_script
+            for title, group_obj in created_groups.items():
+                if group_obj.audio_script and not group_obj.audio:
+                    try:
+                        generate_and_save_group_audio(group_obj, script_text=group_obj.audio_script, overwrite=True)
+                    except Exception as g_tts_err:
+                        errors.append(f"TTS Audio generation error for Question Group '{title}': {str(g_tts_err)}")
+        except Exception as e:
+            errors.append(f"TTS generation subsystem error: {str(e)}")
+
     return created_count, errors
+
 

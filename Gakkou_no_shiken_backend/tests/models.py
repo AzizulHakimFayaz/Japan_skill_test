@@ -61,6 +61,11 @@ class QuestionGroup(models.Model):
     )
     image = models.FileField(upload_to="groups/images/", null=True, blank=True)
     audio = models.FileField(upload_to="groups/audio/", null=True, blank=True)
+    audio_script = models.TextField(
+        blank=True,
+        verbose_name="Audio Script / Dialogue",
+        help_text="Shared dialogue script for auto-generating group audio (e.g. [Nanami], [こんにちは], [Keita], [こんにちは])."
+    )
     order_index = models.PositiveIntegerField(default=0)
 
     def __str__(self):
@@ -106,12 +111,18 @@ class Question(models.Model):
     prompt = models.TextField(blank=True, help_text="The question text. Use __word__ to underline specific words (e.g. 水道が __こわれた__ ときは).")
     image = models.FileField(upload_to="questions/images/", null=True, blank=True)
     audio = models.FileField(upload_to="questions/audio/", null=True, blank=True)
+    audio_script = models.TextField(
+        blank=True,
+        verbose_name="Audio Script / Dialogue",
+        help_text="Dialogue script for auto-generating audio (e.g. [Nanami], [こんにちは], [Keita], [こんにちは])."
+    )
     translations = models.JSONField(
         default=dict,
         blank=True,
         help_text="Custom JSON mapping for 10 languages e.g. {'Bengali': '...', 'English': '...', 'Chinese': '...', 'Indonesian': '...'}"
     )
     order_index = models.PositiveIntegerField(default=0)
+
 
     @property
     def text(self):

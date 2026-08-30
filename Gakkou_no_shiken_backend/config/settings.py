@@ -187,9 +187,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
-
-# High-Speed Local Database (Instant 0.001s response, zero firewall blocking)
+# High-Speed Local Database (Instant 0.001s response, zero firewall blocking on cPanel)
 db_path = '/tmp/db.sqlite3' if (os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV')) else BASE_DIR / 'db.sqlite3'
 DATABASES = {
     'default': {
@@ -200,6 +198,9 @@ DATABASES = {
         },
     }
 }
+
+
+
 
 
 

@@ -6,7 +6,9 @@ import { getQuizData, submitQuiz } from '@/lib/api';
 import { formatPrompt, renderUnderline } from '@/lib/utils';
 import { useAuth } from '@/components/AuthContext';
 import GlobalLoader from '@/components/GlobalLoader';
-import { Globe, ExternalLink, Flag, Lock } from 'lucide-react';
+import ExamSecurityGuard from '@/components/ExamSecurityGuard';
+import { Globe, ExternalLink, Flag, Lock, ShieldCheck } from 'lucide-react';
+
 
 
 const ORDERED_SECTION_KEYS = ['script_vocab', 'conversation', 'listening', 'reading'];
@@ -359,74 +361,80 @@ function QuizContent({ params: paramsPromise }) {
   const totalStepsInSection = activeSectionSteps.length;
 
   return (
-    <div className="fixed inset-0 z-50 h-[100dvh] h-screen w-screen max-h-[100dvh] m-0 p-0 overflow-hidden font-sans text-slate-900 bg-white flex flex-col select-none">
-      {/* ==========================================
-           TOP HEADER 1: BLACK BAR (Section & Timer)
-           ========================================== */}
+    <ExamSecurityGuard user={user} testTitle={test?.title} enableWatermark={true} enableBlurOnBlur={true} strictMode={true}>
+      <div className="fixed inset-0 z-50 h-[100dvh] h-screen w-screen max-h-[100dvh] m-0 p-0 overflow-hidden font-sans text-slate-900 bg-white flex flex-col select-none">
+        {/* ==========================================
+             TOP HEADER 1: BLACK BAR (Section & Timer)
+             ========================================== */}
 
-      <header className="bg-black text-white min-h-[2.5rem] py-1.5 px-3 sm:px-4 flex items-center justify-between gap-2 border-b border-slate-800 text-xs font-sans flex-shrink-0">
-        <div className="flex items-center gap-2 sm:gap-4 truncate">
-          <span className="font-bold whitespace-nowrap bg-slate-800 px-2 py-0.5 rounded text-[11px] sm:text-xs">
-            Q {currentStep === 0 ? 'Intro' : `${currentSectionStepNum}/${totalStepsInSection}`}
-          </span>
-          <span className="truncate text-slate-200 text-[11px] sm:text-xs">
-            Sec: <span className="font-bold text-white">{activeSectionName}</span>
-          </span>
-        </div>
-
-
-        {/* Timer & Section Action */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 text-[11px] sm:text-xs bg-slate-900 px-2.5 py-1 rounded border border-slate-700">
-            <svg
-              className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 animate-pulse"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span className="font-mono font-bold text-white">{formatTimer(timeLeft)}</span>
+        <header className="bg-black text-white min-h-[2.5rem] py-1.5 px-3 sm:px-4 flex items-center justify-between gap-2 border-b border-slate-800 text-xs font-sans flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-4 truncate">
+            <span className="font-bold whitespace-nowrap bg-slate-800 px-2 py-0.5 rounded text-[11px] sm:text-xs">
+              Q {currentStep === 0 ? 'Intro' : `${currentSectionStepNum}/${totalStepsInSection}`}
+            </span>
+            <span className="truncate text-slate-200 text-[11px] sm:text-xs">
+              Sec: <span className="font-bold text-white">{activeSectionName}</span>
+            </span>
           </div>
 
-          <button
-            type="button"
-            onClick={finishCurrentSection}
-            className="bg-[#F59E0B] hover:bg-[#D97706] text-black font-extrabold px-2.5 py-1 sm:px-4 sm:py-1.5 rounded text-[10px] sm:text-xs transition-all active:scale-95 whitespace-nowrap cursor-pointer"
-          >
-            Finish Sec
-          </button>
-        </div>
-      </header>
 
-      {/* ==========================================
-           TOP HEADER 2: OLIVE GREEN BAR (Test Title & Candidate)
-           ========================================== */}
-      <div className="bg-[#6B9E2B] text-white min-h-[1.75rem] py-1 px-3 sm:px-4 flex items-center justify-between text-[11px] sm:text-xs font-bold flex-shrink-0 truncate shadow-xs">
-        <div className="truncate mr-2 flex items-center gap-1.5">
-          <span className="truncate font-semibold">{test.title}</span>
-          {test.is_published === false && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-400 text-slate-950 text-[9px] sm:text-[10px] uppercase font-black rounded flex-shrink-0 shadow-xs border border-amber-500">
-              <Lock className="w-2.5 h-2.5" />
-              <span>Draft Preview (Staff Only)</span>
-            </span>
-          )}
+          {/* Timer & Section Action */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs bg-slate-900 px-2.5 py-1 rounded border border-slate-700">
+              <svg
+                className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 animate-pulse"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span className="font-mono font-bold text-white">{formatTimer(timeLeft)}</span>
+            </div>
 
-          {test.is_actual_exam_demo && (
-            <span className="px-1.5 py-0.5 bg-white text-slate-900 text-[9px] sm:text-[10px] uppercase font-extrabold rounded flex-shrink-0">
-              Demo
+            <button
+              type="button"
+              onClick={finishCurrentSection}
+              className="bg-[#F59E0B] hover:bg-[#D97706] text-black font-extrabold px-2.5 py-1 sm:px-4 sm:py-1.5 rounded text-[10px] sm:text-xs transition-all active:scale-95 whitespace-nowrap cursor-pointer"
+            >
+              Finish Sec
+            </button>
+          </div>
+        </header>
+
+        {/* ==========================================
+             TOP HEADER 2: OLIVE GREEN BAR (Test Title & Candidate)
+             ========================================== */}
+        <div className="bg-[#6B9E2B] text-white min-h-[1.75rem] py-1 px-3 sm:px-4 flex items-center justify-between text-[11px] sm:text-xs font-bold flex-shrink-0 truncate shadow-xs">
+          <div className="truncate mr-2 flex items-center gap-1.5">
+            <span className="truncate font-semibold">{test.title}</span>
+            {test.is_published === false && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-400 text-slate-950 text-[9px] sm:text-[10px] uppercase font-black rounded flex-shrink-0 shadow-xs border border-amber-500">
+                <Lock className="w-2.5 h-2.5" />
+                <span>Draft Preview (Staff Only)</span>
+              </span>
+            )}
+
+            {test.is_actual_exam_demo && (
+              <span className="px-1.5 py-0.5 bg-white text-slate-900 text-[9px] sm:text-[10px] uppercase font-extrabold rounded flex-shrink-0">
+                Demo
+              </span>
+            )}
+          </div>
+          <div className="whitespace-nowrap text-[10px] sm:text-xs text-lime-100 flex items-center gap-2">
+            <span className="hidden sm:inline-flex items-center gap-1 bg-black/20 text-lime-200 px-2 py-0.5 rounded text-[10px] font-mono">
+              <ShieldCheck className="w-3 h-3 text-lime-300" />
+              <span>Anti-Capture Protected</span>
             </span>
-          )}
+            <span className="font-semibold">{user?.username || 'Candidate'}</span>
+          </div>
         </div>
-        <div className="whitespace-nowrap text-[10px] sm:text-xs text-lime-100">
-          <span className="font-semibold">{user?.username || 'Candidate'}</span>
-        </div>
-      </div>
+
 
 
       {/* ==========================================
@@ -923,7 +931,8 @@ function QuizContent({ params: paramsPromise }) {
         title={loadingOverlayText || 'Evaluating Exam Results...'}
         subtitle="Submitting your answers, calculating official scale scores and performance breakdown..."
       />
-    </div>
+      </div>
+    </ExamSecurityGuard>
   );
 }
 

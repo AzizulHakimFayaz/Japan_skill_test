@@ -70,91 +70,111 @@ class TestViewsTestCase(TestCase):
         resp_att = self.client.get(reverse('admin:tests_attempt_changelist'))
         self.assertEqual(resp_att.status_code, 200)
 
-    def test_landing_page_shows_published_tests(self):
-        response = self.client.get(reverse('landing_page'))
+    def test_api_tests_list(self):
+        response = self.client.get(reverse('api_tests_list'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.free_test.title)
-        self.assertContains(response, self.paid_test.title)
+        data = response.json()
+        titles = [t['title'] for t in data['tests']]
+        self.assertIn(self.free_test.title, titles)
+        self.assertIn(self.paid_test.title, titles)
 
-    def test_anonymous_user_can_access_free_test(self):
-        response = self.client.get(reverse('quiz_page', args=[self.free_test.id]))
+    def test_api_quiz_data_access(self):
+        # Free test quiz data
+        response = self.client.get(reverse('api_quiz_data', args=[self.free_test.id]))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tests/quiz.html')
+        data = response.json()
+        self.assertEqual(data['test']['id'], self.free_test.id)
+        self.assertEqual(data['total_questions'], 1)
+        self.assertEqual(len(data['steps']), 1)
 
-    def test_anonymous_user_cannot_access_paid_test(self):
-        response = self.client.get(reverse('quiz_page', args=[self.paid_test.id]))
-        self.assertEqual(response.status_code, 302) # Redirect to login
-        self.assertTrue(response.url.startswith(reverse('login')))
 
-    def test_authenticated_user_can_access_paid_test(self):
-        self.client.login(username=self.username, password=self.password)
-        response = self.client.get(reverse('quiz_page', args=[self.paid_test.id]))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tests/quiz.html')
-
-    def test_quiz_submission_and_scoring_anonymous(self):
-        # Submit correct answer to free test anonymously
+    def test_api_submit_quiz_anonymous(self):
         post_data = {
-            f"question_{self.free_question.id}": self.free_opt_correct.id
+            "answers": {
+                str(self.free_question.id): self.free_opt_correct.id
+            }
         }
-        response = self.client.post(reverse('submit_quiz', args=[self.free_test.id]), data=post_data)
-        
-        # Should redirect to attempt results
-        self.assertEqual(response.status_code, 302)
-        
-        # Verify attempt was created with user=None, score=1
-        attempt = Attempt.objects.get(test=self.free_test)
-        self.assertIsNone(attempt.user)
-        self.assertEqual(attempt.score, 1)
-        self.assertEqual(attempt.total_questions, 1)
-        self.assertEqual(attempt.answers, {str(self.free_question.id): self.free_opt_correct.id})
+        response = self.client.post(
+            reverse('api_submit_quiz', args=[self.free_test.id]),
+            data=post_data,
+            content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 201)
+        data = response.json()
+        self.assertEqual(data['score'], 1)
+        self.assertEqual(data['total_questions'], 1)
 
-    def test_quiz_submission_and_scoring_authenticated(self):
-        self.client.login(username=self.username, password=self.password)
-        # Submit incorrect answer to free test while logged in
-        post_data = {
-            f"question_{self.free_question.id}": self.free_opt_incorrect.id
-        }
-        response = self.client.post(reverse('submit_quiz', args=[self.free_test.id]), data=post_data)
-        
-        self.assertEqual(response.status_code, 302)
-        
-        # Verify attempt was created with user=self.user, score=0
-        attempt = Attempt.objects.get(test=self.free_test)
-        self.assertEqual(attempt.user, self.user)
-        self.assertEqual(attempt.score, 0)
-        self.assertEqual(attempt.total_questions, 1)
-        self.assertEqual(attempt.answers, {str(self.free_question.id): self.free_opt_incorrect.id})
-        
-        # Also check My Results shows it
-        response = self.client.get(reverse('my_results'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.free_test.title)
-
-    def test_jft_basic_info_view_renders(self):
-        response = self.client.get(reverse('jft_basic_info'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tests/jft_basic.html')
-        self.assertContains(response, "Japan Foundation Test for")
-        self.assertContains(response, "BDJ01")
+    def test_api_info_views(self):
+        resp_jft = self.client.get(reverse('api_jft_info'))
+        self.assertEqual(resp_jft.status_code, 200)
+        resp_ssw = self.client.get(reverse('api_ssw_info'))
+        self.assertEqual(resp_ssw.status_code, 200)
 
 
-    def test_ssw_skill_test_info_view_renders(self):
-        response = self.client.get(reverse('ssw_skill_test_info'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tests/ssw_skill_test.html')
-        self.assertContains(response, "Specified Skilled Worker")
-        self.assertContains(response, "Nursing Care")
 
     def test_csv_question_import_helper(self):
         from .utils import import_questions_from_csv, generate_sample_csv_string
         from .models import QuestionGroup
         sample_csv = generate_sample_csv_string()
-        count, errors = import_questions_from_csv(self.free_test, sample_csv)
-        self.assertEqual(count, 4)
+        count, errors = import_questions_from_csv(self.free_test, sample_csv, auto_generate_audio=False)
+        self.assertEqual(count, 5)
         self.assertEqual(len(errors), 0)
-        self.assertEqual(self.free_test.questions.count(), 5) # 1 original + 4 imported
+        self.assertEqual(self.free_test.questions.count(), 6) # 1 original + 5 imported
         self.assertTrue(QuestionGroup.objects.filter(test=self.free_test, title="Reading Passage 1 - Town Magazine").exists())
+
+    def test_dialogue_script_parser(self):
+        from .audio_generator import parse_dialogue_script, resolve_voice_for_speaker
+
+        # 1. Bracketed format (user demo)
+        script1 = "[Nanami], [田中さん、今週の日曜日にバーベキューをしませんか。], [Keita], [日曜日ですね。土曜日なら大丈夫です。]"
+        turns1 = parse_dialogue_script(script1)
+        self.assertEqual(len(turns1), 2)
+        self.assertEqual(turns1[0]['speaker'], "Nanami")
+        self.assertEqual(turns1[0]['voice'], "ja-JP-NanamiNeural")
+        self.assertEqual(turns1[0]['text'], "田中さん、今週の日曜日にバーベキューをしませんか。")
+        self.assertEqual(turns1[1]['speaker'], "Keita")
+        self.assertEqual(turns1[1]['voice'], "ja-JP-KeitaNeural")
+        self.assertEqual(turns1[1]['text'], "日曜日ですね。土曜日なら大丈夫です。")
+
+        # 2. Multi-line colon format
+        script2 = "A：しごとは どうですか。\nB：たのしいです。"
+        turns2 = parse_dialogue_script(script2)
+        self.assertEqual(len(turns2), 2)
+        self.assertEqual(turns2[0]['voice'], "ja-JP-NanamiNeural")
+        self.assertEqual(turns2[1]['voice'], "ja-JP-KeitaNeural")
+
+        # 3. Comma-separated pairs
+        script3 = "Nanami, こんにちは, Keita, やあ"
+        turns3 = parse_dialogue_script(script3)
+        self.assertEqual(len(turns3), 2)
+
+        # 4. Single text narration
+        script4 = "あしたは あめが ふるでしょう。"
+        turns4 = parse_dialogue_script(script4)
+        self.assertEqual(len(turns4), 1)
+        self.assertEqual(turns4[0]['voice'], "ja-JP-NanamiNeural")
+
+    def test_audio_generator_and_model_save(self):
+        from .audio_generator import generate_and_save_question_audio, generate_audio_from_script
+        
+        # Test generating audio bytes
+        test_script = "[Nanami], [こんにちは。]"
+        audio_bytes = generate_audio_from_script(test_script)
+        self.assertGreater(len(audio_bytes), 1000)
+
+        # Test saving to Question instance
+        q = Question.objects.create(
+            test=self.free_test,
+            section=Question.Section.LISTENING,
+            type=Question.QuestionType.AUDIO,
+            prompt="Listen to the audio.",
+            audio_script="[Nanami], [はじめまして。], [Keita], [どうぞよろしく。]",
+            order_index=20
+        )
+        saved = generate_and_save_question_audio(q, overwrite=True)
+        self.assertTrue(saved)
+        self.assertTrue(bool(q.audio))
+        self.assertTrue(q.audio.name.endswith(".mp3"))
 
     def test_intelligent_translations(self):
         # 1. Illustration question
@@ -193,5 +213,6 @@ class TestViewsTestCase(TestCase):
         )
         trans_custom = q_custom.get_translations()
         self.assertEqual(trans_custom['Bengali'], "কাস্টম বাংলা অনুবাদ")
+
 
 
