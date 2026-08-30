@@ -4,8 +4,9 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
-from .models import Test, Question, QuestionGroup, AnswerOption, Attempt
+from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice
 from .utils import import_questions_from_csv, generate_sample_csv_string
+
 
 
 
@@ -755,7 +756,185 @@ class AttemptAdmin(admin.ModelAdmin):
     status_badge.short_description = 'Status'
 
 
+# ─── Notice & Study Material Admin ────────────────────────────────────
+@admin.register(Notice)
+class NoticeAdmin(admin.ModelAdmin):
+    list_display = (
+        'title',
+        'type_badge',
+        'audience_badge',
+        'media_indicators',
+        'related_test_link',
+        'is_active',
+        'is_pinned',
+        'show_as_popup',
+        'views_count',
+        'downloads_count',
+        'created_at_formatted',
+    )
+    list_filter = (
+        'notice_type',
+        'target_audience',
+        'is_active',
+        'is_pinned',
+        'show_as_popup',
+        'created_at',
+    )
+    search_fields = ('title', 'summary', 'content', 'action_url')
+    list_editable = ('is_active', 'is_pinned', 'show_as_popup')
+    readonly_fields = (
+        'image_preview',
+        'pdf_preview',
+        'views_count',
+        'downloads_count',
+        'created_at',
+        'updated_at',
+    )
+    actions = ['publish_notices', 'unpublish_notices', 'pin_notices', 'unpin_notices']
+
+    fieldsets = (
+        ('Notice Overview', {
+            'fields': ('title', 'summary', 'notice_type', 'target_audience'),
+            'description': 'Main headline, summary snippet, and classification.'
+        }),
+        ('Full Announcement Body', {
+            'fields': ('content',),
+            'description': 'Full detailed announcement text (supports rich paragraphs).'
+        }),
+        ('Media & PDF Attachments', {
+            'fields': (
+                ('image', 'image_preview'),
+                ('pdf_file', 'pdf_preview'),
+                'file_size_text',
+            ),
+            'description': 'Attach an optional banner image or downloadable PDF study material (past questions, vocabulary lists, etc.).'
+        }),
+        ('Related Test & Action Button', {
+            'fields': (
+                'related_test',
+                ('action_url', 'action_button_text'),
+            ),
+            'description': 'Optionally link candidates directly to a mock test or custom registration link.'
+        }),
+        ('Display & Priority Controls', {
+            'fields': (
+                ('is_active', 'is_pinned', 'show_as_popup'),
+                ('order_index', 'expires_at'),
+            ),
+            'description': 'Control visibility, pin to the top of notice boards, or show as an urgent popup alert.'
+        }),
+        ('Analytics & Timestamps', {
+            'fields': (
+                ('views_count', 'downloads_count'),
+                ('created_at', 'updated_at'),
+            ),
+            'classes': ('collapse',),
+            'description': 'System metrics and audit timestamps.'
+        }),
+    )
+
+    def type_badge(self, obj):
+        colors = {
+            Notice.NoticeType.MATERIAL: ('#3B82F6', '#EFF6FF', 'fas fa-file-pdf'),
+            Notice.NoticeType.EXAM_ALERT: ('#DC2626', '#FEF2F2', 'fas fa-exclamation-triangle'),
+            Notice.NoticeType.UPDATE: ('#10B981', '#ECFDF5', 'fas fa-sync-alt'),
+            Notice.NoticeType.EVENT: ('#8B5CF6', '#F5F3FF', 'fas fa-calendar-alt'),
+            Notice.NoticeType.GENERAL: ('#64748B', '#F8FAFC', 'fas fa-bullhorn'),
+        }
+        color, bg, icon = colors.get(obj.notice_type, ('#64748B', '#F8FAFC', 'fas fa-info-circle'))
+        return format_html(
+            '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;color:{};background:{};border:1px solid {};">'
+            '<i class="{}"></i> {}</span>',
+            color, bg, color, icon, obj.get_notice_type_display()
+        )
+    type_badge.short_description = 'Type'
+
+    def audience_badge(self, obj):
+        return format_html(
+            '<span style="padding:2px 6px;border-radius:4px;font-size:0.7rem;font-weight:600;background:#F1F5F9;color:#334155;">{}</span>',
+            obj.get_target_audience_display()
+        )
+    audience_badge.short_description = 'Audience'
+
+    def media_indicators(self, obj):
+        icons = []
+        if obj.image:
+            icons.append('<span style="color:#0284C7;font-size:0.8rem;" title="Has Image Banner"><i class="fas fa-image"></i> Image</span>')
+        if obj.pdf_file:
+            size = obj.file_size_text or 'PDF'
+            icons.append(f'<span style="color:#DC2626;font-size:0.8rem;" title="Has PDF Material: {size}"><i class="fas fa-file-pdf"></i> {size}</span>')
+        if not icons:
+            return format_html('<span style="color:#94A3B8;font-size:0.75rem;">Text only</span>')
+        return format_html('&nbsp;|&nbsp;'.join(icons))
+    media_indicators.short_description = 'Attachments'
+
+    def related_test_link(self, obj):
+        if obj.related_test:
+            url = reverse('admin:tests_test_change', args=[obj.related_test.pk])
+            return format_html('<a href="{}" style="font-weight:600;"><i class="fas fa-file-alt text-primary"></i> {}</a>', url, obj.related_test.title)
+        if obj.action_url:
+            return format_html('<span style="font-size:0.75rem;color:#64748B;"><i class="fas fa-link"></i> {}</span>', obj.action_url[:24] + '...')
+        return '—'
+    related_test_link.short_description = 'Link / Test'
+
+    def created_at_formatted(self, obj):
+        return obj.created_at.strftime('%Y-%m-%d %H:%M')
+    created_at_formatted.short_description = 'Posted'
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<div style="margin-top:4px;">'
+                '<img src="{}" style="max-height:180px; max-width:320px; border-radius:8px; border:1px solid #CBD5E1; object-fit:cover;" />'
+                '<div style="margin-top:4px; font-size:0.75rem; color:#64748B;">URL: <a href="{}" target="_blank">Open Full Image ↗</a></div>'
+                '</div>',
+                obj.image.url, obj.image.url
+            )
+        return format_html('<span style="color:#94A3B8; font-size:0.8rem;">No image uploaded</span>')
+    image_preview.short_description = 'Image Preview'
+
+    def pdf_preview(self, obj):
+        if obj.pdf_file:
+            return format_html(
+                '<div style="margin-top:4px; display:flex; align-items:center; gap:8px; padding:8px 12px; background:#FEF2F2; border:1px solid #FCA5A5; border-radius:6px; max-width:400px;">'
+                '<i class="fas fa-file-pdf text-danger" style="font-size:1.5rem;"></i>'
+                '<div>'
+                '<div style="font-weight:700; font-size:0.85rem; color:#991B1B;">{}</div>'
+                '<div style="font-size:0.75rem; color:#64748B;">{}</div>'
+                '<a href="{}" target="_blank" style="font-size:0.75rem; font-weight:700; color:#DC2626; text-decoration:underline;">Download / View PDF ↗</a>'
+                '</div>'
+                '</div>',
+                obj.pdf_file.name.split('/')[-1],
+                obj.file_size_text or 'Attached PDF',
+                obj.pdf_file.url
+            )
+        return format_html('<span style="color:#94A3B8; font-size:0.8rem;">No PDF file attached</span>')
+    pdf_preview.short_description = 'PDF Material Preview'
+
+    # Bulk Actions
+    def publish_notices(self, request, queryset):
+        count = queryset.update(is_active=True)
+        self.message_user(request, f"Successfully published {count} notice(s).", messages.SUCCESS)
+    publish_notices.short_description = "✓ Publish selected notices"
+
+    def unpublish_notices(self, request, queryset):
+        count = queryset.update(is_active=False)
+        self.message_user(request, f"Successfully unpublished {count} notice(s).", messages.WARNING)
+    unpublish_notices.short_description = "✗ Unpublish selected notices"
+
+    def pin_notices(self, request, queryset):
+        count = queryset.update(is_pinned=True)
+        self.message_user(request, f"Successfully pinned {count} notice(s) to the top.", messages.SUCCESS)
+    pin_notices.short_description = "📌 Pin selected notices to top"
+
+    def unpin_notices(self, request, queryset):
+        count = queryset.update(is_pinned=False)
+        self.message_user(request, f"Successfully unpinned {count} notice(s).", messages.INFO)
+    unpin_notices.short_description = "Unpin selected notices"
+
+
 # ─── Admin site branding ──────────────────────────────────────────────
 admin.site.site_header = 'Gakkou No Shiken — Admin'
 admin.site.site_title = 'Gakkou No Shiken Admin'
 admin.site.index_title = 'Dashboard'
+

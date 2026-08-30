@@ -354,13 +354,14 @@ JAZZMIN_SETTINGS = {
     "navigation_expanded": True,
     "hide_apps": [],
     "hide_models": [],
-    "order_with_respect_to": ["tests", "tests.Test", "tests.QuestionGroup", "tests.Question", "tests.Attempt", "auth"],
+    "order_with_respect_to": ["tests", "tests.Notice", "tests.Test", "tests.QuestionGroup", "tests.Question", "tests.Attempt", "auth"],
 
     # Model icons (FontAwesome 5)
     "icons": {
         "auth": "fas fa-shield-alt",
         "auth.user": "fas fa-user-shield",
         "auth.Group": "fas fa-users-cog",
+        "tests.Notice": "fas fa-bullhorn",
         "tests.Test": "fas fa-file-alt",
         "tests.Question": "fas fa-question-circle",
         "tests.QuestionGroup": "fas fa-layer-group",
@@ -369,6 +370,7 @@ JAZZMIN_SETTINGS = {
     },
     "default_icon_parents": "fas fa-folder-open",
     "default_icon_children": "fas fa-circle-notch",
+
 
     # Modals for related objects
     "related_modal_active": True,

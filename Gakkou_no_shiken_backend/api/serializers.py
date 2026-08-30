@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from tests.models import Test, QuestionGroup, Question, AnswerOption, Attempt
+from tests.models import Test, QuestionGroup, Question, AnswerOption, Attempt, Notice
+
 
 
 def get_absolute_media_url(file_field, request=None):
@@ -299,3 +300,72 @@ class AttemptSummarySerializer(serializers.ModelSerializer):
 
     def get_passed(self, obj):
         return self.get_scaled_score(obj) >= 200
+
+
+class NoticeSerializer(serializers.ModelSerializer):
+    notice_type_display = serializers.CharField(source='get_notice_type_display', read_only=True)
+    target_audience_display = serializers.CharField(source='get_target_audience_display', read_only=True)
+    image_url = serializers.SerializerMethodField()
+    pdf_file_url = serializers.SerializerMethodField()
+    related_test_title = serializers.CharField(source='related_test.title', read_only=True)
+    related_test_category = serializers.CharField(source='related_test.category', read_only=True)
+    created_at_formatted = serializers.SerializerMethodField()
+    time_ago = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Notice
+        fields = [
+            'id',
+            'title',
+            'summary',
+            'content',
+            'notice_type',
+            'notice_type_display',
+            'target_audience',
+            'target_audience_display',
+            'image_url',
+            'pdf_file_url',
+            'file_size_text',
+            'related_test',
+            'related_test_title',
+            'related_test_category',
+            'action_url',
+            'action_button_text',
+            'is_pinned',
+            'show_as_popup',
+            'order_index',
+            'views_count',
+            'downloads_count',
+            'created_at',
+            'created_at_formatted',
+            'time_ago',
+        ]
+
+    def get_image_url(self, obj):
+        request = self.context.get('request')
+        return get_absolute_media_url(obj.image, request)
+
+    def get_pdf_file_url(self, obj):
+        request = self.context.get('request')
+        return get_absolute_media_url(obj.pdf_file, request)
+
+    def get_created_at_formatted(self, obj):
+        return obj.created_at.strftime('%B %d, %Y')
+
+    def get_time_ago(self, obj):
+        from django.utils.timezone import now
+        diff = now() - obj.created_at
+        seconds = diff.total_seconds()
+        if seconds < 60:
+            return "Just now"
+        elif seconds < 3600:
+            mins = int(seconds / 60)
+            return f"{mins}m ago"
+        elif seconds < 86400:
+            hours = int(seconds / 3600)
+            return f"{hours}h ago"
+        elif seconds < 86400 * 7:
+            days = int(seconds / 86400)
+            return f"{days}d ago"
+        return obj.created_at.strftime('%b %d, %Y')
+

@@ -237,4 +237,29 @@ export async function getCandidateProfile(username) {
   return apiRequest(`/api/candidates/${encodeURIComponent(username)}/`);
 }
 
+// ─── Notices, Notifications & PDF Study Materials API ───
+export async function getNotices(params = {}) {
+  const query = new URLSearchParams();
+  if (params.type) query.set('type', params.type);
+  if (params.audience) query.set('audience', params.audience);
+  if (params.pinned !== undefined) query.set('pinned', String(params.pinned));
+  if (params.popup !== undefined) query.set('popup', String(params.popup));
+  if (params.search) query.set('search', params.search);
+  if (params.limit) query.set('limit', String(params.limit));
+
+  const qs = query.toString();
+  return apiRequest(`/api/notices/${qs ? `?${qs}` : ''}`);
+}
+
+export async function getNoticeDetail(id) {
+  return apiRequest(`/api/notices/${id}/`);
+}
+
+export async function downloadNoticePdf(id) {
+  return apiRequest(`/api/notices/${id}/download/`, {
+    method: 'POST',
+  });
+}
+
+
 

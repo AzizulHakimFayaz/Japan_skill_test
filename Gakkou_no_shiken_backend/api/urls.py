@@ -34,9 +34,15 @@ urlpatterns = [
     path('candidates/<str:username>/', views.CandidatePublicProfileAPIView.as_view(), name='api_candidate_public_profile'),
     path('profile/<str:username>/', views.CandidatePublicProfileAPIView.as_view(), name='api_candidate_public_profile_alias'),
 
+    # Notices & Study Materials
+    path('notices/', views.NoticeListAPIView.as_view(), name='api_notices_list'),
+    path('notices/<int:pk>/', views.NoticeDetailAPIView.as_view(), name='api_notice_detail'),
+    path('notices/<int:pk>/download/', views.NoticeDownloadAPIView.as_view(), name='api_notice_download'),
+
     # One-Click Setup Trigger & Admin Helpers
     path('setup-database/', views.SetupDatabaseAPIView.as_view(), name='api_setup_database'),
     path('admin/auto-upload/', views.AdminAutoUploadAPIView.as_view(), name='api_admin_auto_upload'),
+
 ]
 
 

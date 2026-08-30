@@ -7,6 +7,7 @@ import { useAuth } from './AuthContext';
 import ThemeToggle from './ThemeToggle';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useLanguage } from './LanguageContext';
+import NotificationBell from './NotificationBell';
 import {
   Trophy,
   Home,
@@ -22,7 +23,10 @@ import {
   Menu,
   X,
   HelpCircle,
+  FileText,
+  Bell,
 } from 'lucide-react';
+
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -120,6 +124,18 @@ export default function Navbar() {
               <span>{t('leaderboard')}</span>
             </Link>
             <Link
+              href="/notices"
+              className={`text-sm font-bold transition-all duration-200 py-1.5 px-3 rounded-xl flex items-center gap-1.5 ${
+                isActive('/notices') || pathname.startsWith('/notices')
+                  ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
+                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <FileText className="w-4 h-4 text-japan-red" />
+              <span>Notices &amp; Materials</span>
+            </Link>
+
+            <Link
               href="/how-it-works"
               className={`text-sm font-bold transition-all duration-200 py-1.5 px-3 rounded-xl flex items-center gap-1.5 ${
                 isActive('/how-it-works')
@@ -131,6 +147,9 @@ export default function Navbar() {
               <span>Guide</span>
             </Link>
 
+            {/* Notification Bell with Badge Drawer */}
+            <NotificationBell />
+
             {/* Language Switcher (EN / BN / JA) */}
             <LanguageSwitcher />
 
@@ -138,6 +157,7 @@ export default function Navbar() {
             <ThemeToggle size="compact" />
 
             <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-1"></div>
+
 
             {isAuthenticated && user ? (
               <>
@@ -289,6 +309,18 @@ export default function Navbar() {
               </Link>
 
               <Link
+                href="/notices"
+                onClick={() => setOpen(false)}
+                className="px-4 py-3 rounded-2xl text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+              >
+                <span className="flex items-center gap-2.5">
+                  <FileText className="w-5 h-5 text-japan-red" />
+                  <span>Notices &amp; Study Materials (PDFs)</span>
+                </span>
+                <ChevronRight className="w-4 h-4 text-slate-400" />
+              </Link>
+
+              <Link
                 href="/how-it-works"
                 onClick={() => setOpen(false)}
                 className="px-4 py-3 rounded-2xl text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
@@ -299,6 +331,7 @@ export default function Navbar() {
                 </span>
                 <ChevronRight className="w-4 h-4 text-slate-400" />
               </Link>
+
 
               {isAuthenticated && user ? (
                 <>

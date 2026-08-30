@@ -13,13 +13,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.management import call_command
+from django.db.models import Q
+from django.utils import timezone
 
-
-from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt
+from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice
 from accounts.models import UserProfile, EmailVerificationOTP
 from tests.data.jft_data import get_jft_info, get_jft_test_centers, get_jft_resources
-
-
 from tests.data.ssw_data import get_ssw_info, get_ssw_sectors, get_ssw_test_centers
 from .serializers import (
     TestListSerializer,
@@ -32,8 +31,10 @@ from .serializers import (
     RegisterSerializer,
     UserProfileSerializer,
     UserProfileUpdateSerializer,
+    NoticeSerializer,
     get_absolute_media_url,
 )
+
 
 
 
@@ -1270,6 +1271,128 @@ class AdminAutoUploadAPIView(APIView):
             })
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# ─── Notice & Study Material API Views ─────────────────────────────────
+
+class NoticeListAPIView(APIView):
+    """
+    Returns active notices, announcements, and PDF materials.
+    
+    Query Parameters:
+      - type: 'material', 'exam_alert', 'general', 'update', 'event'
+      - audience: 'all', 'jft', 'ssw', 'registered'
+      - pinned: 'true' (returns pinned notices)
+      - popup: 'true' (returns high-priority popup alert notices)
+      - search: keyword search in title, summary, or content
+      - limit: max items to return (default 50)
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        now = timezone.now()
+        is_staff = bool(request.user.is_authenticated and request.user.is_staff)
+
+        if is_staff:
+            queryset = Notice.objects.all()
+        else:
+            # Active and not expired
+            queryset = Notice.objects.filter(is_active=True).filter(
+                Q(expires_at__isnull=True) | Q(expires_at__gt=now)
+            )
+
+        # Filters
+        notice_type = request.query_params.get('type')
+        if notice_type:
+            queryset = queryset.filter(notice_type=notice_type)
+
+        audience = request.query_params.get('audience')
+        if audience:
+            if audience == 'all':
+                queryset = queryset.filter(target_audience=Notice.TargetAudience.ALL)
+            else:
+                queryset = queryset.filter(target_audience__in=[Notice.TargetAudience.ALL, audience])
+
+        pinned = request.query_params.get('pinned')
+        if pinned is not None:
+            is_pinned = str(pinned).lower() in ['true', '1', 'yes']
+            queryset = queryset.filter(is_pinned=is_pinned)
+
+        popup = request.query_params.get('popup')
+        if popup is not None:
+            show_as_popup = str(popup).lower() in ['true', '1', 'yes']
+            queryset = queryset.filter(show_as_popup=show_as_popup)
+
+        search = request.query_params.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) |
+                Q(summary__icontains=search) |
+                Q(content__icontains=search)
+            )
+
+        # Limit
+        limit = request.query_params.get('limit')
+        if limit and limit.isdigit():
+            queryset = queryset[:int(limit)]
+        else:
+            queryset = queryset[:50]
+
+        serializer = NoticeSerializer(queryset, many=True, context={'request': request})
+        
+        # Categorized counts summary for tabs
+        counts = {
+            'all': Notice.objects.filter(is_active=True).count(),
+            'material': Notice.objects.filter(is_active=True, notice_type=Notice.NoticeType.MATERIAL).count(),
+            'exam_alert': Notice.objects.filter(is_active=True, notice_type=Notice.NoticeType.EXAM_ALERT).count(),
+            'general': Notice.objects.filter(is_active=True, notice_type=Notice.NoticeType.GENERAL).count(),
+            'update': Notice.objects.filter(is_active=True, notice_type=Notice.NoticeType.UPDATE).count(),
+            'pinned': Notice.objects.filter(is_active=True, is_pinned=True).count(),
+        }
+
+        return Response({
+            'count': len(serializer.data),
+            'categories_count': counts,
+            'notices': serializer.data
+        })
+
+
+class NoticeDetailAPIView(APIView):
+    """Returns single notice details and increments view counter."""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, pk):
+        try:
+            notice = Notice.objects.get(pk=pk)
+            # Increment view counter
+            Notice.objects.filter(pk=pk).update(views_count=models.F('views_count') + 1)
+            notice.refresh_from_db(fields=['views_count'])
+            serializer = NoticeSerializer(notice, context={'request': request})
+            return Response(serializer.data)
+        except Notice.DoesNotExist:
+            return Response({'error': 'Notice not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class NoticeDownloadAPIView(APIView):
+    """Increments the download counter for a PDF study material notice."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, pk):
+        try:
+            notice = Notice.objects.get(pk=pk)
+            if not notice.pdf_file:
+                return Response({'error': 'No PDF file attached to this notice'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            Notice.objects.filter(pk=pk).update(downloads_count=models.F('downloads_count') + 1)
+            pdf_url = get_absolute_media_url(notice.pdf_file, request)
+            return Response({
+                'status': 'success',
+                'download_url': pdf_url,
+                'downloads_count': notice.downloads_count + 1
+            })
+        except Notice.DoesNotExist:
+            return Response({'error': 'Notice not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 
 

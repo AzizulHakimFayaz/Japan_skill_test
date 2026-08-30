@@ -343,3 +343,138 @@ class Attempt(models.Model):
     class Meta:
         ordering = ['-completed_at']
 
+
+class Notice(models.Model):
+    """Administrative Notice, Exam Alert, Announcement, or PDF Study Material."""
+    
+    class NoticeType(models.TextChoices):
+        GENERAL = "general", "General Notice"
+        EXAM_ALERT = "exam_alert", "Exam Alert"
+        MATERIAL = "material", "PDF Study Material"
+        UPDATE = "update", "System Update"
+        EVENT = "event", "Event / Workshop"
+
+    class TargetAudience(models.TextChoices):
+        ALL = "all", "All Visitors & Candidates"
+        REGISTERED = "registered", "Registered Students Only"
+        JFT = "jft", "JFT-Basic Students"
+        SSW = "ssw", "SSW Skill Test Students"
+
+    title = models.CharField(
+        max_length=255,
+        help_text="Headline for the notice or announcement."
+    )
+    summary = models.TextField(
+        blank=True,
+        help_text="Short summary preview for notification cards."
+    )
+    content = models.TextField(
+        blank=True,
+        help_text="Detailed announcement body (supports markdown and paragraphs)."
+    )
+    notice_type = models.CharField(
+        max_length=32,
+        choices=NoticeType.choices,
+        default=NoticeType.GENERAL,
+        help_text="Category of this notice."
+    )
+    target_audience = models.CharField(
+        max_length=32,
+        choices=TargetAudience.choices,
+        default=TargetAudience.ALL,
+        help_text="Target audience filter."
+    )
+
+    # Attachments
+    image = models.FileField(
+        upload_to="notices/images/",
+        null=True,
+        blank=True,
+        help_text="Banner/Flyer image for the notice or card header."
+    )
+    pdf_file = models.FileField(
+        upload_to="notices/pdfs/",
+        null=True,
+        blank=True,
+        help_text="Downloadable PDF study guide, past questions, or vocabulary sheet."
+    )
+    file_size_text = models.CharField(
+        max_length=64,
+        blank=True,
+        help_text="Human-readable file size (e.g. '2.4 MB PDF'). Auto-calculated if blank."
+    )
+
+    # Related Practice Test or Custom Action Link
+    related_test = models.ForeignKey(
+        Test,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="notices",
+        help_text="Link directly to a specific mock test."
+    )
+    action_url = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="Custom link URL (e.g. '/test/8' or external registration portal)."
+    )
+    action_button_text = models.CharField(
+        max_length=64,
+        blank=True,
+        default="View Details",
+        help_text="Action button label (e.g. 'Download PDF Guide', 'Take Mock Test', 'Read Notice')."
+    )
+
+    # Display & Priority Controls
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Visible to candidates on public API."
+    )
+    is_pinned = models.BooleanField(
+        default=False,
+        help_text="Pin to the top of notice board and show in hero alert banner."
+    )
+    show_as_popup = models.BooleanField(
+        default=False,
+        help_text="Show as high-priority popup alert modal when candidates enter site."
+    )
+    order_index = models.PositiveIntegerField(
+        default=0,
+        help_text="Display order (lower numbers appear first)."
+    )
+
+    # Analytics / Tracking
+    views_count = models.PositiveIntegerField(default=0)
+    downloads_count = models.PositiveIntegerField(default=0)
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    expires_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Optional expiration date after which the notice automatically hides."
+    )
+
+    def save(self, *args, **kwargs):
+        # Auto-compute file size text if PDF is attached and field is blank
+        if self.pdf_file and not self.file_size_text:
+            try:
+                size_bytes = self.pdf_file.size
+                if size_bytes < 1024 * 1024:
+                    self.file_size_text = f"{size_bytes / 1024:.1f} KB PDF"
+                else:
+                    self.file_size_text = f"{size_bytes / (1024 * 1024):.1f} MB PDF"
+            except Exception:
+                self.file_size_text = "PDF Document"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"[{self.get_notice_type_display()}] {self.title}"
+
+    class Meta:
+        ordering = ['-is_pinned', 'order_index', '-created_at']
+        verbose_name = "Notice & Study Material"
+        verbose_name_plural = "Notices & Study Materials"
+
+
