@@ -77,10 +77,13 @@ export default function ExamSecurityGuard({
     };
 
     const handleFocusImmediate = () => {
+      // Wipe clipboard to destroy any snip that Windows just took
+      clearClipboard();
       if (unblurTimeout) clearTimeout(unblurTimeout);
       unblurTimeout = setTimeout(() => {
         removeInstantBlackout();
-      }, 80);
+        clearClipboard();
+      }, 100);
     };
 
     const handleVisibilityImmediate = () => {
@@ -89,12 +92,15 @@ export default function ExamSecurityGuard({
         setFocusLostCount((prev) => prev + 1);
         clearClipboard();
       } else {
+        clearClipboard();
         if (unblurTimeout) clearTimeout(unblurTimeout);
         unblurTimeout = setTimeout(() => {
           removeInstantBlackout();
-        }, 80);
+          clearClipboard();
+        }, 100);
       }
     };
+
 
     const handleMouseLeave = (e) => {
       if (e.clientY <= 0 || e.clientX <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
@@ -266,22 +272,23 @@ export default function ExamSecurityGuard({
         {children}
       </div>
 
-      {/* 3. Dynamic Anti-Camera Watermark Mesh */}
+      {/* 3. Dynamic Anti-Camera & Anti-Leak Watermark Mesh */}
       {enableWatermark && (
         <div
           aria-hidden="true"
-          className="fixed inset-0 pointer-events-none z-40 overflow-hidden select-none opacity-[0.08] dark:opacity-[0.05] flex flex-wrap content-center justify-around gap-16 sm:gap-24 p-8 rotate-[-15deg] scale-125"
+          className="fixed inset-0 pointer-events-none z-40 overflow-hidden select-none opacity-[0.14] dark:opacity-[0.09] flex flex-wrap content-center justify-around gap-12 sm:gap-20 p-6 rotate-[-18deg] scale-125 select-none"
         >
-          {Array.from({ length: 28 }).map((_, i) => (
+          {Array.from({ length: 36 }).map((_, i) => (
             <div
               key={i}
-              className="text-xs sm:text-sm font-black font-mono tracking-widest text-slate-900 dark:text-slate-100 whitespace-nowrap"
+              className="text-xs sm:text-sm font-black font-mono tracking-widest text-slate-900 dark:text-slate-100 whitespace-nowrap drop-shadow-2xs select-none"
             >
               {watermarkText}
             </div>
           ))}
         </div>
       )}
+
 
       {/* 4. Instantaneous 0ms Security Blackout Shield */}
       <div
