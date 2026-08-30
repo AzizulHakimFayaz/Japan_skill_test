@@ -63,30 +63,37 @@ export default function ExamSecurityGuard({
     }
   }, []);
 
-  // Synchronous Event Listeners for 0ms Screen Shield
+  // Synchronous Event Listeners for Reliable Screen Shield (No false alarms)
   useEffect(() => {
     if (!enableBlurOnBlur) return;
 
+    let blurTimeout = null;
     let unblurTimeout = null;
 
-    const handleBlurImmediate = (e) => {
-      // 0ms synchronous DOM blackout before OS capture frame is taken
-      applyInstantBlackout();
-      setFocusLostCount((prev) => prev + 1);
-      clearClipboard();
+    const handleBlur = () => {
+      // Small 250ms grace window to verify if user actually switched apps
+      // vs clicking on audio player / inputs / internal elements
+      if (blurTimeout) clearTimeout(blurTimeout);
+      blurTimeout = setTimeout(() => {
+        if (typeof document !== 'undefined' && (document.hidden || !document.hasFocus())) {
+          applyInstantBlackout();
+          setFocusLostCount((prev) => prev + 1);
+          clearClipboard();
+        }
+      }, 250);
     };
 
-    const handleFocusImmediate = () => {
-      // Wipe clipboard to destroy any snip that Windows just took
+    const handleFocus = () => {
+      if (blurTimeout) clearTimeout(blurTimeout);
       clearClipboard();
       if (unblurTimeout) clearTimeout(unblurTimeout);
       unblurTimeout = setTimeout(() => {
         removeInstantBlackout();
         clearClipboard();
-      }, 100);
+      }, 60);
     };
 
-    const handleVisibilityImmediate = () => {
+    const handleVisibility = () => {
       if (document.hidden || document.visibilityState === 'hidden') {
         applyInstantBlackout();
         setFocusLostCount((prev) => prev + 1);
@@ -97,40 +104,24 @@ export default function ExamSecurityGuard({
         unblurTimeout = setTimeout(() => {
           removeInstantBlackout();
           clearClipboard();
-        }, 100);
+        }, 60);
       }
     };
 
-
-    const handleMouseLeave = (e) => {
-      if (e.clientY <= 0 || e.clientX <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
-        applyInstantBlackout();
-      }
-    };
-
-    // Pre-emptive 0ms keydown capture
+    // Explicit keyboard shortcut interception
     const handleKeyDownCapture = (e) => {
       const key = e.key?.toLowerCase();
       const code = e.keyCode || e.which;
 
-      // 1. Windows Key (Meta) or PrintScreen / Snapshot (Snipping tool start)
-      if (
-        key === 'meta' ||
-        key === 'os' ||
-        key === 'printscreen' ||
-        key === 'snapshot' ||
-        code === 44 ||
-        code === 91 ||
-        code === 92 ||
-        code === 93
-      ) {
+      // 1. PrintScreen key
+      if (key === 'printscreen' || key === 'snapshot' || code === 44) {
         applyInstantBlackout();
         clearClipboard();
         return;
       }
 
-      // 2. Win + Shift + S or Cmd + Shift + 3/4/5
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey) {
+      // 2. Win + Shift + S or Cmd + Shift + 3/4/5 (Snipping Tools)
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && ['s', '3', '4', '5'].includes(key)) {
         applyInstantBlackout();
         clearClipboard();
         e.preventDefault();
@@ -138,24 +129,21 @@ export default function ExamSecurityGuard({
         return;
       }
 
-      // 3. Print / Save / DevTools
-      if (
-        (e.ctrlKey || e.metaKey) &&
-        ['p', 's', 'u', 'i', 'j', 'c'].includes(key)
-      ) {
+      // 3. Ctrl/Cmd + P (Print), Ctrl/Cmd + S (Save), Ctrl/Cmd + U (Source)
+      if ((e.ctrlKey || e.metaKey) && ['p', 's', 'u'].includes(key)) {
         e.preventDefault();
         e.stopPropagation();
-        applyInstantBlackout();
-        setTimeout(removeInstantBlackout, 1500);
         return;
       }
 
-      // 4. F12
-      if (key === 'f12' || code === 123) {
+      // 4. DevTools (F12 or Ctrl+Shift+I/J/C)
+      if (
+        key === 'f12' ||
+        code === 123 ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && ['i', 'j', 'c'].includes(key))
+      ) {
         e.preventDefault();
         e.stopPropagation();
-        applyInstantBlackout();
-        setTimeout(removeInstantBlackout, 1500);
         return;
       }
     };
@@ -168,20 +156,18 @@ export default function ExamSecurityGuard({
       }
     };
 
-    // Attach with capture: true for instant microtask interception
-    window.addEventListener('blur', handleBlurImmediate, true);
-    window.addEventListener('focus', handleFocusImmediate, true);
-    document.addEventListener('visibilitychange', handleVisibilityImmediate, true);
-    document.addEventListener('mouseleave', handleMouseLeave, true);
+    window.addEventListener('blur', handleBlur, false);
+    window.addEventListener('focus', handleFocus, false);
+    document.addEventListener('visibilitychange', handleVisibility, false);
     window.addEventListener('keydown', handleKeyDownCapture, true);
     window.addEventListener('keyup', handleKeyUpCapture, true);
 
     return () => {
+      if (blurTimeout) clearTimeout(blurTimeout);
       if (unblurTimeout) clearTimeout(unblurTimeout);
-      window.removeEventListener('blur', handleBlurImmediate, true);
-      window.removeEventListener('focus', handleFocusImmediate, true);
-      document.removeEventListener('visibilitychange', handleVisibilityImmediate, true);
-      document.removeEventListener('mouseleave', handleMouseLeave, true);
+      window.removeEventListener('blur', handleBlur, false);
+      window.removeEventListener('focus', handleFocus, false);
+      document.removeEventListener('visibilitychange', handleVisibility, false);
       window.removeEventListener('keydown', handleKeyDownCapture, true);
       window.removeEventListener('keyup', handleKeyUpCapture, true);
       if (typeof document !== 'undefined') {
@@ -189,6 +175,7 @@ export default function ExamSecurityGuard({
       }
     };
   }, [enableBlurOnBlur, applyInstantBlackout, removeInstantBlackout, clearClipboard]);
+
 
   // Context Menu, Copy & Drag Prevention
   const handleContextMenu = (e) => {
