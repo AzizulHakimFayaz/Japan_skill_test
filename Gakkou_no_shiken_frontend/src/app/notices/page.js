@@ -3,9 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getNotices, getNoticeDetail, downloadNoticePdf } from '@/lib/api';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import AnimatedThemeBackground from '@/components/AnimatedThemeBackground';
 import {
   Bell,
   FileDown,
@@ -25,11 +22,7 @@ import {
   BookOpen,
   ArrowRight,
   Layers,
-  ShieldAlert,
-  Flame,
-  Award,
   Clock,
-  ChevronDown,
 } from 'lucide-react';
 
 export default function NoticesPage() {
@@ -155,453 +148,446 @@ export default function NoticesPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#060913] text-slate-900 dark:text-slate-100 transition-colors duration-300 font-sans selection:bg-rose-500 selection:text-white">
-      <AnimatedThemeBackground />
-      <Navbar />
+    <div className="w-full space-y-8 sm:space-y-12">
+      {/* =========================================================================
+           1. HERO HEADER & QUICK STATS
+           ========================================================================= */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-900/10 via-amber-900/5 to-blue-900/10 dark:from-rose-950/40 dark:via-slate-900/60 dark:to-blue-950/40 p-6 sm:p-10 border border-slate-200/80 dark:border-slate-800/80 backdrop-blur-xl shadow-xs">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-japan-red/10 border border-japan-red/30 text-japan-red text-xs font-black uppercase tracking-wider mb-3">
+              <Bell className="w-3.5 h-3.5" />
+              <span>Official Bulletin &amp; Study Hub</span>
+            </div>
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+              Official Notices &amp; <span className="text-transparent bg-clip-text bg-gradient-to-r from-japan-red via-rose-500 to-amber-500">PDF Study Materials</span>
+            </h1>
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed font-normal">
+              Download official JFT-Basic &amp; SSW vocabulary cheat-sheets, exam center seat alerts, mock test announcements, and official syllabus guidelines.
+            </p>
+          </div>
 
-      <main className="flex-1 max-w-[1850px] 2xl:max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16 py-6 sm:py-10 w-full z-10">
-        {/* =========================================================================
-             HERO HEADER & STATS
-             ========================================================================= */}
-        <section className="mb-8 sm:mb-12">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-900/10 via-amber-900/5 to-blue-900/10 dark:from-rose-950/40 dark:via-slate-900/60 dark:to-blue-950/40 p-6 sm:p-10 border border-slate-200/80 dark:border-slate-800/80 backdrop-blur-xl shadow-xs">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-              <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-japan-red/10 border border-japan-red/30 text-japan-red text-xs font-black uppercase tracking-wider mb-3">
-                  <Bell className="w-3.5 h-3.5 animate-bounce" />
-                  <span>Official Bulletin &amp; Study Hub</span>
+          {/* Quick Stats Pill Grid */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap lg:flex-nowrap">
+            <div className="flex items-center gap-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-2xl shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black">
+                <FileDown className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-none">
+                  {categoriesCount.material || 0}
                 </div>
-                <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-                  Official Notices &amp; <span className="text-transparent bg-clip-text bg-gradient-to-r from-japan-red via-rose-500 to-amber-500">PDF Study Materials</span>
-                </h1>
-                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed font-normal">
-                  Download official JFT-Basic &amp; SSW vocabulary cheat-sheets, exam center seat alerts, mock test announcements, and official syllabus guidelines.
-                </p>
+                <div className="text-[11px] text-slate-500 font-bold mt-0.5">PDF Materials</div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-2xl shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center font-black">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-none">
+                  {categoriesCount.exam_alert || 0}
+                </div>
+                <div className="text-[11px] text-slate-500 font-bold mt-0.5">Exam Alerts</div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-2xl shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-none">
+                  {categoriesCount.all || notices.length}
+                </div>
+                <div className="text-[11px] text-slate-500 font-bold mt-0.5">Total Updates</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+           2. FEATURED / PINNED HERO BANNER
+           ========================================================================= */}
+      {pinnedNotice && (
+        <section>
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#0b1120] to-[#040711] text-white p-6 sm:p-8 lg:p-10 border border-slate-800/90 shadow-2xl">
+            {/* Ambient Lighting */}
+            <div className="absolute top-0 right-1/4 w-96 h-96 bg-rose-600/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute -bottom-10 left-10 w-72 h-72 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
+              <div className="lg:col-span-8 space-y-4">
+                <div className="flex items-center gap-2 flex-wrap text-xs">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/30 border border-amber-500/40 text-amber-300 font-black uppercase tracking-wider shadow-xs">
+                    <Pin className="w-3.5 h-3.5 fill-current text-amber-400" />
+                    <span>Featured Notice</span>
+                  </span>
+
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold border ${getTypeBadgeClass(
+                      pinnedNotice.notice_type
+                    )}`}
+                  >
+                    {getTypeIcon(pinnedNotice.notice_type)}
+                    <span>{pinnedNotice.notice_type_display}</span>
+                  </span>
+
+                  <span className="text-slate-400 font-mono text-[11px] flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {pinnedNotice.created_at_formatted}
+                  </span>
+                </div>
+
+                <h2 className="text-xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-snug text-white">
+                  {pinnedNotice.title}
+                </h2>
+
+                {pinnedNotice.summary && (
+                  <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-normal">
+                    {pinnedNotice.summary}
+                  </p>
+                )}
+
+                {/* Actions Bar inside Pinned Card */}
+                <div className="flex items-center gap-3 flex-wrap pt-3">
+                  {pinnedNotice.pdf_file_url && (
+                    <button
+                      type="button"
+                      onClick={(e) => handleDownloadPdf(e, pinnedNotice)}
+                      className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-japan-red via-rose-600 to-amber-600 hover:from-rose-600 hover:to-amber-500 text-white font-black text-xs sm:text-sm shadow-xl shadow-rose-600/30 active:scale-95 transition-all cursor-pointer"
+                    >
+                      <FileDown className="w-4 h-4" />
+                      <span>Download {pinnedNotice.file_size_text || 'PDF Material'}</span>
+                    </button>
+                  )}
+
+                  {pinnedNotice.related_test ? (
+                    <Link
+                      href={`/test/${pinnedNotice.related_test}`}
+                      className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm border border-white/20 active:scale-95 transition-all backdrop-blur-md"
+                    >
+                      <span>Start Practice Test</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  ) : pinnedNotice.action_url ? (
+                    <Link
+                      href={pinnedNotice.action_url}
+                      className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm border border-white/20 active:scale-95 transition-all backdrop-blur-md"
+                    >
+                      <span>{pinnedNotice.action_button_text || 'Open Resource'}</span>
+                      <ExternalLink className="w-4 h-4" />
+                    </Link>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    onClick={() => handleOpenNoticeModal(pinnedNotice)}
+                    className="inline-flex items-center gap-1.5 px-4 py-3 rounded-2xl text-slate-300 hover:text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer hover:bg-white/5"
+                  >
+                    <Eye className="w-4 h-4" />
+                    <span>Read Full Notice</span>
+                  </button>
+                </div>
               </div>
 
-              {/* Quick Stats Pill Grid */}
-              <div className="flex items-center gap-2 sm:gap-3 flex-wrap lg:flex-nowrap">
-                <div className="flex items-center gap-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-2xl shadow-xs hover:border-blue-500/50 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black">
-                    <FileDown className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-none">
-                      {categoriesCount.material || 0}
+              {/* Right Image Container (Responsive, No distortion) */}
+              <div className="lg:col-span-4 flex justify-center">
+                {pinnedNotice.image_url ? (
+                  <div
+                    onClick={() => handleOpenNoticeModal(pinnedNotice)}
+                    className="relative rounded-2xl overflow-hidden border border-slate-700/80 bg-white dark:bg-slate-900/90 shadow-2xl w-full max-w-sm h-48 sm:h-56 flex items-center justify-center p-3 cursor-pointer group/img"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={pinnedNotice.image_url}
+                      alt={pinnedNotice.title}
+                      className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover/img:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity flex items-end p-3">
+                      <span className="text-[11px] font-bold text-white flex items-center gap-1 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg">
+                        <Eye className="w-3 h-3" /> Click to enlarge
+                      </span>
                     </div>
-                    <div className="text-[11px] text-slate-500 font-bold mt-0.5">PDF Materials</div>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-2xl shadow-xs hover:border-rose-500/50 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center font-black">
-                    <AlertTriangle className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-none">
-                      {categoriesCount.exam_alert || 0}
+                ) : pinnedNotice.pdf_file_url ? (
+                  <div
+                    onClick={(e) => handleDownloadPdf(e, pinnedNotice)}
+                    className="w-full max-w-sm p-6 rounded-2xl bg-gradient-to-br from-blue-950/60 to-slate-900 border border-blue-500/40 flex flex-col items-center justify-center text-center cursor-pointer hover:border-blue-400 transition-all shadow-xl group/pdf"
+                  >
+                    <div className="w-16 h-16 rounded-2xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400 mb-3 group-hover/pdf:scale-110 transition-transform shadow-md">
+                      <FileDown className="w-8 h-8" />
                     </div>
-                    <div className="text-[11px] text-slate-500 font-bold mt-0.5">Exam Alerts</div>
+                    <span className="text-sm font-extrabold text-white">Download PDF Guide</span>
+                    <span className="text-xs text-blue-300 mt-1 font-mono">{pinnedNotice.file_size_text || 'PDF Document'}</span>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-2xl shadow-xs hover:border-emerald-500/50 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black">
-                    <Sparkles className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-none">
-                      {categoriesCount.all || 0}
-                    </div>
-                    <div className="text-[11px] text-slate-500 font-bold mt-0.5">Total Updates</div>
-                  </div>
-                </div>
+                ) : null}
               </div>
             </div>
           </div>
         </section>
+      )}
 
-        {/* =========================================================================
-             FEATURED / PINNED HERO BANNER
-             ========================================================================= */}
-        {pinnedNotice && (
-          <section className="mb-10 sm:mb-14">
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#0b1120] to-[#040711] text-white p-6 sm:p-8 lg:p-10 border border-slate-800/90 shadow-2xl group">
-              {/* Subtle Glowing Japanese Red & Indigo Accents */}
-              <div className="absolute top-0 right-1/4 w-96 h-96 bg-rose-600/15 rounded-full blur-3xl pointer-events-none"></div>
-              <div className="absolute -bottom-10 left-10 w-72 h-72 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"></div>
+      {/* =========================================================================
+           3. SEARCH & CATEGORY FILTER TABS
+           ========================================================================= */}
+      <section className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Category Tabs */}
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 custom-scrollbar">
+          <button
+            type="button"
+            onClick={() => setActiveFilter('all')}
+            className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              activeFilter === 'all'
+                ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md shadow-slate-900/20'
+                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200/90 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80'
+            }`}
+          >
+            <Bell className="w-3.5 h-3.5" />
+            <span>All Notices ({categoriesCount.all || notices.length})</span>
+          </button>
 
-              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
-                <div className="lg:col-span-8 space-y-4">
-                  <div className="flex items-center gap-2 flex-wrap text-xs">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/30 border border-amber-500/40 text-amber-300 font-black uppercase tracking-wider shadow-xs">
-                      <Pin className="w-3.5 h-3.5 fill-current text-amber-400" />
-                      <span>Featured Notice</span>
-                    </span>
+          <button
+            type="button"
+            onClick={() => setActiveFilter('material')}
+            className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              activeFilter === 'material'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                : 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 border border-slate-200/90 dark:border-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40'
+            }`}
+          >
+            <FileDown className="w-3.5 h-3.5" />
+            <span>PDF Materials ({categoriesCount.material || 0})</span>
+          </button>
 
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold border ${getTypeBadgeClass(
-                        pinnedNotice.notice_type
-                      )}`}
-                    >
-                      {getTypeIcon(pinnedNotice.notice_type)}
-                      <span>{pinnedNotice.notice_type_display}</span>
-                    </span>
+          <button
+            type="button"
+            onClick={() => setActiveFilter('exam_alert')}
+            className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              activeFilter === 'exam_alert'
+                ? 'bg-rose-600 text-white shadow-md shadow-rose-600/30'
+                : 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 border border-slate-200/90 dark:border-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40'
+            }`}
+          >
+            <AlertTriangle className="w-3.5 h-3.5" />
+            <span>Exam Alerts ({categoriesCount.exam_alert || 0})</span>
+          </button>
 
-                    <span className="text-slate-400 font-mono text-[11px] flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {pinnedNotice.created_at_formatted}
-                    </span>
-                  </div>
+          <button
+            type="button"
+            onClick={() => setActiveFilter('update')}
+            className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              activeFilter === 'update'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
+                : 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 border border-slate-200/90 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Updates ({categoriesCount.update || 0})</span>
+          </button>
+        </div>
 
-                  <h2 className="text-xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-snug text-white">
-                    {pinnedNotice.title}
-                  </h2>
+        {/* Search Box */}
+        <div className="relative w-full md:w-80">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search announcements &amp; PDFs..."
+            className="w-full pl-10 pr-9 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-japan-red shadow-2xs transition-all"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      </section>
 
-                  {pinnedNotice.summary && (
-                    <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-normal">
-                      {pinnedNotice.summary}
-                    </p>
-                  )}
-
-                  {/* Actions Bar inside Pinned Card */}
-                  <div className="flex items-center gap-3 flex-wrap pt-3">
-                    {pinnedNotice.pdf_file_url && (
-                      <button
-                        type="button"
-                        onClick={(e) => handleDownloadPdf(e, pinnedNotice)}
-                        className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-japan-red via-rose-600 to-amber-600 hover:from-rose-600 hover:to-amber-500 text-white font-black text-xs sm:text-sm shadow-xl shadow-rose-600/30 active:scale-95 transition-all cursor-pointer"
-                      >
-                        <FileDown className="w-4 h-4" />
-                        <span>Download {pinnedNotice.file_size_text || 'PDF Material'}</span>
-                      </button>
+      {/* =========================================================================
+           4. NOTICES GRID (EDITORIAL CARDS)
+           ========================================================================= */}
+      <section>
+        {loading ? (
+          <div className="py-24 text-center flex flex-col items-center justify-center gap-3">
+            <div className="w-10 h-10 border-3 border-japan-red border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-sm font-bold text-slate-500">Loading notices &amp; study materials...</p>
+          </div>
+        ) : filteredNotices.length === 0 ? (
+          <div className="py-20 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-xs">
+            <Bell className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-700 mb-3" />
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              No notices found
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-sm mx-auto">
+              No items match your filter criteria. Try choosing &quot;All Notices&quot; or clearing your search.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredNotices.map((notice) => (
+              <article
+                key={notice.id}
+                id={`notice-${notice.id}`}
+                className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800/90 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1 relative"
+              >
+                {/* Top Image Flyer Container (Fixed aspect ratio & clean padding) */}
+                {notice.image_url ? (
+                  <div
+                    onClick={() => handleOpenNoticeModal(notice)}
+                    className="h-44 sm:h-48 w-full bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800/80 overflow-hidden relative cursor-pointer flex items-center justify-center p-3"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={notice.image_url}
+                      alt={notice.title}
+                      className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
+                    />
+                    {notice.is_pinned && (
+                      <span className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-md">
+                        <Pin className="w-3 h-3 fill-current" />
+                        <span>Pinned</span>
+                      </span>
                     )}
+                  </div>
+                ) : null}
 
-                    {pinnedNotice.related_test ? (
-                      <Link
-                        href={`/test/${pinnedNotice.related_test}`}
-                        className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm border border-white/20 active:scale-95 transition-all backdrop-blur-md"
+                {/* Card Content Body */}
+                <div className="p-5 sm:p-6 flex-1 flex flex-col gap-3.5">
+                  {/* Meta Row */}
+                  <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold text-[10px] border ${getTypeBadgeClass(
+                          notice.notice_type
+                        )}`}
                       >
-                        <span>Start Practice Test</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </Link>
-                    ) : pinnedNotice.action_url ? (
-                      <Link
-                        href={pinnedNotice.action_url}
-                        className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm border border-white/20 active:scale-95 transition-all backdrop-blur-md"
-                      >
-                        <span>{pinnedNotice.action_button_text || 'Open Resource'}</span>
-                        <ExternalLink className="w-4 h-4" />
-                      </Link>
-                    ) : null}
+                        {getTypeIcon(notice.notice_type)}
+                        <span>{notice.notice_type_display}</span>
+                      </span>
+
+                      <span className="text-[11px] font-semibold text-slate-400 font-mono flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {notice.created_at_formatted}
+                      </span>
+                    </div>
 
                     <button
                       type="button"
-                      onClick={() => handleOpenNoticeModal(pinnedNotice)}
-                      className="inline-flex items-center gap-1.5 px-4 py-3 rounded-2xl text-slate-300 hover:text-white font-bold text-xs sm:text-sm transition-colors cursor-pointer hover:bg-white/5"
+                      onClick={(e) => handleShareNotice(e, notice)}
+                      title="Copy link to notice"
+                      className="p-1.5 rounded-xl text-slate-400 hover:text-japan-red hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                     >
-                      <Eye className="w-4 h-4" />
-                      <span>Read Full Notice</span>
+                      {copiedId === notice.id ? (
+                        <Check className="w-4 h-4 text-emerald-500" />
+                      ) : (
+                        <Share2 className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
-                </div>
 
-                {/* Right Image Container (Responsive, No distortion) */}
-                <div className="lg:col-span-4 flex justify-center">
-                  {pinnedNotice.image_url ? (
+                  {/* Headline */}
+                  <h3
+                    onClick={() => handleOpenNoticeModal(notice)}
+                    className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-snug group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors cursor-pointer"
+                  >
+                    {notice.title}
+                  </h3>
+
+                  {/* Summary Snippet */}
+                  {notice.summary && (
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3 font-normal">
+                      {notice.summary}
+                    </p>
+                  )}
+
+                  {/* High-End PDF Material Download Box */}
+                  {notice.pdf_file_url && (
                     <div
-                      onClick={() => handleOpenNoticeModal(pinnedNotice)}
-                      className="relative rounded-2xl overflow-hidden border border-slate-700/80 bg-white dark:bg-slate-900/90 shadow-2xl w-full max-w-sm h-52 sm:h-60 flex items-center justify-center p-3 cursor-pointer group/img"
+                      onClick={(e) => handleDownloadPdf(e, notice)}
+                      className="mt-1 p-3.5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50/60 dark:from-blue-950/40 dark:to-indigo-950/30 border border-blue-200/80 dark:border-blue-800/60 flex items-center justify-between gap-3 cursor-pointer hover:border-blue-400 dark:hover:border-blue-700 transition-all shadow-xs group/pdf"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={pinnedNotice.image_url}
-                        alt={pinnedNotice.title}
-                        className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover/img:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity flex items-end p-3">
-                        <span className="text-[11px] font-bold text-white flex items-center gap-1 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg">
-                          <Eye className="w-3 h-3" /> Click to enlarge
-                        </span>
-                      </div>
-                    </div>
-                  ) : pinnedNotice.pdf_file_url ? (
-                    <div
-                      onClick={(e) => handleDownloadPdf(e, pinnedNotice)}
-                      className="w-full max-w-sm p-6 rounded-2xl bg-gradient-to-br from-blue-950/60 to-slate-900 border border-blue-500/40 flex flex-col items-center justify-center text-center cursor-pointer hover:border-blue-400 transition-all shadow-xl group/pdf"
-                    >
-                      <div className="w-16 h-16 rounded-2xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400 mb-3 group-hover/pdf:scale-110 transition-transform shadow-md">
-                        <FileDown className="w-8 h-8" />
-                      </div>
-                      <span className="text-sm font-extrabold text-white">Download PDF Guide</span>
-                      <span className="text-xs text-blue-300 mt-1 font-mono">{pinnedNotice.file_size_text || 'PDF Document'}</span>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* =========================================================================
-             SEARCH & CATEGORY FILTER TABS
-             ========================================================================= */}
-        <section className="mb-6 sm:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          {/* Category Tabs */}
-          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 custom-scrollbar">
-            <button
-              type="button"
-              onClick={() => setActiveFilter('all')}
-              className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                activeFilter === 'all'
-                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md shadow-slate-900/20'
-                  : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200/90 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80'
-              }`}
-            >
-              <Bell className="w-3.5 h-3.5" />
-              <span>All Notices ({categoriesCount.all || notices.length})</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveFilter('material')}
-              className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                activeFilter === 'material'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                  : 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 border border-slate-200/90 dark:border-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40'
-              }`}
-            >
-              <FileDown className="w-3.5 h-3.5" />
-              <span>PDF Materials ({categoriesCount.material || 0})</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveFilter('exam_alert')}
-              className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                activeFilter === 'exam_alert'
-                  ? 'bg-rose-600 text-white shadow-md shadow-rose-600/30'
-                  : 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 border border-slate-200/90 dark:border-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40'
-              }`}
-            >
-              <AlertTriangle className="w-3.5 h-3.5" />
-              <span>Exam Alerts ({categoriesCount.exam_alert || 0})</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveFilter('update')}
-              className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                activeFilter === 'update'
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
-                  : 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 border border-slate-200/90 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Updates ({categoriesCount.update || 0})</span>
-            </button>
-          </div>
-
-          {/* Search Box */}
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search announcements &amp; PDFs..."
-              className="w-full pl-10 pr-9 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-japan-red shadow-2xs transition-all"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-        </section>
-
-        {/* =========================================================================
-             NOTICES GRID CARDS (EDITORIAL MAGAZINE LAYOUT)
-             ========================================================================= */}
-        <section>
-          {loading ? (
-            <div className="py-24 text-center flex flex-col items-center justify-center gap-3">
-              <div className="w-10 h-10 border-3 border-japan-red border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-sm font-bold text-slate-500">Loading notices &amp; study materials...</p>
-            </div>
-          ) : filteredNotices.length === 0 ? (
-            <div className="py-20 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-xs">
-              <Bell className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-700 mb-3" />
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                No notices found
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-sm mx-auto">
-                No items match your filter criteria. Try choosing &quot;All Notices&quot; or clearing your search.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredNotices.map((notice) => (
-                <article
-                  key={notice.id}
-                  id={`notice-${notice.id}`}
-                  className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800/90 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1 relative"
-                >
-                  {/* Top Image Flyer Container */}
-                  {notice.image_url ? (
-                    <div
-                      onClick={() => handleOpenNoticeModal(notice)}
-                      className="h-48 sm:h-52 w-full bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800/80 overflow-hidden relative cursor-pointer flex items-center justify-center p-3"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={notice.image_url}
-                        alt={notice.title}
-                        className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
-                      />
-                      {notice.is_pinned && (
-                        <span className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-md">
-                          <Pin className="w-3 h-3 fill-current" />
-                          <span>Pinned</span>
-                        </span>
-                      )}
-                    </div>
-                  ) : null}
-
-                  {/* Card Content Body */}
-                  <div className="p-5 sm:p-6 flex-1 flex flex-col gap-3.5">
-                    {/* Meta Row */}
-                    <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold text-[10px] border ${getTypeBadgeClass(
-                            notice.notice_type
-                          )}`}
-                        >
-                          {getTypeIcon(notice.notice_type)}
-                          <span>{notice.notice_type_display}</span>
-                        </span>
-
-                        <span className="text-[11px] font-semibold text-slate-400 font-mono flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {notice.created_at_formatted}
-                        </span>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={(e) => handleShareNotice(e, notice)}
-                        title="Copy link to notice"
-                        className="p-1.5 rounded-xl text-slate-400 hover:text-japan-red hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                      >
-                        {copiedId === notice.id ? (
-                          <Check className="w-4 h-4 text-emerald-500" />
-                        ) : (
-                          <Share2 className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
-
-                    {/* Headline */}
-                    <h3
-                      onClick={() => handleOpenNoticeModal(notice)}
-                      className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-snug group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors cursor-pointer"
-                    >
-                      {notice.title}
-                    </h3>
-
-                    {/* Summary Snippet */}
-                    {notice.summary && (
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3 font-normal">
-                        {notice.summary}
-                      </p>
-                    )}
-
-                    {/* High-End PDF Material Download Box */}
-                    {notice.pdf_file_url && (
-                      <div
-                        onClick={(e) => handleDownloadPdf(e, notice)}
-                        className="mt-1 p-3.5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50/60 dark:from-blue-950/40 dark:to-indigo-950/30 border border-blue-200/80 dark:border-blue-800/60 flex items-center justify-between gap-3 cursor-pointer hover:border-blue-400 dark:hover:border-blue-700 transition-all shadow-xs group/pdf"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-600/20 group-hover/pdf:scale-105 transition-transform">
-                            <FileDown className="w-5 h-5" />
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-600/20 group-hover/pdf:scale-105 transition-transform">
+                          <FileDown className="w-5 h-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-black text-blue-950 dark:text-blue-200 truncate">
+                            Download PDF Material
                           </div>
-                          <div className="min-w-0">
-                            <div className="text-xs font-black text-blue-950 dark:text-blue-200 truncate">
-                              Download PDF Material
-                            </div>
-                            <div className="text-[11px] text-blue-600 dark:text-blue-400 font-mono font-bold">
-                              {notice.file_size_text || 'PDF File Ready'}
-                            </div>
+                          <div className="text-[11px] text-blue-600 dark:text-blue-400 font-mono font-bold">
+                            {notice.file_size_text || 'PDF File Ready'}
                           </div>
                         </div>
-
-                        <span className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-extrabold group-hover/pdf:scale-105 transition-transform flex-shrink-0 flex items-center gap-1.5 shadow-sm">
-                          <Download className="w-3.5 h-3.5" />
-                          <span>Get PDF</span>
-                        </span>
                       </div>
-                    )}
-                  </div>
 
-                  {/* Card Bottom Footer */}
-                  <div className="px-5 py-3.5 sm:px-6 sm:py-4 bg-slate-50/80 dark:bg-slate-900/60 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2 text-xs">
-                    {notice.related_test ? (
-                      <Link
-                        href={`/test/${notice.related_test}`}
-                        className="inline-flex items-center gap-1.5 font-bold text-japan-red hover:text-japan-redhover transition-colors text-xs"
-                      >
-                        <span>Start Mock Test</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
-                    ) : notice.action_url ? (
-                      <Link
-                        href={notice.action_url}
-                        className="inline-flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-300 hover:text-japan-red transition-colors text-xs"
-                      >
-                        <span>{notice.action_button_text || 'Open Link'}</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </Link>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleOpenNoticeModal(notice)}
-                        className="inline-flex items-center gap-1 font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer text-xs"
-                      >
-                        <span>Read Full Announcement</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-
-                    <div className="flex items-center gap-3 text-[11px] text-slate-400 font-mono">
-                      {notice.views_count > 0 && (
-                        <span className="flex items-center gap-1" title="Views">
-                          <Eye className="w-3 h-3" />
-                          <span>{notice.views_count}</span>
-                        </span>
-                      )}
-                      {notice.downloads_count > 0 && (
-                        <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-bold" title="Downloads">
-                          <Download className="w-3 h-3" />
-                          <span>{notice.downloads_count}</span>
-                        </span>
-                      )}
+                      <span className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-extrabold group-hover/pdf:scale-105 transition-transform flex-shrink-0 flex items-center gap-1.5 shadow-sm">
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Get PDF</span>
+                      </span>
                     </div>
+                  )}
+                </div>
+
+                {/* Card Bottom Footer */}
+                <div className="px-5 py-3.5 sm:px-6 sm:py-4 bg-slate-50/80 dark:bg-slate-900/60 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2 text-xs">
+                  {notice.related_test ? (
+                    <Link
+                      href={`/test/${notice.related_test}`}
+                      className="inline-flex items-center gap-1.5 font-bold text-japan-red hover:text-japan-redhover transition-colors text-xs"
+                    >
+                      <span>Start Mock Test</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  ) : notice.action_url ? (
+                    <Link
+                      href={notice.action_url}
+                      className="inline-flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-300 hover:text-japan-red transition-colors text-xs"
+                    >
+                      <span>{notice.action_button_text || 'Open Link'}</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleOpenNoticeModal(notice)}
+                      className="inline-flex items-center gap-1 font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer text-xs"
+                    >
+                      <span>Read Full Announcement</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+
+                  <div className="flex items-center gap-3 text-[11px] text-slate-400 font-mono">
+                    {notice.views_count > 0 && (
+                      <span className="flex items-center gap-1" title="Views">
+                        <Eye className="w-3 h-3" />
+                        <span>{notice.views_count}</span>
+                      </span>
+                    )}
+                    {notice.downloads_count > 0 && (
+                      <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-bold" title="Downloads">
+                        <Download className="w-3 h-3" />
+                        <span>{notice.downloads_count}</span>
+                      </span>
+                    )}
                   </div>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
-      </main>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
 
       {/* =========================================================================
-           FULL NOTICE READER MODAL
+           5. FULL NOTICE READER MODAL
            ========================================================================= */}
       {selectedNotice && (
         <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-md animate-fade-in">
@@ -735,8 +721,6 @@ export default function NoticesPage() {
           </div>
         </div>
       )}
-
-      <Footer />
     </div>
   );
 }
