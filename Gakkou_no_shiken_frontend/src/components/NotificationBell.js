@@ -295,21 +295,21 @@ export default function NotificationBell() {
                       </span>
                     </div>
 
-                    {/* Image Thumbnail Banner (if present) */}
+                    {/* Image Thumbnail Banner (Clean Framing) */}
                     {notice.image_url && (
-                      <div className="rounded-xl overflow-hidden border border-slate-200/80 dark:border-slate-800 max-h-32 w-full bg-slate-100 dark:bg-slate-900">
+                      <div className="rounded-xl overflow-hidden border border-slate-200/80 dark:border-slate-800 h-28 w-full bg-slate-50 dark:bg-slate-950 p-2 flex items-center justify-center">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={notice.image_url}
                           alt={notice.title}
-                          className="w-full h-full object-cover"
+                          className="max-h-full max-w-full object-contain"
                         />
                       </div>
                     )}
 
                     {/* Title & Summary */}
                     <div>
-                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-snug">
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white leading-snug">
                         {notice.title}
                       </h4>
                       {notice.summary && (
@@ -326,7 +326,7 @@ export default function NotificationBell() {
                         <button
                           type="button"
                           onClick={(e) => handleDownloadPdf(e, notice)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/60 text-japan-red dark:text-red-300 border border-red-200 dark:border-red-800 text-[11px] font-bold transition-all cursor-pointer active:scale-95 shadow-2xs"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/80 text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-[11px] font-black transition-all cursor-pointer active:scale-95 shadow-2xs"
                         >
                           <FileDown className="w-3.5 h-3.5" />
                           <span>Download {notice.file_size_text || 'PDF'}</span>
@@ -334,6 +334,7 @@ export default function NotificationBell() {
                       ) : (
                         <div />
                       )}
+
 
                       {/* View Link / Related Test Link */}
                       {notice.related_test ? (
