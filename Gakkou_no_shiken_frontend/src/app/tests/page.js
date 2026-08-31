@@ -345,11 +345,11 @@ function AllTestsContent() {
                         href={`/test/${test.id}`}
                         className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${cardTheme.button}`}
                       >
-                        <Headphones className="w-4 h-4" />
                         <span>{t('start_exam')}</span>
                         <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                       </Link>
                     </div>
+
                   </div>
                 </div>
               </ScrollReveal>

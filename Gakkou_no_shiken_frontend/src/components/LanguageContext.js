@@ -10,7 +10,7 @@ const TRANSLATIONS = {
     ssw_skills: 'SSW Skills',
     leaderboard: 'Leaderboard',
     sign_in: 'Sign In',
-    register: 'Get Started',
+    register: 'Register',
     my_results: 'My Results',
     sign_out: 'Sign Out',
     admin_panel: 'Admin',

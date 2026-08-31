@@ -291,10 +291,11 @@ export default function Navbar() {
               >
                 <span className="flex items-center gap-2.5">
                   <Sparkles className="w-5 h-5 text-japan-red" />
-                  <span>Candidate Tools (Flashcards, Salary, Quizzes)</span>
+                  <span>Candidate Tools (Flashcards &amp; Particle Drill)</span>
                 </span>
                 <ChevronRight className="w-4 h-4 text-slate-400" />
               </Link>
+
 
               <Link
                 href="/leaderboard"
