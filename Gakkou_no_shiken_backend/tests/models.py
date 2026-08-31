@@ -22,7 +22,23 @@ class Test(models.Model):
         help_text="If checked, candidates must complete the official Introduction part before starting Section 1. Otherwise starts directly on Question 1."
     )
     time_limit_seconds = models.PositiveIntegerField(null=True, blank=True)
+    scheduled_release_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Scheduled Release Date & Time",
+        help_text="Optional future date and time when this test will be unlocked for candidates. If set in the future, the test card displays a live countdown timer and a blurred lock preview."
+    )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def is_released(self):
+        """Returns True if test is published and either no release date is set or release date has arrived."""
+        if not self.is_published:
+            return False
+        if self.scheduled_release_at:
+            from django.utils import timezone
+            return timezone.now() >= self.scheduled_release_at
+        return True
 
     def get_ordered_questions(self):
         """Returns questions ordered by JFT section hierarchy (script_vocab, conversation, listening, reading), then order_index, then id."""

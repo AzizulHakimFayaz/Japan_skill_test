@@ -157,6 +157,7 @@ class TestAdmin(admin.ModelAdmin):
         'is_actual_exam_demo',
         'requires_account',
         'is_published',
+        'release_status_display',
         'time_limit_display',
         'preview_action',
         'import_csv_action',
@@ -164,7 +165,7 @@ class TestAdmin(admin.ModelAdmin):
     )
 
     list_editable = ('category', 'is_actual_exam_demo', 'requires_account', 'is_published')
-    list_filter = ('category', 'is_actual_exam_demo', 'requires_account', 'is_published')
+    list_filter = ('category', 'is_actual_exam_demo', 'requires_account', 'is_published', 'scheduled_release_at')
     search_fields = ('title', 'description')
     inlines = [QuestionGroupInlineForTest, QuestionInline]
     date_hierarchy = 'created_at'
@@ -185,9 +186,9 @@ class TestAdmin(admin.ModelAdmin):
             'fields': ('title', 'description', 'category', 'is_actual_exam_demo', 'manage_questions_link', 'preview_action'),
             'description': 'Basic details about this practice test and its examination mode.'
         }),
-        ('Access & Visibility', {
-            'fields': ('requires_account', 'is_published'),
-            'description': 'Control who can access this test and whether it appears on the public listing.'
+        ('Access & Release Schedule', {
+            'fields': ('requires_account', 'is_published', 'scheduled_release_at'),
+            'description': 'Control access, publish status, and optional future release date/time (displays live countdown & blurred preview until release).'
         }),
         ('Timer Settings', {
             'fields': ('time_limit_seconds',),
@@ -370,13 +371,41 @@ class TestAdmin(admin.ModelAdmin):
 
     def title_display(self, obj):
         icon = '🔒' if obj.requires_account else '🌐'
-        status = '🟢' if obj.is_published else '🟡 [DRAFT]'
+        if not obj.is_published:
+            status = '🟡 [DRAFT]'
+        elif not obj.is_released:
+            status = '⏳ [SCHEDULED]'
+        else:
+            status = '🟢 [LIVE]'
         return format_html(
             '{} {} <strong>{}</strong>',
             status, icon, obj.title
         )
     title_display.short_description = 'Test'
     title_display.admin_order_field = 'title'
+
+    def release_status_display(self, obj):
+        from django.utils import timezone
+        if not obj.is_published:
+            return format_html('<span style="color:#D97706; font-size:0.75rem; font-weight:700;">Draft (Unpublished)</span>')
+        if obj.scheduled_release_at:
+            now = timezone.now()
+            if now < obj.scheduled_release_at:
+                diff = obj.scheduled_release_at - now
+                days = diff.days
+                hours = int(diff.seconds // 3600)
+                mins = int((diff.seconds % 3600) // 60)
+                time_str = f"{days}d {hours}h {mins}m" if days > 0 else f"{hours}h {mins}m"
+                date_str = obj.scheduled_release_at.strftime('%b %d, %H:%M')
+                return format_html(
+                    '<span style="display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:6px; background:#FEF3C7; color:#92400E; border:1px solid #FCD34D; font-size:0.75rem; font-weight:700;" title="Releasing on {}">'
+                    '⏳ In {} ({})</span>',
+                    obj.scheduled_release_at.strftime('%Y-%m-%d %H:%M:%S'),
+                    time_str, date_str
+                )
+        return format_html('<span style="color:#16A34A; font-size:0.75rem; font-weight:700;">🟢 Live (Unlocked)</span>')
+    release_status_display.short_description = 'Release Status'
+    release_status_display.admin_order_field = 'scheduled_release_at'
 
 
     def question_count(self, obj):

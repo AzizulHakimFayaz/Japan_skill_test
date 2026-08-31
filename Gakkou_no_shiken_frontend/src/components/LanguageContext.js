@@ -80,6 +80,15 @@ const TRANSLATIONS = {
     sec_listening: 'Listening Comprehension (聴解)',
     sec_reading: 'Reading Comprehension (読解)',
     start_section_drill: 'Start Section Drill',
+
+    // Scheduled Exam Releases & Countdown
+    scheduled_badge: 'Scheduled Release',
+    unlocks_in: 'Unlocks In',
+    released_now: 'Now Live',
+    remind_me_btn: 'Notify Me on WhatsApp',
+    exam_waiting_room: 'Exam Waiting Room',
+    waiting_room_desc: 'This official CBT examination is scheduled to launch at the exact time indicated below. When the timer hits zero, the test room will unlock automatically.',
+    back_to_tests: 'Back to Practice Tests',
   },
   bn: {
     // Navigation
@@ -158,6 +167,15 @@ const TRANSLATIONS = {
     sec_listening: 'লিসেনিং কম্প্রিহেনশন (Listening)',
     sec_reading: 'রিডিং কম্প্রিহেনশন (Reading)',
     start_section_drill: 'সেকশন ড্রিল শুরু করুন',
+
+    // Scheduled Exam Releases & Countdown
+    scheduled_badge: 'নির্ধারিত রিলিজ',
+    unlocks_in: 'উন্মুক্ত হতে বাকি',
+    released_now: 'এখন উন্মুক্ত',
+    remind_me_btn: 'হোয়াটসঅ্যাপে নোটিফিকেশন পান',
+    exam_waiting_room: 'পরীক্ষা অপেক্ষার কক্ষ',
+    waiting_room_desc: 'এই অফিশিয়াল CBT মক টেস্টটি নিচের নির্দিষ্ট সময়ে উন্মুক্ত হবে। কাউন্টডাউন শেষ হওয়া মাত্র পরীক্ষার কক্ষ স্বয়ংক্রিয়ভাবে খুলে যাবে।',
+    back_to_tests: 'মক টেস্ট তালিকায় ফিরে যান',
   },
   ja: {
     // Navigation
@@ -236,6 +254,15 @@ const TRANSLATIONS = {
     sec_listening: '聴解 (Listening Comprehension)',
     sec_reading: '読解 (Reading Comprehension)',
     start_section_drill: 'セクション別ドリルを開始',
+
+    // Scheduled Exam Releases & Countdown
+    scheduled_badge: '公開予定',
+    unlocks_in: '公開まであと',
+    released_now: '公開中',
+    remind_me_btn: '公開通知を受け取る (WhatsApp)',
+    exam_waiting_room: '試験待合室',
+    waiting_room_desc: 'この公式CBT模擬試験は下記の日時に公開されます。タイマーがゼロになると自動的に試験が開始可能になります。',
+    back_to_tests: '模擬試験一覧に戻る',
   },
 };
 

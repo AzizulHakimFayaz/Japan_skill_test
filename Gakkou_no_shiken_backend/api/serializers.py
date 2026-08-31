@@ -233,13 +233,16 @@ class QuestionReviewSerializer(serializers.ModelSerializer):
 
 class TestListSerializer(serializers.ModelSerializer):
     question_count = serializers.SerializerMethodField()
+    is_released = serializers.SerializerMethodField()
+    time_until_release_seconds = serializers.SerializerMethodField()
 
     class Meta:
         model = Test
         fields = [
             'id', 'title', 'description', 'category',
             'requires_account', 'is_published', 'is_actual_exam_demo',
-            'time_limit_seconds', 'created_at', 'question_count'
+            'time_limit_seconds', 'scheduled_release_at', 'is_released',
+            'time_until_release_seconds', 'created_at', 'question_count'
         ]
 
     def get_question_count(self, obj):
@@ -247,20 +250,43 @@ class TestListSerializer(serializers.ModelSerializer):
             return obj.q_count
         return obj.questions.count()
 
+    def get_is_released(self, obj):
+        return obj.is_released
+
+    def get_time_until_release_seconds(self, obj):
+        if obj.scheduled_release_at:
+            from django.utils import timezone
+            diff = (obj.scheduled_release_at - timezone.now()).total_seconds()
+            return max(0, int(diff))
+        return 0
+
 
 class TestDetailSerializer(serializers.ModelSerializer):
     question_count = serializers.SerializerMethodField()
+    is_released = serializers.SerializerMethodField()
+    time_until_release_seconds = serializers.SerializerMethodField()
 
     class Meta:
         model = Test
         fields = [
             'id', 'title', 'description', 'category',
             'requires_account', 'is_published', 'is_actual_exam_demo',
-            'time_limit_seconds', 'created_at', 'question_count'
+            'time_limit_seconds', 'scheduled_release_at', 'is_released',
+            'time_until_release_seconds', 'created_at', 'question_count'
         ]
 
     def get_question_count(self, obj):
         return obj.questions.count()
+
+    def get_is_released(self, obj):
+        return obj.is_released
+
+    def get_time_until_release_seconds(self, obj):
+        if obj.scheduled_release_at:
+            from django.utils import timezone
+            diff = (obj.scheduled_release_at - timezone.now()).total_seconds()
+            return max(0, int(diff))
+        return 0
 
 
 class AttemptSummarySerializer(serializers.ModelSerializer):

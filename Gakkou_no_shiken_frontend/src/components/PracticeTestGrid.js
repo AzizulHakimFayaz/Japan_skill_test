@@ -24,7 +24,9 @@ import {
   SlidersHorizontal,
   ExternalLink,
   Sparkles,
+  Hourglass,
 } from 'lucide-react';
+import ScheduledCountdownBadge from './ScheduledCountdownBadge';
 
 const LeadCaptureModal = dynamic(() => import('./LeadCaptureModal'), { ssr: false });
 
@@ -50,8 +52,9 @@ export default function PracticeTestGrid({
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
 
-  // Modals state
+  // Modals & Real-time State
   const [leadModal, setLeadModal] = useState(false);
+  const [unlockedMap, setUnlockedMap] = useState({});
 
   const defaultSeeAllHref = seeAllHref || (catKey === 'skill' ? '/ssw-skill-test' : '/jft-basic');
 
@@ -157,7 +160,19 @@ export default function PracticeTestGrid({
     };
   };
 
-  const getCardTheme = (test) => {
+  const getCardTheme = (test, isScheduled) => {
+    if (isScheduled) {
+      return {
+        isFree: false,
+        topBar: 'bg-gradient-to-r from-amber-500 via-yellow-400 to-rose-500',
+        cardBorderHover: 'hover:border-amber-500/50 dark:hover:border-amber-400/50',
+        cardGlowHover: 'hover:shadow-amber-500/15 dark:hover:shadow-[0_0_25px_rgba(245,158,11,0.2)]',
+        titleHover: 'group-hover:text-amber-600 dark:group-hover:text-amber-400',
+        button: 'bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-slate-950 shadow-amber-500/25',
+        badge: 'bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700 shadow-2xs',
+      };
+    }
+
     const isFree = !test.requires_account;
     if (isFree) {
       return {
@@ -198,103 +213,107 @@ export default function PracticeTestGrid({
       <ScrollReveal variant="up" duration={600}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 dark:border-slate-800 pb-3 sm:pb-4">
           {/* Title & Category Badge */}
-          <div className="flex items-center gap-2 sm:gap-3.5">
-            <span
-              className={`inline-flex items-center justify-center px-2 sm:px-2.5 h-7 sm:h-10 min-w-[2rem] sm:min-w-[2.5rem] rounded-lg sm:rounded-2xl ${
-                catKey === 'skill'
-                  ? 'bg-gradient-to-tr from-amber-600 to-amber-500 shadow-amber-500/20'
-                  : 'bg-gradient-to-tr from-rose-600 to-japan-red shadow-red-500/20'
-              } text-white text-[10px] sm:text-xs font-black shadow-md tracking-wider`}
-            >
-              {catKey === 'skill' ? 'SSW' : 'JFT'}
-            </span>
-            <div>
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                   {title}
                 </h2>
-                {tests.length > 0 && (
-                  <span className="text-[10px] sm:text-xs font-mono font-extrabold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                    {tests.length} {tests.length === 1 ? 'Test' : 'Tests'}
-                  </span>
-                )}
+                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 dark:bg-rose-950/70 text-japan-red dark:text-rose-400 border border-rose-200 dark:border-rose-800">
+                  {tests.length} {t('available_tests')}
+                </span>
               </div>
-              <p className="text-[11px] sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5 hidden sm:block">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                 {subtitle}
               </p>
             </div>
           </div>
 
-          {/* Right Action Controls: See All Link + View Toggle + Carousel Navigation Arrows */}
-          <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-center">
-            {/* View All Tests Link Button */}
-            <Link
-              href={defaultSeeAllHref}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/90 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all border border-slate-200 dark:border-slate-700 active:scale-95 group"
-            >
-              <span>See All</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform text-japan-red dark:text-rose-400" />
-            </Link>
-
-            {/* Grid / Carousel Toggle (Desktop) */}
-            {showViewToggle && tests.length > 3 && (
-              <button
-                type="button"
-                onClick={() => setViewMode(viewMode === 'carousel' ? 'grid' : 'carousel')}
-                title={viewMode === 'carousel' ? 'Switch to Grid View' : 'Switch to Side Scroll View'}
-                className="hidden md:inline-flex items-center gap-1 p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/90 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all border border-slate-200 dark:border-slate-700 cursor-pointer"
-              >
-                {viewMode === 'carousel' ? (
-                  <LayoutGrid className="w-4 h-4 text-japan-red dark:text-rose-400" />
-                ) : (
-                  <SlidersHorizontal className="w-4 h-4 text-amber-500" />
-                )}
-              </button>
-            )}
-
-            {/* Carousel Arrow Buttons (Visible in carousel mode) */}
-            {viewMode === 'carousel' && tests.length > 2 && (
-              <div className="flex items-center gap-1.5">
+          {/* Controls: View Mode Switcher + Carousel Arrows + See All */}
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            {/* View Mode Toggle (Grid vs Carousel) */}
+            {showViewToggle && tests.length > 0 && (
+              <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700">
                 <button
                   type="button"
-                  onClick={() => handleScroll('left')}
-                  disabled={!canScrollLeft}
-                  aria-label="Scroll left"
-                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all border ${
-                    canScrollLeft
-                      ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm cursor-pointer active:scale-90'
-                      : 'bg-slate-100 dark:bg-slate-900/40 text-slate-300 dark:text-slate-600 border-slate-200/50 dark:border-slate-800/50 cursor-not-allowed opacity-50'
+                  onClick={() => setViewMode('carousel')}
+                  className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
+                    viewMode === 'carousel'
+                      ? 'bg-white dark:bg-slate-900 text-japan-red shadow-xs'
+                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                   }`}
+                  aria-label="Carousel view"
+                  title="Carousel view"
                 >
-                  <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
                 </button>
-
                 <button
                   type="button"
-                  onClick={() => handleScroll('right')}
-                  disabled={!canScrollRight}
-                  aria-label="Scroll right"
-                  className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all border ${
-                    canScrollRight
-                      ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm cursor-pointer active:scale-90'
-                      : 'bg-slate-100 dark:bg-slate-900/40 text-slate-300 dark:text-slate-600 border-slate-200/50 dark:border-slate-800/50 cursor-not-allowed opacity-50'
+                  onClick={() => setViewMode('grid')}
+                  className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
+                    viewMode === 'grid'
+                      ? 'bg-white dark:bg-slate-900 text-japan-red shadow-xs'
+                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                   }`}
+                  aria-label="Grid view"
+                  title="Grid view"
                 >
-                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <LayoutGrid className="w-3.5 h-3.5" />
                 </button>
               </div>
+            )}
+
+            {/* Carousel Arrow Controls */}
+            {viewMode === 'carousel' && tests.length > 2 && (
+              <div className="hidden sm:flex items-center gap-1.5">
+                <button
+                  onClick={() => handleScroll('left')}
+                  disabled={!canScrollLeft}
+                  className={`p-2 rounded-xl border transition-all ${
+                    canScrollLeft
+                      ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white hover:bg-slate-50 hover:border-japan-red dark:hover:border-rose-500 shadow-2xs active:scale-95'
+                      : 'bg-slate-100 dark:bg-slate-900/40 border-slate-200/50 dark:border-slate-800 text-slate-300 dark:text-slate-700 cursor-not-allowed'
+                  }`}
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleScroll('right')}
+                  disabled={!canScrollRight}
+                  className={`p-2 rounded-xl border transition-all ${
+                    canScrollRight
+                      ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white hover:bg-slate-50 hover:border-japan-red dark:hover:border-rose-500 shadow-2xs active:scale-95'
+                      : 'bg-slate-100 dark:bg-slate-900/40 border-slate-200/50 dark:border-slate-800 text-slate-300 dark:text-slate-700 cursor-not-allowed'
+                  }`}
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {/* See All Category Link */}
+            {defaultSeeAllHref && (
+              <Link
+                href={defaultSeeAllHref}
+                className="text-xs font-black text-japan-red dark:text-rose-400 hover:text-red-700 flex items-center gap-1 py-1.5 px-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                <span>See All</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
             )}
           </div>
         </div>
       </ScrollReveal>
 
       {/* Loading Skeleton */}
-      {loading && tests.length === 0 ? (
-        <div className="flex gap-4 overflow-hidden py-2">
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {[1, 2, 3].map((n) => (
             <div
               key={n}
-              className="w-[290px] sm:w-[350px] flex-shrink-0 bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-5 sm:p-6 space-y-3 animate-pulse"
+              className="bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-5 sm:p-6 space-y-4 animate-pulse shadow-xs"
             >
               <div className="flex items-center justify-between">
                 <div className="h-5 w-20 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
@@ -321,9 +340,16 @@ export default function PracticeTestGrid({
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
             {tests.map((test, idx) => {
+              const isScheduled = Boolean(
+                test.scheduled_release_at &&
+                !test.is_released &&
+                !unlockedMap[test.id] &&
+                (new Date(test.scheduled_release_at).getTime() > Date.now())
+              );
+
               const diff = getDifficultyBadge(test, idx);
               const userAttempt = userAttemptsMap[test.id];
-              const cardTheme = getCardTheme(test);
+              const cardTheme = getCardTheme(test, isScheduled);
 
               return (
                 <div
@@ -341,7 +367,11 @@ export default function PracticeTestGrid({
                     className="h-full"
                   >
                     <div
-                      className={`group bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl ${cardTheme.cardBorderHover} hover:shadow-xl ${cardTheme.cardGlowHover} transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-xs h-full`}
+                      className={`relative group bg-white dark:bg-slate-900/90 border ${
+                        isScheduled
+                          ? 'border-amber-400/60 dark:border-amber-700/60 shadow-amber-500/10'
+                          : 'border-slate-200/90 dark:border-slate-800'
+                      } rounded-2xl sm:rounded-3xl ${cardTheme.cardBorderHover} hover:shadow-xl ${cardTheme.cardGlowHover} transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-xs h-full`}
                     >
                       {/* Top Clean Brand Accent Strip */}
                       <div className={`h-1.5 w-full ${cardTheme.topBar}`}></div>
@@ -350,12 +380,19 @@ export default function PracticeTestGrid({
                         <div className="space-y-2 sm:space-y-3">
                           {/* Top Badges: Difficulty + Status / Login Requirement */}
                           <div className="flex items-center justify-between gap-1.5 flex-wrap">
-                            {/* Difficulty Pill */}
-                            <span
-                              className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black border ${diff.color}`}
-                            >
-                              {diff.label}
-                            </span>
+                            {/* Difficulty Pill or Scheduled Pill */}
+                            {isScheduled ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                                <Hourglass className="w-3 h-3 text-amber-600 dark:text-amber-400 animate-pulse" />
+                                <span>{t('scheduled_badge')}</span>
+                              </span>
+                            ) : (
+                              <span
+                                className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black border ${diff.color}`}
+                              >
+                                {diff.label}
+                              </span>
+                            )}
 
                             {/* User Completion / Access Badge */}
                             <div className="flex items-center gap-1">
@@ -363,6 +400,11 @@ export default function PracticeTestGrid({
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs">
                                   <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                                   <span>{userAttempt.scaled_score}/250</span>
+                                </span>
+                              ) : isScheduled ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] font-extrabold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                                  <Lock className="w-2.5 h-2.5" />
+                                  <span>Locked</span>
                                 </span>
                               ) : test.requires_account ? (
                                 <span
@@ -401,22 +443,67 @@ export default function PracticeTestGrid({
                             </span>
                           </div>
 
-                          {/* Description */}
-                          <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-normal">
-                            {test.description ||
-                              'Authentic Prometric CBT simulator with native listening audio and instant CEFR score report.'}
-                          </p>
+                          {/* Description with Blur Effect if Scheduled */}
+                          {isScheduled ? (
+                            <div className="relative pt-1">
+                              {/* Background Blurred Mock Preview */}
+                              <div className="filter blur-[3px] opacity-40 select-none pointer-events-none space-y-1">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                                  {test.description ||
+                                    'Authentic Prometric CBT simulator with native listening audio and instant CEFR score report.'}
+                                </p>
+                              </div>
+
+                              {/* Center Frosted Countdown Timer Widget */}
+                              <div className="mt-2">
+                                <ScheduledCountdownBadge
+                                  targetDate={test.scheduled_release_at}
+                                  onUnlock={() => {
+                                    setUnlockedMap((prev) => ({ ...prev, [test.id]: true }));
+                                  }}
+                                  size="card"
+                                />
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-normal">
+                              {test.description ||
+                                'Authentic Prometric CBT simulator with native listening audio and instant CEFR score report.'}
+                            </p>
+                          )}
                         </div>
 
-                        {/* Card Action: Direct Start Exam Link */}
-                        <div className="pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800">
-                          <Link
-                            href={`/test/${test.id}`}
-                            className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 sm:px-4 rounded-xl font-black text-xs sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${cardTheme.button}`}
-                          >
-                            <span>{t('start_exam')}</span>
-                            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                          </Link>
+                        {/* Card Action */}
+                        <div className="pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                          {isScheduled ? (
+                            <div className="space-y-2">
+                              <button
+                                type="button"
+                                onClick={() => setLeadModal(true)}
+                                className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-slate-950 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+                              >
+                                <Bell className="w-3.5 h-3.5" />
+                                <span>{t('remind_me_btn')}</span>
+                              </button>
+
+                              {user?.is_staff && (
+                                <Link
+                                  href={`/test/${test.id}?preview=admin`}
+                                  className="w-full flex items-center justify-center gap-1 py-1.5 px-3 rounded-xl text-[11px] font-bold text-slate-500 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
+                                >
+                                  <span>Admin CBT Preview ↗</span>
+                                </Link>
+                              )}
+                            </div>
+                          ) : (
+                            <Link
+                              href={`/test/${test.id}`}
+                              className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 sm:px-4 rounded-xl font-black text-xs sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${cardTheme.button}`}
+                            >
+                              <span>{t('start_exam')}</span>
+                              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                          )}
                         </div>
 
                       </div>

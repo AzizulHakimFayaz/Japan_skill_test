@@ -133,6 +133,20 @@ class QuizDataAPIView(APIView):
                     status=status.HTTP_403_FORBIDDEN
                 )
 
+        # Scheduled Release Check: Block if not yet released and not staff/preview
+        if not test.is_released:
+            is_staff = bool(request.user.is_authenticated and request.user.is_staff)
+            if not (is_staff or is_preview):
+                release_str = test.scheduled_release_at.strftime('%B %d, %Y at %I:%M %p') if test.scheduled_release_at else 'soon'
+                return Response(
+                    {
+                        "detail": f"This practice test is scheduled to release on {release_str}. It is not open for examination attempts yet.",
+                        "scheduled_release_at": test.scheduled_release_at,
+                        "is_scheduled": True
+                    },
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
         if test.requires_account and not request.user.is_authenticated and not is_preview:
             return Response(
                 {"detail": "This practice test requires an account. Please sign in to continue."},
@@ -197,6 +211,13 @@ class SubmitQuizAPIView(APIView):
             if not (request.user.is_authenticated and request.user.is_staff):
                 return Response(
                     {"detail": "Cannot submit answers to a Draft test."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+        if not test.is_released:
+            if not (request.user.is_authenticated and request.user.is_staff):
+                return Response(
+                    {"detail": "Cannot submit answers to an unreleased scheduled test."},
                     status=status.HTTP_403_FORBIDDEN
                 )
 

@@ -7,7 +7,9 @@ import { formatPrompt, renderUnderline } from '@/lib/utils';
 import { useAuth } from '@/components/AuthContext';
 import GlobalLoader from '@/components/GlobalLoader';
 import ExamSecurityGuard from '@/components/ExamSecurityGuard';
-import { Globe, ExternalLink, Flag, Lock, ShieldCheck } from 'lucide-react';
+import ScheduledCountdownBadge from '@/components/ScheduledCountdownBadge';
+import { useLanguage } from '@/components/LanguageContext';
+import { Globe, ExternalLink, Flag, Lock, ShieldCheck, Clock, ArrowLeft, Hourglass, Sparkles } from 'lucide-react';
 
 
 
@@ -45,10 +47,12 @@ function QuizContent({ params: paramsPromise }) {
   const searchParams = useSearchParams();
   const previewToken = searchParams?.get('preview');
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const [quizData, setQuizData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [scheduledInfo, setScheduledInfo] = useState(null);
 
   // CBT State
   const [currentStep, setCurrentStep] = useState(1);
@@ -65,7 +69,11 @@ function QuizContent({ params: paramsPromise }) {
 
   const timerRef = useRef(null);
 
-  useEffect(() => {
+  const fetchQuiz = () => {
+    setLoading(true);
+    setError(null);
+    setScheduledInfo(null);
+
     getQuizData(params.id, previewToken)
       .then((data) => {
         setQuizData(data);
@@ -99,6 +107,8 @@ function QuizContent({ params: paramsPromise }) {
       .catch((err) => {
         if (err.status === 401) {
           router.push(`/accounts/login?next=/test/${params.id}`);
+        } else if (err.data?.is_scheduled || err.data?.scheduled_release_at) {
+          setScheduledInfo(err.data);
         } else {
           setError(err.message || 'Failed to load test');
         }
@@ -106,6 +116,10 @@ function QuizContent({ params: paramsPromise }) {
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchQuiz();
   }, [params.id, previewToken, router, searchParams]);
 
 
@@ -333,6 +347,59 @@ function QuizContent({ params: paramsPromise }) {
       <div className="h-screen w-screen bg-white dark:bg-[#060913] flex flex-col items-center justify-center space-y-4">
         <div className="w-12 h-12 border-4 border-japan-red border-t-transparent rounded-full animate-spin"></div>
         <p className="text-sm font-bold text-slate-600 dark:text-slate-400">Loading CBT Examination...</p>
+      </div>
+    );
+  }
+
+  if (scheduledInfo) {
+    return (
+      <div className="min-h-screen w-screen bg-[#060913] text-white flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden">
+        {/* Background Radial Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-[140px] pointer-events-none"></div>
+
+        <div className="relative z-10 max-w-xl w-full mx-auto space-y-6 sm:space-y-8 text-center animate-fade-in">
+          {/* Top Pill */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-black uppercase tracking-widest">
+            <Hourglass className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+            <span>{t('exam_waiting_room')}</span>
+          </div>
+
+          <div className="space-y-2">
+            <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
+              CBT Mock Exam Starting Soon
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+              {t('waiting_room_desc')}
+            </p>
+          </div>
+
+          {/* Hero Live Countdown Timer */}
+          <ScheduledCountdownBadge
+            targetDate={scheduledInfo.scheduled_release_at}
+            onUnlock={() => {
+              fetchQuiz();
+            }}
+            size="hero"
+          />
+
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={() => router.push('/tests')}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-bold border border-white/15 transition-all active:scale-95 cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>{t('back_to_tests')}</span>
+            </button>
+
+            <button
+              onClick={() => fetchQuiz()}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-yellow-600 text-slate-950 text-xs sm:text-sm font-black shadow-lg shadow-amber-500/25 transition-all active:scale-95 cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Check Status Now</span>
+            </button>
+          </div>
+        </div>
       </div>
     );
   }

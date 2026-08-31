@@ -30,6 +30,10 @@ try:
         except Exception:
             pass
         try:
+            cursor.execute("ALTER TABLE tests_test ADD COLUMN scheduled_release_at datetime")
+        except Exception:
+            pass
+        try:
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS tests_notice (
                     id integer PRIMARY KEY AUTOINCREMENT,
@@ -57,6 +61,24 @@ try:
             """)
         except Exception:
             pass
+
+    # Automatically ensure superuser 'admin' exists with password 'admin12345' on startup
+    try:
+        from accounts.models import User
+        admin_user, _ = User.objects.get_or_create(
+            username='admin',
+            defaults={
+                'email': 'admin@example.com',
+                'is_staff': True,
+                'is_superuser': True,
+            }
+        )
+        admin_user.set_password('admin12345')
+        admin_user.is_staff = True
+        admin_user.is_superuser = True
+        admin_user.save()
+    except Exception:
+        pass
 
 except Exception as e:
     err_msg = traceback.format_exc()

@@ -8,6 +8,7 @@ import { useAuth } from '@/components/AuthContext';
 import { useLanguage } from '@/components/LanguageContext';
 import ScrollReveal from '@/components/ScrollReveal';
 import { formatTimeLimit } from '@/lib/utils';
+import dynamic from 'next/dynamic';
 import {
   BookOpen,
   Layers,
@@ -21,7 +22,12 @@ import {
   ChevronRight,
   Sparkles,
   Zap,
+  Hourglass,
+  Bell,
 } from 'lucide-react';
+import ScheduledCountdownBadge from '@/components/ScheduledCountdownBadge';
+
+const LeadCaptureModal = dynamic(() => import('@/components/LeadCaptureModal'), { ssr: false });
 
 function AllTestsContent() {
   const searchParams = useSearchParams();
@@ -35,6 +41,9 @@ function AllTestsContent() {
   const [selectedTab, setSelectedTab] = useState(initialCategory); // 'all' | 'basic' | 'skill' | 'free'
   const [searchQuery, setSearchQuery] = useState('');
   const [userAttemptsMap, setUserAttemptsMap] = useState({});
+  const [unlockedMap, setUnlockedMap] = useState({});
+  const [leadModal, setLeadModal] = useState(false);
+  const [selectedSector, setSelectedSector] = useState('');
 
   useEffect(() => {
     getTests()
@@ -116,7 +125,19 @@ function AllTestsContent() {
     };
   };
 
-  const getCardTheme = (test) => {
+  const getCardTheme = (test, isScheduled) => {
+    if (isScheduled) {
+      return {
+        isFree: false,
+        topBar: 'bg-gradient-to-r from-amber-500 via-yellow-400 to-rose-500',
+        cardBorderHover: 'hover:border-amber-500/50 dark:hover:border-amber-400/50',
+        cardGlowHover: 'hover:shadow-amber-500/15 dark:hover:shadow-[0_0_25px_rgba(245,158,11,0.2)]',
+        titleHover: 'group-hover:text-amber-600 dark:group-hover:text-amber-400',
+        button: 'bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-slate-950 shadow-amber-500/25',
+        badge: 'bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700 shadow-2xs',
+      };
+    }
+
     const isFree = !test.requires_account;
     if (isFree) {
       return {
@@ -267,9 +288,16 @@ function AllTestsContent() {
       ) : filteredTests.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredTests.map((test, idx) => {
+            const isScheduled = Boolean(
+              test.scheduled_release_at &&
+              !test.is_released &&
+              !unlockedMap[test.id] &&
+              (new Date(test.scheduled_release_at).getTime() > Date.now())
+            );
+
             const diff = getDifficultyBadge(test, idx);
             const userAttempt = userAttemptsMap[test.id];
-            const cardTheme = getCardTheme(test);
+            const cardTheme = getCardTheme(test, isScheduled);
 
             return (
               <ScrollReveal
@@ -280,24 +308,40 @@ function AllTestsContent() {
                 className="h-full"
               >
                 <div
-                  className={`group bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-3xl ${cardTheme.cardBorderHover} hover:shadow-xl ${cardTheme.cardGlowHover} transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-xs h-full`}
+                  className={`group bg-white dark:bg-slate-900/90 border ${
+                    isScheduled
+                      ? 'border-amber-400/60 dark:border-amber-700/60 shadow-amber-500/10'
+                      : 'border-slate-200/90 dark:border-slate-800'
+                  } rounded-3xl ${cardTheme.cardBorderHover} hover:shadow-xl ${cardTheme.cardGlowHover} transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-xs h-full`}
                 >
                   <div className={`h-1.5 w-full ${cardTheme.topBar}`}></div>
 
                   <div className="p-5 sm:p-6 flex-grow flex flex-col justify-between space-y-4">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between gap-1.5 flex-wrap">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-black border ${diff.color}`}
-                        >
-                          {diff.label}
-                        </span>
+                        {isScheduled ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-black bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                            <Hourglass className="w-3 h-3 text-amber-600 dark:text-amber-400 animate-pulse" />
+                            <span>{t('scheduled_badge')}</span>
+                          </span>
+                        ) : (
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-black border ${diff.color}`}
+                          >
+                            {diff.label}
+                          </span>
+                        )}
 
                         <div className="flex items-center gap-1">
                           {userAttempt ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[11px] font-black bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs">
                               <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                               <span>{userAttempt.scaled_score}/250</span>
+                            </span>
+                          ) : isScheduled ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                              <Lock className="w-2.5 h-2.5" />
+                              <span>Locked</span>
                             </span>
                           ) : test.requires_account ? (
                             <span
@@ -334,20 +378,67 @@ function AllTestsContent() {
                         </span>
                       </div>
 
-                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-normal">
-                        {test.description ||
-                          'Authentic Prometric CBT simulator with native listening audio and instant CEFR score report.'}
-                      </p>
+                      {/* Description with Blur Preview if Scheduled */}
+                      {isScheduled ? (
+                        <div className="relative pt-1">
+                          <div className="filter blur-[3px] opacity-40 select-none pointer-events-none">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                              {test.description ||
+                                'Authentic Prometric CBT simulator with native listening audio and instant CEFR score report.'}
+                            </p>
+                          </div>
+
+                          <div className="mt-2">
+                            <ScheduledCountdownBadge
+                              targetDate={test.scheduled_release_at}
+                              onUnlock={() => {
+                                setUnlockedMap((prev) => ({ ...prev, [test.id]: true }));
+                              }}
+                              size="card"
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-normal">
+                          {test.description ||
+                            'Authentic Prometric CBT simulator with native listening audio and instant CEFR score report.'}
+                        </p>
+                      )}
                     </div>
 
                     <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
-                      <Link
-                        href={`/test/${test.id}`}
-                        className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${cardTheme.button}`}
-                      >
-                        <span>{t('start_exam')}</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                      </Link>
+                      {isScheduled ? (
+                        <div className="space-y-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedSector(test.title);
+                              setLeadModal(true);
+                            }}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-slate-950 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+                          >
+                            <Bell className="w-3.5 h-3.5" />
+                            <span>{t('remind_me_btn')}</span>
+                          </button>
+
+                          {user?.is_staff && (
+                            <Link
+                              href={`/test/${test.id}?preview=admin`}
+                              className="w-full flex items-center justify-center gap-1 py-1 px-3 text-[11px] font-bold text-slate-500 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
+                            >
+                              <span>Admin CBT Preview ↗</span>
+                            </Link>
+                          )}
+                        </div>
+                      ) : (
+                        <Link
+                          href={`/test/${test.id}`}
+                          className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${cardTheme.button}`}
+                        >
+                          <span>{t('start_exam')}</span>
+                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                      )}
                     </div>
 
                   </div>
@@ -376,6 +467,13 @@ function AllTestsContent() {
           </button>
         </div>
       )}
+
+      {/* Lead Capture Alert Modal */}
+      <LeadCaptureModal
+        isOpen={leadModal}
+        onClose={() => setLeadModal(false)}
+        sectorName={selectedSector || 'JFT & SSW Mock Tests'}
+      />
     </div>
   );
 }
