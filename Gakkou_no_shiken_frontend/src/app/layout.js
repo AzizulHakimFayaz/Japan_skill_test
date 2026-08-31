@@ -126,7 +126,9 @@ export default function RootLayout({ children }) {
                 description:
                   "Bangladesh's 1st and leading Computer-Based Testing (CBT) mock exam platform for JFT-Basic and SSW skill evaluation tests with native audio and CEFR score reports.",
                 sameAs: [
-                  'https://www.facebook.com/gakkounoshiken',
+                  'https://www.facebook.com/Gakkou.No.Shiken',
+                  'https://www.instagram.com/gakkou.no.shiken/',
+                  'https://whatsapp.com/channel/0029Vb8f5nVGOj9mKhSBbp3m',
                   'https://www.youtube.com/@gakkounoshiken',
                 ],
               },

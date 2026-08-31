@@ -640,50 +640,51 @@ export default function HeroBannerCarousel() {
       </div>
 
       {/* Layer 5: Bottom Community Channels Strip */}
-      <div className="relative z-10 bg-slate-950/90 border-t border-slate-800/80 px-4 sm:px-8 py-3 flex flex-wrap items-center justify-between gap-3 text-[11px] sm:text-xs">
-        <div className="flex items-center gap-2 text-slate-300 font-semibold">
-          <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-            <MessageSquare className="w-3 h-3" />
+      <div className="relative z-10 bg-slate-950/90 border-t border-slate-800/80 px-3 sm:px-8 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 text-[10px] sm:text-xs">
+        <div className="flex items-center gap-1.5 sm:gap-2 text-slate-300 font-semibold">
+          <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <MessageSquare className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
           </div>
-          <span>OFFICIAL WHATSAPP CHANNEL</span>
+          <span className="text-[10px] sm:text-xs">OFFICIAL WHATSAPP CHANNEL</span>
           <a
-            href="https://whatsapp.com/channel/0029Vb7B36Y9hXF4yK2n9R3m"
+            href="https://whatsapp.com/channel/0029Vb8f5nVGOj9mKhSBbp3m"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-emerald-400 hover:underline flex items-center gap-1 font-bold ml-1"
+            className="text-emerald-400 hover:underline flex items-center gap-1 font-bold ml-0.5 sm:ml-1"
           >
             <span>Follow Channel</span>
-            <ExternalLink className="w-3 h-3" />
+            <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
           </a>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <a
-            href="https://facebook.com"
+            href="https://www.facebook.com/Gakkou.No.Shiken"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-2.5 py-1 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 font-bold flex items-center gap-1 transition-colors"
+            className="px-2 sm:px-2.5 py-1 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 font-bold flex items-center gap-1 transition-colors text-[10px] sm:text-xs"
           >
             <span>Facebook</span>
             <ExternalLink className="w-2.5 h-2.5" />
           </a>
           <a
-            href="https://instagram.com"
+            href="https://www.instagram.com/gakkou.no.shiken/"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-2.5 py-1 rounded-lg bg-pink-600/20 hover:bg-pink-600/30 text-pink-300 border border-pink-500/30 font-bold flex items-center gap-1 transition-colors"
+            className="px-2 sm:px-2.5 py-1 rounded-lg bg-pink-600/20 hover:bg-pink-600/30 text-pink-300 border border-pink-500/30 font-bold flex items-center gap-1 transition-colors text-[10px] sm:text-xs"
           >
             <span>Instagram</span>
             <ExternalLink className="w-2.5 h-2.5" />
           </a>
           <a
-            href="https://whatsapp.com"
+            href="https://whatsapp.com/channel/0029Vb8f5nVGOj9mKhSBbp3m"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-bold flex items-center gap-1 transition-colors"
+            className="px-2 sm:px-3 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-bold flex items-center gap-1 transition-colors text-[10px] sm:text-xs"
           >
-            <MessageSquare className="w-3 h-3" />
-            <span>COMMUNITY CHANNEL</span>
+            <MessageSquare className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+            <span className="hidden xs:inline">COMMUNITY</span>
+            <span>CHANNEL</span>
             <ExternalLink className="w-2.5 h-2.5" />
           </a>
         </div>

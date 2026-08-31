@@ -211,33 +211,33 @@ export default function PracticeTestGrid({
     <div className="space-y-3 sm:space-y-5">
       {/* Section Header with Title, Category Pill, and Carousel / See All Controls */}
       <ScrollReveal variant="up" duration={600}>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 dark:border-slate-800 pb-3 sm:pb-4">
+        <div className="flex items-center justify-between gap-2 border-b border-slate-200/80 dark:border-slate-800 pb-2.5 sm:pb-4">
           {/* Title & Category Badge */}
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-2">
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight truncate">
                   {title}
                 </h2>
-                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 dark:bg-rose-950/70 text-japan-red dark:text-rose-400 border border-rose-200 dark:border-rose-800">
+                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 dark:bg-rose-950/70 text-japan-red dark:text-rose-400 border border-rose-200 dark:border-rose-800 shrink-0">
                   {tests.length} {t('available_tests')}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
                 {subtitle}
               </p>
             </div>
           </div>
 
           {/* Controls: View Mode Switcher + Carousel Arrows + See All */}
-          <div className="flex items-center gap-2 self-end sm:self-auto">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* View Mode Toggle (Grid vs Carousel) */}
             {showViewToggle && tests.length > 0 && (
               <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700">
                 <button
                   type="button"
                   onClick={() => setViewMode('carousel')}
-                  className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
+                  className={`p-1 sm:p-1.5 rounded-lg text-xs font-bold transition-all ${
                     viewMode === 'carousel'
                       ? 'bg-white dark:bg-slate-900 text-japan-red shadow-xs'
                       : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
@@ -245,12 +245,12 @@ export default function PracticeTestGrid({
                   aria-label="Carousel view"
                   title="Carousel view"
                 >
-                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  <SlidersHorizontal className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewMode('grid')}
-                  className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
+                  className={`p-1 sm:p-1.5 rounded-lg text-xs font-bold transition-all ${
                     viewMode === 'grid'
                       ? 'bg-white dark:bg-slate-900 text-japan-red shadow-xs'
                       : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
@@ -258,7 +258,7 @@ export default function PracticeTestGrid({
                   aria-label="Grid view"
                   title="Grid view"
                 >
-                  <LayoutGrid className="w-3.5 h-3.5" />
+                  <LayoutGrid className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </button>
               </div>
             )}
@@ -297,10 +297,10 @@ export default function PracticeTestGrid({
             {defaultSeeAllHref && (
               <Link
                 href={defaultSeeAllHref}
-                className="text-xs font-black text-japan-red dark:text-rose-400 hover:text-red-700 flex items-center gap-1 py-1.5 px-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 transition-colors"
+                className="text-[11px] sm:text-xs font-black text-japan-red dark:text-rose-400 hover:text-red-700 flex items-center gap-0.5 sm:gap-1 py-1 sm:py-1.5 px-2 sm:px-3 rounded-xl hover:bg-red-50 dark:hover:bg-slate-800 transition-colors shrink-0"
               >
                 <span>See All</span>
-                <ChevronRight className="w-3.5 h-3.5" />
+                <ChevronRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               </Link>
             )}
           </div>
@@ -356,7 +356,7 @@ export default function PracticeTestGrid({
                   key={test.id}
                   className={
                     viewMode === 'carousel'
-                      ? 'w-[280px] xs:w-[320px] sm:w-[350px] md:w-[370px] lg:w-[380px] flex-shrink-0 snap-start h-full'
+                      ? 'w-[255px] xs:w-[285px] sm:w-[330px] md:w-[360px] lg:w-[380px] flex-shrink-0 snap-start h-full'
                       : 'h-full'
                   }
                 >
@@ -376,14 +376,14 @@ export default function PracticeTestGrid({
                       {/* Top Clean Brand Accent Strip */}
                       <div className={`h-1.5 w-full ${cardTheme.topBar}`}></div>
 
-                      <div className="p-3.5 sm:p-6 flex-grow flex flex-col justify-between space-y-3 sm:space-y-4">
-                        <div className="space-y-2 sm:space-y-3">
+                      <div className="p-3 sm:p-5 flex-grow flex flex-col justify-between space-y-2.5 sm:space-y-4">
+                        <div className="space-y-1.5 sm:space-y-2.5">
                           {/* Top Badges: Difficulty + Status / Login Requirement */}
                           <div className="flex items-center justify-between gap-1.5 flex-wrap">
                             {/* Difficulty Pill or Scheduled Pill */}
                             {isScheduled ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
-                                <Hourglass className="w-3 h-3 text-amber-600 dark:text-amber-400 animate-pulse" />
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                                <Hourglass className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-600 dark:text-amber-400 animate-pulse" />
                                 <span>{t('scheduled_badge')}</span>
                               </span>
                             ) : (
@@ -398,26 +398,26 @@ export default function PracticeTestGrid({
                             <div className="flex items-center gap-1">
                               {userAttempt ? (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs">
-                                  <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                                  <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-600 dark:text-emerald-400" />
                                   <span>{userAttempt.scaled_score}/250</span>
                                 </span>
                               ) : isScheduled ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] font-extrabold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
-                                  <Lock className="w-2.5 h-2.5" />
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] font-extrabold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                                  <Lock className="w-2 h-2 sm:w-2.5 sm:h-2.5" />
                                   <span>Locked</span>
                                 </span>
                               ) : test.requires_account ? (
                                 <span
-                                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] font-extrabold border ${cardTheme.badge}`}
+                                  className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] font-extrabold border ${cardTheme.badge}`}
                                 >
-                                  <Lock className="w-2.5 h-2.5" />
+                                  <Lock className="w-2 h-2 sm:w-2.5 sm:h-2.5" />
                                   <span>{t('requires_login')}</span>
                                 </span>
                               ) : (
                                 <span
                                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] font-extrabold border ${cardTheme.badge}`}
                                 >
-                                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-500" />
+                                  <CheckCircle2 className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-emerald-500" />
                                   <span>{t('free_open')}</span>
                                 </span>
                               )}
@@ -426,47 +426,37 @@ export default function PracticeTestGrid({
 
                           {/* Card Title */}
                           <h3
-                            className={`text-sm sm:text-lg font-black text-slate-900 dark:text-white ${cardTheme.titleHover} transition-colors leading-snug line-clamp-2`}
+                            className={`text-sm sm:text-base font-black text-slate-900 dark:text-white ${cardTheme.titleHover} transition-colors leading-snug line-clamp-1 sm:line-clamp-2`}
                           >
                             {test.title}
                           </h3>
 
                           {/* Test Specs: Time • 4 Sections */}
-                          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-semibold flex-wrap">
-                            <span className="inline-flex items-center gap-1 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 sm:px-2 rounded-md border border-slate-100 dark:border-slate-700">
-                              <Clock className="w-3 h-3 text-amber-500" />
+                          <div className="flex items-center gap-1 sm:gap-2 text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-semibold flex-wrap">
+                            <span className="inline-flex items-center gap-1 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 sm:px-2 rounded-md border border-slate-100 dark:border-slate-700">
+                              <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-500" />
                               <span>{formatTimeLimit(test.time_limit_seconds)}</span>
                             </span>
-                            <span className="inline-flex items-center gap-1 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 sm:px-2 rounded-md border border-slate-100 dark:border-slate-700">
-                              <Layers className="w-3 h-3 text-indigo-500" />
+                            <span className="inline-flex items-center gap-1 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 sm:px-2 rounded-md border border-slate-100 dark:border-slate-700">
+                              <Layers className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-indigo-500" />
                               <span>4 {t('sections')}</span>
                             </span>
                           </div>
 
-                          {/* Description with Blur Effect if Scheduled */}
+                          {/* Description or Countdown Timer if Scheduled */}
                           {isScheduled ? (
-                            <div className="relative pt-1">
-                              {/* Background Blurred Mock Preview */}
-                              <div className="filter blur-[3px] opacity-40 select-none pointer-events-none space-y-1">
-                                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                                  {test.description ||
-                                    'Authentic Prometric CBT simulator with native listening audio and instant CEFR score report.'}
-                                </p>
-                              </div>
-
+                            <div className="pt-0.5">
                               {/* Center Frosted Countdown Timer Widget */}
-                              <div className="mt-2">
-                                <ScheduledCountdownBadge
-                                  targetDate={test.scheduled_release_at}
-                                  onUnlock={() => {
-                                    setUnlockedMap((prev) => ({ ...prev, [test.id]: true }));
-                                  }}
-                                  size="card"
-                                />
-                              </div>
+                              <ScheduledCountdownBadge
+                                targetDate={test.scheduled_release_at}
+                                onUnlock={() => {
+                                  setUnlockedMap((prev) => ({ ...prev, [test.id]: true }));
+                                }}
+                                size="card"
+                              />
                             </div>
                           ) : (
-                            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-normal">
+                            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-normal">
                               {test.description ||
                                 'Authentic Prometric CBT simulator with native listening audio and instant CEFR score report.'}
                             </p>
@@ -474,22 +464,22 @@ export default function PracticeTestGrid({
                         </div>
 
                         {/* Card Action */}
-                        <div className="pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                        <div className="pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 sm:space-y-2">
                           {isScheduled ? (
-                            <div className="space-y-2">
+                            <div className="space-y-1.5 sm:space-y-2">
                               <button
                                 type="button"
                                 onClick={() => setLeadModal(true)}
-                                className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-slate-950 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+                                className="w-full flex items-center justify-center gap-1.5 py-2 sm:py-2.5 px-3 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-slate-950 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
                               >
-                                <Bell className="w-3.5 h-3.5" />
+                                <Bell className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                                 <span>{t('remind_me_btn')}</span>
                               </button>
 
                               {user?.is_staff && (
                                 <Link
                                   href={`/test/${test.id}?preview=admin`}
-                                  className="w-full flex items-center justify-center gap-1 py-1.5 px-3 rounded-xl text-[11px] font-bold text-slate-500 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
+                                  className="w-full flex items-center justify-center gap-1 py-1 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold text-slate-500 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
                                 >
                                   <span>Admin CBT Preview ↗</span>
                                 </Link>
@@ -498,10 +488,10 @@ export default function PracticeTestGrid({
                           ) : (
                             <Link
                               href={`/test/${test.id}`}
-                              className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-3 sm:px-4 rounded-xl font-black text-xs sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${cardTheme.button}`}
+                              className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl font-black text-xs sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${cardTheme.button}`}
                             >
                               <span>{t('start_exam')}</span>
-                              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-1 transition-transform" />
                             </Link>
                           )}
                         </div>

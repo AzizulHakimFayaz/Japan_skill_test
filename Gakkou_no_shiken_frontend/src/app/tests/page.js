@@ -312,21 +312,21 @@ function AllTestsContent() {
                     isScheduled
                       ? 'border-amber-400/60 dark:border-amber-700/60 shadow-amber-500/10'
                       : 'border-slate-200/90 dark:border-slate-800'
-                  } rounded-3xl ${cardTheme.cardBorderHover} hover:shadow-xl ${cardTheme.cardGlowHover} transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-xs h-full`}
+                  } rounded-2xl sm:rounded-3xl ${cardTheme.cardBorderHover} hover:shadow-xl ${cardTheme.cardGlowHover} transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-xs h-full`}
                 >
                   <div className={`h-1.5 w-full ${cardTheme.topBar}`}></div>
 
-                  <div className="p-5 sm:p-6 flex-grow flex flex-col justify-between space-y-4">
-                    <div className="space-y-3">
+                  <div className="p-3 sm:p-5 flex-grow flex flex-col justify-between space-y-2.5 sm:space-y-4">
+                    <div className="space-y-1.5 sm:space-y-2.5">
                       <div className="flex items-center justify-between gap-1.5 flex-wrap">
                         {isScheduled ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-black bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
-                            <Hourglass className="w-3 h-3 text-amber-600 dark:text-amber-400 animate-pulse" />
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                            <Hourglass className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-600 dark:text-amber-400 animate-pulse" />
                             <span>{t('scheduled_badge')}</span>
                           </span>
                         ) : (
                           <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-black border ${diff.color}`}
+                            className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black border ${diff.color}`}
                           >
                             {diff.label}
                           </span>
@@ -334,27 +334,27 @@ function AllTestsContent() {
 
                         <div className="flex items-center gap-1">
                           {userAttempt ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[11px] font-black bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs">
+                              <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-600 dark:text-emerald-400" />
                               <span>{userAttempt.scaled_score}/250</span>
                             </span>
                           ) : isScheduled ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
-                              <Lock className="w-2.5 h-2.5" />
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] font-extrabold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                              <Lock className="w-2 h-2 sm:w-2.5 sm:h-2.5" />
                               <span>Locked</span>
                             </span>
                           ) : test.requires_account ? (
                             <span
-                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold border ${cardTheme.badge}`}
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] font-extrabold border ${cardTheme.badge}`}
                             >
-                              <Lock className="w-2.5 h-2.5" />
+                              <Lock className="w-2 h-2 sm:w-2.5 sm:h-2.5" />
                               <span>{t('requires_login')}</span>
                             </span>
                           ) : (
                             <span
-                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold border ${cardTheme.badge}`}
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[10px] font-extrabold border ${cardTheme.badge}`}
                             >
-                              <CheckCircle2 className="w-2.5 h-2.5 text-emerald-500" />
+                              <CheckCircle2 className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-emerald-500" />
                               <span>{t('free_open')}</span>
                             </span>
                           )}
@@ -362,69 +362,60 @@ function AllTestsContent() {
                       </div>
 
                       <h3
-                        className={`text-base sm:text-lg font-black text-slate-900 dark:text-white ${cardTheme.titleHover} transition-colors leading-snug`}
+                        className={`text-sm sm:text-base font-black text-slate-900 dark:text-white ${cardTheme.titleHover} transition-colors leading-snug line-clamp-1 sm:line-clamp-2`}
                       >
                         {test.title}
                       </h3>
 
-                      <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-semibold flex-wrap">
-                        <span className="inline-flex items-center gap-1 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-100 dark:border-slate-700">
-                          <Clock className="w-3 h-3 text-amber-500" />
+                      <div className="flex items-center gap-1 sm:gap-2 text-[9px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-semibold flex-wrap">
+                        <span className="inline-flex items-center gap-1 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 sm:px-2 rounded-md border border-slate-100 dark:border-slate-700">
+                          <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-500" />
                           <span>{formatTimeLimit(test.time_limit_seconds)}</span>
                         </span>
-                        <span className="inline-flex items-center gap-1 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-100 dark:border-slate-700">
-                          <Layers className="w-3 h-3 text-indigo-500" />
+                        <span className="inline-flex items-center gap-1 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 sm:px-2 rounded-md border border-slate-100 dark:border-slate-700">
+                          <Layers className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-indigo-500" />
                           <span>4 {t('sections')}</span>
                         </span>
                       </div>
 
-                      {/* Description with Blur Preview if Scheduled */}
+                      {/* Description or Countdown Timer if Scheduled */}
                       {isScheduled ? (
-                        <div className="relative pt-1">
-                          <div className="filter blur-[3px] opacity-40 select-none pointer-events-none">
-                            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                              {test.description ||
-                                'Authentic Prometric CBT simulator with native listening audio and instant CEFR score report.'}
-                            </p>
-                          </div>
-
-                          <div className="mt-2">
-                            <ScheduledCountdownBadge
-                              targetDate={test.scheduled_release_at}
-                              onUnlock={() => {
-                                setUnlockedMap((prev) => ({ ...prev, [test.id]: true }));
-                              }}
-                              size="card"
-                            />
-                          </div>
+                        <div className="pt-0.5">
+                          <ScheduledCountdownBadge
+                            targetDate={test.scheduled_release_at}
+                            onUnlock={() => {
+                              setUnlockedMap((prev) => ({ ...prev, [test.id]: true }));
+                            }}
+                            size="card"
+                          />
                         </div>
                       ) : (
-                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-normal">
+                        <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-normal">
                           {test.description ||
                             'Authentic Prometric CBT simulator with native listening audio and instant CEFR score report.'}
                         </p>
                       )}
                     </div>
 
-                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <div className="pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800 space-y-1.5 sm:space-y-2">
                       {isScheduled ? (
-                        <div className="space-y-2">
+                        <div className="space-y-1.5 sm:space-y-2">
                           <button
                             type="button"
                             onClick={() => {
                               setSelectedSector(test.title);
                               setLeadModal(true);
                             }}
-                            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-slate-950 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+                            className="w-full flex items-center justify-center gap-1.5 py-2 sm:py-2.5 px-3 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-slate-950 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
                           >
-                            <Bell className="w-3.5 h-3.5" />
+                            <Bell className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                             <span>{t('remind_me_btn')}</span>
                           </button>
 
                           {user?.is_staff && (
                             <Link
                               href={`/test/${test.id}?preview=admin`}
-                              className="w-full flex items-center justify-center gap-1 py-1 px-3 text-[11px] font-bold text-slate-500 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
+                              className="w-full flex items-center justify-center gap-1 py-1 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold text-slate-500 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
                             >
                               <span>Admin CBT Preview ↗</span>
                             </Link>
@@ -433,10 +424,10 @@ function AllTestsContent() {
                       ) : (
                         <Link
                           href={`/test/${test.id}`}
-                          className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${cardTheme.button}`}
+                          className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl font-black text-xs sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${cardTheme.button}`}
                         >
                           <span>{t('start_exam')}</span>
-                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                          <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-1 transition-transform" />
                         </Link>
                       )}
                     </div>
