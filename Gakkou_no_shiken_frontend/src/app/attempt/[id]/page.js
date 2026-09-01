@@ -230,59 +230,61 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
       {/* OFFICIAL JAPAN FOUNDATION JFT-BASIC / SSW TEST RESULT SCORE CARD REPORT */}
       <div
         id="official-score-certificate"
-        className="bg-white text-slate-900 border-2 border-slate-800 rounded-3xl p-5 sm:p-10 shadow-2xl font-sans space-y-7 relative overflow-hidden"
+        className="bg-white text-slate-900 border-2 border-slate-800 rounded-3xl p-4 sm:p-10 shadow-2xl font-sans space-y-6 sm:space-y-7 relative overflow-hidden"
       >
         {/* Certificate Header (Bilingual Official Standard) */}
-        <div className="border-b-2 border-slate-800 pb-5 space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-xl shadow-md border-2 border-slate-700 shrink-0">
+        <div className="border-b-2 border-slate-800 pb-4 sm:pb-5 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-lg sm:text-xl shadow-md border-2 border-slate-700 shrink-0">
                 学
               </div>
-              <div>
-                <span className="text-[11px] font-black uppercase tracking-widest text-slate-500 block">Gakkou No Shiken • 学校の試験</span>
-                <h2 className="text-base sm:text-xl font-black text-slate-950 tracking-tight leading-tight">
+              <div className="min-w-0 flex-1">
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-slate-500 block leading-tight">
+                  Gakkou No Shiken • 学校の試験
+                </span>
+                <h2 className="text-sm sm:text-xl font-black text-slate-950 tracking-tight leading-snug break-keep whitespace-normal mt-0.5">
                   {test.category === 'skill' ? '特定技能評価試験 模擬結果通知書' : '日本語基礎テスト 模擬試験 結果通知書'}
                 </h2>
-                <span className="text-[10px] sm:text-xs font-bold text-slate-600 block">
+                <span className="text-[9px] sm:text-xs font-bold text-slate-600 block leading-tight mt-0.5">
                   {test.category === 'skill' ? 'SSW Skill Evaluation CBT Mock Test Score Report' : 'JFT-Basic CBT Mock Examination Official Score Report'}
                 </span>
               </div>
             </div>
 
-            <div className="sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-800 text-[10px] sm:text-xs font-mono font-bold">
+            <div className="flex items-center justify-between sm:justify-end sm:flex-col sm:items-end gap-1.5 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100 shrink-0">
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-300 text-slate-800 text-[10px] sm:text-xs font-mono font-bold">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span>Ref: GNS-CBT-{String(attempt.id).padStart(6, '0')}</span>
               </div>
-              {formattedDate && <p className="text-[10px] text-slate-500 font-mono mt-1">Issue Date: {formattedDate}</p>}
+              {formattedDate && <p className="text-[9px] sm:text-[10px] text-slate-500 font-mono">Date: {formattedDate}</p>}
             </div>
           </div>
 
           {/* Candidate & Test Metadata Ribbon */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3 sm:p-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-2.5 sm:p-4 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">Candidate Name</span>
+              <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 block leading-none mb-1">Candidate Name</span>
               <strong className="text-xs sm:text-sm font-black text-slate-900 truncate block">{candidateDisplayName}</strong>
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">Exam Name</span>
+              <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 block leading-none mb-1">Exam Name</span>
               <strong className="text-xs sm:text-sm font-extrabold text-slate-900 truncate block">{test.title}</strong>
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">Test Format</span>
-              <strong className="text-xs sm:text-sm font-bold text-slate-900 block">Prometric CBT Standard</strong>
+              <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 block leading-none mb-1">Test Format</span>
+              <strong className="text-xs sm:text-sm font-bold text-slate-900 truncate block">Prometric CBT Standard</strong>
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">Overall Status</span>
+              <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 block leading-none mb-1">Overall Status</span>
               {attempt.passed ? (
-                <span className="inline-flex items-center gap-1 text-xs font-black text-emerald-700">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-black text-emerald-700">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                   <span>合格 (PASSED)</span>
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-xs font-black text-rose-700">
-                  <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-black text-rose-700">
+                  <XCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                   <span>不合格 (DID NOT PASS)</span>
                 </span>
               )}
