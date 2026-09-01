@@ -171,126 +171,100 @@ export default function LeaderboardPage() {
           </div>
 
           {/* 3-Column Olympic Podium Layout: [2nd Silver] [1st Gold (Center Elevated)] [3rd Bronze] */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-end">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-5 items-end">
             {/* 2nd Place (Silver) */}
             {secondPlace ? (
-              <div className="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white rounded-3xl p-5 sm:p-6 border-2 border-slate-400/50 shadow-xl shadow-slate-900/10 flex flex-col justify-between order-2 md:order-1 relative overflow-hidden group hover:border-slate-300 transition-all">
-                <div className="absolute top-3.5 right-4 text-2xl font-black opacity-30 select-none">#2</div>
-                <div className="space-y-3.5">
-                  <Link href={`/profile/${encodeURIComponent(secondPlace.username)}`} className="flex items-start gap-3 group/item">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 aspect-square rounded-2xl bg-gradient-to-tr from-slate-400 to-slate-200 text-slate-900 font-black text-lg sm:text-xl flex items-center justify-center shadow-lg border-2 border-white/40 group-hover/item:scale-105 transition-transform">
+              <div className="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white rounded-2xl sm:rounded-3xl p-2.5 sm:p-5 border-2 border-slate-400/50 shadow-xl shadow-slate-900/10 flex flex-col items-center justify-between text-center relative overflow-hidden group hover:border-slate-300 transition-all min-w-0">
+                <div className="absolute top-2 right-2 text-xs sm:text-lg font-black opacity-30 select-none">#2</div>
+                <div className="w-full flex flex-col items-center space-y-1.5 sm:space-y-3">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-slate-400/20 text-slate-300 border border-slate-400/30 text-[8px] sm:text-[10px] font-black uppercase">
+                    <Medal className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-slate-300 shrink-0" />
+                    <span className="hidden sm:inline">2nd Place</span>
+                    <span className="sm:hidden">Silver</span>
+                  </span>
+
+                  <Link href={`/profile/${encodeURIComponent(secondPlace.username)}`} className="group/item flex flex-col items-center w-full">
+                    <div className="w-10 h-10 sm:w-14 sm:h-14 shrink-0 aspect-square rounded-xl sm:rounded-2xl bg-gradient-to-tr from-slate-400 to-slate-200 text-slate-900 font-black text-sm sm:text-xl flex items-center justify-center shadow-md border-2 border-white/40 group-hover/item:scale-105 transition-transform">
                       {secondPlace.full_name.slice(0, 1).toUpperCase()}
                     </div>
-                    <div className="min-w-0 flex-1 pr-6">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-400/20 text-slate-300 border border-slate-400/30 text-[9px] sm:text-[10px] font-black uppercase">
-                        <Medal className="w-3 h-3 text-slate-300 shrink-0" />
-                        <span>2nd Place</span>
-                      </span>
-                      <h3 className="text-base font-black text-white mt-1 leading-tight truncate group-hover/item:text-amber-300 transition-colors">
-                        {secondPlace.full_name}
-                      </h3>
-                      <span className="text-xs text-slate-400 font-mono truncate block max-w-full">@{secondPlace.username}</span>
-                    </div>
+                    <h3 className="text-[11px] sm:text-sm font-black text-white mt-1.5 leading-tight truncate w-full group-hover/item:text-amber-300 transition-colors">
+                      {secondPlace.full_name}
+                    </h3>
+                    <span className="text-[9px] sm:text-xs text-slate-400 font-mono truncate w-full block">@{secondPlace.username}</span>
                   </Link>
 
-                  {secondPlace.bio && (
-                    <p className="text-xs text-slate-300 italic line-clamp-2">"{secondPlace.bio}"</p>
-                  )}
-
-                  <div className="flex flex-wrap gap-1.5">
-                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-800/90 rounded-lg text-slate-300 border border-slate-700">
+                  <div className="flex flex-wrap justify-center gap-1 w-full">
+                    <span className="text-[8px] sm:text-[10px] font-bold px-1.5 py-0.5 bg-slate-800/90 rounded-md text-slate-300 border border-slate-700 truncate max-w-full">
                       {secondPlace.target_exam_display}
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-800/90 rounded-lg text-slate-300 border border-slate-700">
-                      {secondPlace.japanese_level_display}
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3.5 border-t border-slate-800 flex items-center justify-between gap-2">
-                  <div className="grid grid-cols-3 gap-1 sm:gap-2 text-center flex-1">
-                    <div className="bg-slate-950/60 rounded-xl py-1.5 px-1 border border-slate-800/80">
-                      <span className="text-[9px] sm:text-[10px] text-slate-400 block uppercase font-bold">Passed</span>
-                      <strong className="text-xs sm:text-sm font-black text-emerald-400">{secondPlace.passed_attempts}</strong>
-                    </div>
-                    <div className="bg-slate-950/60 rounded-xl py-1.5 px-1 border border-slate-800/80">
-                      <span className="text-[9px] sm:text-[10px] text-slate-400 block uppercase font-bold">High Score</span>
-                      <strong className="text-xs sm:text-sm font-black text-amber-400">{secondPlace.highest_score}</strong>
-                    </div>
-                    <div className="bg-slate-950/60 rounded-xl py-1.5 px-1 border border-slate-800/80">
-                      <span className="text-[9px] sm:text-[10px] text-slate-400 block uppercase font-bold">Avg Score</span>
-                      <strong className="text-xs sm:text-sm font-black text-white">{secondPlace.avg_score}</strong>
-                    </div>
+                <div className="w-full mt-2.5 pt-2 border-t border-slate-800 space-y-1.5">
+                  <div className="bg-slate-950/70 rounded-lg sm:rounded-xl py-1 px-1 border border-slate-800/80">
+                    <span className="text-[8px] sm:text-[9px] text-slate-400 block uppercase font-bold">High Score</span>
+                    <strong className="text-xs sm:text-sm font-black text-amber-400">{secondPlace.highest_score}</strong>
+                  </div>
+                  <div className="flex items-center justify-between text-[8px] sm:text-[10px] text-slate-400 px-0.5">
+                    <span>Passed: <strong className="text-emerald-400 font-black">{secondPlace.passed_attempts}</strong></span>
+                    <span>Avg: <strong className="text-white font-bold">{secondPlace.avg_score}</strong></span>
                   </div>
                   <Link
                     href={`/profile/${encodeURIComponent(secondPlace.username)}`}
-                    className="shrink-0 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold rounded-xl transition-all flex items-center gap-1 active:scale-95"
+                    className="w-full py-1 sm:py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[9px] sm:text-[11px] font-bold rounded-lg sm:rounded-xl transition-all flex items-center justify-center gap-0.5 active:scale-95"
                   >
                     <span>Profile</span>
-                    <ArrowRight className="w-3 h-3" />
+                    <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   </Link>
                 </div>
               </div>
             ) : (
-              <div className="hidden md:block"></div>
+              <div></div>
             )}
 
             {/* 1st Place (Gold - Elevated Centerpiece) */}
             {firstPlace && (
-              <div className="bg-gradient-to-b from-amber-950/80 via-slate-950 to-slate-950 text-white rounded-3xl p-5 sm:p-7 border-2 border-amber-400 shadow-2xl shadow-amber-500/25 flex flex-col justify-between order-1 md:order-2 md:-translate-y-4 relative overflow-hidden group hover:scale-[1.01] transition-all">
-                <div className="absolute top-3.5 right-4 text-2xl font-black text-amber-400 opacity-60 select-none">#1</div>
-                <div className="space-y-3.5">
-                  <Link href={`/profile/${encodeURIComponent(firstPlace.username)}`} className="flex items-start gap-3.5 group/item">
-                    <div className="w-13 h-13 sm:w-16 sm:h-16 shrink-0 aspect-square rounded-2xl bg-gradient-to-tr from-amber-400 via-yellow-400 to-amber-600 text-slate-950 font-black text-xl sm:text-2xl flex items-center justify-center shadow-lg border-2 border-white/60 group-hover/item:scale-105 transition-transform">
+              <div className="bg-gradient-to-b from-amber-950/90 via-slate-950 to-slate-950 text-white rounded-2xl sm:rounded-3xl p-2.5 sm:p-6 border-2 border-amber-400 shadow-2xl shadow-amber-500/25 flex flex-col items-center justify-between text-center relative overflow-hidden group hover:scale-[1.02] transition-all -translate-y-2 sm:-translate-y-4 min-w-0 z-10">
+                <div className="absolute top-2 right-2 text-xs sm:text-lg font-black text-amber-400 opacity-60 select-none">#1</div>
+                <div className="w-full flex flex-col items-center space-y-1.5 sm:space-y-3">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[8px] sm:text-[10px] font-black uppercase shadow-xs">
+                    <Crown className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-amber-400 shrink-0" />
+                    <span className="hidden sm:inline">Champion</span>
+                    <span className="sm:hidden">Gold</span>
+                  </span>
+
+                  <Link href={`/profile/${encodeURIComponent(firstPlace.username)}`} className="group/item flex flex-col items-center w-full">
+                    <div className="w-12 h-12 sm:w-18 sm:h-18 shrink-0 aspect-square rounded-xl sm:rounded-2xl bg-gradient-to-tr from-amber-400 via-yellow-400 to-amber-600 text-slate-950 font-black text-base sm:text-2xl flex items-center justify-center shadow-lg border-2 border-white/60 group-hover/item:scale-105 transition-transform">
                       {firstPlace.full_name.slice(0, 1).toUpperCase()}
                     </div>
-                    <div className="min-w-0 flex-1 pr-6">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[9px] sm:text-[10px] font-black uppercase shadow-xs">
-                        <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                        <span>National Champion</span>
-                      </span>
-                      <h3 className="text-base sm:text-lg font-black text-white mt-1 leading-tight truncate group-hover/item:text-amber-300 transition-colors">
-                        {firstPlace.full_name}
-                      </h3>
-                      <span className="text-xs text-slate-400 font-mono truncate block max-w-full">@{firstPlace.username}</span>
-                    </div>
+                    <h3 className="text-xs sm:text-base font-black text-white mt-1.5 leading-tight truncate w-full group-hover/item:text-amber-300 transition-colors">
+                      {firstPlace.full_name}
+                    </h3>
+                    <span className="text-[9px] sm:text-xs text-slate-400 font-mono truncate w-full block">@{firstPlace.username}</span>
                   </Link>
 
-                  {firstPlace.bio && (
-                    <p className="text-xs text-slate-300 italic line-clamp-2">"{firstPlace.bio}"</p>
-                  )}
-
-                  <div className="flex flex-wrap gap-1.5">
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 bg-amber-950/60 rounded-lg text-amber-300 border border-amber-700/50">
+                  <div className="flex flex-wrap justify-center gap-1 w-full">
+                    <span className="text-[8px] sm:text-[10px] font-bold px-1.5 py-0.5 bg-amber-950/80 rounded-md text-amber-300 border border-amber-700/50 truncate max-w-full">
                       {firstPlace.target_exam_display}
-                    </span>
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 bg-amber-950/60 rounded-lg text-amber-300 border border-amber-700/50">
-                      {firstPlace.japanese_level_display}
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3.5 border-t border-slate-800 flex items-center justify-between gap-2">
-                  <div className="grid grid-cols-3 gap-1 sm:gap-2 text-center flex-1">
-                    <div className="bg-slate-950/60 rounded-xl py-1.5 px-1 border border-slate-800/80">
-                      <span className="text-[9px] sm:text-[10px] text-slate-400 block uppercase font-bold">Passed</span>
-                      <strong className="text-sm sm:text-base font-black text-emerald-400">{firstPlace.passed_attempts}</strong>
-                    </div>
-                    <div className="bg-slate-950/60 rounded-xl py-1.5 px-1 border border-slate-800/80">
-                      <span className="text-[9px] sm:text-[10px] text-slate-400 block uppercase font-bold">High Score</span>
-                      <strong className="text-sm sm:text-base font-black text-amber-400">{firstPlace.highest_score}</strong>
-                    </div>
-                    <div className="bg-slate-950/60 rounded-xl py-1.5 px-1 border border-slate-800/80">
-                      <span className="text-[9px] sm:text-[10px] text-slate-400 block uppercase font-bold">Avg Score</span>
-                      <strong className="text-sm sm:text-base font-black text-white">{firstPlace.avg_score}</strong>
-                    </div>
+                <div className="w-full mt-2.5 pt-2 border-t border-slate-800 space-y-1.5">
+                  <div className="bg-slate-950/70 rounded-lg sm:rounded-xl py-1 px-1 border border-amber-400/30">
+                    <span className="text-[8px] sm:text-[9px] text-slate-400 block uppercase font-bold">High Score</span>
+                    <strong className="text-xs sm:text-base font-black text-amber-400">{firstPlace.highest_score}</strong>
+                  </div>
+                  <div className="flex items-center justify-between text-[8px] sm:text-[10px] text-slate-400 px-0.5">
+                    <span>Passed: <strong className="text-emerald-400 font-black">{firstPlace.passed_attempts}</strong></span>
+                    <span>Avg: <strong className="text-white font-bold">{firstPlace.avg_score}</strong></span>
                   </div>
                   <Link
                     href={`/profile/${encodeURIComponent(firstPlace.username)}`}
-                    className="shrink-0 px-3 py-2 sm:px-3.5 sm:py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 text-xs font-black rounded-xl transition-all flex items-center gap-1 shadow-md shadow-amber-500/20 active:scale-95"
+                    className="w-full py-1 sm:py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 text-[9px] sm:text-xs font-black rounded-lg sm:rounded-xl transition-all flex items-center justify-center gap-0.5 shadow-md shadow-amber-500/20 active:scale-95"
                   >
                     <span>Profile</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
                   </Link>
                 </div>
               </div>
@@ -298,65 +272,52 @@ export default function LeaderboardPage() {
 
             {/* 3rd Place (Bronze) */}
             {thirdPlace ? (
-              <div className="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white rounded-3xl p-5 sm:p-6 border-2 border-amber-700/50 shadow-xl shadow-slate-900/10 flex flex-col justify-between order-3 md:order-3 relative overflow-hidden group hover:border-amber-600 transition-all">
-                <div className="absolute top-3.5 right-4 text-2xl font-black opacity-30 select-none">#3</div>
-                <div className="space-y-3.5">
-                  <Link href={`/profile/${encodeURIComponent(thirdPlace.username)}`} className="flex items-start gap-3 group/item">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 aspect-square rounded-2xl bg-gradient-to-tr from-amber-700 to-amber-600 text-white font-black text-lg sm:text-xl flex items-center justify-center shadow-lg border-2 border-white/20 group-hover/item:scale-105 transition-transform">
+              <div className="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white rounded-2xl sm:rounded-3xl p-2.5 sm:p-5 border-2 border-amber-700/50 shadow-xl shadow-slate-900/10 flex flex-col items-center justify-between text-center relative overflow-hidden group hover:border-amber-600 transition-all min-w-0">
+                <div className="absolute top-2 right-2 text-xs sm:text-lg font-black opacity-30 select-none">#3</div>
+                <div className="w-full flex flex-col items-center space-y-1.5 sm:space-y-3">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-amber-700/20 text-amber-400 border border-amber-700/30 text-[8px] sm:text-[10px] font-black uppercase">
+                    <Medal className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-amber-500 shrink-0" />
+                    <span className="hidden sm:inline">3rd Place</span>
+                    <span className="sm:hidden">Bronze</span>
+                  </span>
+
+                  <Link href={`/profile/${encodeURIComponent(thirdPlace.username)}`} className="group/item flex flex-col items-center w-full">
+                    <div className="w-10 h-10 sm:w-14 sm:h-14 shrink-0 aspect-square rounded-xl sm:rounded-2xl bg-gradient-to-tr from-amber-700 to-amber-600 text-white font-black text-sm sm:text-xl flex items-center justify-center shadow-md border-2 border-white/20 group-hover/item:scale-105 transition-transform">
                       {thirdPlace.full_name.slice(0, 1).toUpperCase()}
                     </div>
-                    <div className="min-w-0 flex-1 pr-6">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-700/20 text-amber-400 border border-amber-700/30 text-[9px] sm:text-[10px] font-black uppercase">
-                        <Medal className="w-3 h-3 text-amber-500 shrink-0" />
-                        <span>3rd Place</span>
-                      </span>
-                      <h3 className="text-base font-black text-white mt-1 leading-tight truncate group-hover/item:text-amber-300 transition-colors">
-                        {thirdPlace.full_name}
-                      </h3>
-                      <span className="text-xs text-slate-400 font-mono truncate block max-w-full">@{thirdPlace.username}</span>
-                    </div>
+                    <h3 className="text-[11px] sm:text-sm font-black text-white mt-1.5 leading-tight truncate w-full group-hover/item:text-amber-300 transition-colors">
+                      {thirdPlace.full_name}
+                    </h3>
+                    <span className="text-[9px] sm:text-xs text-slate-400 font-mono truncate w-full block">@{thirdPlace.username}</span>
                   </Link>
 
-                  {thirdPlace.bio && (
-                    <p className="text-xs text-slate-300 italic line-clamp-2">"{thirdPlace.bio}"</p>
-                  )}
-
-                  <div className="flex flex-wrap gap-1.5">
-                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-800/90 rounded-lg text-slate-300 border border-slate-700">
+                  <div className="flex flex-wrap justify-center gap-1 w-full">
+                    <span className="text-[8px] sm:text-[10px] font-bold px-1.5 py-0.5 bg-slate-800/90 rounded-md text-slate-300 border border-slate-700 truncate max-w-full">
                       {thirdPlace.target_exam_display}
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-800/90 rounded-lg text-slate-300 border border-slate-700">
-                      {thirdPlace.japanese_level_display}
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3.5 border-t border-slate-800 flex items-center justify-between gap-2">
-                  <div className="grid grid-cols-3 gap-1 sm:gap-2 text-center flex-1">
-                    <div className="bg-slate-950/60 rounded-xl py-1.5 px-1 border border-slate-800/80">
-                      <span className="text-[9px] sm:text-[10px] text-slate-400 block uppercase font-bold">Passed</span>
-                      <strong className="text-xs sm:text-sm font-black text-emerald-400">{thirdPlace.passed_attempts}</strong>
-                    </div>
-                    <div className="bg-slate-950/60 rounded-xl py-1.5 px-1 border border-slate-800/80">
-                      <span className="text-[9px] sm:text-[10px] text-slate-400 block uppercase font-bold">High Score</span>
-                      <strong className="text-xs sm:text-sm font-black text-amber-400">{thirdPlace.highest_score}</strong>
-                    </div>
-                    <div className="bg-slate-950/60 rounded-xl py-1.5 px-1 border border-slate-800/80">
-                      <span className="text-[9px] sm:text-[10px] text-slate-400 block uppercase font-bold">Avg Score</span>
-                      <strong className="text-xs sm:text-sm font-black text-white">{thirdPlace.avg_score}</strong>
-                    </div>
+                <div className="w-full mt-2.5 pt-2 border-t border-slate-800 space-y-1.5">
+                  <div className="bg-slate-950/70 rounded-lg sm:rounded-xl py-1 px-1 border border-slate-800/80">
+                    <span className="text-[8px] sm:text-[9px] text-slate-400 block uppercase font-bold">High Score</span>
+                    <strong className="text-xs sm:text-sm font-black text-amber-400">{thirdPlace.highest_score}</strong>
+                  </div>
+                  <div className="flex items-center justify-between text-[8px] sm:text-[10px] text-slate-400 px-0.5">
+                    <span>Passed: <strong className="text-emerald-400 font-black">{thirdPlace.passed_attempts}</strong></span>
+                    <span>Avg: <strong className="text-white font-bold">{thirdPlace.avg_score}</strong></span>
                   </div>
                   <Link
                     href={`/profile/${encodeURIComponent(thirdPlace.username)}`}
-                    className="shrink-0 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold rounded-xl transition-all flex items-center gap-1 active:scale-95"
+                    className="w-full py-1 sm:py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[9px] sm:text-[11px] font-bold rounded-lg sm:rounded-xl transition-all flex items-center justify-center gap-0.5 active:scale-95"
                   >
                     <span>Profile</span>
-                    <ArrowRight className="w-3 h-3" />
+                    <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   </Link>
                 </div>
               </div>
             ) : (
-              <div className="hidden md:block"></div>
+              <div></div>
             )}
           </div>
         </div>
