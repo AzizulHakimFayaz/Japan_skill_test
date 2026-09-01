@@ -38,26 +38,26 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 bg-white/90 dark:bg-[#060913]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 shadow-xs transition-colors duration-300">
-      <nav className="max-w-[1920px] mx-auto px-3 sm:px-5 lg:px-6 xl:px-10 h-14 sm:h-16 flex items-center justify-between gap-2 lg:gap-4">
+      <nav className="max-w-[1920px] mx-auto px-2.5 sm:px-4 lg:px-6 xl:px-8 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-3">
         {/* Brand Logo */}
-        <div className="flex items-center shrink-0">
-          <Link href="/" className="flex items-center gap-2 group btn-touch-active shrink-0">
+        <div className="flex items-center shrink-0 min-w-0">
+          <Link href="/" className="flex items-center gap-1.5 sm:gap-2 group btn-touch-active shrink-0 min-w-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/img/logo.png"
               alt="Gakkou No Shiken - JFT & SSW CBT Mock Test"
-              className="h-8 sm:h-9 xl:h-10 w-auto object-contain group-hover:scale-105 transition-transform duration-300 filter drop-shadow-sm shrink-0"
+              className="h-7 sm:h-9 xl:h-10 w-auto object-contain group-hover:scale-105 transition-transform duration-300 filter drop-shadow-sm shrink-0"
             />
-            <div className="flex flex-col justify-center">
-              <div className="flex items-center gap-1.5">
-                <span className="font-black text-sm sm:text-base xl:text-lg tracking-tight text-slate-900 dark:text-white leading-none whitespace-nowrap">
+            <div className="flex flex-col justify-center min-w-0">
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <span className="font-black text-[13px] sm:text-base xl:text-lg tracking-tight text-slate-900 dark:text-white leading-none whitespace-nowrap">
                   Gakkou No <span className="text-japan-red">Shiken</span>
                 </span>
                 <span className="hidden sm:inline-flex items-center px-1 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/60 text-japan-red border border-rose-200/80 dark:border-rose-800/60 text-[8px] xl:text-[9px] font-black tracking-wider uppercase whitespace-nowrap">
                   CBT 2026
                 </span>
               </div>
-              <div className="mt-0.5 text-[9px] sm:text-[10px] xl:text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-tight leading-none flex items-center gap-1 whitespace-nowrap">
+              <div className="hidden sm:flex mt-0.5 text-[9px] sm:text-[10px] xl:text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-tight leading-none items-center gap-1 whitespace-nowrap">
                 <span className="text-japan-red font-black">JFT &amp; SSW Mock Tests</span>
                 <span className="hidden 2xl:inline text-slate-400 dark:text-slate-500">• BD&apos;s #1 Portal</span>
               </div>

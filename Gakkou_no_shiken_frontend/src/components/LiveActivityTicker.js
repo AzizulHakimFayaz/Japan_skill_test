@@ -72,23 +72,24 @@ export default function LiveActivityTicker() {
     <div
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      className="w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 rounded-2xl py-2 px-3 sm:px-4 shadow-xs flex items-center justify-between gap-3 text-xs overflow-hidden transition-all duration-300 hover:border-japan-red/30 dark:hover:border-rose-500/30"
+      className="w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 rounded-2xl py-1.5 sm:py-2 px-2.5 sm:px-4 shadow-xs flex items-center justify-between gap-2 sm:gap-3 text-xs overflow-hidden transition-all duration-300 hover:border-japan-red/30 dark:hover:border-rose-500/30"
     >
-      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1">
         {/* Latest Notices Badge */}
-        <span className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-japan-red dark:text-rose-400 bg-rose-50 dark:bg-rose-950/80 px-2.5 py-1 rounded-xl flex-shrink-0 border border-rose-200/80 dark:border-rose-800/80 shadow-2xs">
-          <span className="w-2 h-2 rounded-full bg-japan-red dark:bg-rose-400 animate-pulse"></span>
-          <span>{t('latest_notices')}</span>
+        <span className="flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[11px] font-black uppercase tracking-wider text-japan-red dark:text-rose-400 bg-rose-50 dark:bg-rose-950/80 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-xl flex-shrink-0 border border-rose-200/80 dark:border-rose-800/80 shadow-2xs">
+          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-japan-red dark:bg-rose-400 animate-pulse"></span>
+          <span className="hidden xs:inline">{t('latest_notices')}</span>
+          <span className="xs:hidden">Notices</span>
         </span>
 
         {/* Sliding Notice Content */}
         <div
-          className={`flex items-center gap-2 truncate transition-all duration-300 ${
+          className={`flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 transition-all duration-300 ${
             fade ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
           }`}
         >
-          <div className={`w-5 h-5 rounded-lg border flex items-center justify-center flex-shrink-0 ${current.color}`}>
-            <IconComponent className="w-3 h-3" />
+          <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-md sm:rounded-lg border flex items-center justify-center flex-shrink-0 ${current.color}`}>
+            <IconComponent className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
           </div>
 
           <span className="hidden md:inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
@@ -96,17 +97,17 @@ export default function LiveActivityTicker() {
           </span>
 
           <strong className="font-extrabold text-slate-900 dark:text-white truncate text-[11px] sm:text-xs">
-            {current.title}:
+            {current.title}
           </strong>
 
-          <span className="text-slate-600 dark:text-slate-300 truncate text-[11px] sm:text-xs font-medium">
-            {current.desc}
+          <span className="hidden sm:inline text-slate-600 dark:text-slate-300 truncate text-[11px] sm:text-xs font-medium">
+            — {current.desc}
           </span>
         </div>
       </div>
 
       {/* Right Controls: Time indicator + Close Button */}
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
         <span className="text-[10px] text-slate-400 font-mono hidden sm:inline-block">
           {current.time}
         </span>
