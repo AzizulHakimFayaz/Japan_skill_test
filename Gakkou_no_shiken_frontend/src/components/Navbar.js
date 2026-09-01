@@ -64,14 +64,13 @@ export default function Navbar() {
             </div>
           </Link>
         </div>
-
         {/* Desktop Menu Navigation */}
-        <div className="hidden sm:flex sm:items-center sm:gap-1.5 lg:gap-2 xl:gap-3 shrink-0">
+        <div className="hidden lg:flex lg:items-center lg:gap-1.5 xl:gap-2.5 2xl:gap-3.5 shrink-0">
           {/* Main Links */}
-          <div className="flex items-center gap-0.5 lg:gap-1 xl:gap-2 shrink-0">
+          <div className="flex items-center gap-0.5 lg:gap-1 xl:gap-1.5 2xl:gap-2 shrink-0">
             <Link
               href="/"
-              className={`text-xs xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                 isActive('/')
                   ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
                   : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
@@ -82,7 +81,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/jft-basic"
-              className={`text-xs xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                 isActive('/jft-basic')
                   ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
                   : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
@@ -93,7 +92,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/ssw-skill-test"
-              className={`text-xs xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                 isActive('/ssw-skill-test')
                   ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
                   : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
@@ -104,7 +103,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/tools"
-              className={`text-xs xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                 isActive('/tools') || pathname.startsWith('/tools')
                   ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
                   : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
@@ -115,7 +114,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/leaderboard"
-              className={`text-xs xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                 isActive('/leaderboard')
                   ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 shadow-2xs'
                   : 'text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50/50 dark:hover:bg-slate-800/60'
@@ -126,19 +125,19 @@ export default function Navbar() {
             </Link>
             <Link
               href="/notices"
-              className={`text-xs xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`hidden xl:flex text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl items-center gap-1.5 whitespace-nowrap shrink-0 ${
                 isActive('/notices') || pathname.startsWith('/notices')
                   ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
                   : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
               }`}
             >
               <FileText className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-japan-red shrink-0" />
-              <span className="hidden xl:inline">Notices &amp; Materials</span>
-              <span className="xl:hidden">Notices</span>
+              <span className="hidden 2xl:inline">Notices &amp; Materials</span>
+              <span className="2xl:hidden">Notices</span>
             </Link>
             <Link
               href="/how-it-works"
-              className={`text-xs xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`hidden 2xl:flex text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl items-center gap-1.5 whitespace-nowrap shrink-0 ${
                 isActive('/how-it-works')
                   ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
                   : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
@@ -150,7 +149,7 @@ export default function Navbar() {
           </div>
 
           {/* Right Action Utilities Group */}
-          <div className="flex items-center gap-1.5 lg:gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 xl:gap-2 shrink-0">
             {/* Notification Bell */}
             <NotificationBell />
 
@@ -169,7 +168,7 @@ export default function Navbar() {
                     href={`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs xl:text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 transition-all py-1.5 px-2 rounded-xl hover:bg-red-50/50 dark:hover:bg-slate-800/60 flex items-center gap-1 whitespace-nowrap shrink-0"
+                    className="text-xs xl:text-[13px] 2xl:text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 transition-all py-1.5 px-2 rounded-xl hover:bg-red-50/50 dark:hover:bg-slate-800/60 flex items-center gap-1 whitespace-nowrap shrink-0"
                   >
                     <Shield className="w-3.5 h-3.5 text-japan-red shrink-0" />
                     <span>{t('admin_panel')}</span>
@@ -183,7 +182,7 @@ export default function Navbar() {
                   <span className="w-7 h-7 xl:w-8 xl:h-8 rounded-xl bg-gradient-to-tr from-japan-red via-rose-600 to-amber-500 text-white text-xs font-black flex items-center justify-center shadow-md shadow-red-500/20 group-hover:scale-105 transition-transform shrink-0">
                     {user.username?.slice(0, 1).toUpperCase()}
                   </span>
-                  <span className="text-xs xl:text-sm text-slate-800 dark:text-slate-200 font-extrabold group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors max-w-[90px] xl:max-w-[140px] truncate">
+                  <span className="text-xs xl:text-sm text-slate-800 dark:text-slate-200 font-extrabold group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors max-w-[80px] xl:max-w-[120px] truncate">
                     {user.username}
                   </span>
                 </Link>
@@ -192,11 +191,11 @@ export default function Navbar() {
                   className="text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-2.5 py-1.5 rounded-xl transition-all border border-slate-200 dark:border-slate-700 cursor-pointer flex items-center gap-1 whitespace-nowrap shrink-0"
                 >
                   <LogOut className="w-3.5 h-3.5 shrink-0" />
-                  <span>{t('sign_out')}</span>
+                  <span className="hidden xl:inline">{t('sign_out')}</span>
                 </button>
               </>
             ) : (
-              <div className="flex items-center gap-1.5 lg:gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 xl:gap-2 shrink-0">
                 <Link
                   href="/accounts/login"
                   className="text-xs xl:text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 transition-colors px-2 py-1.5 flex items-center gap-1 whitespace-nowrap shrink-0"
@@ -217,7 +216,7 @@ export default function Navbar() {
         </div>
 
           {/* Mobile Top App Actions (Avatar / Theme Toggle / Menu) */}
-          <div className="flex items-center gap-2 sm:hidden">
+          <div className="flex items-center gap-2 lg:hidden">
             <LanguageSwitcher compact={true} />
             <ThemeToggle size="compact" />
 
@@ -241,7 +240,7 @@ export default function Navbar() {
 
           {/* Mobile Slide-Down App Menu Drawer */}
           {open && (
-            <div className="absolute top-16 right-3 left-3 bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-2xl p-5 flex flex-col gap-3 sm:hidden z-50 animate-fade-in">
+            <div className="absolute top-16 right-3 left-3 bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-2xl p-5 flex flex-col gap-3 lg:hidden z-50 animate-fade-in">
               <div className="flex items-center justify-between px-2 pb-2 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-japan-red animate-pulse"></span>
