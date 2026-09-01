@@ -4,6 +4,8 @@ import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { getAttemptResults } from '@/lib/api';
 import { formatPrompt, renderUnderline, getCategoryLabel, getCategoryChipClass } from '@/lib/utils';
+import { exportToPdf } from '@/lib/pdfExport';
+import { useAuth } from '@/components/AuthContext';
 import confetti from 'canvas-confetti';
 import {
   RotateCcw,
@@ -15,13 +17,23 @@ import {
   Award,
   Layers,
   Sparkles,
+  Download,
+  Printer,
+  Loader2,
+  ShieldCheck,
+  Check,
+  X,
+  Share2,
 } from 'lucide-react';
 
 export default function AttemptResultsPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
+  const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportNotice, setExportNotice] = useState(null);
 
   useEffect(() => {
     getAttemptResults(params.id)
@@ -46,6 +58,36 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
         setLoading(false);
       });
   }, [params.id]);
+
+  const handleExportPdf = async () => {
+    if (isExporting || !data) return;
+    try {
+      setIsExporting(true);
+      setExportNotice({ type: 'info', message: 'Generating high-resolution PDF score report...' });
+      
+      const safeTitle = (data.test?.title || 'Exam').replace(/[^a-zA-Z0-9]/g, '_');
+      const filename = `GakkouNoShiken_Result_${safeTitle}_Attempt_${data.attempt?.id || 'Report'}.pdf`;
+
+      await exportToPdf('official-score-certificate', {
+        filename,
+        title: `${data.test?.title || 'JFT-Basic'} - Official CBT Result Certificate`,
+        quality: 2,
+      });
+
+      setExportNotice({ type: 'success', message: 'Score report PDF downloaded successfully!' });
+      setTimeout(() => setExportNotice(null), 4000);
+    } catch (err) {
+      console.error('PDF export failed:', err);
+      setExportNotice({ type: 'error', message: 'Failed to generate PDF. Please try the Print button instead.' });
+      setTimeout(() => setExportNotice(null), 5000);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   if (loading) {
     return (
@@ -82,12 +124,38 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
       })
     : '';
 
+  const candidateDisplayName = user?.full_name || (user?.username ? `@${user.username}` : `Candidate #${attempt.id}`);
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-12">
-      {/* Action Bar & Retake Options */}
-      <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+      {/* Toast Notification for PDF export */}
+      {exportNotice && (
+        <div className="no-print fixed top-6 right-6 z-50 animate-fade-in-down max-w-sm">
+          <div
+            className={`p-4 rounded-2xl shadow-2xl border flex items-center gap-3 ${
+              exportNotice.type === 'success'
+                ? 'bg-emerald-950/90 text-emerald-100 border-emerald-500/50 backdrop-blur-md'
+                : exportNotice.type === 'error'
+                ? 'bg-rose-950/90 text-rose-100 border-rose-500/50 backdrop-blur-md'
+                : 'bg-slate-900/90 text-slate-100 border-indigo-500/50 backdrop-blur-md'
+            }`}
+          >
+            {exportNotice.type === 'success' ? (
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+            ) : exportNotice.type === 'error' ? (
+              <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
+            ) : (
+              <Loader2 className="w-5 h-5 text-indigo-400 animate-spin shrink-0" />
+            )}
+            <p className="text-xs font-bold leading-snug">{exportNotice.message}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Action Bar & Retake Options (Hidden on Print) */}
+      <div className="no-print bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
               <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
               <span>Exam Completed</span>
@@ -95,80 +163,188 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${getCategoryChipClass(test.category)}`}>
               {getCategoryLabel(test.category)}
             </span>
+            {attempt.passed ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black uppercase bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                <Check className="w-3 h-3" />
+                <span>Passed</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black uppercase bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30">
+                <X className="w-3 h-3" />
+                <span>Did Not Pass</span>
+              </span>
+            )}
           </div>
-          <h1 className="text-2xl font-extrabold text-japan-navy dark:text-white mt-1">{test.title} Results</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-japan-navy dark:text-white mt-1">{test.title} Results</h1>
           {formattedDate && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Submitted on {formattedDate}</p>}
         </div>
 
-        <div className="flex flex-wrap gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Primary PDF Export Button */}
+          <button
+            onClick={handleExportPdf}
+            disabled={isExporting}
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white text-xs font-extrabold rounded-xl transition-all shadow-md shadow-red-500/20 active:scale-95 cursor-pointer disabled:opacity-50"
+          >
+            {isExporting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Generating PDF...</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                <span>Export PDF Result</span>
+              </>
+            )}
+          </button>
+
+          {/* Secondary Print Button */}
+          <button
+            onClick={handlePrint}
+            className="inline-flex items-center justify-center gap-1.5 py-2.5 px-3.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl transition-all active:scale-95 cursor-pointer"
+            title="Print or Save as PDF using browser"
+          >
+            <Printer className="w-4 h-4" />
+            <span className="hidden sm:inline">Print</span>
+          </button>
+
           <Link
             href={`/test/${test.id}`}
-            className="inline-flex items-center gap-2 py-2 px-4 bg-japan-red hover:bg-japan-redhover text-white text-xs font-bold rounded-xl transition-all shadow-xs active:scale-95"
+            className="inline-flex items-center justify-center gap-1.5 py-2.5 px-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-all active:scale-95"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>Retake Exam</span>
+            <span className="hidden sm:inline">Retake</span>
           </Link>
+
           <Link
             href="/"
-            className="inline-flex items-center gap-2 py-2 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-all active:scale-95"
+            className="inline-flex items-center justify-center gap-1.5 py-2.5 px-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-all active:scale-95"
           >
             <Layers className="w-4 h-4" />
-            <span>All Tests</span>
+            <span className="hidden sm:inline">All Tests</span>
           </Link>
         </div>
       </div>
 
-      {/* OFFICIAL JAPAN FOUNDATION JFT-BASIC TEST RESULT SCORE CARD REPORT */}
-      <div className="bg-white dark:bg-slate-900 border-2 border-slate-800 dark:border-slate-700 rounded-2xl p-4 sm:p-10 shadow-xl font-sans text-slate-900 dark:text-white space-y-8 overflow-hidden">
-        {/* Top Summary Block */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start pb-4 border-b border-slate-200 dark:border-slate-800">
+      {/* OFFICIAL JAPAN FOUNDATION JFT-BASIC / SSW TEST RESULT SCORE CARD REPORT */}
+      <div
+        id="official-score-certificate"
+        className="bg-white text-slate-900 border-2 border-slate-800 rounded-3xl p-5 sm:p-10 shadow-2xl font-sans space-y-7 relative overflow-hidden"
+      >
+        {/* Certificate Header (Bilingual Official Standard) */}
+        <div className="border-b-2 border-slate-800 pb-5 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-xl shadow-md border-2 border-slate-700 shrink-0">
+                学
+              </div>
+              <div>
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-500 block">Gakkou No Shiken • 学校の試験</span>
+                <h2 className="text-base sm:text-xl font-black text-slate-950 tracking-tight leading-tight">
+                  {test.category === 'skill' ? '特定技能評価試験 模擬結果通知書' : '日本語基礎テスト 模擬試験 結果通知書'}
+                </h2>
+                <span className="text-[10px] sm:text-xs font-bold text-slate-600 block">
+                  {test.category === 'skill' ? 'SSW Skill Evaluation CBT Mock Test Score Report' : 'JFT-Basic CBT Mock Examination Official Score Report'}
+                </span>
+              </div>
+            </div>
+
+            <div className="sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-300 text-slate-800 text-[10px] sm:text-xs font-mono font-bold">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Ref: GNS-CBT-{String(attempt.id).padStart(6, '0')}</span>
+              </div>
+              {formattedDate && <p className="text-[10px] text-slate-500 font-mono mt-1">Issue Date: {formattedDate}</p>}
+            </div>
+          </div>
+
+          {/* Candidate & Test Metadata Ribbon */}
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3 sm:p-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Candidate Name</span>
+              <strong className="text-xs sm:text-sm font-black text-slate-900 truncate block">{candidateDisplayName}</strong>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Exam Name</span>
+              <strong className="text-xs sm:text-sm font-extrabold text-slate-900 truncate block">{test.title}</strong>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Test Format</span>
+              <strong className="text-xs sm:text-sm font-bold text-slate-900 block">Prometric CBT Standard</strong>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Overall Status</span>
+              {attempt.passed ? (
+                <span className="inline-flex items-center gap-1 text-xs font-black text-emerald-700">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>合格 (PASSED)</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-xs font-black text-rose-700">
+                  <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                  <span>不合格 (DID NOT PASS)</span>
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Top Summary Block: Total Score & Assessment Results */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start pb-4 border-b border-slate-200">
           {/* Left: Total Score & Assessment Result */}
           <div className="space-y-4">
             <div className="flex items-baseline gap-6">
-              <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight">
+              <div className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
                 総合得点 :<br />
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">Total Score</span>
+                <span className="text-xs text-slate-500 font-normal">Total Score</span>
               </div>
-              <div className="text-3xl sm:text-4xl font-black font-mono text-slate-900 dark:text-white">
+              <div className="text-3xl sm:text-4xl font-black font-mono text-slate-900">
                 {attempt.scaled_score}
+                <span className="text-sm font-normal text-slate-400 font-sans ml-1.5">/ 250</span>
               </div>
             </div>
 
             <div className="flex items-baseline gap-6">
-              <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight">
+              <div className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
                 判定結果 :<br />
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">Assessment Results</span>
+                <span className="text-xs text-slate-500 font-normal">Assessment Results</span>
               </div>
-              <div className="text-2xl sm:text-3xl font-black font-sans text-slate-900 dark:text-white">
-                {attempt.assessment_level}
+              <div className="text-2xl sm:text-3xl font-black font-sans text-slate-900 flex items-center gap-2">
+                <span>{attempt.assessment_level}</span>
+                {attempt.passed && (
+                  <span className="text-xs font-extrabold px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full">
+                    A2 Standard Met
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
           {/* Right: Range of Scores & Passing Score Criteria */}
-          <div className="text-xs sm:text-sm space-y-2.5 text-slate-900 dark:text-slate-200 font-sans md:text-right">
+          <div className="text-xs sm:text-sm space-y-2 text-slate-900 font-sans md:text-right">
             <div>
               <span className="font-bold text-xs sm:text-sm">得点範囲 : 10-250</span>
               <br />
-              <span className="text-slate-500 dark:text-slate-400 text-[11px] sm:text-xs">Range of Scores</span>
+              <span className="text-slate-500 text-[11px] sm:text-xs">Range of Scores</span>
             </div>
             <div>
               <span className="font-bold text-xs sm:text-sm leading-snug block">
                 判定基準点 A1 : 145, A2.1 : 175, A2.2（A2）:200
               </span>
-              <span className="text-slate-500 dark:text-slate-400 text-[11px] sm:text-xs">Passing Score</span>
+              <span className="text-slate-500 text-[11px] sm:text-xs">Passing Score Thresholds</span>
             </div>
           </div>
         </div>
 
         {/* Total Score Gauge / Scale Slider Bar */}
-        <div className="space-y-1 pt-2 pb-6">
+        <div className="space-y-1 pt-1 pb-4">
           <div className="relative w-full h-8">
             <div
               className="absolute transform -translate-x-1/2 flex flex-col items-center"
               style={{ left: `${attempt.scaled_score_percent}%` }}
             >
-              <span className="text-xs sm:text-sm font-black font-mono text-slate-900 dark:text-white">{attempt.scaled_score}</span>
+              <span className="text-xs sm:text-sm font-black font-mono text-slate-900">{attempt.scaled_score}</span>
               <div className="w-4 h-4 rounded-full border-2 border-amber-600 bg-white flex items-center justify-center shadow-2xs mt-0.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-amber-600"></div>
               </div>
@@ -176,7 +352,7 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
           </div>
 
           {/* Multi-color Gradient Scale Bar */}
-          <div className="w-full h-3 bg-slate-200 dark:bg-slate-700 flex rounded-none relative overflow-hidden border border-slate-900 dark:border-slate-600">
+          <div className="w-full h-3 bg-slate-200 flex rounded-none relative overflow-hidden border border-slate-900">
             <div className="h-full bg-gradient-to-r from-pink-200 via-pink-400 to-pink-600" style={{ width: '56.25%' }}></div>
             <div className="h-full bg-gradient-to-r from-amber-500 to-amber-400" style={{ width: '12.5%' }}></div>
             <div className="h-full bg-gradient-to-r from-yellow-300 to-lime-400" style={{ width: '10.41%' }}></div>
@@ -184,12 +360,12 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
           </div>
 
           {/* Scale Ticks and Labels */}
-          <div className="relative w-full text-xs font-sans text-slate-900 dark:text-slate-200 pt-1">
-            <div className="absolute left-0 top-0 w-0.5 h-3 bg-black dark:bg-white"></div>
-            <div className="absolute left-[56.25%] top-0 w-0.5 h-3 bg-black dark:bg-white"></div>
-            <div className="absolute left-[68.75%] top-0 w-0.5 h-3 bg-black dark:bg-white"></div>
-            <div className="absolute left-[79.16%] top-0 w-0.5 h-3 bg-black dark:bg-white"></div>
-            <div className="absolute right-0 top-0 w-0.5 h-3 bg-black dark:bg-white"></div>
+          <div className="relative w-full text-xs font-sans text-slate-900 pt-1">
+            <div className="absolute left-0 top-0 w-0.5 h-3 bg-black"></div>
+            <div className="absolute left-[56.25%] top-0 w-0.5 h-3 bg-black"></div>
+            <div className="absolute left-[68.75%] top-0 w-0.5 h-3 bg-black"></div>
+            <div className="absolute left-[79.16%] top-0 w-0.5 h-3 bg-black"></div>
+            <div className="absolute right-0 top-0 w-0.5 h-3 bg-black"></div>
 
             <div className="flex justify-between items-start pt-3">
               <span className="text-[10px] sm:text-xs font-semibold">10</span>
@@ -218,27 +394,27 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
         </div>
 
         {/* Section Performance Percentages */}
-        <div className="space-y-6 pt-8 border-t border-slate-300 dark:border-slate-800">
+        <div className="space-y-5 pt-6 border-t border-slate-300">
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">セクション毎の正答率：</h2>
-            <p className="text-xs text-slate-600 dark:text-slate-400 font-normal">The percentage of correct answers for each section</p>
+            <h3 className="text-sm sm:text-base font-bold text-slate-900">セクション毎の正答率：</h3>
+            <p className="text-xs text-slate-600 font-normal">The percentage of correct answers for each section</p>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             {Object.entries(section_breakdown).map(([secKey, secData]) => (
-              <div key={secKey} className="grid grid-cols-1 sm:grid-cols-3 items-center gap-2 sm:gap-6">
+              <div key={secKey} className="grid grid-cols-1 sm:grid-cols-3 items-center gap-1 sm:gap-6">
                 <div className="text-xs sm:text-sm leading-snug">
-                  <div className="font-bold text-slate-900 dark:text-white">{secData.name_ja}</div>
-                  <div className="text-slate-600 dark:text-slate-400 text-xs">{secData.name_en}</div>
+                  <div className="font-bold text-slate-900">{secData.name_ja}</div>
+                  <div className="text-slate-600 text-xs">{secData.name_en}</div>
                 </div>
-                <div className="sm:col-span-2 relative py-3 px-3 sm:px-0">
-                  <div className="w-full h-3 bg-[#E5E7EB] dark:bg-slate-800 rounded-none"></div>
+                <div className="sm:col-span-2 relative py-2.5 px-2 sm:px-0">
+                  <div className="w-full h-3 bg-[#E5E7EB] rounded-none"></div>
                   <div
                     className="absolute top-0 transform -translate-x-1/2 flex flex-col items-center"
                     style={{ left: `calc(0.75rem + (100% - 1.5rem) * (${secData.pct} / 100))` }}
                   >
-                    <span className="text-xs font-bold text-slate-900 dark:text-white mb-0.5">{secData.pct}%</span>
-                    <div className="w-4 h-4 rounded-full border-2 border-amber-600 bg-white flex items-center justify-center shadow-2xs">
+                    <span className="text-xs font-bold text-slate-900 mb-0.5">{secData.pct}%</span>
+                    <div className="w-3.5 h-3.5 rounded-full border-2 border-amber-600 bg-white flex items-center justify-center shadow-2xs">
                       <div className="w-1.5 h-1.5 rounded-full bg-amber-600"></div>
                     </div>
                   </div>
@@ -246,6 +422,59 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Official Security Stamp & Verification Footer */}
+        <div className="pt-6 border-t-2 border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+          <div className="space-y-1">
+            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block">
+              Digital Simulation Verification • Gakkou No Shiken
+            </span>
+            <p className="text-[11px] text-slate-600 max-w-md leading-relaxed">
+              This score report certifies candidate mock test completion on Bangladesh's official-style Japanese CBT examination simulator.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="w-16 h-16 rounded-full border-2 border-dashed border-red-500 bg-red-50/50 flex flex-col items-center justify-center text-center p-1 transform rotate-[-4deg] select-none">
+              <span className="text-[8px] font-black text-red-600 uppercase tracking-tighter block leading-none">GAKKOU</span>
+              <span className="text-[10px] font-black text-red-700 block leading-none my-0.5">合格証明</span>
+              <span className="text-[7px] font-bold text-red-600 uppercase tracking-tighter block leading-none">VERIFIED</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* PDF Export Banner Directly Below Scorecard (no-print) */}
+      <div className="no-print bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/30 rounded-3xl p-5 sm:p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+        <div className="space-y-1 text-center sm:text-left">
+          <div className="flex items-center justify-center sm:justify-start gap-2">
+            <FileText className="w-4 h-4 text-indigo-400" />
+            <strong className="text-sm font-extrabold text-white">Save Your Official Result Certificate</strong>
+          </div>
+          <p className="text-xs text-slate-300">
+            Download your JFT-Basic score report in high-resolution PDF format to keep for your records or share with your language academy.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          <button
+            onClick={handleExportPdf}
+            disabled={isExporting}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-5 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white text-xs font-black rounded-xl transition-all shadow-lg shadow-red-500/25 active:scale-95 cursor-pointer disabled:opacity-50"
+          >
+            {isExporting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Generating PDF...</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                <span>Download PDF Scorecard</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
