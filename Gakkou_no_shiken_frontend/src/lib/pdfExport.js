@@ -4,78 +4,85 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 /**
- * Exports a specific DOM element to an A4 PDF file using html2canvas and jsPDF.
+ * Exports the Official Score Certificate DOM element to a single-page A4 PDF.
+ * Captures exclusively the certificate card exactly as styled.
  * 
  * @param {string|HTMLElement} target - Element ID or HTMLElement to capture
- * @param {Object} options - Export options (filename, title, orientation)
+ * @param {Object} options - Export options (filename, title)
  */
 export async function exportToPdf(target, options = {}) {
   const {
     filename = 'GakkouNoShiken_Result.pdf',
     title = 'Official Score Report',
-    quality = 2,
   } = options;
 
   const element = typeof target === 'string' ? document.getElementById(target) : target;
 
   if (!element) {
-    throw new Error('PDF export target element not found');
+    throw new Error('Scorecard certificate element not found');
   }
 
-  // Temporary container styling or cloned capture for crisp rendering
+  // Capture canvas with 2x high resolution and consistent desktop layout width
   const canvas = await html2canvas(element, {
-    scale: quality, // 2x high-resolution capture
+    scale: 2, // 2x Retina resolution for sharp text and vectors
     useCORS: true,
     allowTaint: true,
     logging: false,
     backgroundColor: '#ffffff',
-    windowWidth: 1024, // Consistent layout width for A4
+    onclone: (clonedDoc) => {
+      const clonedElement = clonedDoc.getElementById('official-score-certificate');
+      if (clonedElement) {
+        // Guarantee consistent desktop-grade layout width regardless of user viewport
+        clonedElement.style.width = '800px';
+        clonedElement.style.maxWidth = '800px';
+        clonedElement.style.margin = '0 auto';
+        clonedElement.style.boxShadow = 'none';
+        clonedElement.style.backgroundColor = '#ffffff';
+      }
+    },
   });
 
   const imgData = canvas.toDataURL('image/png', 1.0);
   
-  // A4 dimensions in mm: 210 x 297
+  // Standard A4 portrait in mm: 210 x 297
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4',
   });
 
-  const pdfWidth = pdf.internal.pageSize.getWidth();
-  const pdfHeight = pdf.internal.pageSize.getHeight();
+  const pdfWidth = pdf.internal.pageSize.getWidth(); // 210 mm
+  const pdfHeight = pdf.internal.pageSize.getHeight(); // 297 mm
   
-  const margin = 8; // 8mm margin
-  const contentWidth = pdfWidth - (margin * 2);
-  const contentHeight = (canvas.height * contentWidth) / canvas.width;
+  const margin = 10; // 10mm margins
+  const maxContentWidth = pdfWidth - (margin * 2); // 190 mm
+  const maxContentHeight = pdfHeight - (margin * 2); // 277 mm
 
-  if (contentHeight <= pdfHeight - (margin * 2)) {
-    // Single page centered/top-aligned
-    pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, contentHeight, undefined, 'FAST');
-  } else {
-    // Multi-page handling
-    let heightLeft = contentHeight;
-    let position = margin;
+  // Maintain aspect ratio and scale to fit cleanly on 1 single page
+  const imgRatio = canvas.width / canvas.height;
+  let renderWidth = maxContentWidth;
+  let renderHeight = renderWidth / imgRatio;
 
-    pdf.addImage(imgData, 'PNG', margin, position, contentWidth, contentHeight, undefined, 'FAST');
-    heightLeft -= (pdfHeight - (margin * 2));
-
-    while (heightLeft > 0) {
-      position = heightLeft - contentHeight + margin;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', margin, position, contentWidth, contentHeight, undefined, 'FAST');
-      heightLeft -= (pdfHeight - (margin * 2));
-    }
+  if (renderHeight > maxContentHeight) {
+    renderHeight = maxContentHeight;
+    renderWidth = renderHeight * imgRatio;
   }
 
-  // Set document metadata
+  // Center horizontally and vertically on the A4 page
+  const posX = (pdfWidth - renderWidth) / 2;
+  const posY = (pdfHeight - renderHeight) / 2;
+
+  pdf.addImage(imgData, 'PNG', posX, posY, renderWidth, renderHeight, undefined, 'FAST');
+
+  // Metadata
   pdf.setProperties({
     title: title,
-    subject: 'JFT-Basic & SSW CBT Examination Score Report',
+    subject: 'JFT-Basic & SSW CBT Examination Score Report Certificate',
     author: 'Gakkou No Shiken (学校の試験)',
-    keywords: 'JFT-Basic, SSW, CBT, Score Report, Japanese Exam',
     creator: 'Gakkou No Shiken Exam Portal',
   });
 
   pdf.save(filename);
   return true;
 }
+
