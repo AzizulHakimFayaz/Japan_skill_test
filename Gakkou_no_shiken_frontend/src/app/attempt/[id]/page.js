@@ -235,14 +235,22 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
         {/* Certificate Header (Bilingual Official Standard) */}
         <div className="border-b-2 border-slate-800 pb-4 sm:pb-5 space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
-            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-lg sm:text-xl shadow-md border-2 border-slate-700 shrink-0">
-                学
-              </div>
+            <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/img/logo.png"
+                alt="Gakkou No Shiken Logo"
+                className="h-10 sm:h-12 w-auto object-contain shrink-0 filter drop-shadow-xs"
+              />
               <div className="min-w-0 flex-1">
-                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-slate-500 block leading-tight">
-                  Gakkou No Shiken • 学校の試験
-                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-slate-600 block leading-tight">
+                    GAKKOU NO SHIKEN • 学校の試験
+                  </span>
+                  <span className="text-[9px] sm:text-[10px] font-bold text-japan-red font-mono">
+                    • www.gakkounoshiken.site
+                  </span>
+                </div>
                 <h2 className="text-sm sm:text-xl font-black text-slate-950 tracking-tight leading-snug break-keep whitespace-normal mt-0.5">
                   {test.category === 'skill' ? '特定技能評価試験 模擬結果通知書' : '日本語基礎テスト 模擬試験 結果通知書'}
                 </h2>
@@ -257,7 +265,7 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span>Ref: GNS-CBT-{String(attempt.id).padStart(6, '0')}</span>
               </div>
-              {formattedDate && <p className="text-[9px] sm:text-[10px] text-slate-500 font-mono">Date: {formattedDate}</p>}
+              {formattedDate && <p className="text-[9px] sm:text-[10px] text-slate-500 font-mono">Issue Date: {formattedDate}</p>}
             </div>
           </div>
 
@@ -429,19 +437,29 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
         {/* Official Security Stamp & Verification Footer */}
         <div className="pt-6 border-t-2 border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div className="space-y-1">
-            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block">
-              Digital Simulation Verification • Gakkou No Shiken
-            </span>
-            <p className="text-[11px] text-slate-600 max-w-md leading-relaxed">
-              This score report certifies candidate mock test completion on Bangladesh's official-style Japanese CBT examination simulator.
+            <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
+              <span className="text-[10px] font-mono font-bold text-slate-700 uppercase tracking-wider block">
+                Digital Simulation Verification • Gakkou No Shiken (学校の試験)
+              </span>
+              <a
+                href="https://www.gakkounoshiken.site"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] font-mono font-extrabold text-japan-red hover:underline block"
+              >
+                https://www.gakkounoshiken.site
+              </a>
+            </div>
+            <p className="text-[10px] sm:text-[11px] text-slate-600 max-w-md leading-relaxed">
+              This official score report certifies candidate mock test completion on Bangladesh's premier Japanese CBT examination simulator portal.
             </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <div className="w-16 h-16 rounded-full border-2 border-dashed border-red-500 bg-red-50/50 flex flex-col items-center justify-center text-center p-1 transform rotate-[-4deg] select-none">
-              <span className="text-[8px] font-black text-red-600 uppercase tracking-tighter block leading-none">GAKKOU</span>
-              <span className="text-[10px] font-black text-red-700 block leading-none my-0.5">合格証明</span>
-              <span className="text-[7px] font-bold text-red-600 uppercase tracking-tighter block leading-none">VERIFIED</span>
+            <div className="w-16 h-16 rounded-full border-2 border-dashed border-red-500 bg-red-50/60 flex flex-col items-center justify-center text-center p-1 transform rotate-[-4deg] select-none shadow-xs">
+              <span className="text-[7.5px] font-black text-red-600 uppercase tracking-tight block leading-none">GNS VERIFIED</span>
+              <span className="text-[11px] font-black text-red-700 block leading-none my-0.5">合格証明</span>
+              <span className="text-[6.5px] font-extrabold text-red-600 uppercase tracking-wider block leading-none">OFFICIAL CBT</span>
             </div>
           </div>
         </div>
