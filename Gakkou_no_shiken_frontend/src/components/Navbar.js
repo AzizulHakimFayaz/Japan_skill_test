@@ -57,9 +57,9 @@ export default function Navbar() {
                   CBT 2026
                 </span>
               </div>
-              <div className="hidden sm:flex mt-0.5 text-[9px] sm:text-[10px] xl:text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-tight leading-none items-center gap-1 whitespace-nowrap">
-                <span className="text-japan-red font-black">JFT &amp; SSW Mock Tests</span>
-                <span className="hidden 2xl:inline text-slate-400 dark:text-slate-500">• BD&apos;s #1 Portal</span>
+              <div className="mt-0.5 text-[8.5px] sm:text-[10px] xl:text-[11px] font-black text-japan-red tracking-tight leading-none flex items-center gap-1 whitespace-nowrap">
+                <span>JFT &amp; SSW Mock Tests</span>
+                <span className="hidden 2xl:inline text-slate-400 dark:text-slate-500 font-bold">• BD&apos;s #1 Portal</span>
               </div>
             </div>
           </Link>
@@ -216,14 +216,14 @@ export default function Navbar() {
         </div>
 
           {/* Mobile Top App Actions (Avatar / Theme Toggle / Menu) */}
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="flex items-center gap-1 sm:gap-1.5 lg:hidden shrink-0">
             <LanguageSwitcher compact={true} />
             <ThemeToggle size="compact" />
 
             {isAuthenticated && user && (
               <Link
                 href="/accounts/my-results"
-                className="w-8 h-8 rounded-full bg-gradient-to-tr from-japan-red to-amber-500 text-white text-xs font-extrabold flex items-center justify-center shadow-sm active:scale-95 transition-transform"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-japan-red to-amber-500 text-white text-xs font-extrabold flex items-center justify-center shadow-sm active:scale-95 transition-transform shrink-0"
               >
                 {user.username?.slice(0, 1).toUpperCase()}
               </Link>
@@ -232,9 +232,9 @@ export default function Navbar() {
             <button
               onClick={() => setOpen(!open)}
               aria-label="Open mobile menu"
-              className="p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100/90 dark:hover:bg-slate-800/90 active:scale-95 focus:outline-none transition-all"
+              className="p-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100/90 dark:hover:bg-slate-800/90 active:scale-95 focus:outline-none transition-all shrink-0 cursor-pointer"
             >
-              {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {open ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
             </button>
           </div>
 
