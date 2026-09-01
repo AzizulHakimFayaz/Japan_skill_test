@@ -1,6 +1,6 @@
 'use client';
 
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 import jsPDF from 'jspdf';
 
 /**
@@ -22,24 +22,15 @@ export async function exportToPdf(target, options = {}) {
     throw new Error('Scorecard certificate element not found');
   }
 
-  // Capture canvas with 2x high resolution and consistent desktop layout width
+  // Capture canvas with 2x high resolution using html2canvas-pro (supports Tailwind v4 modern CSS)
   const canvas = await html2canvas(element, {
     scale: 2, // 2x Retina resolution for sharp text and vectors
     useCORS: true,
     allowTaint: true,
     logging: false,
     backgroundColor: '#ffffff',
-    onclone: (clonedDoc) => {
-      const clonedElement = clonedDoc.getElementById('official-score-certificate');
-      if (clonedElement) {
-        // Guarantee consistent desktop-grade layout width regardless of user viewport
-        clonedElement.style.width = '800px';
-        clonedElement.style.maxWidth = '800px';
-        clonedElement.style.margin = '0 auto';
-        clonedElement.style.boxShadow = 'none';
-        clonedElement.style.backgroundColor = '#ffffff';
-      }
-    },
+    scrollY: 0,
+    scrollX: 0,
   });
 
   const imgData = canvas.toDataURL('image/png', 1.0);
@@ -49,6 +40,7 @@ export async function exportToPdf(target, options = {}) {
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4',
+    compress: true,
   });
 
   const pdfWidth = pdf.internal.pageSize.getWidth(); // 210 mm
@@ -85,4 +77,5 @@ export async function exportToPdf(target, options = {}) {
   pdf.save(filename);
   return true;
 }
+
 

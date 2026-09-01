@@ -130,7 +130,7 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-12">
       {/* Toast Notification for PDF export */}
       {exportNotice && (
-        <div className="no-print fixed top-6 right-6 z-50 animate-fade-in-down max-w-sm">
+        <div className="no-print fixed top-20 right-4 sm:right-6 left-4 sm:left-auto z-50 animate-fade-in-down max-w-sm">
           <div
             className={`p-4 rounded-2xl shadow-2xl border flex items-center gap-3 ${
               exportNotice.type === 'success'
