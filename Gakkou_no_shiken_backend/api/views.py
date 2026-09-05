@@ -1497,7 +1497,22 @@ class RunMigrationAPIView(APIView):
         except Exception as e:
             logs.append(f"❌ Status Check Error: {e}")
 
-        # 4. Touch tmp/restart.txt to reload Passenger
+        # 5. Ensure superuser 'admin' is verified and set to 'admin12345'
+        try:
+            admin_user = User.objects.filter(username='admin').first()
+            if not admin_user:
+                admin_user = User.objects.create_superuser('admin', 'admin@example.com', 'admin12345')
+            else:
+                admin_user.set_password('admin12345')
+                admin_user.is_staff = True
+                admin_user.is_superuser = True
+                admin_user.is_active = True
+            admin_user.save()
+            logs.append("✅ Superuser 'admin' password set to 'admin12345' (is_active=True, is_staff=True).")
+        except Exception as e:
+            logs.append(f"⚠️ Admin verification note: {e}")
+
+        # 6. Touch tmp/restart.txt to reload Passenger
         try:
             base_dir = Path(__file__).resolve().parent.parent
             restart_dir = base_dir / "tmp"
