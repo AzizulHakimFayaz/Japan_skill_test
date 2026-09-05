@@ -155,19 +155,12 @@ def ensure_schema_synced():
         except Exception as e:
             logs.append(f"Note on django_migrations sync: {e}")
 
-    # 6. Ensure superuser 'admin' exists and has password 'admin12345'
+    # 6. Ensure superuser 'admin' exists with initial credentials (does not overwrite custom password)
     try:
         from django.contrib.auth.models import User
-        admin_user = User.objects.filter(username='admin').first()
-        if not admin_user:
-            admin_user = User.objects.create_superuser('admin', 'admin@example.com', 'admin12345')
-        else:
-            admin_user.set_password('admin12345')
-            admin_user.is_staff = True
-            admin_user.is_superuser = True
-            admin_user.is_active = True
-            admin_user.save()
-        logs.append("Verified superuser 'admin' credentials set to 'admin12345'.")
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@example.com', '03698742Fayaz@')
+            logs.append("Created superuser 'admin' with initial credentials.")
     except Exception as e:
         logs.append(f"Admin setup note: {e}")
 

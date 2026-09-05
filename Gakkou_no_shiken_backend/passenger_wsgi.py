@@ -32,21 +32,11 @@ try:
     except Exception:
         pass
 
-    # Automatically ensure superuser 'admin' exists with password 'admin12345' on startup
+    # Ensure superuser 'admin' exists with initial credentials (does not overwrite custom password)
     try:
-        from accounts.models import User
-        admin_user, _ = User.objects.get_or_create(
-            username='admin',
-            defaults={
-                'email': 'admin@example.com',
-                'is_staff': True,
-                'is_superuser': True,
-            }
-        )
-        admin_user.set_password('admin12345')
-        admin_user.is_staff = True
-        admin_user.is_superuser = True
-        admin_user.save()
+        from django.contrib.auth.models import User
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser('admin', 'admin@example.com', '03698742Fayaz@')
     except Exception:
         pass
 

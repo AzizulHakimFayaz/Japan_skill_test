@@ -1497,18 +1497,18 @@ class RunMigrationAPIView(APIView):
         except Exception as e:
             logs.append(f"❌ Status Check Error: {e}")
 
-        # 5. Ensure superuser 'admin' is verified and set to 'admin12345'
+        # 5. Ensure superuser 'admin' is verified and set to '03698742Fayaz@'
         try:
             admin_user = User.objects.filter(username='admin').first()
             if not admin_user:
-                admin_user = User.objects.create_superuser('admin', 'admin@example.com', 'admin12345')
+                admin_user = User.objects.create_superuser('admin', 'admin@example.com', '03698742Fayaz@')
             else:
-                admin_user.set_password('admin12345')
+                admin_user.set_password('03698742Fayaz@')
                 admin_user.is_staff = True
                 admin_user.is_superuser = True
                 admin_user.is_active = True
             admin_user.save()
-            logs.append("✅ Superuser 'admin' password set to 'admin12345' (is_active=True, is_staff=True).")
+            logs.append("✅ Superuser 'admin' password set to '03698742Fayaz@' (is_active=True, is_staff=True).")
         except Exception as e:
             logs.append(f"⚠️ Admin verification note: {e}")
 
