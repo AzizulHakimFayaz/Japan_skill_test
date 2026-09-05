@@ -13,6 +13,7 @@ def ads_txt_view(request):
     return HttpResponse("google.com, pub-8435487820435842, DIRECT, f08c47fec0942fa0\n", content_type="text/plain")
 
 urlpatterns = [
+    path('', RedirectView.as_view(url='https://www.gakkounoshiken.site/', permanent=False), name='landing_page'),
     path('ads.txt', ads_txt_view, name='ads_txt'),
     path('favicon.ico', RedirectView.as_view(url='/static/img/logo.png', permanent=True)),
     path('admin/', admin.site.urls),

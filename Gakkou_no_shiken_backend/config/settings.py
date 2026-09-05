@@ -305,9 +305,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Auth configuration
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'landing_page'
-LOGOUT_REDIRECT_URL = 'landing_page'
+LOGIN_URL = '/admin/login/'
+LOGIN_REDIRECT_URL = '/admin/'
+LOGOUT_REDIRECT_URL = '/admin/login/'
 
 # Persistent Long-Lived Admin Sessions (Keeps you logged in for 30 days)
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 Days
