@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/components/AuthContext';
-import { confirmCountry } from '@/lib/api';
+import { confirmCountry, detectVisitorCountry } from '@/lib/api';
 import { Globe, Check, X } from 'lucide-react';
 
 const COUNTRIES = [
@@ -27,6 +27,20 @@ export default function CountryConfirmationBanner() {
   const [selectedCountry, setSelectedCountry] = useState('Bangladesh');
   const [submitting, setSubmitting] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    if (user?.profile?.country) {
+      setSelectedCountry(user.profile.country);
+    } else {
+      detectVisitorCountry()
+        .then((res) => {
+          if (res?.country) {
+            setSelectedCountry(res.country);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [user]);
 
   // Only show if user is logged in and needs country confirmation
   if (!user || !user.profile?.needs_country_confirmation || dismissed) {

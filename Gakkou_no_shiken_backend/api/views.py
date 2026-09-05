@@ -18,7 +18,7 @@ from django.utils import timezone
 
 from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice
 from accounts.models import UserProfile, EmailVerificationOTP, PasswordResetToken
-from accounts.geolocation import get_client_ip
+from accounts.geolocation import get_client_ip, lookup_ip_country
 from accounts.emails import send_password_reset_email
 from accounts.throttling import ForgotPasswordRateThrottle, is_email_rate_limited
 from tests.data.jft_data import get_jft_info, get_jft_test_centers, get_jft_resources
@@ -562,12 +562,18 @@ class VerifyRegistrationOTPAPIView(APIView):
         otp_record.save()
 
         profile, _ = UserProfile.objects.get_or_create(user=user)
-        if otp_record.country:
-            profile.country = otp_record.country
-            profile.country_source = UserProfile.CountrySource.USER
         client_ip = get_client_ip(request)
         if client_ip:
             profile.last_known_ip = client_ip
+
+        if otp_record.country:
+            profile.country = otp_record.country
+            profile.country_source = UserProfile.CountrySource.USER
+        elif client_ip:
+            detected = lookup_ip_country(client_ip)
+            if detected:
+                profile.country = detected
+                profile.country_source = UserProfile.CountrySource.IP
         profile.save()
 
         tokens = get_tokens_for_user(user)
@@ -662,9 +668,18 @@ class LoginAPIView(APIView):
             client_ip = get_client_ip(request)
             if client_ip:
                 profile, _ = UserProfile.objects.get_or_create(user=user)
+                update_fields = []
                 if profile.last_known_ip != client_ip:
                     profile.last_known_ip = client_ip
-                    profile.save(update_fields=['last_known_ip'])
+                    update_fields.append('last_known_ip')
+                if not profile.country:
+                    detected = lookup_ip_country(client_ip)
+                    if detected:
+                        profile.country = detected
+                        profile.country_source = UserProfile.CountrySource.IP
+                        update_fields.extend(['country', 'country_source'])
+                if update_fields:
+                    profile.save(update_fields=update_fields)
             tokens = get_tokens_for_user(user)
             return Response({
                 'user': UserSerializer(user).data,
@@ -812,6 +827,38 @@ class ConfirmCountryAPIView(APIView):
         }, status=status.HTTP_200_OK)
 
 
+class DetectCountryAPIView(APIView):
+    """
+    GET /api/auth/detect-country/
+    Auto-detects the visitor's country and IP location.
+    Enables automatic location detection on the signup form,
+    profile completion banner, and candidate registration.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        client_ip = get_client_ip(request)
+        detected_country = lookup_ip_country(client_ip) if client_ip else None
+
+        user_country = None
+        if request.user.is_authenticated:
+            profile = getattr(request.user, 'profile', None)
+            if profile and profile.country:
+                user_country = profile.country
+
+        effective_country = user_country or detected_country or 'Bangladesh'
+
+        return Response({
+            'status': 'success',
+            'client_ip': client_ip,
+            'detected_country': detected_country,
+            'user_country': user_country,
+            'country': effective_country,
+            'is_detected': bool(detected_country)
+        }, status=status.HTTP_200_OK)
+
+
+
 
 class GoogleAuthAPIView(APIView):
     """
@@ -878,7 +925,17 @@ class GoogleAuthAPIView(APIView):
                 user.save()
 
         # Ensure user profile exists
-        UserProfile.objects.get_or_create(user=user)
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        client_ip = get_client_ip(request)
+        if client_ip:
+            if profile.last_known_ip != client_ip:
+                profile.last_known_ip = client_ip
+            if not profile.country:
+                detected = lookup_ip_country(client_ip)
+                if detected:
+                    profile.country = detected
+                    profile.country_source = UserProfile.CountrySource.IP
+            profile.save()
         update_last_login(None, user)
 
         tokens = get_tokens_for_user(user)

@@ -3,10 +3,10 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { sendRegistrationOTP, verifyRegistrationOTP, resendRegistrationOTP } from '@/lib/api';
+import { sendRegistrationOTP, verifyRegistrationOTP, resendRegistrationOTP, detectVisitorCountry } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
 import GoogleSignInButton from '@/components/GoogleSignInButton';
-import { Mail, ShieldCheck, ArrowLeft, RotateCcw, CheckCircle2, ArrowRight, Globe, Eye, EyeOff } from 'lucide-react';
+import { Mail, ShieldCheck, ArrowLeft, RotateCcw, CheckCircle2, ArrowRight, Globe, Eye, EyeOff, MapPin } from 'lucide-react';
 
 function SignupForm() {
   const router = useRouter();
@@ -21,6 +21,29 @@ function SignupForm() {
   const [email, setEmail] = useState('');
   const [country, setCountry] = useState('Bangladesh');
   const [customCountry, setCustomCountry] = useState('');
+  const [detectedLocation, setDetectedLocation] = useState(null);
+  const [detectingLocation, setDetectingLocation] = useState(true);
+
+  // Auto-detect visitor's country from IP trace
+  useEffect(() => {
+    let isMounted = true;
+    detectVisitorCountry()
+      .then((res) => {
+        if (isMounted && res?.country) {
+          setCountry(res.country);
+          if (res.is_detected) {
+            setDetectedLocation(res.country);
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (isMounted) setDetectingLocation(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -363,9 +386,17 @@ function SignupForm() {
 
         {/* Country */}
         <div>
-          <label htmlFor="id_country" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-            Country of Residence / Exam Region <span className="text-japan-red">*</span>
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label htmlFor="id_country" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Country of Residence / Exam Region <span className="text-japan-red">*</span>
+            </label>
+            {detectedLocation && (
+              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/80 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Auto-detected: {detectedLocation}
+              </span>
+            )}
+          </div>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
               <Globe className="w-4 h-4" />

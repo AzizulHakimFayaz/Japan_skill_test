@@ -26,6 +26,7 @@ urlpatterns = [
     path('auth/me/', views.MeAPIView.as_view(), name='api_me'),
     path('auth/profile/', views.ProfileAPIView.as_view(), name='api_profile'),
     path('auth/confirm-country/', views.ConfirmCountryAPIView.as_view(), name='api_confirm_country'),
+    path('auth/detect-country/', views.DetectCountryAPIView.as_view(), name='api_detect_country'),
     path('auth/forgot-password/', views.ForgotPasswordAPIView.as_view(), name='api_forgot_password'),
     path('auth/reset-password/', views.ResetPasswordAPIView.as_view(), name='api_reset_password'),
     path('auth/my-results/', views.MyResultsAPIView.as_view(), name='api_my_results'),

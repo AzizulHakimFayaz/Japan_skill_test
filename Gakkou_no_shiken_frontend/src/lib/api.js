@@ -235,6 +235,15 @@ export async function confirmCountry(country) {
   return data;
 }
 
+export async function detectVisitorCountry() {
+  try {
+    return await apiRequest('/api/auth/detect-country/', { cache: 'no-store' });
+  } catch (err) {
+    return { country: 'Bangladesh', is_detected: false };
+  }
+}
+
+
 
 export async function getMe() {
   return apiRequest('/api/auth/me/');
