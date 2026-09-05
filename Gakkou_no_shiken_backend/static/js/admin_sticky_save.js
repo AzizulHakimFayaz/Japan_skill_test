@@ -174,4 +174,69 @@ document.addEventListener('DOMContentLoaded', function () {
             toast.classList.remove('show');
         }, 3500);
     }
+
+    // ============================================================
+    // Show / Hide Password Eye Toggle for Django Admin
+    // ============================================================
+    function initAdminPasswordToggles() {
+        var pwdInputs = document.querySelectorAll('input[type="password"], input[data-has-eye-toggle="true"]');
+        pwdInputs.forEach(function(input) {
+            if (input.dataset.hasEyeToggle === 'true') return;
+            input.dataset.hasEyeToggle = 'true';
+
+            var parent = input.parentElement;
+            if (!parent) return;
+
+            // Create relative wrapper if needed
+            var wrapper = document.createElement('div');
+            wrapper.className = 'admin-pwd-toggle-wrapper';
+            wrapper.style.position = 'relative';
+            wrapper.style.display = 'inline-block';
+            wrapper.style.width = '100%';
+
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+
+            input.style.paddingRight = '42px';
+
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'admin-pwd-eye-btn';
+            btn.title = 'Show / Hide Password';
+            btn.innerHTML = '👁️';
+            btn.setAttribute('aria-label', 'Toggle password visibility');
+            btn.style.position = 'absolute';
+            btn.style.right = '12px';
+            btn.style.top = '50%';
+            btn.style.transform = 'translateY(-50%)';
+            btn.style.background = 'none';
+            btn.style.border = 'none';
+            btn.style.cursor = 'pointer';
+            btn.style.fontSize = '16px';
+            btn.style.padding = '4px 6px';
+            btn.style.lineHeight = '1';
+            btn.style.opacity = '0.75';
+            btn.style.zIndex = '15';
+
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    btn.innerHTML = '🙈';
+                    btn.title = 'Hide password';
+                } else {
+                    input.type = 'password';
+                    btn.innerHTML = '👁️';
+                    btn.title = 'Show password';
+                }
+            });
+
+            wrapper.appendChild(btn);
+        });
+    }
+
+    initAdminPasswordToggles();
+    setTimeout(initAdminPasswordToggles, 400);
+    setTimeout(initAdminPasswordToggles, 1200);
 });
