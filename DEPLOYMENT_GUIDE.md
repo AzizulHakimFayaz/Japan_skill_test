@@ -87,3 +87,31 @@ cd Gakkou_no_shiken_frontend
 npm run dev
 ```
 Frontend: `http://localhost:3000`
+
+---
+
+## 4. cPanel Production Deployment (1-Click Safe Update)
+
+When updating your live cPanel backend at `/home/gakkouno/backend`:
+
+### Step 1: Upload Deployment Zip
+1. Open cPanel **File Manager** and go to `/home/gakkouno/backend`.
+2. Upload `cpanel_backend_update.zip` located in the root of this project.
+3. Extract `cpanel_backend_update.zip` (it safely updates all code, templates, and staticfiles **without touching `db.sqlite3` or `.env`**).
+
+### Step 2: 1-Click Sync & Verification
+1. Visit `https://gakkounoshiken.site/run-migration/` in your browser.
+2. This automatically ensures all database schemas are synchronized, updates Passenger, and preserves your custom passwords.
+   - *Tip*: If you ever want to force-reset the admin password to `03698742Fayaz@`, visit:
+     `https://gakkounoshiken.site/run-migration/?reset_admin_pwd=1`
+
+### Step 3: Admin Features
+1. **Live Platform Statistics & Analytics**:
+   - Access at: `https://gakkounoshiken.site/admin/statistics/`
+   - Or click **📊 Live Statistics** in the top navigation bar or sidebar.
+   - Displays real-time counts for active online users (24h/7d), registrations (today, this week, this month), exam attempts, overall pass rate, and candidate demographics by country.
+2. **Beautified Candidate Management (`/admin/auth/user/`)**:
+   - Displays avatar initials, candidate full names, country flags (e.g. 🇧🇩 Bangladesh), test attempt counters (`⚡ X attempts`), highest score badges, and status pills.
+3. **Show / Hide Password Eye Toggles**:
+   - Eye icon buttons (`<i class="fas fa-eye"></i>`) are embedded directly on the admin login page (`/admin/login/`), password change page (`/admin/password_change/`), and user password forms.
+
