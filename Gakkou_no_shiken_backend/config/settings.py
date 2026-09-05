@@ -340,8 +340,19 @@ JAZZMIN_SETTINGS = {
     # Top navigation links
     "topmenu_links": [
         {"name": "Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "📊 Live Statistics", "url": "/admin/statistics/", "permissions": ["auth.view_user"]},
         {"name": "View Site ↗", "url": "/", "new_window": True},
     ],
+
+    # Custom links in sidebar
+    "custom_links": {
+        "tests": [{
+            "name": "📊 Live Statistics",
+            "url": "/admin/statistics/",
+            "icon": "fas fa-chart-line",
+            "permissions": ["auth.view_user"],
+        }],
+    },
 
     # User menu dropdown
     "usermenu_links": [

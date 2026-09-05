@@ -635,3 +635,153 @@ img.logo-dark,
     transform: translateY(0);
 }
 
+/* ============================================================
+   Candidate List Makeover & Custom User Admin Badges
+   ============================================================ */
+.user-card-cell {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.user-avatar-pill {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    font-size: 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+    flex-shrink: 0 !important;
+}
+
+.user-name-link {
+    color: #38bdf8 !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease !important;
+}
+
+.user-name-link:hover {
+    color: #7dd3fc !important;
+    text-decoration: underline !important;
+}
+
+.user-email-text {
+    font-size: 0.78rem !important;
+    color: #94a3b8 !important;
+    margin-top: 1px !important;
+}
+
+.badge-country {
+    background: rgba(15, 23, 42, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #f1f5f9 !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    padding: 4px 10px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+}
+
+.badge-attempts {
+    background: rgba(56, 189, 248, 0.15) !important;
+    color: #38bdf8 !important;
+    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+    font-weight: 700 !important;
+    font-size: 0.8rem !important;
+    padding: 4px 10px !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+.badge-attempts:hover {
+    background: rgba(56, 189, 248, 0.3) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3) !important;
+}
+
+.badge-role-super {
+    background: rgba(245, 158, 11, 0.2) !important;
+    color: #fbbf24 !important;
+    border: 1px solid rgba(245, 158, 11, 0.4) !important;
+    font-weight: 800 !important;
+    font-size: 0.75rem !important;
+    padding: 3px 8px !important;
+    border-radius: 6px !important;
+}
+
+.badge-role-staff {
+    background: rgba(59, 130, 246, 0.2) !important;
+    color: #60a5fa !important;
+    border: 1px solid rgba(59, 130, 246, 0.4) !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    padding: 3px 8px !important;
+    border-radius: 6px !important;
+}
+
+.badge-role-student {
+    background: rgba(148, 163, 184, 0.15) !important;
+    color: #cbd5e1 !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+    font-weight: 600 !important;
+    font-size: 0.75rem !important;
+    padding: 3px 8px !important;
+    border-radius: 6px !important;
+}
+
+.badge-status-active {
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #34d399 !important;
+    border: 1px solid rgba(16, 185, 129, 0.35) !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    padding: 3px 8px !important;
+    border-radius: 6px !important;
+}
+
+.badge-status-inactive {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #fca5a5 !important;
+    border: 1px solid rgba(239, 68, 68, 0.35) !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    padding: 3px 8px !important;
+    border-radius: 6px !important;
+}
+
+/* Password Toggle Eye Button Styling */
+.admin-pwd-eye-btn {
+    position: absolute !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background: transparent !important;
+    border: none !important;
+    color: #94a3b8 !important;
+    cursor: pointer !important;
+    font-size: 15px !important;
+    padding: 4px 6px !important;
+    line-height: 1 !important;
+    z-index: 25 !important;
+    opacity: 0.85 !important;
+    transition: color 0.2s, transform 0.2s !important;
+}
+.admin-pwd-eye-btn:hover {
+    color: #38bdf8 !important;
+    transform: translateY(-50%) scale(1.1) !important;
+}
+
+

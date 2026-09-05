@@ -1,7 +1,7 @@
 /**
  * Gakkou No Shiken Admin — Instant File Auto-Save & Sticky Save Helpers
  */
-document.addEventListener('DOMContentLoaded', function () {
+function initAdminEnhancements() {
     // 1. Keyboard Shortcut: Ctrl+S / Cmd+S to Quick Save
     document.addEventListener('keydown', function (e) {
         if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
@@ -179,32 +179,34 @@ document.addEventListener('DOMContentLoaded', function () {
     // Show / Hide Password Eye Toggle for Django Admin
     // ============================================================
     function initAdminPasswordToggles() {
-        var pwdInputs = document.querySelectorAll('input[type="password"], input[data-has-eye-toggle="true"]');
+        var pwdInputs = document.querySelectorAll('input[type="password"]');
         pwdInputs.forEach(function(input) {
             if (input.dataset.hasEyeToggle === 'true') return;
+
+            // Avoid double injection if a custom toggle already exists
+            var parent = input.parentElement;
+            if (parent && parent.querySelector('.pwd-toggle-btn, #toggle_admin_login_password, .admin-pwd-eye-btn')) {
+                input.dataset.hasEyeToggle = 'true';
+                return;
+            }
             input.dataset.hasEyeToggle = 'true';
 
-            var parent = input.parentElement;
             if (!parent) return;
 
-            // Create relative wrapper if needed
-            var wrapper = document.createElement('div');
-            wrapper.className = 'admin-pwd-toggle-wrapper';
-            wrapper.style.position = 'relative';
-            wrapper.style.display = 'inline-block';
-            wrapper.style.width = '100%';
-
-            input.parentNode.insertBefore(wrapper, input);
-            wrapper.appendChild(input);
-
             input.style.paddingRight = '42px';
+
+            // Ensure parent container allows absolute positioning
+            if (window.getComputedStyle(parent).position === 'static') {
+                parent.style.position = 'relative';
+            }
 
             var btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'admin-pwd-eye-btn';
             btn.title = 'Show / Hide Password';
-            btn.innerHTML = '👁️';
+            btn.innerHTML = '<i class="fas fa-eye"></i>';
             btn.setAttribute('aria-label', 'Toggle password visibility');
+            btn.setAttribute('tabindex', '-1');
             btn.style.position = 'absolute';
             btn.style.right = '12px';
             btn.style.top = '50%';
@@ -213,30 +215,66 @@ document.addEventListener('DOMContentLoaded', function () {
             btn.style.border = 'none';
             btn.style.cursor = 'pointer';
             btn.style.fontSize = '16px';
+            btn.style.color = '#94a3b8';
             btn.style.padding = '4px 6px';
             btn.style.lineHeight = '1';
-            btn.style.opacity = '0.75';
-            btn.style.zIndex = '15';
+            btn.style.zIndex = '25';
+            btn.style.opacity = '0.85';
+            btn.style.transition = 'color 0.2s, transform 0.2s';
+
+            btn.addEventListener('mouseenter', function() {
+                btn.style.color = '#38bdf8';
+                btn.style.transform = 'translateY(-50%) scale(1.1)';
+            });
+            btn.addEventListener('mouseleave', function() {
+                btn.style.color = '#94a3b8';
+                btn.style.transform = 'translateY(-50%) scale(1)';
+            });
 
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 if (input.type === 'password') {
                     input.type = 'text';
-                    btn.innerHTML = '🙈';
+                    btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
                     btn.title = 'Hide password';
                 } else {
                     input.type = 'password';
-                    btn.innerHTML = '👁️';
+                    btn.innerHTML = '<i class="fas fa-eye"></i>';
                     btn.title = 'Show password';
                 }
             });
 
-            wrapper.appendChild(btn);
+            input.insertAdjacentElement('afterend', btn);
         });
     }
 
     initAdminPasswordToggles();
-    setTimeout(initAdminPasswordToggles, 400);
-    setTimeout(initAdminPasswordToggles, 1200);
-});
+    setTimeout(initAdminPasswordToggles, 300);
+    setTimeout(initAdminPasswordToggles, 1000);
+}
+
+// Auto-run whether DOM is loading, ready, or dynamic
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAdminEnhancements);
+} else {
+    initAdminEnhancements();
+}
+window.addEventListener('load', initAdminEnhancements);
+
+// MutationObserver for dynamically added dialogs and form elements
+if (window.MutationObserver) {
+    var adminObserver = new MutationObserver(function(mutations) {
+        var hasNewPwd = false;
+        mutations.forEach(function(m) {
+            if (m.addedNodes && m.addedNodes.length > 0) {
+                hasNewPwd = true;
+            }
+        });
+        if (hasNewPwd) {
+            initAdminEnhancements();
+        }
+    });
+    adminObserver.observe(document.documentElement, { childList: true, subtree: true });
+}
+

@@ -8,6 +8,7 @@ from django.views.static import serve
 from django.conf import settings
 from django.http import HttpResponse
 from api import views as api_views
+from accounts import admin_views as accounts_admin_views
 
 def ads_txt_view(request):
     return HttpResponse("google.com, pub-8435487820435842, DIRECT, f08c47fec0942fa0\n", content_type="text/plain")
@@ -16,6 +17,8 @@ urlpatterns = [
     path('', RedirectView.as_view(url='https://www.gakkounoshiken.site/', permanent=False), name='landing_page'),
     path('ads.txt', ads_txt_view, name='ads_txt'),
     path('favicon.ico', RedirectView.as_view(url='/static/img/logo.png', permanent=True)),
+    path('admin/statistics/', accounts_admin_views.admin_statistics_view, name='admin_statistics'),
+    path('admin/statistics', accounts_admin_views.admin_statistics_view, name='admin_statistics_no_slash'),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
 

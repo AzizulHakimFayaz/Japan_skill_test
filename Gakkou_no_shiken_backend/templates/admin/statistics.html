@@ -1,0 +1,499 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}"><i class="fas fa-home me-1"></i> Home</a></li>
+    <li class="breadcrumb-item active">Live Statistics &amp; Analytics</li>
+</ol>
+{% endblock %}
+
+{% block title %}Live Statistics &amp; Analytics | Gakkou No Shiken{% endblock %}
+{% block content_title %}Gakkou No Shiken — Live Platform Analytics{% endblock %}
+
+{% block content %}
+<style>
+/* Modern Glassmorphic Dark Dashboard Styles */
+.stat-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    border-color: rgba(56, 189, 248, 0.4);
+}
+.stat-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 1rem;
+}
+.stat-number {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #f8fafc;
+    letter-spacing: -0.5px;
+}
+.stat-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+}
+.stat-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.badge-emerald {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.badge-sky {
+    background: rgba(14, 165, 233, 0.15);
+    color: #38bdf8;
+    border: 1px solid rgba(14, 165, 233, 0.3);
+}
+.badge-indigo {
+    background: rgba(99, 102, 241, 0.15);
+    color: #818cf8;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+.badge-amber {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.dash-card {
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 1.75rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+.dash-card-header {
+    padding: 1.1rem 1.4rem;
+    background: rgba(15, 23, 42, 0.6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.dash-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.avatar-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.progress-dark {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+.table-dash th {
+    background: rgba(15, 23, 42, 0.4);
+    color: #94a3b8;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.table-dash td {
+    vertical-align: middle;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    color: #e2e8f0;
+}
+.table-dash tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+</style>
+
+<div class="container-fluid px-0">
+    <!-- Top Action Bar -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 pb-2 border-bottom border-secondary">
+        <div>
+            <h4 class="font-weight-bold text-white mb-1">
+                <i class="fas fa-chart-pie text-info me-2"></i> Live Platform Statistics &amp; Analytics
+            </h4>
+            <p class="text-muted small mb-0">
+                Real-time tracking of candidate registrations, active online users, and mock exam activity.
+            </p>
+        </div>
+        <div class="d-flex gap-2 mt-2 mt-md-0">
+            <a href="{% url 'admin:auth_user_changelist' %}" class="btn btn-outline-info btn-sm shadow-sm">
+                <i class="fas fa-users me-1"></i> Manage Users ({{ total_users }})
+            </a>
+            <a href="{% url 'admin:tests_attempt_changelist' %}" class="btn btn-outline-success btn-sm shadow-sm">
+                <i class="fas fa-file-signature me-1"></i> All Exam Attempts ({{ total_attempts }})
+            </a>
+            <button onclick="window.location.reload();" class="btn btn-primary btn-sm shadow-sm font-weight-bold">
+                <i class="fas fa-sync-alt me-1"></i> Refresh Live Data
+            </button>
+        </div>
+    </div>
+
+    <!-- 4 Primary KPI Metric Cards -->
+    <div class="row g-3 mb-4">
+        <!-- Card 1: Registered Candidates -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Total Candidates</div>
+                        <div class="stat-number text-white">{{ total_users }}</div>
+                    </div>
+                    <div class="stat-card-icon bg-primary bg-opacity-25 text-primary">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-1 mt-3">
+                    <span class="stat-badge badge-emerald" title="Registered today">
+                        <i class="fas fa-arrow-up"></i> +{{ registered_today }} Today
+                    </span>
+                    <span class="stat-badge badge-sky" title="Registered this week">
+                        +{{ registered_this_week }} This Week
+                    </span>
+                    <span class="stat-badge badge-indigo" title="Registered this month">
+                        +{{ registered_this_month }} This Month
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Active & Online Users -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Active Candidates</div>
+                        <div class="stat-number text-info">{{ active_24h }}</div>
+                    </div>
+                    <div class="stat-card-icon bg-info bg-opacity-25 text-info">
+                        <i class="fas fa-signal"></i>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-1 mt-3">
+                    <span class="stat-badge badge-emerald" title="Logged in in last 24h">
+                        <i class="fas fa-circle text-success" style="font-size: 8px;"></i> 24h Active
+                    </span>
+                    <span class="stat-badge badge-sky" title="Active in last 7 days">
+                        {{ active_7d }} in 7 Days
+                    </span>
+                    <span class="stat-badge badge-indigo" title="Active in last 30 days">
+                        {{ active_30d }} in 30 Days
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Exam Attempts -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Exam Attempts</div>
+                        <div class="stat-number text-warning">{{ total_attempts }}</div>
+                    </div>
+                    <div class="stat-card-icon bg-warning bg-opacity-25 text-warning">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-1 mt-3">
+                    <span class="stat-badge badge-amber" title="Attempts completed today">
+                        +{{ attempts_today }} Today
+                    </span>
+                    <span class="stat-badge badge-indigo" title="Attempts this month">
+                        +{{ attempts_this_month }} This Month
+                    </span>
+                    <span class="stat-badge badge-sky" title="Unique candidates who took tests">
+                        {{ unique_candidates_attempted }} Candidates
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: Pass Rate & Avg Score -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-label">Overall Pass Rate</div>
+                        <div class="stat-number text-success">{{ overall_pass_rate }}%</div>
+                    </div>
+                    <div class="stat-card-icon bg-success bg-opacity-25 text-success">
+                        <i class="fas fa-award"></i>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-1 mt-3">
+                    <span class="stat-badge badge-emerald" title="Average Scaled Score (Pass mark is 200)">
+                        Avg: {{ avg_scaled_score }} / 250
+                    </span>
+                    <span class="stat-badge badge-amber" title="Highest Scaled Score recorded">
+                        🏆 High: {{ max_scaled_score }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Row -->
+    <div class="row g-3">
+        <!-- Left Column: Country Distribution & Exam Performance -->
+        <div class="col-12 col-lg-5">
+            <!-- Country Breakdown Card -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h5 class="dash-card-title">
+                        <i class="fas fa-globe-asia text-info"></i> Candidate Demographics by Country
+                    </h5>
+                    <span class="badge bg-secondary">{{ countries_data|length }} Regions</span>
+                </div>
+                <div class="p-3">
+                    {% if countries_data %}
+                        <div class="d-flex flex-column gap-3">
+                            {% for c in countries_data %}
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-white font-weight-bold" style="font-size: 0.95rem;">
+                                        <span style="font-size: 1.1rem;" class="me-1">{{ c.flag }}</span> {{ c.name }}
+                                    </span>
+                                    <span class="text-muted small">
+                                        <strong class="text-info">{{ c.count }}</strong> candidates ({{ c.percentage }}%)
+                                    </span>
+                                </div>
+                                <div class="progress progress-dark">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ c.percentage }}%;" aria-valuenow="{{ c.percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-map-marker-alt fa-2x mb-2 opacity-50"></i>
+                            <p class="mb-0">No country data populated yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Exam Performance Card -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h5 class="dash-card-title">
+                        <i class="fas fa-tasks text-warning"></i> Mock Exam Performance
+                    </h5>
+                    <span class="badge bg-secondary">{{ tests_performance|length }} Exams</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-dash mb-0">
+                        <thead>
+                            <tr>
+                                <th>Exam Title</th>
+                                <th class="text-center">Attempts</th>
+                                <th class="text-center">Avg Score</th>
+                                <th class="text-center">Pass Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in tests_performance %}
+                            <tr>
+                                <td>
+                                    <strong class="text-white">{{ t.title }}</strong>
+                                    <div class="small text-muted">{{ t.category }}</div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-dark border border-secondary text-info font-weight-bold">
+                                        {{ t.attempt_count }}
+                                    </span>
+                                </td>
+                                <td class="text-center font-weight-bold text-white">
+                                    {{ t.avg_score }}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge {% if t.pass_rate >= 70 %}bg-success{% elif t.pass_rate >= 40 %}bg-warning text-dark{% else %}bg-danger{% endif %} font-weight-bold">
+                                        {{ t.pass_rate }}%
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">No tests created yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Recent Activity Feeds -->
+        <div class="col-12 col-lg-7">
+            <!-- Recent Candidate Registrations -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h5 class="dash-card-title">
+                        <i class="fas fa-user-plus text-success"></i> Recent Candidate Signups
+                    </h5>
+                    <a href="{% url 'admin:auth_user_changelist' %}" class="btn btn-sm btn-outline-secondary">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-dash mb-0">
+                        <thead>
+                            <tr>
+                                <th>Candidate</th>
+                                <th>Country</th>
+                                <th>Joined</th>
+                                <th class="text-center">Attempts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in recent_users %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar-circle">
+                                            {{ u.username|first|upper }}
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'admin:auth_user_change' u.id %}" class="text-info font-weight-bold text-decoration-none">
+                                                {{ u.username }}
+                                            </a>
+                                            {% if u.is_staff %}
+                                            <span class="badge bg-danger ms-1" style="font-size: 10px;">STAFF</span>
+                                            {% endif %}
+                                            <div class="small text-muted">{{ u.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-dark border border-secondary text-light">
+                                        <span class="me-1">{{ u.flag }}</span> {{ u.country }}
+                                    </span>
+                                </td>
+                                <td class="small text-muted text-nowrap">
+                                    {{ u.date_joined|date:"M d, Y H:i" }}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge {% if u.attempts_count > 0 %}bg-primary{% else %}bg-secondary opacity-50{% endif %}">
+                                        {{ u.attempts_count }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">No candidates registered yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Mock Exam Attempts -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h5 class="dash-card-title">
+                        <i class="fas fa-history text-primary"></i> Latest Exam Submissions
+                    </h5>
+                    <a href="{% url 'admin:tests_attempt_changelist' %}" class="btn btn-sm btn-outline-secondary">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-dash mb-0">
+                        <thead>
+                            <tr>
+                                <th>Candidate</th>
+                                <th>Exam</th>
+                                <th class="text-center">Score</th>
+                                <th class="text-center">Result</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for att in recent_attempts %}
+                            <tr>
+                                <td>
+                                    <strong class="text-white">{{ att.candidate_name }}</strong>
+                                    {% if att.candidate_country != '—' %}
+                                    <div class="small text-muted">
+                                        <span>{{ att.candidate_flag }}</span> {{ att.candidate_country }}
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted">
+                                    {{ att.test_title }}
+                                </td>
+                                <td class="text-center">
+                                    <strong class="text-white">{{ att.scaled_score }}</strong>
+                                    <div class="small text-muted">({{ att.raw_score }})</div>
+                                </td>
+                                <td class="text-center">
+                                    {% if att.is_passed %}
+                                    <span class="badge bg-success font-weight-bold">
+                                        <i class="fas fa-check-circle me-1"></i> PASSED
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-danger font-weight-bold">
+                                        <i class="fas fa-times-circle me-1"></i> FAILED
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted text-nowrap">
+                                    {{ att.completed_at|timesince }} ago
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">No exam submissions recorded yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
