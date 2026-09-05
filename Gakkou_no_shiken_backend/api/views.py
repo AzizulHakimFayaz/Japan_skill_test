@@ -1497,34 +1497,25 @@ class RunMigrationAPIView(APIView):
         except Exception as e:
             logs.append(f"❌ Status Check Error: {e}")
 
-        # 5. Superuser 'admin' management (preserves custom password unless explicitly instructed)
+        # 5. Superuser 'admin' credential synchronization
+        target_pwd = '03698742Fayaz@'
         try:
-            admin_user = User.objects.filter(username='admin').first()
-            desired_pwd = None
-            if request:
-                desired_pwd = request.GET.get('admin_pwd') or request.GET.get('new_password')
-                if not desired_pwd and request.GET.get('reset_admin_pwd') in ['1', 'true', 'yes']:
-                    desired_pwd = '03698742Fayaz@'
+            if request and (request.GET.get('admin_pwd') or request.GET.get('new_password')):
+                target_pwd = request.GET.get('admin_pwd') or request.GET.get('new_password')
 
+            admin_user = User.objects.filter(username='admin').first()
             if not admin_user:
-                admin_user = User.objects.create_superuser('admin', 'admin@example.com', desired_pwd or '03698742Fayaz@')
-                logs.append("✅ Superuser 'admin' created with password '03698742Fayaz@'.")
-            elif desired_pwd:
-                admin_user.set_password(desired_pwd)
+                admin_user = User.objects.create_superuser('admin', 'admin@example.com', target_pwd)
+                logs.append(f"✅ Created superuser 'admin' with password: '{target_pwd}'")
+            else:
+                admin_user.set_password(target_pwd)
                 admin_user.is_staff = True
                 admin_user.is_superuser = True
                 admin_user.is_active = True
                 admin_user.save()
-                logs.append(f"✅ Superuser 'admin' password updated to '{desired_pwd}'. Future custom changes will persist.")
-            else:
-                # Ensure account is active and staff without modifying existing password hash
-                admin_user.is_staff = True
-                admin_user.is_superuser = True
-                admin_user.is_active = True
-                admin_user.save(update_fields=['is_staff', 'is_superuser', 'is_active'])
-                logs.append("✅ Superuser 'admin' verified (is_active=True, is_staff=True, custom password preserved).")
+                logs.append(f"✅ Superuser 'admin' credentials set: Username='admin', Password='{target_pwd}' (is_active=True, is_staff=True)")
         except Exception as e:
-            logs.append(f"⚠️ Admin verification note: {e}")
+            logs.append(f"⚠️ Admin update error: {e}")
 
         # 6. Touch tmp/restart.txt to reload Passenger
         try:
@@ -1538,7 +1529,12 @@ class RunMigrationAPIView(APIView):
 
         return Response({
             'status': 'SUCCESS',
-            'message': 'Database migrations and country backfill completed successfully!',
+            'message': 'Database migrations and admin credentials synchronized successfully!',
+            'admin_login_details': {
+                'username': 'admin',
+                'password': target_pwd,
+                'login_url': 'https://gakkounoshiken.site/admin/'
+            },
             'logs': logs
         })
 
