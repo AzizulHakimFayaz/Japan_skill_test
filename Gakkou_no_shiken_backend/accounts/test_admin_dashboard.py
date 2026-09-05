@@ -42,7 +42,7 @@ class AdminDashboardAndUserPageTests(TestCase):
         self.client.force_login(self.admin)
         resp = self.client.get('/admin/statistics/')
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, 'Live Platform Statistics')
+        self.assertContains(resp, 'Platform Statistics')
         self.assertContains(resp, 'Bangladesh')
         self.assertContains(resp, 'JFT Mock Test 1')
         self.assertContains(resp, 'student1')

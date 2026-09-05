@@ -51,47 +51,6 @@ def admin_statistics_view(request):
     registered_this_week = User.objects.filter(date_joined__gte=week_start).count()
     registered_this_month = User.objects.filter(date_joined__gte=month_start).count()
 
-    # Active / Online Users (recent login, registration, or exam activity)
-    fifteen_mins_ago = now - datetime.timedelta(minutes=15)
-    recent_attempt_user_ids_15m = Attempt.objects.filter(
-        completed_at__gte=fifteen_mins_ago,
-        user__isnull=False
-    ).values_list('user_id', flat=True)
-    online_now = User.objects.filter(
-        Q(last_login__gte=fifteen_mins_ago) |
-        Q(id__in=recent_attempt_user_ids_15m)
-    ).distinct().count()
-
-    recent_attempt_user_ids_24h = Attempt.objects.filter(
-        completed_at__gte=now - datetime.timedelta(hours=24),
-        user__isnull=False
-    ).values_list('user_id', flat=True)
-    active_24h = User.objects.filter(
-        Q(last_login__gte=now - datetime.timedelta(hours=24)) |
-        Q(date_joined__gte=now - datetime.timedelta(hours=24)) |
-        Q(id__in=recent_attempt_user_ids_24h)
-    ).distinct().count()
-
-    recent_attempt_user_ids_7d = Attempt.objects.filter(
-        completed_at__gte=now - datetime.timedelta(days=7),
-        user__isnull=False
-    ).values_list('user_id', flat=True)
-    active_7d = User.objects.filter(
-        Q(last_login__gte=now - datetime.timedelta(days=7)) |
-        Q(date_joined__gte=now - datetime.timedelta(days=7)) |
-        Q(id__in=recent_attempt_user_ids_7d)
-    ).distinct().count()
-
-    recent_attempt_user_ids_30d = Attempt.objects.filter(
-        completed_at__gte=now - datetime.timedelta(days=30),
-        user__isnull=False
-    ).values_list('user_id', flat=True)
-    active_30d = User.objects.filter(
-        Q(last_login__gte=now - datetime.timedelta(days=30)) |
-        Q(date_joined__gte=now - datetime.timedelta(days=30)) |
-        Q(id__in=recent_attempt_user_ids_30d)
-    ).distinct().count()
-
     staff_count = User.objects.filter(is_staff=True).count()
 
     # 2. Exam Attempt Metrics
@@ -236,10 +195,6 @@ def admin_statistics_view(request):
         'registered_today': registered_today,
         'registered_this_week': registered_this_week,
         'registered_this_month': registered_this_month,
-        'online_now': online_now,
-        'active_24h': active_24h,
-        'active_7d': active_7d,
-        'active_30d': active_30d,
         'staff_count': staff_count,
         # Attempt Stats
         'total_attempts': total_attempts,
