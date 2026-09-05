@@ -5,7 +5,7 @@ import re
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, update_last_login
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework import status, permissions
@@ -270,6 +270,8 @@ class SubmitQuizAPIView(APIView):
                 formatted_answers[q_key] = None
 
         user = request.user if request.user.is_authenticated else None
+        if user:
+            User.objects.filter(pk=user.pk).update(last_login=timezone.now())
         attempt = Attempt.objects.create(
             test=test,
             user=user,
@@ -617,6 +619,7 @@ class RegisterAPIView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            update_last_login(None, user)
             client_ip = get_client_ip(request)
             if client_ip:
                 profile, _ = UserProfile.objects.get_or_create(user=user)
@@ -655,6 +658,7 @@ class LoginAPIView(APIView):
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            update_last_login(None, user)
             client_ip = get_client_ip(request)
             if client_ip:
                 profile, _ = UserProfile.objects.get_or_create(user=user)
@@ -875,6 +879,7 @@ class GoogleAuthAPIView(APIView):
 
         # Ensure user profile exists
         UserProfile.objects.get_or_create(user=user)
+        update_last_login(None, user)
 
         tokens = get_tokens_for_user(user)
         welcome_name = user.first_name or user.username

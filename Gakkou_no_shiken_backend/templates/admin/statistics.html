@@ -145,6 +145,15 @@
 .table-dash tbody tr:hover {
     background: rgba(255, 255, 255, 0.03);
 }
+@keyframes pulse-animation {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(1.4); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.pulse-dot {
+    display: inline-block;
+    animation: pulse-animation 1.8s infinite ease-in-out;
+}
 </style>
 
 <div class="container-fluid px-0">
@@ -158,7 +167,11 @@
                 Real-time tracking of candidate registrations, active online users, and mock exam activity.
             </p>
         </div>
-        <div class="d-flex gap-2 mt-2 mt-md-0">
+        <div class="d-flex flex-wrap gap-2 mt-2 mt-md-0 align-items-center">
+            <div class="form-check form-switch me-2 d-none d-sm-flex align-items-center gap-1 bg-dark px-3 py-1 rounded-pill border border-secondary">
+                <input class="form-check-input" type="checkbox" id="autoRefreshSwitch" style="cursor: pointer;">
+                <label class="form-check-label text-white-50 small mb-0 ms-1" for="autoRefreshSwitch" style="cursor: pointer;">Auto-refresh (30s)</label>
+            </div>
             <a href="{% url 'admin:auth_user_changelist' %}" class="btn btn-outline-info btn-sm shadow-sm">
                 <i class="fas fa-users me-1"></i> Manage Users ({{ total_users }})
             </a>
@@ -204,7 +217,7 @@
             <div class="stat-card">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <div class="stat-label">Active Candidates</div>
+                        <div class="stat-label">Active Candidates (24h)</div>
                         <div class="stat-number text-info">{{ active_24h }}</div>
                     </div>
                     <div class="stat-card-icon bg-info bg-opacity-25 text-info">
@@ -212,8 +225,8 @@
                     </div>
                 </div>
                 <div class="d-flex flex-wrap gap-1 mt-3">
-                    <span class="stat-badge badge-emerald" title="Logged in in last 24h">
-                        <i class="fas fa-circle text-success" style="font-size: 8px;"></i> 24h Active
+                    <span class="stat-badge badge-emerald" title="Active in last 15 minutes">
+                        <i class="fas fa-circle text-success pulse-dot" style="font-size: 8px;"></i> {{ online_now }} Online Now
                     </span>
                     <span class="stat-badge badge-sky" title="Active in last 7 days">
                         {{ active_7d }} in 7 Days
@@ -496,4 +509,35 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sw = document.getElementById('autoRefreshSwitch');
+    if (!sw) return;
+
+    // Restore user preference
+    const saved = sessionStorage.getItem('stats_autorefresh');
+    if (saved === '1') {
+        sw.checked = true;
+    }
+
+    let timer = null;
+    function setupTimer() {
+        if (timer) clearInterval(timer);
+        if (sw.checked) {
+            sessionStorage.setItem('stats_autorefresh', '1');
+            timer = setInterval(function() {
+                window.location.reload();
+            }, 30000);
+        } else {
+            sessionStorage.setItem('stats_autorefresh', '0');
+        }
+    }
+
+    sw.addEventListener('change', setupTimer);
+    if (sw.checked) {
+        setupTimer();
+    }
+});
+</script>
 {% endblock %}
