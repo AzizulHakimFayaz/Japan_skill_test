@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { sendRegistrationOTP, verifyRegistrationOTP, resendRegistrationOTP } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
 import GoogleSignInButton from '@/components/GoogleSignInButton';
-import { Mail, ShieldCheck, ArrowLeft, RotateCcw, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Mail, ShieldCheck, ArrowLeft, RotateCcw, CheckCircle2, ArrowRight, Globe } from 'lucide-react';
 
 function SignupForm() {
   const router = useRouter();
@@ -19,6 +19,8 @@ function SignupForm() {
   const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [country, setCountry] = useState('Bangladesh');
+  const [customCountry, setCustomCountry] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [error, setError] = useState(null);
@@ -49,6 +51,12 @@ function SignupForm() {
     e.preventDefault();
     setError(null);
 
+    const finalCountry = country === 'Other' ? customCountry.trim() : country;
+    if (!finalCountry) {
+      setError('Please select or specify your country.');
+      return;
+    }
+
     if (password !== passwordConfirm) {
       setError('Passwords do not match.');
       return;
@@ -62,7 +70,7 @@ function SignupForm() {
     setSubmitting(true);
 
     try {
-      await sendRegistrationOTP(username, email, password, passwordConfirm, firstName, lastName);
+      await sendRegistrationOTP(username, email, password, passwordConfirm, firstName, lastName, finalCountry);
       setStep('otp');
       setResendCooldown(30);
       setOtpDigits(['', '', '', '', '', '']);
@@ -349,6 +357,51 @@ function SignupForm() {
             className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-950/40 transition-all font-semibold text-slate-800 dark:text-white text-sm"
             placeholder="candidate@example.com"
           />
+        </div>
+
+        {/* Country */}
+        <div>
+          <label htmlFor="id_country" className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+            Country of Residence / Exam Region <span className="text-japan-red">*</span>
+          </label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+              <Globe className="w-4 h-4" />
+            </span>
+            <select
+              id="id_country"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              required
+              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-950/40 transition-all font-semibold text-slate-800 dark:text-white text-sm appearance-none cursor-pointer"
+            >
+              <option value="Bangladesh">🇧🇩 Bangladesh</option>
+              <option value="Nepal">🇳🇵 Nepal</option>
+              <option value="Vietnam">🇻🇳 Vietnam</option>
+              <option value="Indonesia">🇮🇩 Indonesia</option>
+              <option value="Myanmar">🇲🇲 Myanmar</option>
+              <option value="Philippines">🇵🇭 Philippines</option>
+              <option value="Sri Lanka">🇱🇰 Sri Lanka</option>
+              <option value="India">🇮🇳 India</option>
+              <option value="Uzbekistan">🇺🇿 Uzbekistan</option>
+              <option value="Mongolia">🇲🇳 Mongolia</option>
+              <option value="Thailand">🇹🇭 Thailand</option>
+              <option value="Pakistan">🇵🇰 Pakistan</option>
+              <option value="Japan">🇯🇵 Japan</option>
+              <option value="Other">🌍 Other / Global</option>
+            </select>
+          </div>
+
+          {country === 'Other' && (
+            <input
+              type="text"
+              value={customCountry}
+              onChange={(e) => setCustomCountry(e.target.value)}
+              required
+              placeholder="Enter your country name"
+              className="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 focus:ring-4 focus:ring-red-100 dark:focus:ring-red-950/40 transition-all font-semibold text-slate-800 dark:text-white text-sm animate-fade-in"
+            />
+          )}
         </div>
 
         {/* Password */}

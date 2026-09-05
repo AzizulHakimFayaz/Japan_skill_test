@@ -11,6 +11,7 @@ Gakkou_no_shiken_backend/media/
 Gakkou_no_shiken_backend/.env
 Gakkou_no_shiken_backend/__pycache__/
 Gakkou_no_shiken_backend/staticfiles/
+Gakkou_no_shiken_backend/tmp/
 
 # Next.js Frontend
 Gakkou_no_shiken_frontend/node_modules/

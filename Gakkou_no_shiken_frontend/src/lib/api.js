@@ -152,13 +152,14 @@ export async function googleAuthLogin(idToken) {
 }
 
 
-export async function sendRegistrationOTP(username, email, password, passwordConfirm, firstName = '', lastName = '') {
+export async function sendRegistrationOTP(username, email, password, passwordConfirm, firstName = '', lastName = '', country = '') {
   return apiRequest('/api/auth/send-otp/', {
     method: 'POST',
     body: JSON.stringify({
       username,
       first_name: firstName,
       last_name: lastName,
+      country,
       email,
       password,
       password_confirm: passwordConfirm,
@@ -185,13 +186,14 @@ export async function resendRegistrationOTP(email) {
   });
 }
 
-export async function registerUser(username, email, password, passwordConfirm, firstName = '', lastName = '') {
+export async function registerUser(username, email, password, passwordConfirm, firstName = '', lastName = '', country = '') {
   const data = await apiRequest('/api/auth/register/', {
     method: 'POST',
     body: JSON.stringify({
       username,
       first_name: firstName,
       last_name: lastName,
+      country,
       email,
       password,
       password_confirm: passwordConfirm,
@@ -199,6 +201,35 @@ export async function registerUser(username, email, password, passwordConfirm, f
   });
   if (data?.tokens?.access) {
     setAuthTokens(data.tokens.access, data.tokens.refresh);
+    setStoredUser(data.user);
+  }
+  return data;
+}
+
+export async function forgotPassword(email) {
+  return apiRequest('/api/auth/forgot-password/', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function resetPassword(token, password, passwordConfirm = '') {
+  return apiRequest('/api/auth/reset-password/', {
+    method: 'POST',
+    body: JSON.stringify({
+      token,
+      password,
+      password_confirm: passwordConfirm,
+    }),
+  });
+}
+
+export async function confirmCountry(country) {
+  const data = await apiRequest('/api/auth/confirm-country/', {
+    method: 'POST',
+    body: JSON.stringify({ country }),
+  });
+  if (data?.user) {
     setStoredUser(data.user);
   }
   return data;
@@ -227,6 +258,7 @@ export async function updateUserProfile(profileData) {
 export async function getMyResults() {
   return apiRequest('/api/auth/my-results/');
 }
+
 
 // ─── Leaderboard & Rankings API ───
 export async function getLeaderboard() {

@@ -18,49 +18,19 @@ try:
     from django.core.wsgi import get_wsgi_application
     application = get_wsgi_application()
 
-    # Automatically ensure database tables & columns exist in SQLite database on startup
-    from django.db import connection
-    with connection.cursor() as cursor:
-        try:
-            cursor.execute("ALTER TABLE tests_question ADD COLUMN audio_script text DEFAULT ''")
-        except Exception:
-            pass
-        try:
-            cursor.execute("ALTER TABLE tests_questiongroup ADD COLUMN audio_script text DEFAULT ''")
-        except Exception:
-            pass
-        try:
-            cursor.execute("ALTER TABLE tests_test ADD COLUMN scheduled_release_at datetime")
-        except Exception:
-            pass
-        try:
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS tests_notice (
-                    id integer PRIMARY KEY AUTOINCREMENT,
-                    title varchar(255) NOT NULL,
-                    summary text NOT NULL,
-                    content text NOT NULL,
-                    notice_type varchar(32) NOT NULL,
-                    target_audience varchar(32) NOT NULL,
-                    image varchar(100),
-                    pdf_file varchar(100),
-                    file_size_text varchar(64) NOT NULL,
-                    action_url varchar(500) NOT NULL,
-                    action_button_text varchar(64) NOT NULL,
-                    is_active bool NOT NULL,
-                    is_pinned bool NOT NULL,
-                    show_as_popup bool NOT NULL,
-                    order_index integer unsigned NOT NULL,
-                    views_count integer unsigned NOT NULL,
-                    downloads_count integer unsigned NOT NULL,
-                    created_at datetime NOT NULL,
-                    updated_at datetime NOT NULL,
-                    expires_at datetime,
-                    related_test_id bigint REFERENCES tests_test (id) DEFERRABLE INITIALLY DEFERRED
-                )
-            """)
-        except Exception:
-            pass
+    # Self-healing schema sync & database tables
+    try:
+        from accounts.schema_sync import ensure_schema_synced
+        ensure_schema_synced()
+    except Exception:
+        pass
+
+    # Automatically run migrations on startup if pending
+    try:
+        from django.core.management import call_command
+        call_command('migrate', interactive=False)
+    except Exception:
+        pass
 
     # Automatically ensure superuser 'admin' exists with password 'admin12345' on startup
     try:

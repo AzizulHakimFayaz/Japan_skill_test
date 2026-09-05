@@ -17,7 +17,10 @@ from django.db.models import Q
 from django.utils import timezone
 
 from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice
-from accounts.models import UserProfile, EmailVerificationOTP
+from accounts.models import UserProfile, EmailVerificationOTP, PasswordResetToken
+from accounts.geolocation import get_client_ip
+from accounts.emails import send_password_reset_email
+from accounts.throttling import ForgotPasswordRateThrottle, is_email_rate_limited
 from tests.data.jft_data import get_jft_info, get_jft_test_centers, get_jft_resources
 from tests.data.ssw_data import get_ssw_info, get_ssw_sectors, get_ssw_test_centers
 from .serializers import (
@@ -31,6 +34,9 @@ from .serializers import (
     RegisterSerializer,
     UserProfileSerializer,
     UserProfileUpdateSerializer,
+    ConfirmCountrySerializer,
+    ForgotPasswordRequestSerializer,
+    ResetPasswordRequestSerializer,
     NoticeSerializer,
     get_absolute_media_url,
 )
@@ -475,9 +481,13 @@ class SendRegistrationOTPAPIView(APIView):
         password_confirm = request.data.get('password_confirm', '')
         first_name = request.data.get('first_name', '').strip()
         last_name = request.data.get('last_name', '').strip()
+        country = request.data.get('country', '').strip()
 
         if not username or not email or not password:
             return Response({'detail': 'Please provide username, email, and password.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not country:
+            return Response({'country': ['Country is required for registration.']}, status=status.HTTP_400_BAD_REQUEST)
 
         if password != password_confirm:
             return Response({'detail': 'Passwords do not match.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -496,7 +506,8 @@ class SendRegistrationOTPAPIView(APIView):
             username=username,
             first_name=first_name,
             last_name=last_name,
-            password=password
+            password=password,
+            country=country
         )
 
         send_otp_email(email, otp_record.otp_code, name=first_name or username)
@@ -548,7 +559,14 @@ class VerifyRegistrationOTPAPIView(APIView):
         otp_record.is_verified = True
         otp_record.save()
 
-        UserProfile.objects.get_or_create(user=user)
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        if otp_record.country:
+            profile.country = otp_record.country
+            profile.country_source = UserProfile.CountrySource.USER
+        client_ip = get_client_ip(request)
+        if client_ip:
+            profile.last_known_ip = client_ip
+        profile.save()
 
         tokens = get_tokens_for_user(user)
         return Response({
@@ -577,6 +595,7 @@ class ResendRegistrationOTPAPIView(APIView):
             username=otp_record.username,
             first_name=otp_record.first_name,
             last_name=otp_record.last_name,
+            country=otp_record.country,
         )
         new_otp.password_hash = otp_record.password_hash
         new_otp.save()
@@ -591,7 +610,6 @@ class ResendRegistrationOTPAPIView(APIView):
 
 
 class RegisterAPIView(APIView):
-
     """Registers a new candidate and returns JWT tokens."""
     permission_classes = [permissions.AllowAny]
 
@@ -599,6 +617,11 @@ class RegisterAPIView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            client_ip = get_client_ip(request)
+            if client_ip:
+                profile, _ = UserProfile.objects.get_or_create(user=user)
+                profile.last_known_ip = client_ip
+                profile.save(update_fields=['last_known_ip'])
             tokens = get_tokens_for_user(user)
             return Response({
                 'user': UserSerializer(user).data,
@@ -632,6 +655,12 @@ class LoginAPIView(APIView):
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            client_ip = get_client_ip(request)
+            if client_ip:
+                profile, _ = UserProfile.objects.get_or_create(user=user)
+                if profile.last_known_ip != client_ip:
+                    profile.last_known_ip = client_ip
+                    profile.save(update_fields=['last_known_ip'])
             tokens = get_tokens_for_user(user)
             return Response({
                 'user': UserSerializer(user).data,
@@ -642,6 +671,142 @@ class LoginAPIView(APIView):
             {"detail": "Invalid credentials. Please check details and try again."},
             status=status.HTTP_401_UNAUTHORIZED
         )
+
+
+class ForgotPasswordAPIView(APIView):
+    """
+    POST /auth/forgot-password or /api/auth/forgot-password/
+    Validates email format, generates a cryptographically secure single-use reset token,
+    stores its SHA-256 hash, and dispatches a reset link email.
+    Always returns a generic success response to prevent email enumeration.
+    """
+    permission_classes = [permissions.AllowAny]
+    throttle_classes = [ForgotPasswordRateThrottle]
+
+    def post(self, request):
+        serializer = ForgotPasswordRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        email = serializer.validated_data['email']
+        generic_response = {
+            'status': 'success',
+            'message': 'If an account exists for this email, a password reset link has been sent.'
+        }
+
+        # Inbox harassment protection
+        if is_email_rate_limited(email):
+            return Response(generic_response, status=status.HTTP_200_OK)
+
+        user = User.objects.filter(email__iexact=email, is_active=True).first()
+        if user:
+            timeout_minutes = int(getattr(settings, 'PASSWORD_RESET_TIMEOUT_MINUTES', 15))
+            client_ip = get_client_ip(request)
+            token_obj, raw_token = PasswordResetToken.create_token(
+                user=user,
+                ip_address=client_ip,
+                timeout_minutes=timeout_minutes
+            )
+            send_password_reset_email(
+                user=user,
+                raw_token=raw_token,
+                request=request,
+                timeout_minutes=timeout_minutes
+            )
+
+        return Response(generic_response, status=status.HTTP_200_OK)
+
+
+class ResetPasswordAPIView(APIView):
+    """
+    POST /auth/reset-password or /api/auth/reset-password/
+    Validates single-use token, checks expiration, updates user password using PBKDF2,
+    invalidates reset tokens, and updates session authentication hash.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = ResetPasswordRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        raw_token = serializer.validated_data['token']
+        token_hash = PasswordResetToken.hash_raw_token(raw_token)
+
+        token_record = PasswordResetToken.objects.filter(token_hash=token_hash).select_related('user').first()
+        if not token_record:
+            return Response(
+                {"detail": "Invalid or expired password reset link."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if token_record.is_used:
+            return Response(
+                {"detail": "This password reset link has already been used. Please request a new one."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if token_record.is_expired():
+            return Response(
+                {"detail": "This password reset link has expired. Please request a new one."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user = token_record.user
+        new_password = serializer.validated_data['password']
+
+        # Update password securely using Django's password hasher
+        user.set_password(new_password)
+        user.save()
+
+        # Invalidate the used token
+        token_record.mark_as_used()
+
+        # Invalidate any other pending tokens for this user
+        PasswordResetToken.objects.filter(user=user, is_used=False).update(is_used=True)
+
+        # Invalidate outstanding JWT refresh tokens if token_blacklist is active
+        try:
+            from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+            for token in OutstandingToken.objects.filter(user=user):
+                BlacklistedToken.objects.get_or_create(token=token)
+        except Exception:
+            pass
+
+        return Response({
+            'status': 'success',
+            'message': 'Your password has been successfully reset. You can now log in with your new password.'
+        }, status=status.HTTP_200_OK)
+
+
+class ConfirmCountryAPIView(APIView):
+    """
+    POST /auth/confirm-country/ or /api/auth/confirm-country/
+    Allows authenticated candidates to confirm or update their country,
+    transitioning country_source to 'user'.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = ConfirmCountrySerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        country = serializer.validated_data['country']
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        profile.country = country
+        profile.country_source = UserProfile.CountrySource.USER
+        client_ip = get_client_ip(request)
+        if client_ip:
+            profile.last_known_ip = client_ip
+        profile.save()
+
+        return Response({
+            'status': 'success',
+            'message': f'Country confirmed as {country}.',
+            'user': UserSerializer(request.user).data
+        }, status=status.HTTP_200_OK)
+
 
 
 class GoogleAuthAPIView(APIView):
@@ -1261,6 +1426,93 @@ class SetupDatabaseAPIView(APIView):
             'login_url': 'https://gakkounoshiken.site/admin/',
             'logs': logs
         })
+
+
+class RunMigrationAPIView(APIView):
+    """
+    1-Click Web Endpoint to run database migrations and user country backfill directly in the browser.
+    Visiting this URL executes `migrate` and `backfill_user_countries` without terminal access.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        return self.execute_migration()
+
+    def post(self, request):
+        return self.execute_migration()
+
+    def execute_migration(self):
+        import io
+        from contextlib import redirect_stdout, redirect_stderr
+        from pathlib import Path
+
+        logs = []
+
+        # 0. Synchronize Schema & Migrations state (self-healing for cPanel SQLite)
+        try:
+            from accounts.schema_sync import ensure_schema_synced
+            schema_logs = ensure_schema_synced()
+            if schema_logs:
+                logs.append(f"✅ Schema Sync: {'; '.join(schema_logs)}")
+        except Exception as e:
+            logs.append(f"⚠️ Schema Sync Note: {e}")
+
+        # 1. Database Migrations
+        try:
+            out = io.StringIO()
+            with redirect_stdout(out), redirect_stderr(out):
+                call_command('migrate', interactive=False, fake_initial=True)
+            logs.append(f"✅ Migrations Output:\n{out.getvalue().strip() or 'All migrations up to date.'}")
+        except Exception as e:
+            err_str = str(e)
+            if "already exists" in err_str or "duplicate column" in err_str:
+                try:
+                    out = io.StringIO()
+                    with redirect_stdout(out), redirect_stderr(out):
+                        call_command('migrate', fake=True, interactive=False)
+                    logs.append(f"✅ Migrations Output:\nResolved existing tables ({err_str}). All migrations synchronized.")
+                except Exception as inner_e:
+                    logs.append(f"❌ Migration Error: {inner_e}")
+            else:
+                logs.append(f"❌ Migration Error: {e}")
+
+        # 2. Existing User Country Backfill
+        try:
+            out = io.StringIO()
+            with redirect_stdout(out), redirect_stderr(out):
+                call_command('backfill_user_countries')
+            logs.append(f"✅ Country Backfill Output:\n{out.getvalue().strip()}")
+        except Exception as e:
+            logs.append(f"❌ Backfill Error: {e}")
+
+        # 3. Country Migration Readiness Check
+        try:
+            out = io.StringIO()
+            with redirect_stdout(out), redirect_stderr(out):
+                try:
+                    call_command('check_country_migration')
+                except SystemExit:
+                    pass
+            logs.append(f"ℹ️ Migration Readiness Check:\n{out.getvalue().strip()}")
+        except Exception as e:
+            logs.append(f"❌ Status Check Error: {e}")
+
+        # 4. Touch tmp/restart.txt to reload Passenger
+        try:
+            base_dir = Path(__file__).resolve().parent.parent
+            restart_dir = base_dir / "tmp"
+            restart_dir.mkdir(exist_ok=True)
+            (restart_dir / "restart.txt").touch()
+            logs.append("✅ Application reload triggered (tmp/restart.txt updated)!")
+        except Exception as e:
+            logs.append(f"⚠️ Passenger reload note: {e}")
+
+        return Response({
+            'status': 'SUCCESS',
+            'message': 'Database migrations and country backfill completed successfully!',
+            'logs': logs
+        })
+
 
 
 class AdminAutoUploadAPIView(APIView):

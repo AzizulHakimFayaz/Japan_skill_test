@@ -6,6 +6,7 @@ import { LanguageProvider } from './LanguageContext';
 import { AuthProvider } from './AuthContext';
 import AnimatedThemeBackground from './AnimatedThemeBackground';
 import AppLayout from './AppLayout';
+import CountryConfirmationBanner from './CountryConfirmationBanner';
 
 export default function Providers({ children }) {
   return (
@@ -13,6 +14,7 @@ export default function Providers({ children }) {
       <LanguageProvider>
         <AnimatedThemeBackground />
         <AuthProvider>
+          <CountryConfirmationBanner />
           <AppLayout>{children}</AppLayout>
         </AuthProvider>
       </LanguageProvider>

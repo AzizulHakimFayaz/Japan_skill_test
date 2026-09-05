@@ -1,3 +1,5 @@
-from django.test import TestCase
+from .test_password_reset import PasswordResetTests
+from .test_country_migration import CountryMigrationAndRegistrationTests
 
-# Create your tests here.
+__all__ = ['PasswordResetTests', 'CountryMigrationAndRegistrationTests']
+

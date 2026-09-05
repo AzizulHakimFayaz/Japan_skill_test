@@ -25,6 +25,9 @@ urlpatterns = [
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='api_token_refresh'),
     path('auth/me/', views.MeAPIView.as_view(), name='api_me'),
     path('auth/profile/', views.ProfileAPIView.as_view(), name='api_profile'),
+    path('auth/confirm-country/', views.ConfirmCountryAPIView.as_view(), name='api_confirm_country'),
+    path('auth/forgot-password/', views.ForgotPasswordAPIView.as_view(), name='api_forgot_password'),
+    path('auth/reset-password/', views.ResetPasswordAPIView.as_view(), name='api_reset_password'),
     path('auth/my-results/', views.MyResultsAPIView.as_view(), name='api_my_results'),
 
 
@@ -41,6 +44,7 @@ urlpatterns = [
 
     # One-Click Setup Trigger & Admin Helpers
     path('setup-database/', views.SetupDatabaseAPIView.as_view(), name='api_setup_database'),
+    path('run-migration/', views.RunMigrationAPIView.as_view(), name='api_run_migration'),
     path('admin/auto-upload/', views.AdminAutoUploadAPIView.as_view(), name='api_admin_auto_upload'),
 
 ]

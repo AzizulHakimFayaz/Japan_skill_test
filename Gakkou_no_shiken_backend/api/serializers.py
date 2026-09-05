@@ -20,12 +20,14 @@ def get_absolute_media_url(file_field, request=None):
         return None
 
 
-from accounts.models import UserProfile
+from accounts.models import UserProfile, PasswordResetToken
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
     target_exam_display = serializers.CharField(source='get_target_exam_display', read_only=True)
     japanese_level_display = serializers.CharField(source='get_japanese_level_display', read_only=True)
+    country_source_display = serializers.CharField(source='get_country_source_display', read_only=True)
+    needs_country_confirmation = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = UserProfile
@@ -36,6 +38,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'japanese_level',
             'japanese_level_display',
             'location',
+            'country',
+            'country_source',
+            'country_source_display',
+            'needs_country_confirmation',
             'updated_at',
         ]
 
@@ -56,17 +62,24 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(required=False, allow_blank=True, max_length=150, default='')
     last_name = serializers.CharField(required=False, allow_blank=True, max_length=150, default='')
+    country = serializers.CharField(required=True, allow_blank=False, max_length=100)
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password_confirm = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password', 'password_confirm']
+        fields = ['username', 'first_name', 'last_name', 'email', 'country', 'password', 'password_confirm']
 
     def validate_username(self, value):
         if User.objects.filter(username__iexact=value).exists():
             raise serializers.ValidationError("This username is already taken. Please choose another.")
         return value
+
+    def validate_country(self, value):
+        clean_country = (value or '').strip()
+        if not clean_country:
+            raise serializers.ValidationError("Country is required.")
+        return clean_country
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:
@@ -74,6 +87,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        country = validated_data.pop('country', '').strip()
         user = User.objects.create_user(
             username=validated_data['username'],
             first_name=validated_data.get('first_name', ''),
@@ -81,6 +95,11 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=validated_data.get('email', ''),
             password=validated_data['password']
         )
+        if country:
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            profile.country = country
+            profile.country_source = UserProfile.CountrySource.USER
+            profile.save()
         return user
 
 
@@ -93,12 +112,21 @@ class UserProfileUpdateSerializer(serializers.Serializer):
     target_exam = serializers.ChoiceField(choices=UserProfile.TargetExam.choices, required=False)
     japanese_level = serializers.ChoiceField(choices=UserProfile.JapaneseLevel.choices, required=False)
     location = serializers.CharField(required=False, allow_blank=True, max_length=100)
+    country = serializers.CharField(required=False, allow_blank=False, max_length=100)
 
     def validate_username(self, value):
         if value:
             user = self.instance
             if user and User.objects.filter(username__iexact=value).exclude(pk=user.pk).exists():
                 raise serializers.ValidationError("This username is already taken. Please choose another.")
+        return value
+
+    def validate_country(self, value):
+        if value is not None:
+            clean = value.strip()
+            if not clean:
+                raise serializers.ValidationError("Country cannot be empty.")
+            return clean
         return value
 
     def update(self, instance, validated_data):
@@ -122,9 +150,43 @@ class UserProfileUpdateSerializer(serializers.Serializer):
             profile.japanese_level = validated_data['japanese_level']
         if 'location' in validated_data:
             profile.location = validated_data['location']
+        if 'country' in validated_data and validated_data['country']:
+            profile.country = validated_data['country'].strip()
+            profile.country_source = UserProfile.CountrySource.USER
         profile.save()
 
         return instance
+
+
+class ConfirmCountrySerializer(serializers.Serializer):
+    country = serializers.CharField(required=True, allow_blank=False, max_length=100)
+
+    def validate_country(self, value):
+        clean = (value or '').strip()
+        if not clean:
+            raise serializers.ValidationError("Country is required.")
+        return clean
+
+
+class ForgotPasswordRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+    def validate_email(self, value):
+        return value.strip().lower()
+
+
+class ResetPasswordRequestSerializer(serializers.Serializer):
+    token = serializers.CharField(required=True, trim_whitespace=True)
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password_confirm = serializers.CharField(write_only=True, required=False, allow_blank=True)
+
+    def validate(self, attrs):
+        pw = attrs.get('password')
+        pw_confirm = attrs.get('password_confirm')
+        if pw_confirm and pw != pw_confirm:
+            raise serializers.ValidationError({"password": "Passwords do not match."})
+        return attrs
+
 
 
 
