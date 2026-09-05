@@ -36,8 +36,24 @@ class UserProfileInline(admin.StackedInline):
     model = UserProfile
     can_delete = False
     verbose_name_plural = 'Candidate Profile Details'
-    fields = ('country', 'country_source', 'needs_country_confirmation', 'last_known_ip', 'location', 'bio', 'target_exam', 'japanese_level')
-    readonly_fields = ('country_source', 'last_known_ip')
+    fields = (
+        'country',
+        'country_source',
+        'country_confirmation_status',
+        'last_known_ip',
+        'location',
+        'bio',
+        'target_exam',
+        'japanese_level',
+    )
+    readonly_fields = ('country_source', 'country_confirmation_status', 'last_known_ip')
+
+    @admin.display(description='Country Confirmation Needed', boolean=True)
+    def country_confirmation_status(self, obj):
+        if not obj or not getattr(obj, 'pk', None):
+            return False
+        return obj.needs_country_confirmation
+
 
 
 class CustomUserAdmin(BaseUserAdmin):

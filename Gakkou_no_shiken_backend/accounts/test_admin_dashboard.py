@@ -78,3 +78,27 @@ class AdminDashboardAndUserPageTests(TestCase):
         self.assertContains(resp, 'id_old_password')
         self.assertContains(resp, 'id_new_password1')
         self.assertContains(resp, 'id_new_password2')
+
+    def test_user_change_view_renders_successfully(self):
+        self.client.force_login(self.admin)
+        # Test changelist
+        list_url = reverse('admin:auth_user_changelist')
+        resp_list = self.client.get(list_url)
+        self.assertEqual(resp_list.status_code, 200)
+
+        # Test add user
+        add_url = reverse('admin:auth_user_add')
+        resp_add = self.client.get(add_url)
+        self.assertEqual(resp_add.status_code, 200)
+
+        # Test change view for admin
+        admin_change_url = reverse('admin:auth_user_change', args=[self.admin.id])
+        resp = self.client.get(admin_change_url)
+        self.assertEqual(resp.status_code, 200)
+
+        # Test change view for normal user
+        user_change_url = reverse('admin:auth_user_change', args=[self.user.id])
+        resp2 = self.client.get(user_change_url)
+        self.assertEqual(resp2.status_code, 200)
+
+
