@@ -32,11 +32,13 @@ try:
     except Exception:
         pass
 
-    # Ensure superuser 'admin' exists with initial credentials (does not overwrite custom password)
+    # Ensure superuser exists if configured via environment variable
     try:
         from django.contrib.auth.models import User
-        if not User.objects.filter(username='admin').exists():
-            User.objects.create_superuser('admin', 'admin@example.com', '03698742Fayaz@')
+        if not User.objects.filter(is_superuser=True).exists():
+            admin_pwd = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
+            if admin_pwd:
+                User.objects.create_superuser('admin', 'admin@example.com', admin_pwd)
     except Exception:
         pass
 

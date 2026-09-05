@@ -1410,16 +1410,23 @@ class SetupDatabaseAPIView(APIView):
 
 
 
-        # 2. Admin Account Creation
+        # 2. Admin Account Verification
         try:
-            user, _ = User.objects.get_or_create(username='admin')
-            user.set_password('03698742Fayaz@')
+            admin_pwd = request.GET.get('pwd') or os.environ.get('DJANGO_SUPERUSER_PASSWORD')
+            user, created = User.objects.get_or_create(username='admin')
+            if admin_pwd:
+                user.set_password(admin_pwd)
+                logs.append('✅ Admin password updated as requested.')
+            elif created:
+                logs.append('⚠️ Admin user created without password. Pass &pwd=... to set.')
+            else:
+                logs.append('✅ Admin account verified (existing password preserved).')
             user.is_staff = True
             user.is_superuser = True
+            user.is_active = True
             user.save()
-            logs.append('✅ Admin Account Ready! Username: admin | Password: 03698742Fayaz@')
         except Exception as e:
-            logs.append(f'❌ Admin setup error: {e}\n{traceback.format_exc()}')
+            logs.append(f'❌ Admin setup error: {e}')
 
         return Response({
             'status': 'RESULT',
@@ -1497,25 +1504,36 @@ class RunMigrationAPIView(APIView):
         except Exception as e:
             logs.append(f"❌ Status Check Error: {e}")
 
-        # 5. Superuser 'admin' credential synchronization
-        target_pwd = '03698742Fayaz@'
+        # 5. Superuser verification (does not overwrite custom passwords unless ?admin_pwd= is passed)
         try:
-            if request and (request.GET.get('admin_pwd') or request.GET.get('new_password')):
-                target_pwd = request.GET.get('admin_pwd') or request.GET.get('new_password')
+            custom_pwd = None
+            if request:
+                custom_pwd = request.GET.get('admin_pwd') or request.GET.get('new_password')
 
             admin_user = User.objects.filter(username='admin').first()
             if not admin_user:
-                admin_user = User.objects.create_superuser('admin', 'admin@example.com', target_pwd)
-                logs.append(f"✅ Created superuser 'admin' with password: '{target_pwd}'")
-            else:
-                admin_user.set_password(target_pwd)
+                initial_pwd = custom_pwd or os.environ.get('DJANGO_SUPERUSER_PASSWORD')
+                if initial_pwd:
+                    admin_user = User.objects.create_superuser('admin', 'admin@example.com', initial_pwd)
+                    logs.append("✅ Created superuser 'admin'.")
+                else:
+                    logs.append("ℹ️ No superuser 'admin' exists. Provide ?admin_pwd=... to create one.")
+            elif custom_pwd:
+                admin_user.set_password(custom_pwd)
                 admin_user.is_staff = True
                 admin_user.is_superuser = True
                 admin_user.is_active = True
                 admin_user.save()
-                logs.append(f"✅ Superuser 'admin' credentials set: Username='admin', Password='{target_pwd}' (is_active=True, is_staff=True)")
+                logs.append("✅ Superuser 'admin' password updated successfully as requested.")
+            else:
+                # Ensure account is active and staff without touching password hash
+                admin_user.is_staff = True
+                admin_user.is_superuser = True
+                admin_user.is_active = True
+                admin_user.save(update_fields=['is_staff', 'is_superuser', 'is_active'])
+                logs.append("✅ Superuser 'admin' verified (is_active=True, is_staff=True, custom password preserved).")
         except Exception as e:
-            logs.append(f"⚠️ Admin update error: {e}")
+            logs.append(f"⚠️ Admin status note: {e}")
 
         # 6. Touch tmp/restart.txt to reload Passenger
         try:
@@ -1529,12 +1547,8 @@ class RunMigrationAPIView(APIView):
 
         return Response({
             'status': 'SUCCESS',
-            'message': 'Database migrations and admin credentials synchronized successfully!',
-            'admin_login_details': {
-                'username': 'admin',
-                'password': target_pwd,
-                'login_url': 'https://gakkounoshiken.site/admin/'
-            },
+            'message': 'Database migrations synchronized successfully!',
+            'admin_login_url': 'https://gakkounoshiken.site/admin/',
             'logs': logs
         })
 
