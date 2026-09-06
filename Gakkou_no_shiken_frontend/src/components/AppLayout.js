@@ -8,7 +8,7 @@ import MobileDock from './MobileDock';
 
 export default function AppLayout({ children }) {
   const pathname = usePathname();
-  const isQuizPage = pathname?.startsWith('/test/');
+  const isQuizPage = pathname?.startsWith('/test/') || pathname?.startsWith('/ssw-test/');
 
   if (isQuizPage) {
     return <>{children}</>;

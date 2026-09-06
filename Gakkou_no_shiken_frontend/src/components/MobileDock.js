@@ -11,7 +11,7 @@ export default function MobileDock() {
   const { user, isAuthenticated } = useAuth();
 
   // Don't show dock inside full-screen CBT quiz
-  if (pathname?.startsWith('/test/') && !pathname?.includes('/submit')) {
+  if ((pathname?.startsWith('/test/') || pathname?.startsWith('/ssw-test/')) && !pathname?.includes('/submit')) {
     return null;
   }
 
