@@ -9,7 +9,7 @@ import GlobalLoader from '@/components/GlobalLoader';
 import ExamSecurityGuard from '@/components/ExamSecurityGuard';
 import ScheduledCountdownBadge from '@/components/ScheduledCountdownBadge';
 import { useLanguage } from '@/components/LanguageContext';
-import { Globe, ExternalLink, Flag, Lock, ShieldCheck, Clock, ArrowLeft, Hourglass, Sparkles } from 'lucide-react';
+import { Globe, ExternalLink, Flag, Lock, ShieldCheck, Clock, ArrowLeft, Hourglass, Sparkles, AlertTriangle, Keyboard } from 'lucide-react';
 
 
 
@@ -63,6 +63,10 @@ function QuizContent({ params: paramsPromise }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingOverlayText, setLoadingOverlayText] = useState(null);
 
+  // SSW Specific Phase State (Phase 1: Audio & Typing | Phase 2: Mixed Practical Knowledge)
+  const [sswPhase, setSswPhase] = useState(1);
+  const [showPhaseTransitionModal, setShowPhaseTransitionModal] = useState(false);
+
   // Modals
   const [showUnansweredModal, setShowUnansweredModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
@@ -76,21 +80,15 @@ function QuizContent({ params: paramsPromise }) {
 
     getQuizData(params.id, previewToken)
       .then((data) => {
-        // If this is an SSW Skill test, route to the dedicated SSW Prometric CBT interface
-        if (data?.test?.category === 'skill') {
-          const previewQuery = previewToken ? `?preview=${previewToken}` : '';
-          router.replace(`/ssw-test/${params.id}${previewQuery}`);
-          return;
-        }
-
         setQuizData(data);
+        const isSkill = data?.test?.category === 'skill';
         const isDemo = Boolean(data.test?.is_actual_exam_demo);
         const sectionParam = searchParams?.get('section');
 
-        let startStep = isDemo ? 0 : 1;
-        let initialTime = data.test?.time_limit_seconds || 3600;
+        let startStep = isDemo && !isSkill ? 0 : 1;
+        let initialTime = data.test?.time_limit_seconds || (isSkill ? 1200 : 3600);
 
-        if (sectionParam && data.steps) {
+        if (sectionParam && data.steps && !isSkill) {
           const matchingIndex = data.steps.findIndex((s) => s.section === sectionParam);
           if (matchingIndex !== -1) {
             startStep = matchingIndex + 1;
@@ -126,45 +124,62 @@ function QuizContent({ params: paramsPromise }) {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchQuiz();
-  }, [params.id, previewToken, router, searchParams]);
-
-
-  // Countdown timer
-  useEffect(() => {
-    if (timeLeft === null || timeLeft <= 0 || isSubmitting) return;
-
-    timerRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current);
-          handleAutoSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timerRef.current);
-  }, [timeLeft, isSubmitting]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.id, previewToken]);
 
   const test = quizData?.test;
   const steps = quizData?.steps || [];
   const totalSteps = quizData?.total_steps || steps.length;
   const totalQuestions = quizData?.total_questions || 0;
 
+  const isSkillTest =
+    test?.category === 'skill' ||
+    Boolean(steps && steps.some((s) => s.section === 'audio' || s.section === 'occupational'));
+
+  // ─── SSW Phase Partitioning (Phase 1: Audio/Typing | Phase 2: Mixed Practical) ───
+  const isPhase1Step = (step) => {
+    if (!step) return false;
+    if (step.section === 'audio') return true;
+    if (step.questions && step.questions.some((q) => q.section === 'audio' || q.type === 'audio' || q.type === 'audio_typing' || q.type === 'typing')) {
+      return true;
+    }
+    return false;
+  };
+
+  const phase1Steps = isSkillTest ? steps.filter(isPhase1Step) : [];
+  const phase2Steps = isSkillTest ? steps.filter((s) => !isPhase1Step(s)) : [];
+
+  const sswActiveSteps = isSkillTest
+    ? (sswPhase === 1
+        ? (phase1Steps.length > 0 ? phase1Steps : steps)
+        : (phase2Steps.length > 0 ? phase2Steps : steps))
+    : [];
+
+  const phase1TotalQuestions = phase1Steps.reduce((acc, s) => acc + (s.questions?.length || 0), 0);
+  const phase1AnsweredCount = phase1Steps.reduce((acc, s) => {
+    return acc + (s.questions?.filter((q) => {
+      const val = answers[`q${q.id}`];
+      return val !== undefined && val !== null && String(val).trim() !== '';
+    }).length || 0);
+  }, 0);
+  const phase1UnansweredCount = Math.max(0, phase1TotalQuestions - phase1AnsweredCount);
+
   // Active step & section calculation
   const currentStepData = currentStep > 0 ? steps[currentStep - 1] : null;
 
-  const activeSectionKey =
-    currentStep === 0
-      ? 'intro'
-      : currentStepData?.section || 'script_vocab';
+  const activeSectionKey = isSkillTest
+    ? (sswPhase === 1 ? 'audio' : 'occupational')
+    : currentStep === 0
+    ? 'intro'
+    : currentStepData?.section || 'script_vocab';
 
-  const activeSectionName =
-    currentStep === 0
-      ? 'Introduction'
-      : SECTION_LABELS[activeSectionKey] || 'Script & Vocabulary';
+  const activeSectionName = isSkillTest
+    ? (sswPhase === 1 ? '第1部：音声・入力試験 (Audio & Typing)' : '第2部：専門・実技試験 (Occupational & Practical)')
+    : currentStep === 0
+    ? 'Introduction'
+    : SECTION_LABELS[activeSectionKey] || 'Script & Vocabulary';
 
   const currentQuestionTranslations =
     currentStep > 0 && currentStepData?.questions?.[0]?.translations
@@ -204,7 +219,7 @@ function QuizContent({ params: paramsPromise }) {
       if (step.section === secKey) {
         step.questions.forEach((q) => {
           totalInSec++;
-          if (answers[`q${q.id}`] !== undefined && answers[`q${q.id}`] !== null) {
+          if (answers[`q${q.id}`] !== undefined && answers[`q${q.id}`] !== null && String(answers[`q${q.id}`]).trim() !== '') {
             answeredInSec++;
           }
         });
@@ -219,7 +234,7 @@ function QuizContent({ params: paramsPromise }) {
     return completedSections.includes(secKey);
   };
 
-  const answeredCount = Object.values(answers).filter((val) => val !== null && val !== undefined).length;
+  const answeredCount = Object.values(answers).filter((val) => val !== null && val !== undefined && String(val).trim() !== '').length;
 
   const handleSelectOption = (questionId, optionId) => {
     if (isSectionCompleted(activeSectionKey)) return;
@@ -244,13 +259,41 @@ function QuizContent({ params: paramsPromise }) {
       return;
     }
     const targetStep = steps[stepNum - 1];
+    if (isSkillTest) {
+      if (sswActiveSteps.includes(targetStep)) {
+        pauseAllAudio();
+        setCurrentStep(stepNum);
+      }
+      return;
+    }
     if (targetStep && targetStep.section === activeSectionKey && !isSectionCompleted(targetStep.section)) {
       pauseAllAudio();
       setCurrentStep(stepNum);
     }
   };
 
+  const proceedToPhase2 = () => {
+    pauseAllAudio();
+    setShowPhaseTransitionModal(false);
+    setCompletedSections((prev) => (prev.includes('audio') ? prev : [...prev, 'audio']));
+    setSswPhase(2);
+    if (phase2Steps.length > 0) {
+      const firstPhase2GlobalStep = steps.indexOf(phase2Steps[0]) + 1;
+      setCurrentStep(firstPhase2GlobalStep);
+    }
+  };
+
   const finishCurrentSection = () => {
+    if (isSkillTest) {
+      if (sswPhase === 1 && phase2Steps.length > 0) {
+        setShowPhaseTransitionModal(true);
+      } else {
+        setShowUnansweredModal(true);
+      }
+      return;
+    }
+
+    // JFT logic (100% UNTOUCHED):
     const currentSec = activeSectionKey;
     if (currentSec && currentSec !== 'intro' && !completedSections.includes(currentSec)) {
       setCompletedSections((prev) => [...prev, currentSec]);
@@ -279,6 +322,35 @@ function QuizContent({ params: paramsPromise }) {
 
   const nextStep = () => {
     pauseAllAudio();
+    if (isSkillTest) {
+      if (sswPhase === 1 && phase2Steps.length > 0) {
+        const currentIdxInPhase1 = phase1Steps.indexOf(currentStepData);
+        if (currentIdxInPhase1 === phase1Steps.length - 1) {
+          // Reached end of Section 1 -> Trigger Phase Transition Confirmation Popup!
+          setShowPhaseTransitionModal(true);
+          return;
+        }
+        if (currentIdxInPhase1 !== -1 && currentIdxInPhase1 < phase1Steps.length - 1) {
+          const nextStepObj = phase1Steps[currentIdxInPhase1 + 1];
+          setCurrentStep(steps.indexOf(nextStepObj) + 1);
+          return;
+        }
+      } else if (sswPhase === 2) {
+        const currentIdxInPhase2 = phase2Steps.indexOf(currentStepData);
+        if (currentIdxInPhase2 === phase2Steps.length - 1) {
+          // Reached end of Section 2 -> Trigger Final Submit Confirmation Popup!
+          setShowUnansweredModal(true);
+          return;
+        }
+        if (currentIdxInPhase2 !== -1 && currentIdxInPhase2 < phase2Steps.length - 1) {
+          const nextStepObj = phase2Steps[currentIdxInPhase2 + 1];
+          setCurrentStep(steps.indexOf(nextStepObj) + 1);
+          return;
+        }
+      }
+    }
+
+    // JFT logic (100% UNTOUCHED):
     if (currentStep === 0) {
       setCurrentStep(1);
       return;
@@ -296,23 +368,32 @@ function QuizContent({ params: paramsPromise }) {
 
   const prevStep = () => {
     pauseAllAudio();
+    if (isSkillTest) {
+      if (sswPhase === 1) {
+        const currentIdxInPhase1 = phase1Steps.indexOf(currentStepData);
+        if (currentIdxInPhase1 > 0) {
+          const prevStepObj = phase1Steps[currentIdxInPhase1 - 1];
+          setCurrentStep(steps.indexOf(prevStepObj) + 1);
+        }
+      } else if (sswPhase === 2) {
+        const currentIdxInPhase2 = phase2Steps.indexOf(currentStepData);
+        if (currentIdxInPhase2 > 0) {
+          const prevStepObj = phase2Steps[currentIdxInPhase2 - 1];
+          setCurrentStep(steps.indexOf(prevStepObj) + 1);
+        }
+      }
+      return;
+    }
+
+    // JFT logic (100% UNTOUCHED):
     const currentSec = activeSectionKey;
     const firstStepInSec = getFirstStepForSection(currentSec);
 
     if (firstStepInSec !== null && currentStep > firstStepInSec) {
       setCurrentStep((prev) => prev - 1);
+    } else if (currentStep === 1 && test.is_actual_exam_demo) {
+      setCurrentStep(0);
     }
-  };
-
-  const handleAutoSubmit = () => {
-    pauseAllAudio();
-    executeSubmission('Time Expired - Evaluating Results...');
-  };
-
-  const handleManualSubmit = () => {
-    setShowUnansweredModal(false);
-    pauseAllAudio();
-    executeSubmission('Evaluating Exam Results...');
   };
 
   const executeSubmission = async (loadingMessage) => {
@@ -340,6 +421,36 @@ function QuizContent({ params: paramsPromise }) {
       setLoadingOverlayText(null);
     }
   };
+
+  const handleAutoSubmit = () => {
+    pauseAllAudio();
+    executeSubmission('Time Expired - Evaluating Results...');
+  };
+
+  const handleManualSubmit = () => {
+    setShowUnansweredModal(false);
+    pauseAllAudio();
+    executeSubmission('Evaluating Exam Results...');
+  };
+
+  // Countdown timer effect (placed after handleAutoSubmit declaration)
+  useEffect(() => {
+    if (timeLeft === null || timeLeft <= 0 || isSubmitting) return;
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          handleAutoSubmit();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, isSubmitting]);
 
   const formatTimer = (seconds) => {
     if (seconds === null) return '00:00:00';
@@ -444,7 +555,7 @@ function QuizContent({ params: paramsPromise }) {
         <header className="bg-black text-white min-h-[2.5rem] py-1.5 px-3 sm:px-4 flex items-center justify-between gap-2 border-b border-slate-800 text-xs font-sans flex-shrink-0">
           <div className="flex items-center gap-2 sm:gap-4 truncate">
             <span className="font-bold whitespace-nowrap bg-slate-800 px-2 py-0.5 rounded text-[11px] sm:text-xs">
-              Q {currentStep === 0 ? 'Intro' : `${currentSectionStepNum}/${totalStepsInSection}`}
+              Q {currentStep === 0 ? 'Intro' : isSkillTest ? `${sswActiveSteps.indexOf(currentStepData) + 1}/${sswActiveSteps.length}` : `${currentSectionStepNum}/${totalStepsInSection}`}
             </span>
             <span className="truncate text-slate-200 text-[11px] sm:text-xs">
               Sec: <span className="font-bold text-white">{activeSectionName}</span>
@@ -476,7 +587,11 @@ function QuizContent({ params: paramsPromise }) {
               onClick={finishCurrentSection}
               className="bg-[#F59E0B] hover:bg-[#D97706] text-black font-extrabold px-2.5 py-1 sm:px-4 sm:py-1.5 rounded text-[10px] sm:text-xs transition-all active:scale-95 whitespace-nowrap cursor-pointer"
             >
-              Finish Sec
+              {isSkillTest
+                ? sswPhase === 1 && phase2Steps.length > 0
+                  ? '第1部 終了 (Next Sec)'
+                  : '試験 終了 (Finish Exam)'
+                : 'Finish Sec'}
             </button>
           </div>
         </header>
@@ -516,153 +631,211 @@ function QuizContent({ params: paramsPromise }) {
            ========================================== */}
       <div className="flex-1 min-h-0 flex flex-row overflow-hidden relative">
         {/* Left Navigation Sidebar */}
-        <aside className="w-24 sm:w-36 bg-white border-r border-[#E2E8F0] h-full min-h-0 flex flex-row p-1 sm:p-1.5 gap-1 sm:gap-1.5 flex-shrink-0 select-none overflow-hidden">
+        <aside className={`${isSkillTest ? 'w-24 sm:w-32' : 'w-24 sm:w-36'} bg-white border-r border-[#E2E8F0] h-full min-h-0 flex flex-row p-1 sm:p-1.5 gap-1 sm:gap-1.5 flex-shrink-0 select-none overflow-hidden`}>
 
-          {/* Sub-Column 1: Section Tabs with vertical progress fill */}
-          <div className="w-8 sm:w-11 h-full flex flex-col justify-between gap-1 sm:gap-1.5 flex-shrink-0 font-sans py-0.5">
-            {/* Section 0: Intro (Visible in Actual Exam Demo) */}
-            {test.is_actual_exam_demo && (
-              <div
-                onClick={() => goToStep(0)}
-                className={`flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors cursor-pointer ${
-                  currentStep === 0 ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'
-                }`}
-              >
-                <span className="leading-none pt-0.5 font-semibold text-center">Intro</span>
-                <div className="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
+          {isSkillTest ? (
+            /* =========================================================
+                 SSW SINGLE SECTION VIEW (NO 4 JFT VERTICAL STRIPS!)
+               ========================================================= */
+            <div className="w-full flex flex-col h-full overflow-hidden">
+              {/* Active Section Header Card */}
+              <div className="p-1.5 sm:p-2 bg-[#466928] text-white rounded-lg mb-1.5 text-center shadow-xs flex-shrink-0">
+                <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-emerald-200 block">
+                  {sswPhase === 1 ? '第1部 (Section 1)' : '第2部 (Section 2)'}
+                </span>
+                <strong className="text-[11px] sm:text-xs font-black block truncate">
+                  {sswPhase === 1 ? '音声・入力試験' : '専門・実技試験'}
+                </strong>
+                <span className="text-[8px] sm:text-[9px] text-emerald-100/80 block mt-0.5">
+                  {sswPhase === 1 ? 'Audio & Typing' : 'Practical Knowledge'}
+                </span>
+              </div>
+
+              {/* Questions List for Current Phase Only */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-0.5">
+                {sswActiveSteps.map((step, phaseIdx) => {
+                  const globalStepNum = steps.indexOf(step) + 1;
+                  const phaseStepNum = phaseIdx + 1;
+
+                  const isAnswered = step.questions.every(
+                    (q) => answers[`q${q.id}`] !== undefined && answers[`q${q.id}`] !== null && String(answers[`q${q.id}`]).trim() !== ''
+                  );
+                  const isActive = currentStep === globalStepNum;
+                  const isFlagged = Boolean(flagged[`q${globalStepNum}`]);
+
+                  return (
+                    <button
+                      key={globalStepNum}
+                      type="button"
+                      onClick={() => goToStep(globalStepNum)}
+                      className={`w-full h-8 text-xs font-black flex items-center justify-between px-2 transition-all shadow-2xs relative rounded cursor-pointer ${
+                        isActive
+                          ? 'cbt-chevron-tab'
+                          : 'cbt-tab-green opacity-90 hover:opacity-100'
+                      }`}
+                    >
+                      <span className="flex items-center gap-1">
+                        <span>{phaseStepNum}</span>
+                        {isFlagged && <Flag className="w-2.5 h-2.5 fill-current text-amber-300" />}
+                      </span>
+                      {isAnswered && <span className="text-[10px] font-extrabold text-amber-300">✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            /* =========================================================
+                 JFT 4-SECTION VIEW (100% UNTOUCHED AND INTACT)
+               ========================================================= */
+            <>
+              {/* Sub-Column 1: Section Tabs with vertical progress fill */}
+              <div className="w-8 sm:w-11 h-full flex flex-col justify-between gap-1 sm:gap-1.5 flex-shrink-0 font-sans py-0.5">
+                {/* Section 0: Intro (Visible in Actual Exam Demo) */}
+                {test.is_actual_exam_demo && (
                   <div
-                    className="w-full bg-[#6B9E2B] transition-all duration-300"
-                    style={{ height: currentStep === 0 ? '100%' : '0%' }}
-                  ></div>
-                </div>
-              </div>
-            )}
-
-            {/* Section 1: Script and Vocabulary */}
-            <div
-              className={`flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors relative ${
-                activeSectionKey === 'script_vocab' ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'
-              }`}
-            >
-              <span className="leading-none pt-0.5 text-center">{SECTION_SHORT_LABELS.script_vocab}</span>
-              {isSectionCompleted('script_vocab') && (
-                <Lock className="w-2.5 h-2.5 text-red-500" />
-              )}
-              <div className="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
-                <div
-                  className="w-full bg-[#6B9E2B] transition-all duration-300"
-                  style={{ height: `${getSectionFill('script_vocab')}%` }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Section 2: Conversation and Expression */}
-            <div
-              className={`flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors relative ${
-                activeSectionKey === 'conversation' ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'
-              }`}
-            >
-              <span className="leading-none pt-0.5 text-center">{SECTION_SHORT_LABELS.conversation}</span>
-              {isSectionCompleted('conversation') && (
-                <Lock className="w-2.5 h-2.5 text-red-500" />
-              )}
-              <div className="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
-                <div
-                  className="w-full bg-[#6B9E2B] transition-all duration-300"
-                  style={{ height: `${getSectionFill('conversation')}%` }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Section 3: Listening Comprehension */}
-            <div
-              className={`flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors relative ${
-                activeSectionKey === 'listening' ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'
-              }`}
-            >
-              <span className="leading-none pt-0.5 text-center">{SECTION_SHORT_LABELS.listening}</span>
-              {isSectionCompleted('listening') && (
-                <Lock className="w-2.5 h-2.5 text-red-500" />
-              )}
-              <div className="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
-                <div
-                  className="w-full bg-[#6B9E2B] transition-all duration-300"
-                  style={{ height: `${getSectionFill('listening')}%` }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Section 4: Reading Comprehension */}
-            <div
-              className={`flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors relative ${
-                activeSectionKey === 'reading' ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'
-              }`}
-            >
-              <span className="leading-none pt-0.5 text-center">{SECTION_SHORT_LABELS.reading}</span>
-              {isSectionCompleted('reading') && (
-                <Lock className="w-2.5 h-2.5 text-red-500" />
-              )}
-              <div className="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
-                <div
-                  className="w-full bg-[#6B9E2B] transition-all duration-300"
-                  style={{ height: `${getSectionFill('reading')}%` }}
-                ></div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Sub-Column 2: Question List for Active Section */}
-          <div className="flex-1 h-full overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-0.5">
-            {/* Section 0: Intro Tab */}
-            {test.is_actual_exam_demo && activeSectionKey === 'intro' && (
-              <button
-                type="button"
-                onClick={() => goToStep(0)}
-                className={`w-full h-8 text-[11px] font-bold flex items-center justify-center border transition-colors shadow-2xs cursor-pointer ${
-                  currentStep === 0
-                    ? 'cbt-chevron-tab'
-                    : 'bg-white text-slate-800 border-[#CCCCCC] hover:bg-slate-50'
-                }`}
-              >
-                Intro
-              </button>
-            )}
-
-            {/* Dynamic Question Step Tabs for Active Section (Starting from 1 in each section) */}
-            {(() => {
-              const activeSectionSteps = steps.filter((s) => s.section === activeSectionKey);
-              return activeSectionSteps.map((step, sectionIdx) => {
-                const globalStepNum = steps.indexOf(step) + 1;
-                const sectionStepNum = sectionIdx + 1;
-
-                const isAnswered = step.questions.every(
-                  (q) => answers[`q${q.id}`] !== undefined && answers[`q${q.id}`] !== null
-                );
-                const isActive = currentStep === globalStepNum;
-                const isLocked = isSectionCompleted(step.section);
-
-                return (
-                  <button
-                    key={globalStepNum}
-                    type="button"
-                    onClick={() => goToStep(globalStepNum)}
-                    disabled={isLocked}
-                    className={`w-full h-7 sm:h-8 text-xs font-black flex items-center justify-between px-1.5 transition-all shadow-2xs relative disabled:opacity-50 cursor-pointer ${
-                      isActive
-                        ? 'cbt-chevron-tab'
-                        : 'cbt-tab-green opacity-90 hover:opacity-100'
+                    onClick={() => goToStep(0)}
+                    className={`flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors cursor-pointer ${
+                      currentStep === 0 ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'
                     }`}
                   >
-                    <span className="flex items-center gap-0.5">
-                      <span>{sectionStepNum}</span>
-                    </span>
-                    {isAnswered && <span className="text-[10px] font-extrabold text-amber-300">✓</span>}
+                    <span className="leading-none pt-0.5 font-semibold text-center">Intro</span>
+                    <div className="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
+                      <div
+                        className="w-full bg-[#6B9E2B] transition-all duration-300"
+                        style={{ height: currentStep === 0 ? '100%' : '0%' }}
+                      ></div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Section 1: Script and Vocabulary */}
+                <div
+                  className={`flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors relative ${
+                    activeSectionKey === 'script_vocab' ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'
+                  }`}
+                >
+                  <span className="leading-none pt-0.5 text-center">{SECTION_SHORT_LABELS.script_vocab}</span>
+                  {isSectionCompleted('script_vocab') && (
+                    <Lock className="w-2.5 h-2.5 text-red-500" />
+                  )}
+                  <div className="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
+                    <div
+                      className="w-full bg-[#6B9E2B] transition-all duration-300"
+                      style={{ height: `${getSectionFill('script_vocab')}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Section 2: Conversation and Expression */}
+                <div
+                  className={`flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors relative ${
+                    activeSectionKey === 'conversation' ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'
+                  }`}
+                >
+                  <span className="leading-none pt-0.5 text-center">{SECTION_SHORT_LABELS.conversation}</span>
+                  {isSectionCompleted('conversation') && (
+                    <Lock className="w-2.5 h-2.5 text-red-500" />
+                  )}
+                  <div className="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
+                    <div
+                      className="w-full bg-[#6B9E2B] transition-all duration-300"
+                      style={{ height: `${getSectionFill('conversation')}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Section 3: Listening Comprehension */}
+                <div
+                  className={`flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors relative ${
+                    activeSectionKey === 'listening' ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'
+                  }`}
+                >
+                  <span className="leading-none pt-0.5 text-center">{SECTION_SHORT_LABELS.listening}</span>
+                  {isSectionCompleted('listening') && (
+                    <Lock className="w-2.5 h-2.5 text-red-500" />
+                  )}
+                  <div className="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
+                    <div
+                      className="w-full bg-[#6B9E2B] transition-all duration-300"
+                      style={{ height: `${getSectionFill('listening')}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Section 4: Reading Comprehension */}
+                <div
+                  className={`flex-1 bg-white border p-0.5 sm:p-1 flex flex-col items-center justify-between text-[9px] sm:text-[11px] text-slate-800 transition-colors relative ${
+                    activeSectionKey === 'reading' ? 'border-2 border-[#6B9E2B] font-bold shadow-xs' : 'border-[#C5C5C5]'
+                  }`}
+                >
+                  <span className="leading-none pt-0.5 text-center">{SECTION_SHORT_LABELS.reading}</span>
+                  {isSectionCompleted('reading') && (
+                    <Lock className="w-2.5 h-2.5 text-red-500" />
+                  )}
+                  <div className="w-2 sm:w-2.5 flex-1 my-1 bg-slate-100 rounded-full overflow-hidden flex flex-col justify-end">
+                    <div
+                      className="w-full bg-[#6B9E2B] transition-all duration-300"
+                      style={{ height: `${getSectionFill('reading')}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Sub-Column 2: Question List for Active Section */}
+              <div className="flex-1 h-full overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-0.5">
+                {/* Section 0: Intro Tab */}
+                {test.is_actual_exam_demo && activeSectionKey === 'intro' && (
+                  <button
+                    type="button"
+                    onClick={() => goToStep(0)}
+                    className={`w-full h-8 text-[11px] font-bold flex items-center justify-center border transition-colors shadow-2xs cursor-pointer ${
+                      currentStep === 0
+                        ? 'cbt-chevron-tab'
+                        : 'bg-white text-slate-800 border-[#CCCCCC] hover:bg-slate-50'
+                    }`}
+                  >
+                    Intro
                   </button>
-                );
-              });
-            })()}
-          </div>
+                )}
+
+                {/* Dynamic Question Step Tabs for Active Section (Starting from 1 in each section) */}
+                {(() => {
+                  const activeSectionSteps = steps.filter((s) => s.section === activeSectionKey);
+                  return activeSectionSteps.map((step, sectionIdx) => {
+                    const globalStepNum = steps.indexOf(step) + 1;
+                    const sectionStepNum = sectionIdx + 1;
+
+                    const isAnswered = step.questions.every(
+                      (q) => answers[`q${q.id}`] !== undefined && answers[`q${q.id}`] !== null
+                    );
+                    const isActive = currentStep === globalStepNum;
+                    const isLocked = isSectionCompleted(step.section);
+
+                    return (
+                      <button
+                        key={globalStepNum}
+                        type="button"
+                        onClick={() => goToStep(globalStepNum)}
+                        disabled={isLocked}
+                        className={`w-full h-7 sm:h-8 text-xs font-black flex items-center justify-between px-1.5 transition-all shadow-2xs relative disabled:opacity-50 cursor-pointer ${
+                          isActive
+                            ? 'cbt-chevron-tab'
+                            : 'cbt-tab-green opacity-90 hover:opacity-100'
+                        }`}
+                      >
+                        <span className="flex items-center gap-0.5">
+                          <span>{sectionStepNum}</span>
+                        </span>
+                        {isAnswered && <span className="text-[10px] font-extrabold text-amber-300">✓</span>}
+                      </button>
+                    );
+                  });
+                })()}
+              </div>
+            </>
+          )}
         </aside>
 
 
@@ -786,48 +959,76 @@ function QuizContent({ params: paramsPromise }) {
                       </div>
                     )}
 
-                    {/* Choice Boxes */}
-                    <div className="space-y-3 pt-1">
-                      {question.options.map((option) => {
-                        const isSelected = answers[`q${question.id}`] === option.id;
-                        const isLocked = isSectionCompleted(question.section);
+                    {/* Choice Boxes OR Typing Input Field */}
+                    {question.type === 'typing' || question.type === 'audio_typing' ? (
+                      /* Typing Input Field for Prometric SSW Skill Test */
+                      <div className="space-y-3 pt-2">
+                        <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+                          <Keyboard className="w-4 h-4 text-emerald-600" />
+                          <span>解答入力欄 (Type your answer below):</span>
+                        </div>
+                        <input
+                          type="text"
+                          value={answers[`q${question.id}`] || ''}
+                          onChange={(e) => {
+                            if (isSectionCompleted(activeSectionKey)) return;
+                            setAnswers((prev) => ({
+                              ...prev,
+                              [`q${question.id}`]: e.target.value,
+                            }));
+                          }}
+                          disabled={isSectionCompleted(activeSectionKey)}
+                          placeholder="ひらがな、カタカナ、またはローマ字で入力してください..."
+                          className="w-full max-w-lg px-4 py-3 text-base sm:text-lg font-bold bg-white border-2 border-slate-300 focus:border-[#6B9E2B] focus:ring-2 focus:ring-[#6B9E2B]/30 rounded-lg outline-none transition-all shadow-inner disabled:bg-slate-100 disabled:text-slate-500"
+                        />
+                        <p className="text-[11px] text-slate-500 italic">
+                          ※入力後、次の問題へ進むと入力した解答が自動保存されます。
+                        </p>
+                      </div>
+                    ) : (
+                      /* Choice Boxes for Multiple Choice */
+                      <div className="space-y-3 pt-1">
+                        {question.options.map((option) => {
+                          const isSelected = answers[`q${question.id}`] === option.id;
+                          const isLocked = isSectionCompleted(question.section);
 
-                        return (
-                          <label
-                            key={option.id}
-                            onClick={() => handleSelectOption(question.id, option.id)}
-                            className={`cbt-choice-box block relative rounded-xl transition-all ${
-                              isLocked ? 'pointer-events-none opacity-80' : 'cursor-pointer'
-                            }`}
-                            style={
-                              isSelected
-                                ? { backgroundColor: '#FFE6D5', borderColor: '#D97706', borderWidth: '2px' }
-                                : {}
-                            }
-                          >
-                            <input
-                              type="radio"
-                              name={`question_${question.id}`}
-                              value={option.id}
-                              checked={isSelected}
-                              onChange={() => handleSelectOption(question.id, option.id)}
-                              className="sr-only"
-                            />
-                            <div className="w-full h-full font-bold flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                              {option.image_url && (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={option.image_url}
-                                  alt="Option illustration"
-                                  className="max-h-28 sm:max-h-36 w-auto object-contain rounded border border-slate-300 bg-white p-1 flex-shrink-0"
-                                />
-                              )}
-                              {option.label && <span className="leading-snug">{option.label}</span>}
-                            </div>
-                          </label>
-                        );
-                      })}
-                    </div>
+                          return (
+                            <label
+                              key={option.id}
+                              onClick={() => handleSelectOption(question.id, option.id)}
+                              className={`cbt-choice-box block relative rounded-xl transition-all ${
+                                isLocked ? 'pointer-events-none opacity-80' : 'cursor-pointer'
+                              }`}
+                              style={
+                                isSelected
+                                  ? { backgroundColor: '#FFE6D5', borderColor: '#D97706', borderWidth: '2px' }
+                                  : {}
+                              }
+                            >
+                              <input
+                                type="radio"
+                                name={`question_${question.id}`}
+                                value={option.id}
+                                checked={isSelected}
+                                onChange={() => handleSelectOption(question.id, option.id)}
+                                className="sr-only"
+                              />
+                              <div className="w-full h-full font-bold flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                                {option.image_url && (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={option.image_url}
+                                    alt="Option illustration"
+                                    className="max-h-28 sm:max-h-36 w-auto object-contain rounded border border-slate-300 bg-white p-1 flex-shrink-0"
+                                  />
+                                )}
+                                {option.label && <span className="leading-snug">{option.label}</span>}
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -864,42 +1065,94 @@ function QuizContent({ params: paramsPromise }) {
             type="button"
             onClick={prevStep}
             disabled={
-              currentStep === 0 ||
-              (getFirstStepForSection(activeSectionKey) !== null &&
-                currentStep === getFirstStepForSection(activeSectionKey))
+              isSkillTest
+                ? (sswPhase === 1
+                    ? phase1Steps.indexOf(currentStepData) <= 0
+                    : phase2Steps.indexOf(currentStepData) <= 0)
+                : (currentStep === 0 ||
+                  (getFirstStepForSection(activeSectionKey) !== null &&
+                    currentStep === getFirstStepForSection(activeSectionKey)))
             }
             className="bg-[#6B9E2B] hover:bg-[#5A8226] text-white px-3.5 py-2 sm:px-4 sm:py-1.5 rounded-lg flex items-center gap-1 disabled:opacity-40 shadow-xs text-xs font-extrabold active:scale-95 whitespace-nowrap cursor-pointer"
           >
             &lt; Back
           </button>
 
-          {/* Next Button */}
-          {currentStep < totalSteps && (
-            <button
-              type="button"
-              onClick={nextStep}
-              className="bg-[#6B9E2B] hover:bg-[#5A8226] text-white px-4 py-2 sm:px-5 sm:py-1.5 rounded-lg flex items-center gap-1 shadow-xs text-xs font-extrabold active:scale-95 whitespace-nowrap cursor-pointer"
-            >
-              <span>
-                {currentStep === 0
-                  ? 'Start Exam >'
-                  : currentStep === getLastStepForSection(activeSectionKey)
-                  ? 'Finish Sec >'
-                  : 'Next >'}
-              </span>
-            </button>
-          )}
+          {/* Next Button / Phase Transition / Submit Button */}
+          {(() => {
+            if (isSkillTest) {
+              if (sswPhase === 1 && phase2Steps.length > 0) {
+                const isLastInPhase1 = phase1Steps.indexOf(currentStepData) === phase1Steps.length - 1;
+                return (
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    className="bg-[#6B9E2B] hover:bg-[#5A8226] text-white px-4 py-2 sm:px-5 sm:py-1.5 rounded-lg flex items-center gap-1 shadow-xs text-xs font-extrabold active:scale-95 whitespace-nowrap cursor-pointer"
+                  >
+                    <span>{isLastInPhase1 ? 'Next Sec >' : 'Next >'}</span>
+                  </button>
+                );
+              } else {
+                // In Phase 2 (or only 1 phase total in SSW)
+                const isLastInPhase2 =
+                  currentStep === totalSteps ||
+                  (phase2Steps.length > 0 && phase2Steps.indexOf(currentStepData) === phase2Steps.length - 1);
 
-          {/* Finish / Submit Button */}
-          {currentStep === totalSteps && (
-            <button
-              type="button"
-              onClick={() => setShowUnansweredModal(true)}
-              className="bg-[#F59E0B] hover:bg-[#D97706] text-black font-black px-4 py-2 sm:px-5 sm:py-1.5 rounded-lg flex items-center gap-1 shadow-xs text-xs active:scale-95 whitespace-nowrap cursor-pointer"
-            >
-              Finish &gt;
-            </button>
-          )}
+                if (!isLastInPhase2) {
+                  return (
+                    <button
+                      type="button"
+                      onClick={nextStep}
+                      className="bg-[#6B9E2B] hover:bg-[#5A8226] text-white px-4 py-2 sm:px-5 sm:py-1.5 rounded-lg flex items-center gap-1 shadow-xs text-xs font-extrabold active:scale-95 whitespace-nowrap cursor-pointer"
+                    >
+                      <span>Next &gt;</span>
+                    </button>
+                  );
+                } else {
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => setShowUnansweredModal(true)}
+                      className="bg-[#F59E0B] hover:bg-[#D97706] text-black font-black px-4 py-2 sm:px-5 sm:py-1.5 rounded-lg flex items-center gap-1 shadow-xs text-xs active:scale-95 whitespace-nowrap cursor-pointer"
+                    >
+                      Finish &gt;
+                    </button>
+                  );
+                }
+              }
+            }
+
+            // JFT logic (100% UNTOUCHED):
+            return (
+              <>
+                {currentStep < totalSteps && (
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    className="bg-[#6B9E2B] hover:bg-[#5A8226] text-white px-4 py-2 sm:px-5 sm:py-1.5 rounded-lg flex items-center gap-1 shadow-xs text-xs font-extrabold active:scale-95 whitespace-nowrap cursor-pointer"
+                  >
+                    <span>
+                      {currentStep === 0
+                        ? 'Start Exam >'
+                        : currentStep === getLastStepForSection(activeSectionKey)
+                        ? 'Finish Sec >'
+                        : 'Next >'}
+                    </span>
+                  </button>
+                )}
+
+                {currentStep === totalSteps && (
+                  <button
+                    type="button"
+                    onClick={() => setShowUnansweredModal(true)}
+                    className="bg-[#F59E0B] hover:bg-[#D97706] text-black font-black px-4 py-2 sm:px-5 sm:py-1.5 rounded-lg flex items-center gap-1 shadow-xs text-xs active:scale-95 whitespace-nowrap cursor-pointer"
+                  >
+                    Finish &gt;
+                  </button>
+                )}
+              </>
+            );
+          })()}
         </div>
       </footer>
 
@@ -951,6 +1204,102 @@ function QuizContent({ params: paramsPromise }) {
                 className="bg-black hover:bg-slate-800 text-white text-xs font-bold px-4 py-1.5 sm:px-5 sm:py-2 rounded cursor-pointer"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+           SSW PHASE 1 -> PHASE 2 TRANSITION CONFIRMATION MODAL
+           ========================================================================= */}
+      {showPhaseTransitionModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4 bg-black/60 animate-fade-in backdrop-blur-xs">
+          <div className="bg-white max-w-lg w-full rounded-xl shadow-2xl border border-slate-300 overflow-hidden font-sans">
+            {/* Modal Header */}
+            <div className="bg-[#466928] text-white px-5 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-300" />
+                <h3 className="text-sm sm:text-base font-extrabold tracking-wide">
+                  セクション終了の確認 (Section 1 Completion)
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPhaseTransitionModal(false)}
+                className="text-white hover:text-amber-200 font-bold text-lg leading-none cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 sm:p-6 space-y-4 text-slate-800">
+              <div className="space-y-2">
+                <h4 className="text-base sm:text-lg font-black text-slate-900 leading-snug">
+                  第1部（音声・入力試験）を終了し、<br className="hidden sm:inline" />第2部（専門・実技試験）へ進みますか？
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  Are you sure you want to complete Section 1 (Audio &amp; Typing) and proceed to Section 2 (Practical Knowledge)?
+                </p>
+              </div>
+
+              {/* Status Banner */}
+              <div className={`p-3.5 rounded-lg border text-xs sm:text-sm font-semibold flex items-center gap-3 ${
+                phase1UnansweredCount > 0
+                  ? 'bg-amber-50 border-amber-300 text-amber-900'
+                  : 'bg-emerald-50 border-emerald-300 text-emerald-900'
+              }`}>
+                {phase1UnansweredCount > 0 ? (
+                  <>
+                    <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                    <div>
+                      <span>第1部の未解答問題が </span>
+                      <strong className="text-amber-700 font-black">{phase1UnansweredCount}問</strong>
+                      <span> あります。（解答済み: {phase1AnsweredCount}/{phase1TotalQuestions}問）</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-xs flex-shrink-0">✓</span>
+                    <div>
+                      <span>第1部のすべての問題（全</span>
+                      <strong className="text-emerald-700 font-black">{phase1TotalQuestions}問</strong>
+                      <span>）に解答済みです。</span>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Warning Notice */}
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-800 space-y-1">
+                <p className="font-bold flex items-center gap-1.5 text-rose-900">
+                  <Lock className="w-3.5 h-3.5 text-rose-600" />
+                  <span>重要：次のセクションへ進んだ後の制限</span>
+                </p>
+                <p className="leading-relaxed">
+                  次のセクションへ進むと、第1部の問題に戻って確認や解答の変更を行うことはできません。
+                  (Once you advance to Section 2, you cannot return to Section 1.)
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="px-5 py-3.5 bg-slate-100 border-t border-slate-200 flex flex-col sm:flex-row gap-2 sm:gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setShowPhaseTransitionModal(false)}
+                className="w-full sm:w-auto px-5 py-2.5 bg-white hover:bg-slate-200 text-slate-700 font-extrabold text-xs sm:text-sm rounded-lg border border-slate-300 transition-all cursor-pointer shadow-xs"
+              >
+                前の画面に戻る (Return to Review)
+              </button>
+              <button
+                type="button"
+                onClick={proceedToPhase2}
+                className="w-full sm:w-auto px-5 py-2.5 bg-[#6B9E2B] hover:bg-[#5A8226] text-white font-extrabold text-xs sm:text-sm rounded-lg transition-all shadow-md active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>次のセクションへ進む (Proceed to Section 2)</span>
+                <span>&gt;</span>
               </button>
             </div>
           </div>

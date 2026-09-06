@@ -13,12 +13,13 @@ export function formatPrompt(text) {
   if (!text) return '';
   const valStr = String(text).replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
 
-  // Escape HTML then apply __underline__
+  // Escape HTML then apply __underline__ and [red]...[/red]
   const escaped = valStr
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/__((?:(?!__).)+?)__/g, '<u>$1</u>');
+    .replace(/__((?:(?!__).)+?)__/g, '<u>$1</u>')
+    .replace(/\[red\](.*?)\[\/red\]/gi, '<span style="color:#DC2626;font-weight:bold;">$1</span>');
 
   const lines = escaped.split('\n').map(l => l.trim()).filter(Boolean);
   if (!lines.length) return '';

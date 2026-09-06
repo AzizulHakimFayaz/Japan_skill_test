@@ -94,7 +94,7 @@ function formatPrometricTime(seconds) {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-export default function SswCbtExamPage({ params: paramsPromise }) {
+function SswCbtExamContent({ params: paramsPromise }) {
   const params = use(paramsPromise);
   const testId = params?.id;
   const router = useRouter();
@@ -952,5 +952,20 @@ export default function SswCbtExamPage({ params: paramsPromise }) {
         </div>
       )}
     </div>
+  );
+}
+
+export default function SswCbtExamPage(props) {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white space-y-4">
+          <div className="w-12 h-12 border-4 border-japan-red border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs font-bold text-slate-400">Loading SSW CBT Simulator...</p>
+        </div>
+      }
+    >
+      <SswCbtExamContent {...props} />
+    </React.Suspense>
   );
 }
