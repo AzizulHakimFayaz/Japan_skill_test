@@ -5,9 +5,13 @@ from . import views
 urlpatterns = [
     # Tests & Quiz
     path('tests/', views.TestListAPIView.as_view(), name='api_tests_list'),
+    path('tests/sample-ssw-csv/', views.SampleSswCsvAPIView.as_view(), name='api_sample_ssw_csv'),
+    path('tests/sample-jft-csv/', views.SampleJftCsvAPIView.as_view(), name='api_sample_jft_csv'),
     path('tests/<int:pk>/', views.TestDetailAPIView.as_view(), name='api_test_detail'),
     path('tests/<int:pk>/quiz/', views.QuizDataAPIView.as_view(), name='api_quiz_data'),
     path('tests/<int:pk>/submit/', views.SubmitQuizAPIView.as_view(), name='api_submit_quiz'),
+    path('tests/<int:pk>/export-csv/', views.TestExportQuestionsCsvAPIView.as_view(), name='api_test_export_csv'),
+    path('tests/<int:pk>/import-csv/', views.TestImportQuestionsCsvAPIView.as_view(), name='api_test_import_csv'),
     path('attempts/<int:pk>/', views.AttemptResultsAPIView.as_view(), name='api_attempt_results'),
 
     # Static / Overview Info

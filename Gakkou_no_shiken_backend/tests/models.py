@@ -41,14 +41,21 @@ class Test(models.Model):
         return True
 
     def get_ordered_questions(self):
-        """Returns questions ordered by JFT section hierarchy (script_vocab, conversation, listening, reading), then order_index, then id."""
+        """Returns questions ordered by section hierarchy, then order_index, then id.
+        Supports both JFT 4-section flow (script_vocab, conversation, listening, reading)
+        and SSW Prometric 2-phase flow (Phase 1: audio/typing, Phase 2: occupational/practical).
+        """
         return self.questions.select_related('group').prefetch_related('options').annotate(
             sec_order=Case(
+                # JFT Sections
                 When(section=Question.Section.SCRIPT_VOCAB, then=Value(1)),
                 When(section=Question.Section.CONVERSATION, then=Value(2)),
                 When(section=Question.Section.LISTENING, then=Value(3)),
                 When(section=Question.Section.READING, then=Value(4)),
-                default=Value(5),
+                # SSW Prometric Phases (Phase 1: Audio/Typing -> Phase 2: Occupational/Practical)
+                When(section="audio", then=Value(10)),
+                When(section="occupational", then=Value(20)),
+                default=Value(30),
                 output_field=IntegerField()
             )
         ).order_by('sec_order', 'order_index', 'id')
@@ -100,12 +107,18 @@ class Question(models.Model):
         IMAGE = "image", "Image"
         AUDIO = "audio", "Audio"
         IMAGE_AUDIO = "image_audio", "Image + Audio"
+        TYPING = "typing", "Typing (Text Input)"
+        AUDIO_TYPING = "audio_typing", "Audio + Typing"
 
     class Section(models.TextChoices):
+        # JFT-Basic 4 Official Sections
         SCRIPT_VOCAB = "script_vocab", "Script and Vocabulary"
         CONVERSATION = "conversation", "Conversation and Expression"
         LISTENING = "listening", "Listening Comprehension"
         READING = "reading", "Reading Comprehension"
+        # SSW Prometric CBT Phases
+        AUDIO = "audio", "Audio Comprehension & Typing (Phase 1)"
+        OCCUPATIONAL = "occupational", "Occupational / Practical Skills (Phase 2)"
 
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name="questions")
     group = models.ForeignKey(
@@ -350,6 +363,10 @@ class Attempt(models.Model):
 
     @property
     def is_passed(self):
+        # SSW Skill Evaluation Exam passing threshold is 60%
+        if self.test and self.test.category == Test.Category.SKILL:
+            return self.percentage >= 60.0
+        # JFT-Basic requires scaled score >= 200 (out of 250)
         return self.scaled_score >= 200
 
     def __str__(self):

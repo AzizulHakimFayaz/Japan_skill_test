@@ -58,12 +58,14 @@ export default function PracticeTestGrid({
 
   const defaultSeeAllHref = seeAllHref || (catKey === 'skill' ? '/ssw-skill-test' : '/jft-basic');
 
-  useEffect(() => {
+  const [prevPracticeTests, setPrevPracticeTests] = useState(practiceTests);
+  if (practiceTests !== prevPracticeTests) {
+    setPrevPracticeTests(practiceTests);
     if (practiceTests && practiceTests.length > 0) {
       setTests(practiceTests);
       setLoading(false);
     }
-  }, [practiceTests]);
+  }
 
   useEffect(() => {
     // Client-side real-time fetch to guarantee live data
@@ -343,8 +345,7 @@ export default function PracticeTestGrid({
               const isScheduled = Boolean(
                 test.scheduled_release_at &&
                 !test.is_released &&
-                !unlockedMap[test.id] &&
-                (new Date(test.scheduled_release_at).getTime() > Date.now())
+                !unlockedMap[test.id]
               );
 
               const diff = getDifficultyBadge(test, idx);
@@ -478,7 +479,7 @@ export default function PracticeTestGrid({
 
                               {user?.is_staff && (
                                 <Link
-                                  href={`/test/${test.id}?preview=admin`}
+                                  href={(test.category === 'skill' || catKey === 'skill') ? `/ssw-test/${test.id}?preview=admin` : `/test/${test.id}?preview=admin`}
                                   className="w-full flex items-center justify-center gap-1 py-1 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold text-slate-500 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
                                 >
                                   <span>Admin CBT Preview ↗</span>
@@ -487,7 +488,7 @@ export default function PracticeTestGrid({
                             </div>
                           ) : (
                             <Link
-                              href={`/test/${test.id}`}
+                              href={(test.category === 'skill' || catKey === 'skill') ? `/ssw-test/${test.id}` : `/test/${test.id}`}
                               className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl font-black text-xs sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${cardTheme.button}`}
                             >
                               <span>{t('start_exam')}</span>

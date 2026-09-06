@@ -214,5 +214,156 @@ class TestViewsTestCase(TestCase):
         trans_custom = q_custom.get_translations()
         self.assertEqual(trans_custom['Bengali'], "কাস্টম বাংলা অনুবাদ")
 
+    def test_download_sample_ssw_csv(self):
+        superuser = User.objects.create_superuser(username="admin_ssw", password="adminpassword123", email="ssw@example.com")
+        self.client.login(username="admin_ssw", password="adminpassword123")
+        resp = self.client.get(reverse('admin:download_sample_ssw_csv'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp['Content-Type'], 'text/csv; charset=utf-8-sig')
+        content = resp.content.decode('utf-8-sig')
+        self.assertIn('audio', content)
+        self.assertIn('occupational', content)
+        self.assertIn('audio_typing', content)
+
+    def test_ssw_csv_import_with_typing(self):
+        from .utils import import_questions_from_csv, generate_sample_ssw_csv_string
+        ssw_test = Test.objects.create(
+            title="SSW Bulk Test",
+            category=Test.Category.SKILL,
+            is_published=True
+        )
+        csv_str = generate_sample_ssw_csv_string()
+        count, errors = import_questions_from_csv(ssw_test, csv_str, auto_generate_audio=False)
+        self.assertEqual(count, 5)
+        self.assertEqual(len(errors), 0)
+
+        # Verify typing question has accepted answer option
+        typing_q = ssw_test.questions.filter(type=Question.QuestionType.AUDIO_TYPING).first()
+        self.assertIsNotNone(typing_q)
+        self.assertTrue(typing_q.options.filter(label="いらっしゃいませ", is_correct=True).exists())
+
+    def test_ssw_typing_submission_and_results(self):
+        ssw_test = Test.objects.create(
+            title="SSW Typing Eval",
+            category=Test.Category.SKILL,
+            is_published=True
+        )
+        q_type = Question.objects.create(
+            test=ssw_test,
+            section=Question.Section.AUDIO,
+            type=Question.QuestionType.TYPING,
+            prompt="Type greeting",
+            order_index=1
+        )
+        AnswerOption.objects.create(question=q_type, label="いらっしゃいませ", is_correct=True, order_index=1)
+        AnswerOption.objects.create(question=q_type, label="irasshaimase", is_correct=True, order_index=2)
+
+        # Submit correct typing answer in Romaji
+        post_data = {
+            "answers": {
+                str(q_type.id): "irasshaimase"
+            }
+        }
+        resp = self.client.post(reverse('api_submit_quiz', args=[ssw_test.id]), data=post_data, content_type="application/json")
+        self.assertEqual(resp.status_code, 201)
+        attempt_id = resp.json()['attempt_id']
+        self.assertEqual(resp.json()['score'], 1)
+
+        # Fetch results
+        res_resp = self.client.get(reverse('api_attempt_results', args=[attempt_id]))
+        self.assertEqual(res_resp.status_code, 200)
+        res_data = res_resp.json()
+        self.assertTrue(res_data['attempt']['passed'])
+        self.assertEqual(res_data['attempt']['assessment_level'], "合格 (Passed)")
+        self.assertEqual(res_data['section_breakdown']['audio']['correct'], 1)
+
+    def test_export_test_questions_to_csv_helper(self):
+        from .utils import export_test_questions_to_csv
+        csv_str = export_test_questions_to_csv(self.free_test)
+        self.assertIn('group_title,section,type', csv_str)
+        self.assertIn('option_1,option_2,option_3,option_4', csv_str)
+        self.assertIn(self.free_question.prompt, csv_str)
+
+    def test_admin_export_test_csv_view(self):
+        superuser = User.objects.create_superuser(username="admin_exporter", password="password123", email="exp@example.com")
+        self.client.login(username="admin_exporter", password="password123")
+        resp = self.client.get(reverse('admin:export_test_csv', args=[self.free_test.id]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp['Content-Type'], 'text/csv; charset=utf-8-sig')
+        self.assertIn('attachment;', resp['Content-Disposition'])
+
+    def test_api_sample_csv_download_endpoints(self):
+        # SSW sample CSV API
+        resp_ssw = self.client.get(reverse('api_sample_ssw_csv'))
+        self.assertEqual(resp_ssw.status_code, 200)
+        self.assertEqual(resp_ssw['Content-Type'], 'text/csv; charset=utf-8-sig')
+        self.assertIn('ssw_prometric_test_questions_template.csv', resp_ssw['Content-Disposition'])
+
+        # JFT sample CSV API
+        resp_jft = self.client.get(reverse('api_sample_jft_csv'))
+        self.assertEqual(resp_jft.status_code, 200)
+        self.assertEqual(resp_jft['Content-Type'], 'text/csv; charset=utf-8-sig')
+        self.assertIn('jft_test_questions_template.csv', resp_jft['Content-Disposition'])
+
+    def test_api_test_export_csv(self):
+        """Tests GET /api/tests/<id>/export-csv/ downloads CSV correctly for public and staff."""
+        resp = self.client.get(reverse('api_test_export_csv', args=[self.free_test.id]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp['Content-Type'], 'text/csv; charset=utf-8-sig')
+        self.assertIn('questions.csv', resp['Content-Disposition'])
+        self.assertIn(self.free_question.prompt, resp.content.decode('utf-8-sig'))
+
+    def test_api_test_import_csv_staff_permission(self):
+        """Tests POST /api/tests/<id>/import-csv/ rejects unauthorized candidates and accepts staff."""
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from .utils import generate_sample_ssw_csv_string
+
+        csv_content = generate_sample_ssw_csv_string().encode('utf-8')
+        uploaded = SimpleUploadedFile('import.csv', csv_content, content_type='text/csv')
+
+        # 1. Anonymous candidate -> 401/403 Forbidden
+        resp_anon = self.client.post(
+            reverse('api_test_import_csv', args=[self.free_test.id]),
+            {'csv_file': uploaded}
+        )
+        self.assertIn(resp_anon.status_code, [401, 403])
+
+        # 2. Staff user -> 200 OK and imports questions
+        staff_user = User.objects.create_superuser(username="api_staff_importer", password="password123", email="api_staff@example.com")
+        self.client.login(username="api_staff_importer", password="password123")
+        uploaded.seek(0)
+        resp_staff = self.client.post(
+            reverse('api_test_import_csv', args=[self.free_test.id]),
+            {'csv_file': uploaded, 'clear_existing': 'true', 'auto_generate_audio': 'false'}
+        )
+        self.assertEqual(resp_staff.status_code, 200)
+        self.assertEqual(resp_staff.json()['status'], 'success')
+        self.assertGreater(resp_staff.json()['created_count'], 0)
+
+    def test_full_ssw_csv_roundtrip(self):
+        """Tests importing SSW sample CSV, then exporting it to CSV, ensuring full fidelity."""
+        from .utils import import_questions_from_csv, export_test_questions_to_csv, generate_sample_ssw_csv_string
+
+        ssw_test = Test.objects.create(
+            title="SSW Roundtrip Test",
+            category=Test.Category.SKILL,
+            is_published=True
+        )
+
+        sample_csv = generate_sample_ssw_csv_string()
+        count, errors = import_questions_from_csv(ssw_test, sample_csv, auto_generate_audio=False)
+        self.assertEqual(len(errors), 0)
+        self.assertEqual(count, 5)
+
+        # Export test questions
+        exported_csv = export_test_questions_to_csv(ssw_test)
+        self.assertIn('audio', exported_csv)
+        self.assertIn('occupational', exported_csv)
+        self.assertIn('audio_typing', exported_csv)
+        self.assertIn('いらっしゃいませ', exported_csv)
+        self.assertIn('irasshaimase', exported_csv)
+
+
+
 
 

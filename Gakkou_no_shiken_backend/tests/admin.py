@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
 from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice
-from .utils import import_questions_from_csv, generate_sample_csv_string
+from .utils import import_questions_from_csv, generate_sample_csv_string, generate_sample_ssw_csv_string, export_test_questions_to_csv
 
 
 
@@ -160,7 +160,7 @@ class TestAdmin(admin.ModelAdmin):
         'release_status_display',
         'time_limit_display',
         'preview_action',
-        'import_csv_action',
+        'csv_actions',
         'created_at',
     )
 
@@ -171,6 +171,7 @@ class TestAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     list_per_page = 20
     save_on_top = True
+    actions = ['export_selected_tests_csv']
 
     class Media:
         css = {'all': ('css/admin_custom.css',)}
@@ -217,13 +218,64 @@ class TestAdmin(admin.ModelAdmin):
         custom_urls = [
             path('import-csv/', self.admin_site.admin_view(self.admin_import_csv_view), name='import_questions_csv'),
             path('sample-csv/', self.admin_site.admin_view(self.admin_download_sample_csv_view), name='download_sample_csv'),
+            path('sample-ssw-csv/', self.admin_site.admin_view(self.admin_download_sample_ssw_csv_view), name='download_sample_ssw_csv'),
+            path('<int:test_id>/export-csv/', self.admin_site.admin_view(self.admin_export_test_csv_view), name='export_test_csv'),
         ]
         return custom_urls + urls
 
     def admin_download_sample_csv_view(self, request):
         csv_data = generate_sample_csv_string()
-        response = HttpResponse(csv_data, content_type='text/csv')
+        response = HttpResponse(csv_data, content_type='text/csv; charset=utf-8-sig')
         response['Content-Disposition'] = 'attachment; filename="jft_test_questions_template.csv"'
+        return response
+
+    def admin_download_sample_ssw_csv_view(self, request):
+        csv_data = generate_sample_ssw_csv_string()
+        response = HttpResponse(csv_data, content_type='text/csv; charset=utf-8-sig')
+        response['Content-Disposition'] = 'attachment; filename="ssw_prometric_test_questions_template.csv"'
+        return response
+
+    def admin_export_test_csv_view(self, request, test_id):
+        from django.shortcuts import get_object_or_404
+        from django.utils.text import slugify
+        test_obj = get_object_or_404(Test, pk=test_id)
+        csv_data = export_test_questions_to_csv(test_obj)
+        safe_title = slugify(test_obj.title) or f"test_{test_id}"
+        filename = f"{safe_title}_questions.csv"
+        response = HttpResponse(csv_data, content_type='text/csv; charset=utf-8-sig')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+
+    @admin.action(description="📤 Export Selected Tests' Questions to CSV")
+    def export_selected_tests_csv(self, request, queryset):
+        if queryset.count() == 1:
+            return self.admin_export_test_csv_view(request, queryset.first().id)
+        import io, csv
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow([
+            'test_title', 'group_title', 'section', 'type', 'instruction', 'prompt', 'audio_script',
+            'option_1', 'option_2', 'option_3', 'option_4', 'correct_option', 'order_index'
+        ])
+        for test_obj in queryset:
+            for q in test_obj.get_ordered_questions():
+                group_title = q.group.title if q.group else ''
+                options = list(q.options.all().order_by('order_index', 'id'))
+                opt_labels = [opt.label for opt in options]
+                while len(opt_labels) < 4:
+                    opt_labels.append('')
+                correct_idx = 1
+                if q.type not in [Question.QuestionType.TYPING, Question.QuestionType.AUDIO_TYPING]:
+                    for i, opt in enumerate(options, start=1):
+                        if opt.is_correct:
+                            correct_idx = i
+                            break
+                writer.writerow([
+                    test_obj.title, group_title, q.section, q.type, q.instruction, q.prompt, q.audio_script,
+                    opt_labels[0], opt_labels[1], opt_labels[2], opt_labels[3], str(correct_idx), str(q.order_index)
+                ])
+        response = HttpResponse(output.getvalue(), content_type='text/csv; charset=utf-8-sig')
+        response['Content-Disposition'] = 'attachment; filename="exported_tests_questions.csv"'
         return response
 
     def admin_import_csv_view(self, request):
@@ -346,12 +398,13 @@ class TestAdmin(admin.ModelAdmin):
         if obj and obj.id:
             status_text = "Live Preview" if obj.is_published else "Draft Preview"
             status_color = "#0284C7" if obj.is_published else "#D97706"
+            route_name = "ssw-test" if getattr(obj, 'category', '') == Test.Category.SKILL else "test"
             return format_html(
-                '<a href="https://japan-skill-test.vercel.app/test/{}?preview=admin" target="_blank" '
+                '<a href="https://japan-skill-test.vercel.app/{}/{}?preview=admin" target="_blank" '
                 'style="display:inline-flex; align-items:center; gap:4px; background:{}; color:#fff; padding:4px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 2px 6px rgba(0,0,0,0.2);">'
                 '👁️ {}'
                 '</a>',
-                obj.id, status_color, status_text
+                route_name, obj.id, status_color, status_text
             )
         return format_html('<span class="text-muted">Save first</span>')
     preview_action.short_description = 'CBT Preview'
@@ -359,15 +412,21 @@ class TestAdmin(admin.ModelAdmin):
 
 
 
-    def import_csv_action(self, obj):
-        url = reverse('admin:import_questions_csv') + f'?test_id={obj.id}'
+    def csv_actions(self, obj):
+        if not obj or not obj.id:
+            return format_html('<span class="text-muted">Save first</span>')
+        import_url = reverse('admin:import_questions_csv') + f'?test_id={obj.id}'
+        export_url = reverse('admin:export_test_csv', args=[obj.id])
         return format_html(
-            '<a href="{}" style="display:inline-flex; align-items:center; gap:4px; background:#16a34a; color:#fff; padding:4px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 2px 6px rgba(0,0,0,0.2);">'
-            '📥 CSV'
-            '</a>',
-            url
+            '<div style="display:inline-flex; align-items:center; gap:4px;">'
+            '<a href="{}" style="display:inline-flex; align-items:center; gap:2px; background:#16a34a; color:#fff; padding:3px 7px; border-radius:5px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 1px 3px rgba(0,0,0,0.15);" title="Bulk import questions via CSV">'
+            '📥 Import</a>'
+            '<a href="{}" style="display:inline-flex; align-items:center; gap:2px; background:#0284c7; color:#fff; padding:3px 7px; border-radius:5px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 1px 3px rgba(0,0,0,0.15);" title="Export questions to CSV">'
+            '📤 Export</a>'
+            '</div>',
+            import_url, export_url
         )
-    import_csv_action.short_description = 'Bulk Upload'
+    csv_actions.short_description = 'CSV Actions'
 
     def title_display(self, obj):
         icon = '🔒' if obj.requires_account else '🌐'

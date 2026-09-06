@@ -14,13 +14,18 @@
 <div id="content-main" style="max-width: 900px; margin: 20px auto;">
     
     <div class="card shadow-md">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
             <h1 class="card-title m-0" style="font-size: 1.35rem;">
                 <i class="fas fa-file-csv text-danger mr-2"></i> Bulk Import Questions via CSV / Google Sheets
             </h1>
-            <a href="{% url 'admin:download_sample_csv' %}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-file-download mr-1"></i> Download Sample CSV Template
-            </a>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'admin:download_sample_csv' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-file-download mr-1"></i> JFT Sample CSV Template
+                </a>
+                <a href="{% url 'admin:download_sample_ssw_csv' %}" class="btn btn-sm btn-outline-warning font-weight-bold">
+                    <i class="fas fa-download mr-1"></i> SSW Prometric Sample CSV Template
+                </a>
+            </div>
         </div>
 
         <div class="card-body p-4">
@@ -38,12 +43,11 @@
                     <i class="fas fa-info-circle text-info mr-1"></i> Instructions for Google Sheets &amp; Excel Users:
                 </h6>
                 <ol class="mb-0 pl-3" style="font-size: 0.875rem; line-height: 1.6; color: var(--gakkou-text-muted);">
-                    <li>Download the <strong>Sample CSV Template</strong> using the top right button.</li>
-                    <li>Open it in <strong>Google Sheets</strong> or <strong>Microsoft Excel</strong>.</li>
-                    <li>Fill in your questions across the 4 sections: <code>script_vocab</code>, <code>conversation</code>, <code>listening</code>, or <code>reading</code>.</li>
+                    <li><strong>Choose Template:</strong> Click <strong>JFT Sample CSV</strong> for standard JFT-Basic 4 sections (<code>script_vocab</code>, <code>conversation</code>, <code>listening</code>, <code>reading</code>), OR <strong>SSW Prometric Sample CSV</strong> for 2-phase Specified Skilled Worker tests (<code>audio</code> Phase 1 &amp; <code>occupational</code> Phase 2).</li>
+                    <li><strong>Typing Questions (SSW):</strong> Set <code>type</code> to <code>typing</code> or <code>audio_typing</code>. Put the accepted correct answer(s) (e.g. <em>いらっしゃいませ</em> or <em>irasshaimase</em>) in <code>option_1</code>, <code>option_2</code>, etc.</li>
                     <li><strong>AI Audio Generation:</strong> Add an <code>audio_script</code> column with dialogues like <code>[Nanami], [田中さん、今週の日曜日に...], [Keita], [日曜日ですね。...]</code> to automatically generate multi-speaker Japanese audio!</li>
-                    <li>Use the <code>group_title</code> column (e.g., <em>"Reading Passage 1"</em>) to group multiple questions under the same reading passage or audio clip!</li>
-                    <li>Set <code>correct_option</code> to <strong>1</strong>, <strong>2</strong>, <strong>3</strong>, or <strong>4</strong> matching the correct answer choice.</li>
+                    <li><strong>Shared Passages / Audio:</strong> Use the <code>group_title</code> column (e.g., <em>"Reading Passage 1"</em>) to group multiple questions under the same image or audio clip!</li>
+                    <li><strong>Correct Answer:</strong> Set <code>correct_option</code> to <strong>1</strong>, <strong>2</strong>, <strong>3</strong>, or <strong>4</strong> matching the correct answer choice.</li>
                     <li>In Google Sheets: Click <strong>File &gt; Download &gt; Comma-separated values (.csv)</strong>.</li>
                     <li>Select your target Test below and upload the CSV file!</li>
                 </ol>
@@ -58,11 +62,24 @@
                     </label>
                     <select name="test_id" id="test_id" required class="form-control">
                         <option value="">-- Choose a Practice Test --</option>
-                        {% for test in tests %}
-                            <option value="{{ test.id }}" {% if selected_test_id == test.id %}selected{% endif %}>
-                                {{ test.title }} ({{ test.questions.count }} existing questions)
-                            </option>
-                        {% endfor %}
+                        <optgroup label="⭐ SSW Prometric Skill Tests (特定技能評価試験)">
+                            {% for test in tests %}
+                                {% if test.category == 'skill' %}
+                                    <option value="{{ test.id }}" {% if selected_test_id == test.id %}selected{% endif %}>
+                                        {{ test.title }} ({{ test.questions.count }} questions)
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </optgroup>
+                        <optgroup label="🇯🇵 JFT-Basic Tests (日本語基礎テスト)">
+                            {% for test in tests %}
+                                {% if test.category == 'basic' %}
+                                    <option value="{{ test.id }}" {% if selected_test_id == test.id %}selected{% endif %}>
+                                        {{ test.title }} ({{ test.questions.count }} questions)
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </optgroup>
                     </select>
                 </div>
 

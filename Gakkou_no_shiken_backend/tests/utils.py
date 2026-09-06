@@ -4,6 +4,7 @@ from django.db import transaction
 from .models import Test, Question, QuestionGroup, AnswerOption
 
 SECTION_MAP = {
+    # JFT Sections
     'script_vocab': Question.Section.SCRIPT_VOCAB,
     'script and vocabulary': Question.Section.SCRIPT_VOCAB,
     'script & vocabulary': Question.Section.SCRIPT_VOCAB,
@@ -21,6 +22,28 @@ SECTION_MAP = {
     'reading': Question.Section.READING,
     'reading comprehension': Question.Section.READING,
     '読解': Question.Section.READING,
+
+    # SSW Prometric Sections (Phase 1: Audio/Typing & Phase 2: Occupational/Practical)
+    'audio': 'audio',
+    'audio comprehension': 'audio',
+    'phase 1': 'audio',
+    'phase1': 'audio',
+    '第1部': 'audio',
+    '第1部 音声・入力': 'audio',
+    '音声': 'audio',
+    '聴解・入力': 'audio',
+
+    'occupational': 'occupational',
+    'occupational / practical': 'occupational',
+    'occupational and practical': 'occupational',
+    'practical': 'occupational',
+    'phase 2': 'occupational',
+    'phase2': 'occupational',
+    '第2部': 'occupational',
+    '第2部 専門実技': 'occupational',
+    '専門': 'occupational',
+    '実技': 'occupational',
+    '専門・実技': 'occupational',
 }
 
 TYPE_MAP = {
@@ -29,6 +52,13 @@ TYPE_MAP = {
     'audio': Question.QuestionType.AUDIO,
     'image_audio': Question.QuestionType.IMAGE_AUDIO,
     'image+audio': Question.QuestionType.IMAGE_AUDIO,
+    # Typing & Text Input
+    'typing': Question.QuestionType.TYPING,
+    'type': Question.QuestionType.TYPING,
+    'text_input': Question.QuestionType.TYPING,
+    'input': Question.QuestionType.TYPING,
+    'audio_typing': Question.QuestionType.AUDIO_TYPING,
+    'audio+typing': Question.QuestionType.AUDIO_TYPING,
 }
 
 def generate_sample_csv_string():
@@ -73,6 +103,106 @@ def generate_sample_csv_string():
         'スピーチの けいけんが なかったけど、うまく いった', '自分の スピーチを わられて、かなしかった', '日本人の 英語の スピーチが 上手で、びっくりした', '',
         '1', '5'
     ])
+    return output.getvalue()
+
+
+def generate_sample_ssw_csv_string():
+    """Generates a sample CSV template specifically tailored for SSW (Specified Skilled Worker) Prometric CBT tests.
+    Includes Phase 1 (Audio Multiple Choice & Audio Typing) and Phase 2 (Occupational & Practical Knowledge).
+    """
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        'group_title', 'section', 'type', 'instruction', 'prompt', 'audio_script',
+        'option_1', 'option_2', 'option_3', 'option_4',
+        'correct_option', 'order_index'
+    ])
+    # Phase 1: Audio Section Question 1 (MCQ)
+    writer.writerow([
+        '', 'audio', 'audio', '音声を聞いて、最も適切な答えを1つ選んでください。',
+        '会話を聞いて、二人は何時に待ち合わせをしますか。',
+        '[Nanami], [明日の打ち合わせは何時にしますか。], [Keita], [午後2時はどうですか。], [Nanami], [2時は別の会議があるので、3時はどうでしょうか。], [Keita], [わかりました。では3時にしましょう。]',
+        '14:00', '15:00', '16:00', '17:00',
+        '2', '1'
+    ])
+    # Phase 1: Audio Section Question 2 (Typing question where candidate types the answer!)
+    writer.writerow([
+        '', 'audio', 'audio_typing', '音声を聞いて、質問に対する答えをひらがなまたはローマ字で入力してください。',
+        '【タイピング回答問題】お客様が来店したときの挨拶は何と言いますか。',
+        '[Nanami], [いらっしゃいませ。]',
+        'いらっしゃいませ', 'irasshaimase', 'いらっしゃい', '',
+        '1', '2'
+    ])
+    # Phase 2: Occupational / Practical Knowledge Question 3 (Olympic color question from user screenshot)
+    writer.writerow([
+        '', 'occupational', 'text', '問題1：オリンピックマーク（五輪マーク）に [red]使用されていない色[/red] を1つ選んでください。',
+        'オリンピックマーク（五輪マーク）に 使用されていない色 を1つ選んでください。', '',
+        '赤色', '緑色', '紫色', '青色',
+        '3', '3'
+    ])
+    # Phase 2: Occupational / Practical Knowledge Question 4 (Food safety / HACCP hygiene)
+    writer.writerow([
+        '', 'occupational', 'text', '衛生管理に関する問題です。最も適切なものを1つ選んでください。',
+        '作業前に行う手洗いについて、正しい手順として最も適切なものはどれですか。', '',
+        '流水でさっと流すだけでよい', '石鹸を泡立てて指の間や手首までしっかり洗い、流水で流して清潔なペーパータオルで拭く', 'アルコール消毒液だけで拭き取る', '汚れた作業着で手を拭く',
+        '2', '4'
+    ])
+    # Phase 2: Occupational / Practical Knowledge Question 5 (Workplace safety / judgment)
+    writer.writerow([
+        '', 'occupational', 'text', '職場の安全管理に関する問題です。最も適切なものを1つ選んでください。',
+        '作業中に床に油がこぼれているのを見つけました。最初にすべき行動はどれですか。', '',
+        '見なかったことにして自分の作業を続ける', 'すぐに拭き取り、周囲の作業者に注意を促す', '次の清掃時間まで放置する', '他の人に任せる',
+        '2', '5'
+    ])
+    return output.getvalue()
+
+
+def export_test_questions_to_csv(test_instance):
+    """Exports all questions, options, and group associations from test_instance
+    into a standardized CSV format matching the import template.
+    Seamlessly supports both JFT (4 sections) and SSW (2 phases, typing questions).
+    """
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        'group_title', 'section', 'type', 'instruction', 'prompt', 'audio_script',
+        'option_1', 'option_2', 'option_3', 'option_4',
+        'correct_option', 'order_index'
+    ])
+
+    questions = test_instance.get_ordered_questions()
+    for q in questions:
+        group_title = q.group.title if q.group else ''
+        options = list(q.options.all().order_by('order_index', 'id'))
+        opt_labels = [opt.label for opt in options]
+        while len(opt_labels) < 4:
+            opt_labels.append('')
+
+        # Determine correct_option index
+        correct_idx = 1
+        if q.type in [Question.QuestionType.TYPING, Question.QuestionType.AUDIO_TYPING]:
+            # For typing questions, any listed option is valid accepted answer
+            correct_idx = 1
+        else:
+            for i, opt in enumerate(options, start=1):
+                if opt.is_correct:
+                    correct_idx = i
+                    break
+
+        writer.writerow([
+            group_title,
+            q.section,
+            q.type,
+            q.instruction,
+            q.prompt,
+            q.audio_script,
+            opt_labels[0],
+            opt_labels[1],
+            opt_labels[2],
+            opt_labels[3],
+            str(correct_idx),
+            str(q.order_index),
+        ])
     return output.getvalue()
 
 
@@ -169,7 +299,15 @@ def import_questions_from_csv(test_instance, file_stream, auto_generate_audio=Tr
             continue
 
         sec_str = get_val(clean_row, 'section', 'part', 'category', 'type_section').lower()
-        section_val = SECTION_MAP.get(sec_str, Question.Section.SCRIPT_VOCAB)
+        is_skill_test = getattr(test_instance, 'category', '') == Test.Category.SKILL
+        if sec_str:
+            section_val = SECTION_MAP.get(sec_str, Question.Section.OCCUPATIONAL if is_skill_test else Question.Section.SCRIPT_VOCAB)
+        else:
+            # If section column is omitted, intelligently assign based on exam category & content
+            if is_skill_test:
+                section_val = Question.Section.AUDIO if (audio_script or 'audio' in str(clean_row.get('type', '')).lower()) else Question.Section.OCCUPATIONAL
+            else:
+                section_val = Question.Section.SCRIPT_VOCAB
 
         type_str = get_val(clean_row, 'type', 'question_type', 'q_type').lower()
         type_val = TYPE_MAP.get(type_str, Question.QuestionType.TEXT)
@@ -265,12 +403,15 @@ def import_questions_from_csv(test_instance, file_stream, auto_generate_audio=Tr
         # Batch create all answer options
         option_objects = []
         for q, rd in zip(created_questions, rows_data):
+            is_typing_q = q.type in [Question.QuestionType.TYPING, Question.QuestionType.AUDIO_TYPING]
             for i, label in enumerate(rd['options'], start=1):
                 if label:
+                    # For typing questions, any listed option is a valid accepted answer (e.g. hiragana, romaji)
+                    is_corr = True if is_typing_q else (i == rd['correct_idx'])
                     option_objects.append(AnswerOption(
                         question=q,
                         label=str(label).strip()[:250],
-                        is_correct=(i == rd['correct_idx']),
+                        is_correct=is_corr,
                         order_index=i,
                     ))
 

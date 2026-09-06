@@ -76,6 +76,13 @@ function QuizContent({ params: paramsPromise }) {
 
     getQuizData(params.id, previewToken)
       .then((data) => {
+        // If this is an SSW Skill test, route to the dedicated SSW Prometric CBT interface
+        if (data?.test?.category === 'skill') {
+          const previewQuery = previewToken ? `?preview=${previewToken}` : '';
+          router.replace(`/ssw-test/${params.id}${previewQuery}`);
+          return;
+        }
+
         setQuizData(data);
         const isDemo = Boolean(data.test?.is_actual_exam_demo);
         const sectionParam = searchParams?.get('section');

@@ -18,6 +18,7 @@ import {
   CreditCard,
   FileCheck2,
   ChevronDown,
+  Download,
 } from 'lucide-react';
 
 export default function SswSkillTestPage() {
@@ -146,6 +147,95 @@ export default function SswSkillTestPage() {
           subtitle="Take Specified Skilled Worker sector practice tests online with instant scoring."
           catKey="skill"
         />
+      </div>
+
+      {/* Official SSW Examination Blueprint & Question Authoring Templates */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-gradient-to-br from-slate-900 via-amber-950/60 to-slate-950 text-white rounded-3xl p-6 sm:p-10 shadow-xl border border-amber-900/40 space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold uppercase tracking-wider">
+            CBT Question Authoring &amp; Bulk Import
+          </div>
+          <h3 className="text-2xl font-extrabold text-white tracking-tight">SSW Prometric Sample CSV Template</h3>
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Download our standardized CSV question template to create or bulk-import Specified Skilled Worker tests with Phase 1 Audio/Typing and Phase 2 Practical Occupational questions.
+          </p>
+
+          <div className="space-y-3">
+            <a
+              href={`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/api/tests/sample-ssw-csv/`}
+              download
+              className="flex items-center justify-between p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all group"
+            >
+              <div>
+                <strong className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors">
+                  SSW Prometric Question CSV Template
+                </strong>
+                <p className="text-xs text-slate-300">UTF-8 CSV with Phase 1 Audio MCQ, Typing &amp; Phase 2 Practical</p>
+              </div>
+              <span className="text-xs font-extrabold px-3 py-1.5 bg-amber-400 text-slate-950 rounded-lg shadow-xs flex items-center gap-1">
+                <span>Download</span>
+                <Download className="w-3 h-3" />
+              </span>
+            </a>
+
+            <a
+              href={`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/tests/test/import-csv/`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all group"
+            >
+              <div>
+                <strong className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors">
+                  Admin CSV Bulk Uploader
+                </strong>
+                <p className="text-xs text-slate-300">Upload CSV to any practice test with auto AI voice (TTS)</p>
+              </div>
+              <span className="text-xs font-extrabold px-3 py-1.5 bg-white/20 text-white rounded-lg border border-white/20 flex items-center gap-1">
+                <span>Open Admin</span>
+                <ExternalLink className="w-3 h-3" />
+              </span>
+            </a>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60 text-xs font-bold uppercase tracking-wider">
+            CBT Structure Guide
+          </div>
+          <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">SSW 2-Phase Prometric Format</h3>
+
+          <ul className="space-y-3.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium">
+            <li className="flex items-start gap-3">
+              <span className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                1
+              </span>
+              <div>
+                <strong className="text-slate-900 dark:text-white block">Phase 1: Audio Comprehension &amp; Typing (第1部)</strong>
+                <span className="text-slate-500 dark:text-slate-400 text-xs">Candidates listen to spoken dialogues and answer multiple-choice questions or type Japanese responses.</span>
+              </div>
+            </li>
+
+            <li className="flex items-start gap-3">
+              <span className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                !
+              </span>
+              <div>
+                <strong className="text-slate-900 dark:text-white block">Phase Lock Modal (セクション終了確認)</strong>
+                <span className="text-slate-500 dark:text-slate-400 text-xs">When completing Phase 1, a confirmation modal ensures candidate is ready to advance before permanently locking Phase 1.</span>
+              </div>
+            </li>
+
+            <li className="flex items-start gap-3">
+              <span className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                2
+              </span>
+              <div>
+                <strong className="text-slate-900 dark:text-white block">Phase 2: Occupational Knowledge &amp; Judgment (第2部)</strong>
+                <span className="text-slate-500 dark:text-slate-400 text-xs">Workplace situational judgment, safety standards, and practical skills specific to each sector. Passing mark is 60%.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
 
       {/* SSW Sector Explorer Component */}

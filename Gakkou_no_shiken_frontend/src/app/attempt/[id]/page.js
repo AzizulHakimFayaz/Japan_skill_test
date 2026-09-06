@@ -24,6 +24,7 @@ import {
   Check,
   X,
   Share2,
+  Keyboard,
 } from 'lucide-react';
 
 export default function AttemptResultsPage({ params: paramsPromise }) {
@@ -210,7 +211,7 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
           </button>
 
           <Link
-            href={`/test/${test.id}`}
+            href={test.category === 'skill' ? `/ssw-test/${test.id}` : `/test/${test.id}`}
             className="inline-flex items-center justify-center gap-1.5 py-2.5 px-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-all active:scale-95"
           >
             <RotateCcw className="w-4 h-4" />
@@ -310,8 +311,17 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
                 <span className="text-xs text-slate-500 font-normal">Total Score</span>
               </div>
               <div className="text-3xl sm:text-4xl font-black font-mono text-slate-900">
-                {attempt.scaled_score}
-                <span className="text-sm font-normal text-slate-400 font-sans ml-1.5">/ 250</span>
+                {test.category === 'skill' ? (
+                  <>
+                    {attempt.score}
+                    <span className="text-sm font-normal text-slate-400 font-sans ml-1.5">/ {attempt.total_questions} ({attempt.percentage}%)</span>
+                  </>
+                ) : (
+                  <>
+                    {attempt.scaled_score}
+                    <span className="text-sm font-normal text-slate-400 font-sans ml-1.5">/ 250</span>
+                  </>
+                )}
               </div>
             </div>
 
@@ -324,7 +334,7 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
                 <span>{attempt.assessment_level}</span>
                 {attempt.passed && (
                   <span className="text-xs font-extrabold px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full">
-                    A2 Standard Met
+                    {test.category === 'skill' ? '60% Standard Met' : 'A2 Standard Met'}
                   </span>
                 )}
               </div>
@@ -333,74 +343,133 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
 
           {/* Right: Range of Scores & Passing Score Criteria */}
           <div className="text-xs sm:text-sm space-y-2 text-slate-900 font-sans md:text-right">
-            <div>
-              <span className="font-bold text-xs sm:text-sm">得点範囲 : 10-250</span>
-              <br />
-              <span className="text-slate-500 text-[11px] sm:text-xs">Range of Scores</span>
-            </div>
-            <div>
-              <span className="font-bold text-xs sm:text-sm leading-snug block">
-                判定基準点 A1 : 145, A2.1 : 175, A2.2（A2）:200
-              </span>
-              <span className="text-slate-500 text-[11px] sm:text-xs">Passing Score Thresholds</span>
-            </div>
+            {test.category === 'skill' ? (
+              <>
+                <div>
+                  <span className="font-bold text-xs sm:text-sm">得点範囲 : 0 - 100%</span>
+                  <br />
+                  <span className="text-slate-500 text-[11px] sm:text-xs">Percentage Score Range</span>
+                </div>
+                <div>
+                  <span className="font-bold text-xs sm:text-sm leading-snug block">
+                    判定基準点 : 正答率 60% 以上で合格
+                  </span>
+                  <span className="text-slate-500 text-[11px] sm:text-xs">Passing Standard: 60% or higher</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <span className="font-bold text-xs sm:text-sm">得点範囲 : 10-250</span>
+                  <br />
+                  <span className="text-slate-500 text-[11px] sm:text-xs">Range of Scores</span>
+                </div>
+                <div>
+                  <span className="font-bold text-xs sm:text-sm leading-snug block">
+                    判定基準点 A1 : 145, A2.1 : 175, A2.2（A2）:200
+                  </span>
+                  <span className="text-slate-500 text-[11px] sm:text-xs">Passing Score Thresholds</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
         {/* Total Score Gauge / Scale Slider Bar */}
         <div className="space-y-1 pt-1 pb-4">
-          <div className="relative w-full h-8">
-            <div
-              className="absolute transform -translate-x-1/2 flex flex-col items-center"
-              style={{ left: `${attempt.scaled_score_percent}%` }}
-            >
-              <span className="text-xs sm:text-sm font-black font-mono text-slate-900">{attempt.scaled_score}</span>
-              <div className="w-4 h-4 rounded-full border-2 border-amber-600 bg-white flex items-center justify-center shadow-2xs mt-0.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-amber-600"></div>
+          {test.category === 'skill' ? (
+            /* SSW Percentage Gauge (0% - 100% with 60% Pass Threshold Marker) */
+            <div className="space-y-1">
+              <div className="relative w-full h-8">
+                <div
+                  className="absolute transform -translate-x-1/2 flex flex-col items-center"
+                  style={{ left: `${Math.min(100, Math.max(0, attempt.percentage))}%` }}
+                >
+                  <span className="text-xs sm:text-sm font-black font-mono text-slate-900">{attempt.percentage}%</span>
+                  <div className="w-4 h-4 rounded-full border-2 border-emerald-600 bg-white flex items-center justify-center shadow-2xs mt-0.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-600"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* SSW 0 - 100% Scale Bar with 60% Passing Line */}
+              <div className="w-full h-3 bg-slate-200 flex rounded-none relative overflow-hidden border border-slate-900">
+                <div className="h-full bg-rose-400" style={{ width: '60%' }}></div>
+                <div className="h-full bg-emerald-500" style={{ width: '40%' }}></div>
+              </div>
+
+              <div className="relative w-full text-xs font-sans text-slate-900 pt-1">
+                <div className="absolute left-0 top-0 w-0.5 h-3 bg-black"></div>
+                <div className="absolute left-[60%] top-0 w-0.5 h-3 bg-black"></div>
+                <div className="absolute right-0 top-0 w-0.5 h-3 bg-black"></div>
+
+                <div className="flex justify-between items-start pt-3">
+                  <span className="text-[10px] sm:text-xs font-semibold">0%</span>
+                  <div className="absolute left-[60%] transform -translate-x-1/2 text-center">
+                    <span className="font-bold text-[10px] sm:text-sm block">60%</span>
+                    <span className="font-black text-xs sm:text-sm text-emerald-700">合格ライン (Pass Line)</span>
+                  </div>
+                  <span className="text-[10px] sm:text-xs font-semibold">100%</span>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Multi-color Gradient Scale Bar */}
-          <div className="w-full h-3 bg-slate-200 flex rounded-none relative overflow-hidden border border-slate-900">
-            <div className="h-full bg-gradient-to-r from-pink-200 via-pink-400 to-pink-600" style={{ width: '56.25%' }}></div>
-            <div className="h-full bg-gradient-to-r from-amber-500 to-amber-400" style={{ width: '12.5%' }}></div>
-            <div className="h-full bg-gradient-to-r from-yellow-300 to-lime-400" style={{ width: '10.41%' }}></div>
-            <div className="h-full bg-gradient-to-r from-lime-400 to-emerald-600" style={{ width: '20.84%' }}></div>
-          </div>
-
-          {/* Scale Ticks and Labels */}
-          <div className="relative w-full text-xs font-sans text-slate-900 pt-1">
-            <div className="absolute left-0 top-0 w-0.5 h-3 bg-black"></div>
-            <div className="absolute left-[56.25%] top-0 w-0.5 h-3 bg-black"></div>
-            <div className="absolute left-[68.75%] top-0 w-0.5 h-3 bg-black"></div>
-            <div className="absolute left-[79.16%] top-0 w-0.5 h-3 bg-black"></div>
-            <div className="absolute right-0 top-0 w-0.5 h-3 bg-black"></div>
-
-            <div className="flex justify-between items-start pt-3">
-              <span className="text-[10px] sm:text-xs font-semibold">10</span>
-
-              <div className="absolute left-[56.25%] transform -translate-x-1/2 text-center">
-                <span className="font-bold text-[10px] sm:text-sm block">145</span>
-                <span className="font-black text-xs sm:text-base">A1</span>
+          ) : (
+            /* JFT 10 - 250 IRT Scaled Score Gauge */
+            <div className="space-y-1">
+              <div className="relative w-full h-8">
+                <div
+                  className="absolute transform -translate-x-1/2 flex flex-col items-center"
+                  style={{ left: `${attempt.scaled_score_percent}%` }}
+                >
+                  <span className="text-xs sm:text-sm font-black font-mono text-slate-900">{attempt.scaled_score}</span>
+                  <div className="w-4 h-4 rounded-full border-2 border-amber-600 bg-white flex items-center justify-center shadow-2xs mt-0.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-amber-600"></div>
+                  </div>
+                </div>
               </div>
 
-              <div className="absolute left-[68.75%] transform -translate-x-1/2 text-center">
-                <span className="font-bold text-[10px] sm:text-sm block">175</span>
-                <span className="font-black text-xs sm:text-base">A2.1</span>
+              {/* Multi-color Gradient Scale Bar */}
+              <div className="w-full h-3 bg-slate-200 flex rounded-none relative overflow-hidden border border-slate-900">
+                <div className="h-full bg-gradient-to-r from-pink-200 via-pink-400 to-pink-600" style={{ width: '56.25%' }}></div>
+                <div className="h-full bg-gradient-to-r from-amber-500 to-amber-400" style={{ width: '12.5%' }}></div>
+                <div className="h-full bg-gradient-to-r from-yellow-300 to-lime-400" style={{ width: '10.41%' }}></div>
+                <div className="h-full bg-gradient-to-r from-lime-400 to-emerald-600" style={{ width: '20.84%' }}></div>
               </div>
 
-              <div className="absolute left-[79.16%] transform -translate-x-1/2 text-center">
-                <span className="font-bold text-[10px] sm:text-sm block">200</span>
-                <span className="font-black text-xs sm:text-base">
-                  <span className="sm:hidden">A2.2</span>
-                  <span className="hidden sm:inline">A2.2（A2）</span>
-                </span>
-              </div>
+              {/* Scale Ticks and Labels */}
+              <div className="relative w-full text-xs font-sans text-slate-900 pt-1">
+                <div className="absolute left-0 top-0 w-0.5 h-3 bg-black"></div>
+                <div className="absolute left-[56.25%] top-0 w-0.5 h-3 bg-black"></div>
+                <div className="absolute left-[68.75%] top-0 w-0.5 h-3 bg-black"></div>
+                <div className="absolute left-[79.16%] top-0 w-0.5 h-3 bg-black"></div>
+                <div className="absolute right-0 top-0 w-0.5 h-3 bg-black"></div>
 
-              <span className="text-[10px] sm:text-xs font-semibold">250</span>
+                <div className="flex justify-between items-start pt-3">
+                  <span className="text-[10px] sm:text-xs font-semibold">10</span>
+
+                  <div className="absolute left-[56.25%] transform -translate-x-1/2 text-center">
+                    <span className="font-bold text-[10px] sm:text-sm block">145</span>
+                    <span className="font-black text-xs sm:text-base">A1</span>
+                  </div>
+
+                  <div className="absolute left-[68.75%] transform -translate-x-1/2 text-center">
+                    <span className="font-bold text-[10px] sm:text-sm block">175</span>
+                    <span className="font-black text-xs sm:text-base">A2.1</span>
+                  </div>
+
+                  <div className="absolute left-[79.16%] transform -translate-x-1/2 text-center">
+                    <span className="font-bold text-[10px] sm:text-sm block">200</span>
+                    <span className="font-black text-xs sm:text-base">
+                      <span className="sm:hidden">A2.2</span>
+                      <span className="hidden sm:inline">A2.2（A2）</span>
+                    </span>
+                  </div>
+
+                  <span className="text-[10px] sm:text-xs font-semibold">250</span>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Section Performance Percentages */}
@@ -451,7 +520,7 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
               </a>
             </div>
             <p className="text-[10px] sm:text-[11px] text-slate-600 max-w-md leading-relaxed">
-              This official score report certifies candidate mock test completion on Bangladesh's premier Japanese CBT examination simulator portal.
+              This official score report certifies candidate mock test completion on Bangladesh&apos;s premier Japanese CBT examination simulator portal.
             </p>
           </div>
 
@@ -557,60 +626,101 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
               </div>
             )}
 
-            {/* Options List */}
-            <div className="space-y-2">
-              {question.options.map((option) => {
-                const isSelected = option.id === question.selected_option_id;
-                const isCorrect = option.is_correct;
+            {/* Options List or Typing Review */}
+            {question.type === 'typing' || question.type === 'audio_typing' ? (
+              <div className="space-y-3 bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <Keyboard className="w-4 h-4 text-amber-500" />
+                  <span>タイピング入力回答 (Candidate Typed Answer)</span>
+                </div>
 
-                let optionStyles = 'bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300';
-                if (isSelected && isCorrect) {
-                  optionStyles = 'bg-green-100 dark:bg-green-950/80 border-green-300 dark:border-green-700 text-green-900 dark:text-green-200 font-bold';
-                } else if (isSelected && !isCorrect) {
-                  optionStyles = 'bg-red-100 dark:bg-red-950/80 border-red-300 dark:border-red-700 text-red-900 dark:text-red-200 font-bold';
-                } else if (isCorrect) {
-                  optionStyles = 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 font-semibold';
-                }
-
-                return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Candidate's Typed Input */}
                   <div
-                    key={option.id}
-                    className={`p-3 rounded-xl border text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${optionStyles}`}
+                    className={`p-3 rounded-xl border ${
+                      question.is_answered_correctly
+                        ? 'bg-green-50 dark:bg-green-950/60 border-green-300 dark:border-green-700 text-green-950 dark:text-green-100'
+                        : 'bg-red-50 dark:bg-red-950/60 border-red-300 dark:border-red-700 text-red-950 dark:text-rose-100'
+                    }`}
                   >
-                    <div className="flex items-center gap-3">
-                      {option.image_url && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={option.image_url}
-                          alt="Option illustration"
-                          className="max-h-20 sm:max-h-24 w-auto object-contain rounded border border-slate-300 dark:border-slate-700 bg-white p-1"
-                        />
-                      )}
-                      {option.label && <span>{option.label}</span>}
-                    </div>
-
-                    {isSelected && isCorrect && (
-                      <span className="text-xs font-bold text-green-700 dark:text-green-300 bg-green-200 dark:bg-green-900/60 px-2 py-0.5 rounded self-start sm:self-auto flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3 text-green-700 dark:text-green-300" />
-                        <span>Your Answer (Correct)</span>
-                      </span>
-                    )}
-                    {isSelected && !isCorrect && (
-                      <span className="text-xs font-bold text-red-700 dark:text-red-300 bg-red-200 dark:bg-red-900/60 px-2 py-0.5 rounded self-start sm:self-auto flex items-center gap-1">
-                        <XCircle className="w-3 h-3 text-red-700 dark:text-red-300" />
-                        <span>Your Answer (Incorrect)</span>
-                      </span>
-                    )}
-                    {!isSelected && isCorrect && (
-                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 px-2 py-0.5 rounded self-start sm:self-auto flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-700 dark:text-emerald-300" />
-                        <span>Correct Answer</span>
-                      </span>
-                    )}
+                    <span className="text-[10px] uppercase font-black text-slate-400 block mb-1">
+                      あなたの入力 (Your Input)
+                    </span>
+                    <strong className="text-base font-mono block">
+                      {question.typed_answer ? `"${question.typed_answer}"` : <span className="italic text-slate-400 font-normal">(未入力 / No input provided)</span>}
+                    </strong>
                   </div>
-                );
-              })}
-            </div>
+
+                  {/* Accepted Correct Answers */}
+                  <div className="p-3 rounded-xl border bg-emerald-50/50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200">
+                    <span className="text-[10px] uppercase font-black text-slate-400 block mb-1">
+                      正解として認められる回答 (Accepted Correct Answers)
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {question.options?.filter((o) => o.is_correct).map((opt, oIdx) => (
+                        <span key={oIdx} className="px-2.5 py-1 rounded-md bg-emerald-100 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-100 font-mono font-bold text-xs">
+                          {opt.label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {question.options.map((option) => {
+                  const isSelected = option.id === question.selected_option_id;
+                  const isCorrect = option.is_correct;
+
+                  let optionStyles = 'bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300';
+                  if (isSelected && isCorrect) {
+                    optionStyles = 'bg-green-100 dark:bg-green-950/80 border-green-300 dark:border-green-700 text-green-900 dark:text-green-200 font-bold';
+                  } else if (isSelected && !isCorrect) {
+                    optionStyles = 'bg-red-100 dark:bg-red-950/80 border-red-300 dark:border-red-700 text-red-900 dark:text-red-200 font-bold';
+                  } else if (isCorrect) {
+                    optionStyles = 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 font-semibold';
+                  }
+
+                  return (
+                    <div
+                      key={option.id}
+                      className={`p-3 rounded-xl border text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${optionStyles}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        {option.image_url && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={option.image_url}
+                            alt="Option illustration"
+                            className="max-h-20 sm:max-h-24 w-auto object-contain rounded border border-slate-300 dark:border-slate-700 bg-white p-1"
+                          />
+                        )}
+                        {option.label && <span>{option.label}</span>}
+                      </div>
+
+                      {isSelected && isCorrect && (
+                        <span className="text-xs font-bold text-green-700 dark:text-green-300 bg-green-200 dark:bg-green-900/60 px-2 py-0.5 rounded self-start sm:self-auto flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-green-700 dark:text-green-300" />
+                          <span>Your Answer (Correct)</span>
+                        </span>
+                      )}
+                      {isSelected && !isCorrect && (
+                        <span className="text-xs font-bold text-red-700 dark:text-red-300 bg-red-200 dark:bg-red-900/60 px-2 py-0.5 rounded self-start sm:self-auto flex items-center gap-1">
+                          <XCircle className="w-3 h-3 text-red-700 dark:text-red-300" />
+                          <span>Your Answer (Incorrect)</span>
+                        </span>
+                      )}
+                      {!isSelected && isCorrect && (
+                        <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 px-2 py-0.5 rounded self-start sm:self-auto flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-700 dark:text-emerald-300" />
+                          <span>Correct Answer</span>
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         ))}
       </div>

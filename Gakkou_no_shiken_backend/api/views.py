@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, update_last_login
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -259,11 +260,29 @@ class SubmitQuizAPIView(APIView):
             # Support both string "12" or "q12"
             raw_val = user_answers.get(q_key) or user_answers.get(f"q{q_key}") or user_answers.get(f"question_{q_key}")
 
-            if raw_val is not None and str(raw_val).isdigit():
+            if question.type in [Question.QuestionType.TYPING, Question.QuestionType.AUDIO_TYPING]:
+                # Typing / text input question evaluation
+                typed_answer = str(raw_val or '').strip()
+                formatted_answers[q_key] = typed_answer if typed_answer else None
+
+                if typed_answer:
+                    # Match against accepted AnswerOption labels (case-insensitive)
+                    accepted_labels = [
+                        opt.label.strip().lower()
+                        for opt in question.options.all()
+                        if opt.is_correct
+                    ]
+                    flat_accepted = []
+                    for lbl in accepted_labels:
+                        flat_accepted.extend([p.strip().lower() for p in lbl.split(',') if p.strip()])
+
+                    if typed_answer.lower() in accepted_labels or typed_answer.lower() in flat_accepted:
+                        score += 1
+            elif raw_val is not None and str(raw_val).isdigit():
                 selected_option_id = int(raw_val)
                 formatted_answers[q_key] = selected_option_id
 
-                # Check correctness
+                # Check correctness for multiple choice option
                 if correct_option_ids.get(question.id) == selected_option_id:
                     score += 1
             else:
@@ -311,21 +330,39 @@ class AttemptResultsAPIView(APIView):
         questions_data = QuestionReviewSerializer(questions, many=True, context={'request': request}).data
 
         # Section-by-section breakdown calculations
-        section_breakdown = {
-            'script_vocab': {'name_ja': '文字と語彙', 'name_en': 'Script and Vocabulary', 'correct': 0, 'total': 0, 'pct': 0},
-            'conversation': {'name_ja': '会話と表現', 'name_en': 'Conversation and Expression', 'correct': 0, 'total': 0, 'pct': 0},
-            'listening': {'name_ja': '聴解', 'name_en': 'Listening Comprehension', 'correct': 0, 'total': 0, 'pct': 0},
-            'reading': {'name_ja': '読解', 'name_en': 'Reading Comprehension', 'correct': 0, 'total': 0, 'pct': 0},
-        }
+        if test.category == Test.Category.SKILL:
+            section_breakdown = {
+                'audio': {'name_ja': '第1部：音声・入力試験', 'name_en': 'Phase 1: Audio & Typing Exam', 'correct': 0, 'total': 0, 'pct': 0},
+                'occupational': {'name_ja': '第2部：専門・実技試験', 'name_en': 'Phase 2: Occupational & Practical Exam', 'correct': 0, 'total': 0, 'pct': 0},
+            }
+        else:
+            section_breakdown = {
+                'script_vocab': {'name_ja': '文字と語彙', 'name_en': 'Script and Vocabulary', 'correct': 0, 'total': 0, 'pct': 0},
+                'conversation': {'name_ja': '会話と表現', 'name_en': 'Conversation and Expression', 'correct': 0, 'total': 0, 'pct': 0},
+                'listening': {'name_ja': '聴解', 'name_en': 'Listening Comprehension', 'correct': 0, 'total': 0, 'pct': 0},
+                'reading': {'name_ja': '読解', 'name_en': 'Reading Comprehension', 'correct': 0, 'total': 0, 'pct': 0},
+            }
 
         for q_dict in questions_data:
             q_id = q_dict['id']
             sec = q_dict['section']
-            selected_opt_id = attempt.answers.get(str(q_id))
-            q_dict['selected_option_id'] = int(selected_opt_id) if selected_opt_id is not None else None
+            raw_answer = attempt.answers.get(str(q_id))
 
-            correct_opt_id = correct_options_map.get(q_id)
-            is_correct = (q_dict['selected_option_id'] is not None and q_dict['selected_option_id'] == correct_opt_id)
+            if q_dict.get('type') in ['typing', 'audio_typing']:
+                # Typing question answer check
+                user_typed = str(raw_answer or '').strip()
+                q_dict['typed_answer'] = user_typed
+                correct_labels = [opt['label'].strip().lower() for opt in q_dict.get('options', []) if opt.get('is_correct')]
+                flat_accepted = []
+                for lbl in correct_labels:
+                    flat_accepted.extend([p.strip().lower() for p in lbl.split(',') if p.strip()])
+                is_correct = bool(user_typed and (user_typed.lower() in correct_labels or user_typed.lower() in flat_accepted))
+                q_dict['selected_option_id'] = None
+            else:
+                q_dict['selected_option_id'] = int(raw_answer) if raw_answer is not None and str(raw_answer).isdigit() else None
+                correct_opt_id = correct_options_map.get(q_id)
+                is_correct = (q_dict['selected_option_id'] is not None and q_dict['selected_option_id'] == correct_opt_id)
+
             q_dict['is_answered_correctly'] = is_correct
 
             if sec in section_breakdown:
@@ -340,18 +377,22 @@ class AttemptResultsAPIView(APIView):
                 sec_data['pct'] = 0
 
         percentage = (attempt.score / attempt.total_questions * 100) if attempt.total_questions > 0 else 0
-        passed = percentage >= 80.0
         stroke_dashoffset = 389 - (389 * percentage / 100)
         scaled_score = int(round(10 + (percentage / 100.0) * 240)) if attempt.total_questions > 0 else 10
 
-        if scaled_score >= 200:
-            assessment_level = "A2.2 (A2)"
-        elif scaled_score >= 175:
-            assessment_level = "A2.1"
-        elif scaled_score >= 145:
-            assessment_level = "A1"
+        if test.category == Test.Category.SKILL:
+            passed = percentage >= 60.0
+            assessment_level = "合格 (Passed)" if passed else "不合格 (Failed)"
         else:
-            assessment_level = "Below A1"
+            passed = percentage >= 80.0
+            if scaled_score >= 200:
+                assessment_level = "A2.2 (A2)"
+            elif scaled_score >= 175:
+                assessment_level = "A2.1"
+            elif scaled_score >= 145:
+                assessment_level = "A1"
+            else:
+                assessment_level = "Below A1"
 
         scaled_score_percent = min(100, max(0, ((scaled_score - 10) / 240.0) * 100))
 
@@ -1801,6 +1842,119 @@ class NoticeDownloadAPIView(APIView):
             })
         except Notice.DoesNotExist:
             return Response({'error': 'Notice not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class SampleSswCsvAPIView(APIView):
+    """
+    GET /api/tests/sample-ssw-csv/
+    Downloads the official SSW Prometric CBT questions sample CSV template.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        from tests.utils import generate_sample_ssw_csv_string
+        csv_data = generate_sample_ssw_csv_string()
+        response = HttpResponse(csv_data, content_type='text/csv; charset=utf-8-sig')
+        response['Content-Disposition'] = 'attachment; filename="ssw_prometric_test_questions_template.csv"'
+        return response
+
+
+class SampleJftCsvAPIView(APIView):
+    """
+    GET /api/tests/sample-jft-csv/
+    Downloads the official JFT-Basic 4-section questions sample CSV template.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        from tests.utils import generate_sample_csv_string
+        csv_data = generate_sample_csv_string()
+        response = HttpResponse(csv_data, content_type='text/csv; charset=utf-8-sig')
+        response['Content-Disposition'] = 'attachment; filename="jft_test_questions_template.csv"'
+        return response
+
+
+class TestExportQuestionsCsvAPIView(APIView):
+    """
+    GET /api/tests/<int:pk>/export-csv/
+    Exports all questions and answer options for the specified test into a standardized CSV.
+    Supports both JFT-Basic (4 sections) and SSW (2 phases, typing questions).
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, pk):
+        from tests.models import Test
+        from tests.utils import export_test_questions_to_csv
+        from django.utils.text import slugify
+
+        test_obj = get_object_or_404(Test, pk=pk)
+
+        # Ensure draft tests are only exportable by staff
+        if not test_obj.is_published and not (request.user.is_authenticated and request.user.is_staff):
+            return Response(
+                {"detail": "Cannot export questions from an unpublished draft test."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        csv_data = export_test_questions_to_csv(test_obj)
+        safe_title = slugify(test_obj.title) or f"test_{pk}"
+        filename = f"{safe_title}_questions.csv"
+        response = HttpResponse(csv_data, content_type='text/csv; charset=utf-8-sig')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+
+
+class TestImportQuestionsCsvAPIView(APIView):
+    """
+    POST /api/tests/<int:pk>/import-csv/
+    Bulk imports questions from an uploaded CSV file into the specified test.
+    Requires staff/admin authorization.
+    Optional params:
+      - clear_existing: boolean (true/false)
+      - auto_generate_audio: boolean (true/false, default: true)
+    """
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, pk):
+        from tests.models import Test
+        from tests.utils import import_questions_from_csv
+        from tests.signals import invalidate_test_cache
+
+        test_obj = get_object_or_404(Test, pk=pk)
+        csv_file = request.FILES.get('csv_file') or request.FILES.get('file')
+
+        if not csv_file:
+            return Response(
+                {"detail": "Please provide a 'csv_file' multipart upload."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        clear_existing = str(request.data.get('clear_existing', '')).lower() in ['true', '1', 'yes']
+        auto_generate_audio = str(request.data.get('auto_generate_audio', 'true')).lower() in ['true', '1', 'yes']
+
+        if clear_existing:
+            test_obj.questions.all().delete()
+            test_obj.question_groups.all().delete()
+
+        try:
+            created_count, errors = import_questions_from_csv(
+                test_obj,
+                csv_file,
+                auto_generate_audio=auto_generate_audio
+            )
+            invalidate_test_cache(test_obj.id)
+            return Response({
+                'status': 'success',
+                'test_id': test_obj.id,
+                'test_title': test_obj.title,
+                'created_count': created_count,
+                'errors': errors
+            }, status=status.HTTP_200_OK)
+        except ValueError as val_err:
+            return Response({"detail": str(val_err)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"detail": f"Import failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 
