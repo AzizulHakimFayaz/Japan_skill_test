@@ -158,41 +158,7 @@ export default function JftBasicPage() {
         />
       </div>
 
-      {/* Official JFT-Basic Question Authoring & CSV Template */}
-      <div className="bg-gradient-to-br from-slate-900 via-indigo-950/60 to-slate-950 text-white rounded-3xl p-6 sm:p-10 shadow-xl border border-indigo-900/40 space-y-6">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-xs font-bold uppercase tracking-wider">
-              CBT Question Authoring &amp; Bulk Import
-            </div>
-            <h3 className="text-2xl font-extrabold text-white tracking-tight">JFT-Basic Sample CSV Template</h3>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Download our standardized CSV question template to create or bulk-import JFT-Basic practice tests across all 4 competencies (Script &amp; Vocabulary, Conversation &amp; Expression, Listening Comprehension, and Reading Comprehension).
-            </p>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-            <a
-              href={`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/api/tests/sample-jft-csv/`}
-              download="jft_test_questions_template.csv"
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-lg shadow-indigo-900/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
-            >
-              <Download className="w-4 h-4" />
-              <span>JFT-Basic Question CSV Template</span>
-            </a>
-
-            <a
-              href={`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/tests/test/import-csv/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-sm transition-all"
-            >
-              <span>Admin Bulk Uploader</span>
-              <ExternalLink className="w-4 h-4" />
-            </a>
-          </div>
-        </div>
-      </div>
 
       {/* Interactive Section Breakdown Tabs */}
       {jftInfo.sections && jftInfo.sections.length > 0 && (
