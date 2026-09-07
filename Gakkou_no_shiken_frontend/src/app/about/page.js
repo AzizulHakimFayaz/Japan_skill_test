@@ -61,40 +61,6 @@ const SHOWCASE_TABS = [
       'Prometric color palette with olive green controls and amber finish buttons',
     ],
   },
-  {
-    id: 'scorecard',
-    label: 'Instant Scale Score Certificate',
-    shortLabel: 'Score Certificate',
-    badge: 'Official CEFR Scaling',
-    title: 'Immediate Results & Printable PDF Score Reports',
-    description:
-      'Never wait weeks for results. The moment you submit, our engine calculates your official scaled score (10–250 for JFT or percentage mark for SSW), compares your performance against the 200-point pass threshold, and generates a printable official score certificate.',
-    screenshot: '/img/screenshots/cbt_score_certificate.png',
-    features: [
-      '10–250 official scaled score gauge with 200-point passing threshold line',
-      'Immediate PASSED / DID NOT PASS official verification badge',
-      'Detailed 4-competency percentage and point breakdowns',
-      'Comprehensive question-by-question review with correct answer keys',
-      'High-resolution downloadable & printable PDF Score Certificate',
-    ],
-  },
-  {
-    id: 'test_center',
-    label: 'Official Center Comparison',
-    shortLabel: 'Center Comparison',
-    badge: 'Zero Surprises on Exam Day',
-    title: 'From Online Practice Directly to the Official Exam Hall',
-    description:
-      'Official Prometric centers in Japan and overseas (like UTC Dhaka or Chittagong) use strict CBT software that confuses unprepared students. Gakkou No Shiken eliminates test-day panic by letting you practice on the exact same interface beforehand.',
-    screenshot: '/img/prometric_cbt_center.jpg',
-    features: [
-      'No surprise button locations or confusing navigation on test day',
-      'Authentic audio playback mechanics (same volume and scrubber controls)',
-      'Identical question layout and choice selection hitboxes',
-      'Practiced with exact time limits: 60 minutes for JFT, 20-60 mins for SSW',
-      'Over 98% interface familiarity rating reported by successful candidates',
-    ],
-  },
 ];
 
 const STATS = [
@@ -218,7 +184,7 @@ export default function AboutPage() {
             See Our CBT Test Engine in Action
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-            Every screen shown below is captured directly from our running mock test platform. Notice the 1:1 Prometric color palette, font sizes, section locks, and official score certificate generator.
+            Every screen shown below is captured directly from our running mock test platform. Notice the 1:1 Prometric color palette, font sizes, section locks, and authentic exam environment.
           </p>
         </div>
 
