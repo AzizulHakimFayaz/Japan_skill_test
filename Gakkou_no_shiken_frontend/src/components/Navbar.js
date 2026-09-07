@@ -25,6 +25,7 @@ import {
   HelpCircle,
   FileText,
   Bell,
+  Info,
 } from 'lucide-react';
 
 
@@ -145,6 +146,17 @@ export default function Navbar() {
             >
               <HelpCircle className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-slate-500 dark:text-slate-400 shrink-0" />
               <span>Guide</span>
+            </Link>
+            <Link
+              href="/about"
+              className={`hidden xl:flex text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                isActive('/about')
+                  ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
+                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <Info className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-slate-500 dark:text-slate-400 shrink-0" />
+              <span>About Us</span>
             </Link>
           </div>
 
@@ -332,6 +344,18 @@ export default function Navbar() {
                 <span className="flex items-center gap-2.5">
                   <HelpCircle className="w-5 h-5 text-japan-red" />
                   <span>How It Works &amp; Exam Guide</span>
+                </span>
+                <ChevronRight className="w-4 h-4 text-slate-400" />
+              </Link>
+
+              <Link
+                href="/about"
+                onClick={() => setOpen(false)}
+                className="px-4 py-3 rounded-2xl text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+              >
+                <span className="flex items-center gap-2.5">
+                  <Info className="w-5 h-5 text-japan-red" />
+                  <span>About Us &amp; Test Center Quality</span>
                 </span>
                 <ChevronRight className="w-4 h-4 text-slate-400" />
               </Link>

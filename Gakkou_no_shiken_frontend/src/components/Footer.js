@@ -22,6 +22,9 @@ export default function Footer() {
             <Link href="/" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors">
               Home
             </Link>
+            <Link href="/about" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors font-bold">
+              About Us
+            </Link>
             <Link href="/how-it-works" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors font-bold">
               How It Works
             </Link>
@@ -36,6 +39,9 @@ export default function Footer() {
             </Link>
             <Link href="/leaderboard" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
               Leaderboard
+            </Link>
+            <Link href="/privacy" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors">
+              Privacy Policy
             </Link>
             <a
               href="https://www.facebook.com/Gakkou.No.Shiken"
