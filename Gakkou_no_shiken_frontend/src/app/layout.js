@@ -1,5 +1,6 @@
 import './globals.css';
 import Providers from '@/components/Providers';
+import GoogleAdsense from '@/components/GoogleAdsense';
 
 export const metadata = {
   metadataBase: new URL('https://www.gakkounoshiken.site'),
@@ -162,16 +163,12 @@ export default function RootLayout({ children }) {
         {/* Google Identity Services (One-Tap & 1-Click Sign-In) */}
         <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-        {/* Google AdSense Account Meta Tag & Script */}
+        {/* Google AdSense Account Verification Meta Tag */}
         <meta name="google-adsense-account" content="ca-pub-8435487820435842" />
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8435487820435842"
-          crossOrigin="anonymous"
-        ></script>
       </head>
 
       <body className="flex flex-col min-h-full text-slate-800 dark:text-slate-100 bg-transparent antialiased font-sans selection:bg-red-500 selection:text-white relative overflow-x-hidden transition-colors duration-500">
+        <GoogleAdsense />
         <Providers>{children}</Providers>
       </body>
     </html>

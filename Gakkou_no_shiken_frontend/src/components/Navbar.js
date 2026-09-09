@@ -26,6 +26,7 @@ import {
   FileText,
   Bell,
   Info,
+  Mail,
 } from 'lucide-react';
 
 
@@ -356,6 +357,18 @@ export default function Navbar() {
                 <span className="flex items-center gap-2.5">
                   <Info className="w-5 h-5 text-japan-red" />
                   <span>About Us &amp; Test Center Quality</span>
+                </span>
+                <ChevronRight className="w-4 h-4 text-slate-400" />
+              </Link>
+
+              <Link
+                href="/contact"
+                onClick={() => setOpen(false)}
+                className="px-4 py-3 rounded-2xl text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+              >
+                <span className="flex items-center gap-2.5">
+                  <Mail className="w-5 h-5 text-japan-red" />
+                  <span>Contact &amp; Support Desk</span>
                 </span>
                 <ChevronRight className="w-4 h-4 text-slate-400" />
               </Link>

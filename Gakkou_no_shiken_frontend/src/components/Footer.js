@@ -43,6 +43,15 @@ export default function Footer() {
             <Link href="/privacy" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors">
               Privacy Policy
             </Link>
+            <Link href="/terms" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors">
+              Terms of Service
+            </Link>
+            <Link href="/disclaimer" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors">
+              Disclaimer
+            </Link>
+            <Link href="/contact" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors font-bold">
+              Contact Us
+            </Link>
             <a
               href="https://www.facebook.com/Gakkou.No.Shiken"
               target="_blank"
