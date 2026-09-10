@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
 from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice
-from .utils import import_questions_from_csv, generate_sample_csv_string, generate_sample_ssw_csv_string, export_test_questions_to_csv
+from .utils import import_questions_from_csv, generate_sample_csv_string, generate_sample_ssw_csv_string, export_test_questions_to_csv, generate_test_missing_audio_worker
 
 
 
@@ -171,7 +171,7 @@ class TestAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     list_per_page = 20
     save_on_top = True
-    actions = ['export_selected_tests_csv']
+    actions = ['export_selected_tests_csv', 'generate_missing_audio_action', 'regenerate_all_audio_action']
 
     class Media:
         css = {'all': ('css/admin_custom.css',)}
@@ -220,8 +220,62 @@ class TestAdmin(admin.ModelAdmin):
             path('sample-csv/', self.admin_site.admin_view(self.admin_download_sample_csv_view), name='download_sample_csv'),
             path('sample-ssw-csv/', self.admin_site.admin_view(self.admin_download_sample_ssw_csv_view), name='download_sample_ssw_csv'),
             path('<int:test_id>/export-csv/', self.admin_site.admin_view(self.admin_export_test_csv_view), name='export_test_csv'),
+            path('<int:test_id>/generate-audio/', self.admin_site.admin_view(self.admin_generate_test_audio_view), name='generate_test_audio'),
         ]
         return custom_urls + urls
+
+    def admin_generate_test_audio_view(self, request, test_id):
+        from django.shortcuts import get_object_or_404
+        import threading
+        test_obj = get_object_or_404(Test, pk=test_id)
+        overwrite = request.GET.get('overwrite', '0') in ['1', 'true', 'yes']
+        threading.Thread(
+            target=generate_test_missing_audio_worker,
+            kwargs={'test_id': test_obj.id, 'overwrite': overwrite},
+            daemon=True,
+            name=f"AudioWorker-Direct-Test-{test_obj.id}"
+        ).start()
+        mode_str = "re-generation (overwrite)" if overwrite else "generation"
+        self.message_user(
+            request,
+            f"🔊 AI Audio {mode_str} started in background for '{test_obj.title}'. Audio files will attach automatically.",
+            messages.SUCCESS
+        )
+        return redirect(request.META.get('HTTP_REFERER') or reverse('admin:tests_test_changelist'))
+
+    @admin.action(description="🔊 Generate Missing Audio for Selected Tests (Background)")
+    def generate_missing_audio_action(self, request, queryset):
+        import threading
+        count = queryset.count()
+        for test_obj in queryset:
+            threading.Thread(
+                target=generate_test_missing_audio_worker,
+                kwargs={'test_id': test_obj.id, 'overwrite': False},
+                daemon=True,
+                name=f"AudioWorker-Action-Test-{test_obj.id}"
+            ).start()
+        self.message_user(
+            request,
+            f"🔊 Audio generation started in background for {count} test(s). Files will attach automatically.",
+            messages.SUCCESS
+        )
+
+    @admin.action(description="🔄 Re-generate ALL Audio (Overwrite existing)")
+    def regenerate_all_audio_action(self, request, queryset):
+        import threading
+        count = queryset.count()
+        for test_obj in queryset:
+            threading.Thread(
+                target=generate_test_missing_audio_worker,
+                kwargs={'test_id': test_obj.id, 'overwrite': True},
+                daemon=True,
+                name=f"AudioWorker-Action-Overwrite-Test-{test_obj.id}"
+            ).start()
+        self.message_user(
+            request,
+            f"🔄 Audio re-generation started in background for {count} test(s) (overwriting existing audio).",
+            messages.SUCCESS
+        )
 
     def admin_download_sample_csv_view(self, request):
         csv_data = generate_sample_csv_string()
@@ -308,22 +362,38 @@ class TestAdmin(admin.ModelAdmin):
                         deleted_g = test_obj.question_groups.all().delete()
                         print(f"[CSV-IMPORT v3] Cleared existing: questions={deleted_q}, groups={deleted_g}", file=sys.stderr, flush=True)
 
-                    created_count, errors = import_questions_from_csv(test_obj, csv_file, auto_generate_audio=auto_generate_audio)
+                    created_count, errors = import_questions_from_csv(test_obj, csv_file, auto_generate_audio=auto_generate_audio, run_in_background=True)
                     print(f"[CSV-IMPORT v3] Import complete: created={created_count}, errors={len(errors)}", file=sys.stderr, flush=True)
 
                     from tests.signals import invalidate_test_cache
                     invalidate_test_cache(test_obj.id)
 
-                    warning_html = ""
+                    extra_sections = []
+
+                    if auto_generate_audio:
+                        extra_sections.append(
+                            f"<div style='margin-top:16px;padding:14px;background:#f5f3ff;border:1px solid #c4b5fd;border-radius:10px;color:#3b0764;'>"
+                            f"<div style='display:flex;align-items:center;gap:8px;font-weight:700;font-size:1rem;color:#6d28d9;margin-bottom:4px;'>"
+                            f"<span>🎙️ AI Audio Generation Running in Background</span>"
+                            f"</div>"
+                            f"<p style='margin:0;font-size:0.875rem;color:#4c1d95;line-height:1.5;'>"
+                            f"All questions have been saved instantly without server timeouts! Edge-TTS is synthesizing Japanese dialogue speech in the background. "
+                            f"Audio files will attach to your listening questions automatically in moments."
+                            f"</p>"
+                            f"<div style='margin-top:10px;'>"
+                            f"<a href='/admin/tests/question/?test__id__exact={test_obj.id}' style='display:inline-block;padding:6px 14px;background:#7c3aed;color:#fff;border-radius:6px;font-size:0.85rem;font-weight:600;text-decoration:none;'>🎧 View Questions &amp; Audio Status</a>"
+                            f"</div>"
+                            f"</div>"
+                        )
 
                     if errors:
                         warning_items = "".join(f"<li>{e}</li>" for e in errors[:10])
-                        warning_html = f"<div style='margin-top:16px;padding:12px;background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;'><strong>Warnings:</strong><ul style='margin:8px 0 0;'>{warning_items}</ul></div>"
+                        extra_sections.append(f"<div style='margin-top:16px;padding:12px;background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;'><strong>Warnings:</strong><ul style='margin:8px 0 0;'>{warning_items}</ul></div>")
 
                     return HttpResponse(self._import_result_html(
                         success=True,
                         message=f"Successfully imported {created_count} question(s) into '{test_obj.title}'!",
-                        extra_html=warning_html
+                        extra_html="".join(extra_sections)
                     ))
 
                 except Test.DoesNotExist:
@@ -417,16 +487,19 @@ class TestAdmin(admin.ModelAdmin):
             return format_html('<span class="text-muted">Save first</span>')
         import_url = reverse('admin:import_questions_csv') + f'?test_id={obj.id}'
         export_url = reverse('admin:export_test_csv', args=[obj.id])
+        audio_url = reverse('admin:generate_test_audio', args=[obj.id])
         return format_html(
             '<div style="display:inline-flex; align-items:center; gap:4px;">'
             '<a href="{}" style="display:inline-flex; align-items:center; gap:2px; background:#16a34a; color:#fff; padding:3px 7px; border-radius:5px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 1px 3px rgba(0,0,0,0.15);" title="Bulk import questions via CSV">'
             '📥 Import</a>'
             '<a href="{}" style="display:inline-flex; align-items:center; gap:2px; background:#0284c7; color:#fff; padding:3px 7px; border-radius:5px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 1px 3px rgba(0,0,0,0.15);" title="Export questions to CSV">'
             '📤 Export</a>'
+            '<a href="{}" style="display:inline-flex; align-items:center; gap:2px; background:#7c3aed; color:#fff; padding:3px 7px; border-radius:5px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 1px 3px rgba(0,0,0,0.15);" title="Generate missing audio for questions with dialogue scripts">'
+            '🔊 Audio</a>'
             '</div>',
-            import_url, export_url
+            import_url, export_url, audio_url
         )
-    csv_actions.short_description = 'CSV Actions'
+    csv_actions.short_description = 'CSV & Audio'
 
     def title_display(self, obj):
         icon = '🔒' if obj.requires_account else '🌐'
@@ -676,21 +749,39 @@ class QuestionAdmin(admin.ModelAdmin):
 
     @admin.action(description="🎤 Generate / Regenerate AI Audio (TTS) from Script")
     def generate_tts_audio_action(self, request, queryset):
-        from .audio_generator import generate_and_save_question_audio
-        count = 0
-        failed = 0
-        for q in queryset:
-            if q.audio_script or (q.type in ['audio', 'image_audio'] and q.prompt):
-                if generate_and_save_question_audio(q, overwrite=True):
-                    count += 1
+        q_ids = list(queryset.values_list('id', flat=True))
+        if len(q_ids) > 3:
+            import threading
+            test_ids = list(set(queryset.values_list('test_id', flat=True)))
+            for tid in test_ids:
+                sub_q_ids = list(queryset.filter(test_id=tid).values_list('id', flat=True))
+                threading.Thread(
+                    target=generate_test_missing_audio_worker,
+                    kwargs={'test_id': tid, 'question_ids': sub_q_ids, 'overwrite': True},
+                    daemon=True,
+                    name=f"AudioWorker-Action-Questions-{tid}"
+                ).start()
+            self.message_user(
+                request,
+                f"🔊 Audio generation started in background for {len(q_ids)} question(s). Files will attach automatically without timing out.",
+                messages.SUCCESS
+            )
+        else:
+            from .audio_generator import generate_and_save_question_audio
+            count = 0
+            failed = 0
+            for q in queryset:
+                if q.audio_script or (q.type in ['audio', 'image_audio', 'audio_typing'] and q.prompt):
+                    if generate_and_save_question_audio(q, overwrite=True):
+                        count += 1
+                    else:
+                        failed += 1
                 else:
                     failed += 1
-            else:
-                failed += 1
-        if count > 0:
-            self.message_user(request, f"Successfully generated AI audio for {count} question(s).", messages.SUCCESS)
-        if failed > 0:
-            self.message_user(request, f"Could not generate audio for {failed} question(s). Ensure audio_script or dialogue prompt is set.", messages.WARNING)
+            if count > 0:
+                self.message_user(request, f"Successfully generated AI audio for {count} question(s).", messages.SUCCESS)
+            if failed > 0:
+                self.message_user(request, f"Could not generate audio for {failed} question(s). Ensure audio_script or dialogue prompt is set.", messages.WARNING)
 
 
 

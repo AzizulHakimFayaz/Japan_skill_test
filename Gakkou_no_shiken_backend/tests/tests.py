@@ -1,4 +1,4 @@
-from django.test import TestCase, Client
+from django.test import TestCase, TransactionTestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
 from .models import Test, Question, AnswerOption, Attempt
@@ -362,6 +362,47 @@ class TestViewsTestCase(TestCase):
         self.assertIn('audio_typing', exported_csv)
         self.assertIn('いらっしゃいませ', exported_csv)
         self.assertIn('irasshaimase', exported_csv)
+
+
+class BackgroundAudioWorkerTestCase(TransactionTestCase):
+    def test_background_audio_worker_and_admin_view(self):
+        """Tests generate_test_missing_audio_worker and admin generate audio endpoint."""
+        from .utils import generate_test_missing_audio_worker
+        from django.contrib.auth.models import User
+
+        test_obj = Test.objects.create(
+            title="Audio Worker Test",
+            category=Test.Category.BASIC,
+            is_published=True
+        )
+        q = Question.objects.create(
+            test=test_obj,
+            section=Question.Section.LISTENING,
+            type=Question.QuestionType.AUDIO,
+            prompt="Listen to audio.",
+            audio_script="[Nanami], [こんにちは。]",
+            order_index=1
+        )
+
+        # 1. Test worker directly
+        success_q, success_g = generate_test_missing_audio_worker(test_id=test_obj.id, overwrite=True)
+        self.assertEqual(success_q, 1)
+        q.refresh_from_db()
+        self.assertTrue(bool(q.audio))
+
+        # 2. Test admin generate audio endpoint
+        superuser = User.objects.create_superuser(username="admin_audio", password="adminpassword123", email="audio@example.com")
+        self.client.login(username="admin_audio", password="adminpassword123")
+        resp = self.client.get(reverse('admin:generate_test_audio', args=[test_obj.id]))
+        self.assertEqual(resp.status_code, 302)
+
+        # Wait for any background threads to finish cleanly before test DB teardown
+        import threading
+        for t in threading.enumerate():
+            if t.name.startswith("AudioWorker-"):
+                t.join(timeout=5.0)
+
+
 
 
 

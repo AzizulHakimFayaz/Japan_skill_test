@@ -206,10 +206,116 @@ def export_test_questions_to_csv(test_instance):
     return output.getvalue()
 
 
-def import_questions_from_csv(test_instance, file_stream, auto_generate_audio=True):
+def generate_test_missing_audio_worker(test_id, question_ids=None, group_ids=None, overwrite=False):
+    """
+    Background worker thread function to generate Edge-TTS audio for Questions and QuestionGroups.
+    Guarantees thread-safe DB connection handling under WSGI/Passenger servers.
+    """
+    import sys
+    from django.db import connection
+
+    # Close any inherited connection so this thread acquires its own fresh database connection
+    try:
+        connection.close()
+    except Exception:
+        pass
+
+    print(f"[AUDIO-WORKER] Starting background audio worker for Test #{test_id} (overwrite={overwrite})", file=sys.stderr, flush=True)
+
+    try:
+        from .audio_generator import generate_and_save_question_audio, generate_and_save_group_audio
+        from .models import Question, QuestionGroup
+
+        import time
+        # 1. Questions (fetch list with retry for SQLite lock resilience)
+        raw_questions = []
+        for attempt in range(3):
+            try:
+                q_qs = Question.objects.filter(test_id=test_id)
+                if question_ids:
+                    q_qs = q_qs.filter(id__in=question_ids)
+                raw_questions = list(q_qs)
+                break
+            except Exception as e:
+                if 'locked' in str(e).lower() and attempt < 2:
+                    time.sleep(0.3 * (attempt + 1))
+                else:
+                    raise
+
+        questions_to_process = []
+        for q in raw_questions:
+            has_script = bool(q.audio_script and q.audio_script.strip()) or (
+                q.type in [Question.QuestionType.AUDIO, Question.QuestionType.IMAGE_AUDIO, Question.QuestionType.AUDIO_TYPING]
+                and bool(q.prompt and ('[' in q.prompt or '：' in q.prompt or ':' in q.prompt))
+            )
+            if has_script:
+                if overwrite or not q.audio:
+                    questions_to_process.append(q)
+
+        print(f"[AUDIO-WORKER] Test #{test_id}: Processing {len(questions_to_process)} question(s) requiring audio...", file=sys.stderr, flush=True)
+        success_q = 0
+        for q in questions_to_process:
+            try:
+                if generate_and_save_question_audio(q, overwrite=overwrite):
+                    success_q += 1
+                    print(f"[AUDIO-WORKER] ✓ Generated audio for Question #{q.id} (Order {q.order_index})", file=sys.stderr, flush=True)
+                else:
+                    print(f"[AUDIO-WORKER] ✕ Skipped/failed Question #{q.id}", file=sys.stderr, flush=True)
+            except Exception as q_err:
+                print(f"[AUDIO-WORKER] Error on Question #{q.id}: {q_err}", file=sys.stderr, flush=True)
+
+        # 2. Groups (fetch list with retry)
+        raw_groups = []
+        for attempt in range(3):
+            try:
+                g_qs = QuestionGroup.objects.filter(test_id=test_id)
+                if group_ids:
+                    g_qs = g_qs.filter(id__in=group_ids)
+                raw_groups = list(g_qs)
+                break
+            except Exception as e:
+                if 'locked' in str(e).lower() and attempt < 2:
+                    time.sleep(0.3 * (attempt + 1))
+                else:
+                    raise
+
+        success_g = 0
+        for g in raw_groups:
+            if g.audio_script and g.audio_script.strip() and (overwrite or not g.audio):
+                try:
+                    if generate_and_save_group_audio(g, overwrite=overwrite):
+                        success_g += 1
+                        print(f"[AUDIO-WORKER] ✓ Generated audio for Group #{g.id} ({g.title})", file=sys.stderr, flush=True)
+                except Exception as g_err:
+                    print(f"[AUDIO-WORKER] Error on Group #{g.id}: {g_err}", file=sys.stderr, flush=True)
+
+        print(f"[AUDIO-WORKER] Test #{test_id} complete: {success_q} questions, {success_g} groups generated.", file=sys.stderr, flush=True)
+
+        # Invalidate cache so frontend immediately gets the updated audio URLs
+        try:
+            from tests.signals import invalidate_test_cache
+            invalidate_test_cache(test_id)
+        except Exception:
+            pass
+
+        return success_q, success_g
+
+    except Exception as e:
+        import traceback
+        print(f"[AUDIO-WORKER] Worker exception: {traceback.format_exc()}", file=sys.stderr, flush=True)
+        return 0, 0
+    finally:
+        try:
+            connection.close()
+        except Exception:
+            pass
+
+
+def import_questions_from_csv(test_instance, file_stream, auto_generate_audio=True, run_in_background=True):
     """
     Parses a CSV file or file-like object and creates Questions, QuestionGroups, and AnswerOptions for test_instance.
     If auto_generate_audio is True, generates TTS audio files for any rows with an audio_script.
+    If run_in_background is True, audio generation runs in a background thread so the HTTP request returns instantly!
     Returns (created_count, errors_list).
     """
     raw_bytes = None
@@ -420,29 +526,35 @@ def import_questions_from_csv(test_instance, file_stream, auto_generate_audio=Tr
 
     # Auto-generate TTS audio if requested (outside transaction so files save safely)
     if auto_generate_audio:
-        try:
-            from .audio_generator import generate_and_save_question_audio, generate_and_save_group_audio
-            
-            # Generate for questions with audio_script
-            for q, rd in zip(created_questions, rows_data):
-                script = rd.get('audio_script', '').strip()
-                if script:
-                    try:
-                        success = generate_and_save_question_audio(q, script_text=script, overwrite=True)
-                        if not success:
-                            errors.append(f"Could not generate TTS audio for Question #{q.order_index} (empty speech output).")
-                    except Exception as tts_err:
-                        errors.append(f"TTS Audio generation error for Question #{q.order_index}: {str(tts_err)}")
+        q_ids = [q.id for q, rd in zip(created_questions, rows_data) if rd.get('audio_script', '').strip() or (
+            rd.get('type') in [Question.QuestionType.AUDIO, Question.QuestionType.IMAGE_AUDIO, Question.QuestionType.AUDIO_TYPING]
+            and rd.get('prompt') and ('[' in rd.get('prompt') or '：' in rd.get('prompt') or ':' in rd.get('prompt'))
+        )]
+        g_ids = [g.id for g in created_groups.values() if g.audio_script]
 
-            # Generate for groups with audio_script
-            for title, group_obj in created_groups.items():
-                if group_obj.audio_script and not group_obj.audio:
-                    try:
-                        generate_and_save_group_audio(group_obj, script_text=group_obj.audio_script, overwrite=True)
-                    except Exception as g_tts_err:
-                        errors.append(f"TTS Audio generation error for Question Group '{title}': {str(g_tts_err)}")
-        except Exception as e:
-            errors.append(f"TTS generation subsystem error: {str(e)}")
+        if q_ids or g_ids:
+            if run_in_background:
+                import threading
+                t = threading.Thread(
+                    target=generate_test_missing_audio_worker,
+                    kwargs={
+                        'test_id': test_instance.id,
+                        'question_ids': q_ids,
+                        'group_ids': g_ids,
+                        'overwrite': True,
+                    },
+                    daemon=True,
+                    name=f"AudioWorker-Test-{test_instance.id}"
+                )
+                t.start()
+            else:
+                # Synchronous execution (e.g. CLI management commands)
+                generate_test_missing_audio_worker(
+                    test_id=test_instance.id,
+                    question_ids=q_ids,
+                    group_ids=g_ids,
+                    overwrite=True
+                )
 
     return created_count, errors
 
