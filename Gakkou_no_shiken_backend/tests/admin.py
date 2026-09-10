@@ -1,11 +1,13 @@
 from django.contrib import admin, messages
 from django.db import models
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
 from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice
 from .utils import import_questions_from_csv, generate_sample_csv_string, generate_sample_ssw_csv_string, export_test_questions_to_csv, generate_test_missing_audio_worker
+from .audio_logger import get_audio_logs, clear_audio_logs, append_audio_log
+from .audio_generator import test_edge_tts_connection, generate_and_save_question_audio_with_details
 
 
 
@@ -221,8 +223,91 @@ class TestAdmin(admin.ModelAdmin):
             path('sample-ssw-csv/', self.admin_site.admin_view(self.admin_download_sample_ssw_csv_view), name='download_sample_ssw_csv'),
             path('<int:test_id>/export-csv/', self.admin_site.admin_view(self.admin_export_test_csv_view), name='export_test_csv'),
             path('<int:test_id>/generate-audio/', self.admin_site.admin_view(self.admin_generate_test_audio_view), name='generate_test_audio'),
+            path('<int:test_id>/audio-hub/', self.admin_site.admin_view(self.admin_test_audio_hub_view), name='test_audio_hub'),
+            path('<int:test_id>/generate-single-question-audio/<int:question_id>/', self.admin_site.admin_view(self.admin_generate_single_question_audio_api), name='generate_single_question_audio_api'),
+            path('<int:test_id>/test-tts-connection/', self.admin_site.admin_view(self.admin_test_tts_connection_api), name='test_tts_connection_api'),
+            path('<int:test_id>/audio-logs/', self.admin_site.admin_view(self.admin_test_audio_logs_api), name='test_audio_logs_api'),
         ]
         return custom_urls + urls
+
+    def admin_test_audio_hub_view(self, request, test_id):
+        from django.shortcuts import get_object_or_404
+        test_obj = get_object_or_404(Test, pk=test_id)
+        questions = test_obj.get_ordered_questions()
+        audio_questions = []
+        for q in questions:
+            has_script = bool(q.audio_script and q.audio_script.strip()) or (
+                q.type in [Question.QuestionType.AUDIO, Question.QuestionType.IMAGE_AUDIO, Question.QuestionType.AUDIO_TYPING]
+                and bool(q.prompt and ('[' in q.prompt or '：' in q.prompt or ':' in q.prompt))
+            )
+            if has_script or q.audio:
+                audio_questions.append({
+                    'id': q.id,
+                    'order_index': q.order_index,
+                    'section': q.get_section_display(),
+                    'type': q.get_type_display(),
+                    'prompt': q.prompt or '',
+                    'audio_script': q.audio_script or q.prompt,
+                    'has_script': has_script,
+                    'has_audio': bool(q.audio),
+                    'audio_url': q.audio.url if q.audio else None,
+                })
+
+        total_questions = questions.count()
+        total_audio_needed = len(audio_questions)
+        total_generated = sum(1 for q in audio_questions if q['has_audio'])
+        completion_pct = round((total_generated / total_audio_needed) * 100) if total_audio_needed > 0 else 100
+
+        context = {
+            **self.admin_site.each_context(request),
+            'title': f'AI Audio Generation Hub - {test_obj.title}',
+            'test_obj': test_obj,
+            'audio_questions': audio_questions,
+            'total_questions': total_questions,
+            'total_audio_needed': total_audio_needed,
+            'total_generated': total_generated,
+            'completion_pct': completion_pct,
+            'opts': self.model._meta,
+        }
+        return render(request, 'admin/audio_hub.html', context)
+
+    def admin_generate_single_question_audio_api(self, request, test_id, question_id):
+        from django.shortcuts import get_object_or_404
+        question = get_object_or_404(Question, pk=question_id, test_id=test_id)
+        overwrite = request.POST.get('overwrite') in ['1', 'true', 'yes'] or request.GET.get('overwrite') in ['1', 'true', 'yes']
+
+        ok, msg = generate_and_save_question_audio_with_details(question, overwrite=overwrite)
+        if ok:
+            append_audio_log(test_id, f"Question #{question.order_index} (ID {question.id}): {msg}", level="success")
+            question.refresh_from_db()
+            return JsonResponse({
+                'success': True,
+                'message': msg,
+                'audio_url': question.audio.url if question.audio else None,
+                'question_id': question.id,
+                'order_index': question.order_index
+            })
+        else:
+            append_audio_log(test_id, f"Question #{question.order_index} (ID {question.id}) FAILED: {msg}", level="error", details=msg)
+            return JsonResponse({
+                'success': False,
+                'message': msg,
+                'error': msg,
+                'question_id': question.id,
+                'order_index': question.order_index
+            })
+
+    def admin_test_tts_connection_api(self, request, test_id):
+        ok, msg, latency = test_edge_tts_connection()
+        append_audio_log(test_id, f"Diagnostic Test: {msg}", level="success" if ok else "error")
+        return JsonResponse({'success': ok, 'message': msg, 'latency': latency})
+
+    def admin_test_audio_logs_api(self, request, test_id):
+        if request.GET.get('clear') == '1':
+            clear_audio_logs(test_id)
+            return JsonResponse({'status': 'cleared', 'logs': []})
+        logs = get_audio_logs(test_id)
+        return JsonResponse({'logs': logs})
 
     def admin_generate_test_audio_view(self, request, test_id):
         from django.shortcuts import get_object_or_404
@@ -372,16 +457,16 @@ class TestAdmin(admin.ModelAdmin):
 
                     if auto_generate_audio:
                         extra_sections.append(
-                            f"<div style='margin-top:16px;padding:14px;background:#f5f3ff;border:1px solid #c4b5fd;border-radius:10px;color:#3b0764;'>"
-                            f"<div style='display:flex;align-items:center;gap:8px;font-weight:700;font-size:1rem;color:#6d28d9;margin-bottom:4px;'>"
-                            f"<span>🎙️ AI Audio Generation Running in Background</span>"
+                            f"<div style='margin-top:16px;padding:16px;background:#f5f3ff;border:1px solid #c4b5fd;border-radius:10px;color:#3b0764;'>"
+                            f"<div style='display:flex;align-items:center;gap:8px;font-weight:700;font-size:1.05rem;color:#6d28d9;margin-bottom:6px;'>"
+                            f"<span>🎙️ AI Audio Generation Hub is Ready</span>"
                             f"</div>"
-                            f"<p style='margin:0;font-size:0.875rem;color:#4c1d95;line-height:1.5;'>"
-                            f"All questions have been saved instantly without server timeouts! Edge-TTS is synthesizing Japanese dialogue speech in the background. "
-                            f"Audio files will attach to your listening questions automatically in moments."
+                            f"<p style='margin:0;font-size:0.9rem;color:#4c1d95;line-height:1.5;'>"
+                            f"All questions have been saved instantly without timeouts! Open the <strong>Audio Generation Hub</strong> to generate audio live with a real-time progress bar (0% to 100%), play audio previews, or check real-time logs."
                             f"</p>"
-                            f"<div style='margin-top:10px;'>"
-                            f"<a href='/admin/tests/question/?test__id__exact={test_obj.id}' style='display:inline-block;padding:6px 14px;background:#7c3aed;color:#fff;border-radius:6px;font-size:0.85rem;font-weight:600;text-decoration:none;'>🎧 View Questions &amp; Audio Status</a>"
+                            f"<div style='margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;'>"
+                            f"<a href='/admin/tests/test/{test_obj.id}/audio-hub/' style='display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:#7c3aed;color:#fff;border-radius:7px;font-size:0.9rem;font-weight:700;text-decoration:none;box-shadow:0 2px 6px rgba(124,58,237,0.3);'>🎧 Open Live Audio Generation Hub →</a>"
+                            f"<a href='/admin/tests/question/?test__id__exact={test_obj.id}' style='display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:#475569;color:#fff;border-radius:7px;font-size:0.9rem;font-weight:600;text-decoration:none;'>📋 View Questions</a>"
                             f"</div>"
                             f"</div>"
                         )
@@ -487,17 +572,17 @@ class TestAdmin(admin.ModelAdmin):
             return format_html('<span class="text-muted">Save first</span>')
         import_url = reverse('admin:import_questions_csv') + f'?test_id={obj.id}'
         export_url = reverse('admin:export_test_csv', args=[obj.id])
-        audio_url = reverse('admin:generate_test_audio', args=[obj.id])
+        audio_hub_url = reverse('admin:test_audio_hub', args=[obj.id])
         return format_html(
             '<div style="display:inline-flex; align-items:center; gap:4px;">'
             '<a href="{}" style="display:inline-flex; align-items:center; gap:2px; background:#16a34a; color:#fff; padding:3px 7px; border-radius:5px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 1px 3px rgba(0,0,0,0.15);" title="Bulk import questions via CSV">'
             '📥 Import</a>'
             '<a href="{}" style="display:inline-flex; align-items:center; gap:2px; background:#0284c7; color:#fff; padding:3px 7px; border-radius:5px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 1px 3px rgba(0,0,0,0.15);" title="Export questions to CSV">'
             '📤 Export</a>'
-            '<a href="{}" style="display:inline-flex; align-items:center; gap:2px; background:#7c3aed; color:#fff; padding:3px 7px; border-radius:5px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 1px 3px rgba(0,0,0,0.15);" title="Generate missing audio for questions with dialogue scripts">'
-            '🔊 Audio</a>'
+            '<a href="{}" style="display:inline-flex; align-items:center; gap:2px; background:#7c3aed; color:#fff; padding:3px 7px; border-radius:5px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 1px 3px rgba(0,0,0,0.15);" title="Open Live Audio Generation Hub (Progress & Logs)">'
+            '🔊 Audio Hub</a>'
             '</div>',
-            import_url, export_url, audio_url
+            import_url, export_url, audio_hub_url
         )
     csv_actions.short_description = 'CSV & Audio'
 

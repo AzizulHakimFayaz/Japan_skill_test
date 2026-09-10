@@ -1,0 +1,516 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% translate 'Home' %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label='tests' %}">Tests</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:tests_test_changelist' %}">Tests</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:tests_test_change' test_obj.id %}">{{ test_obj.title }}</a></li>
+    <li class="breadcrumb-item active">🔊 Audio Generation Hub</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+<div id="content-main" style="max-width: 1100px; margin: 20px auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    
+    <!-- Top Header Card -->
+    <div class="card shadow-sm mb-4" style="border-radius: 12px; overflow: hidden; border: 1px solid #3b4252; background: #242933; color: #eceff4;">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 p-3" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff;">
+            <div>
+                <span class="badge" style="background: rgba(255,255,255,0.2); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    {{ test_obj.get_category_display }} Exam
+                </span>
+                <h1 class="m-0 mt-1" style="font-size: 1.45rem; font-weight: 700; color: #fff;">
+                    🎙️ AI Audio Generation Hub: {{ test_obj.title }}
+                </h1>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" id="btn-test-tts" class="btn btn-sm btn-light font-weight-bold" style="border-radius: 6px;">
+                    🧪 Test Edge-TTS Connection
+                </button>
+                <a href="{% url 'admin:tests_test_change' test_obj.id %}" class="btn btn-sm btn-outline-light" style="border-radius: 6px;">
+                    ✏️ Edit Test
+                </a>
+                <a href="{% url 'admin:tests_test_changelist' %}" class="btn btn-sm btn-outline-light" style="border-radius: 6px;">
+                    ← Back to Tests
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <!-- Stats Counters -->
+            <div class="row text-center mb-4" style="row-gap: 12px;">
+                <div class="col-sm-3 col-6">
+                    <div style="background: #2e3440; padding: 14px; border-radius: 8px; border: 1px solid #434c5e;">
+                        <div style="font-size: 0.8rem; color: #d8dee9; font-weight: 600;">TOTAL QUESTIONS</div>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: #88c0d0;">{{ total_questions }}</div>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-6">
+                    <div style="background: #2e3440; padding: 14px; border-radius: 8px; border: 1px solid #434c5e;">
+                        <div style="font-size: 0.8rem; color: #d8dee9; font-weight: 600;">DIALOGUE AUDIO NEEDED</div>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: #ebcb8b;" id="stat-audio-needed">{{ total_audio_needed }}</div>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-6">
+                    <div style="background: #2e3440; padding: 14px; border-radius: 8px; border: 1px solid #434c5e;">
+                        <div style="font-size: 0.8rem; color: #d8dee9; font-weight: 600;">AUDIO GENERATED</div>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: #a3be8c;" id="stat-audio-ready">{{ total_generated }}</div>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-6">
+                    <div style="background: #2e3440; padding: 14px; border-radius: 8px; border: 1px solid #434c5e;">
+                        <div style="font-size: 0.8rem; color: #d8dee9; font-weight: 600;">COMPLETION</div>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: #b48ead;" id="stat-completion-pct">{{ completion_pct }}%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between mb-1" style="font-size: 0.85rem; font-weight: 600;">
+                    <span id="progress-status-text">Audio Generation Status</span>
+                    <span id="progress-count-text">{{ total_generated }} / {{ total_audio_needed }} Questions</span>
+                </div>
+                <div style="height: 14px; background: #3b4252; border-radius: 7px; overflow: hidden;">
+                    <div id="progress-bar-fill" style="height: 100%; width: {{ completion_pct }}%; background: linear-gradient(90deg, #10b981, #06b6d4); transition: width 0.4s ease;"></div>
+                </div>
+            </div>
+
+            <!-- Control Actions Bar -->
+            <div class="p-3 mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3" style="background: #2e3440; border-radius: 8px; border: 1px solid #434c5e;">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <button type="button" id="btn-start-guided" class="btn btn-success font-weight-bold px-3 py-2" style="border-radius: 6px; font-size: 0.95rem;">
+                        <i class="fas fa-play mr-1"></i> ▶️ Generate Audio for All Questions (Live Progress)
+                    </button>
+                    <button type="button" id="btn-stop-guided" class="btn btn-danger font-weight-bold px-3 py-2" style="border-radius: 6px; display: none;">
+                        <i class="fas fa-stop mr-1"></i> ⏹️ Stop
+                    </button>
+                    <button type="button" id="btn-start-bg" class="btn btn-outline-info font-weight-bold px-3 py-2" style="border-radius: 6px;">
+                        ⚡ Start Background Thread
+                    </button>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <label class="d-flex align-items-center m-0 gap-1" style="font-size: 0.85rem; cursor: pointer; color: #d8dee9;">
+                        <input type="checkbox" id="chk-overwrite" style="cursor: pointer;">
+                        <span>Overwrite existing audio</span>
+                    </label>
+                    <button type="button" id="btn-refresh" class="btn btn-sm btn-secondary" title="Refresh questions list">
+                        🔄 Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Diagnostic Toast Notification -->
+            <div id="diag-alert" style="display:none; padding:12px; border-radius:8px; margin-bottom:16px;"></div>
+
+            <!-- Tab Navigation: Questions vs Logs -->
+            <ul class="nav nav-tabs mb-3" style="border-bottom: 2px solid #3b4252;">
+                <li class="nav-item">
+                    <a class="nav-link active font-weight-bold" id="tab-btn-questions" href="#tab-questions" style="color: #eceff4; cursor: pointer;">
+                        📋 Questions with Audio ({{ total_audio_needed }})
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link font-weight-bold" id="tab-btn-logs" href="#tab-logs" style="color: #88c0d0; cursor: pointer;">
+                        📜 Real-Time Logs Console (<span id="log-count">0</span>)
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Tab 1: Questions Table -->
+            <div id="tab-questions-content">
+                <div class="table-responsive" style="border-radius: 8px; border: 1px solid #3b4252; background: #2e3440;">
+                    <table class="table table-dark table-hover m-0" style="font-size: 0.88rem;">
+                        <thead>
+                            <tr style="background: #3b4252; color: #e5e9f0;">
+                                <th style="width: 50px;">#</th>
+                                <th style="width: 110px;">Section</th>
+                                <th style="width: 90px;">Type</th>
+                                <th>Dialogue Script Preview</th>
+                                <th style="width: 200px;">Audio Player</th>
+                                <th style="width: 140px; text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="questions-tbody">
+                            {% for q in audio_questions %}
+                            <tr id="row-q-{{ q.id }}" data-qid="{{ q.id }}" data-has-audio="{% if q.has_audio %}1{% else %}0{% endif %}">
+                                <td class="font-weight-bold text-muted">{{ q.order_index }}</td>
+                                <td><span class="badge badge-secondary">{{ q.section }}</span></td>
+                                <td><span class="badge badge-info">{{ q.type }}</span></td>
+                                <td style="max-width: 320px;">
+                                    <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ q.audio_script }}">
+                                        {{ q.audio_script|truncatechars:85 }}
+                                    </div>
+                                    {% if q.prompt and q.prompt != q.audio_script %}
+                                    <small class="text-muted d-block" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        {{ q.prompt|truncatechars:70 }}
+                                    </small>
+                                    {% endif %}
+                                </td>
+                                <td id="audio-cell-{{ q.id }}">
+                                    {% if q.audio_url %}
+                                    <audio controls style="height: 28px; width: 170px;" src="{{ q.audio_url }}"></audio>
+                                    {% else %}
+                                    <span class="badge badge-warning text-dark">🟡 Missing Audio</span>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: right;">
+                                    <button type="button" class="btn btn-sm btn-primary btn-generate-single" data-qid="{{ q.id }}" data-order="{{ q.order_index }}" style="border-radius: 4px; font-size: 0.78rem;">
+                                        {% if q.has_audio %}🔄 Regenerate{% else %}🎙️ Generate{% endif %}
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center p-4 text-muted">
+                                    No listening or dialogue questions found in this test. Questions need an <code>audio_script</code> or dialogue in prompt.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 2: Logs Console -->
+            <div id="tab-logs-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted font-italic" style="font-size: 0.8rem;">Live logs from background worker and browser actions:</span>
+                    <div>
+                        <button type="button" id="btn-clear-logs" class="btn btn-sm btn-outline-danger">Clear Logs</button>
+                        <button type="button" id="btn-poll-logs" class="btn btn-sm btn-outline-info ml-1">Refresh Logs</button>
+                    </div>
+                </div>
+                <div id="log-console" style="height: 380px; overflow-y: auto; background: #1a1c23; color: #a3be8c; padding: 14px; border-radius: 8px; font-family: monospace; font-size: 0.82rem; border: 1px solid #3b4252; line-height: 1.5;">
+                    <div class="text-muted font-italic">No logs recorded yet.</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const TEST_ID = {{ test_obj.id }};
+    const CSRF_TOKEN = "{{ csrf_token }}";
+
+    // URLs
+    const URL_SINGLE_GEN = "{% url 'admin:generate_single_question_audio_api' test_id=test_obj.id question_id=0 %}".slice(0, -2); // remove /0
+    const URL_TEST_TTS = "{% url 'admin:test_tts_connection_api' test_id=test_obj.id %}";
+    const URL_LOGS = "{% url 'admin:test_audio_logs_api' test_id=test_obj.id %}";
+    const URL_BG_START = "{% url 'admin:generate_test_audio' test_id=test_obj.id %}";
+
+    let isRunning = false;
+    let cancelRequested = false;
+
+    // Tabs
+    const tabQuestions = document.getElementById('tab-questions-content');
+    const tabLogs = document.getElementById('tab-logs-content');
+    const btnTabQuestions = document.getElementById('tab-btn-questions');
+    const btnTabLogs = document.getElementById('tab-btn-logs');
+
+    btnTabQuestions.addEventListener('click', function(e) {
+        e.preventDefault();
+        tabQuestions.style.display = 'block';
+        tabLogs.style.display = 'none';
+        btnTabQuestions.classList.add('active');
+        btnTabLogs.classList.remove('active');
+    });
+
+    btnTabLogs.addEventListener('click', function(e) {
+        e.preventDefault();
+        tabQuestions.style.display = 'none';
+        tabLogs.style.display = 'block';
+        btnTabLogs.classList.add('active');
+        btnTabQuestions.classList.remove('active');
+        fetchLogs();
+    });
+
+    // Logging helper
+    function appendLogLocal(msg, level = 'info') {
+        const consoleEl = document.getElementById('log-console');
+        const emptyEl = consoleEl.querySelector('.text-muted.font-italic');
+        if (emptyEl) emptyEl.remove();
+
+        const timeStr = new Date().toLocaleTimeString();
+        const line = document.createElement('div');
+        let color = '#d8dee9';
+        let icon = 'ℹ️';
+        if (level === 'success') { color = '#a3be8c'; icon = '✅'; }
+        if (level === 'error') { color = '#bf616a'; icon = '❌'; }
+        if (level === 'warning') { color = '#ebcb8b'; icon = '⚠️'; }
+
+        line.style.color = color;
+        line.innerHTML = `<span style="color:#64748b;">[${timeStr}]</span> ${icon} ${escapeHtml(msg)}`;
+        consoleEl.appendChild(line);
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+        return (str || '').replace(/[&<>"']/g, function(m) {
+            return {'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'}[m];
+        });
+    }
+
+    // Diagnostic TTS Test
+    const btnTestTts = document.getElementById('btn-test-tts');
+    const diagAlert = document.getElementById('diag-alert');
+
+    btnTestTts.addEventListener('click', async function() {
+        btnTestTts.disabled = true;
+        btnTestTts.innerHTML = '🧪 Testing...';
+        diagAlert.style.display = 'none';
+        appendLogLocal('Testing Edge-TTS connection to Microsoft speech servers...', 'info');
+
+        try {
+            const resp = await fetch(URL_TEST_TTS, { credentials: 'same-origin' });
+            const data = await resp.json();
+            diagAlert.style.display = 'block';
+
+            if (data.success) {
+                diagAlert.style.background = '#064e3b';
+                diagAlert.style.color = '#a7f3d0';
+                diagAlert.style.border = '1px solid #059669';
+                diagAlert.innerHTML = `<strong>✅ Microsoft Edge-TTS is 100% OPERATIONAL!</strong> ${escapeHtml(data.message)} (Latency: ${data.latency}s)`;
+                appendLogLocal(`Edge-TTS operational (${data.latency}s): ${data.message}`, 'success');
+            } else {
+                diagAlert.style.background = '#7f1d1d';
+                diagAlert.style.color = '#fecaca';
+                diagAlert.style.border = '1px solid #dc2626';
+                diagAlert.innerHTML = `<strong>❌ Edge-TTS Connection Failed:</strong> ${escapeHtml(data.message)}`;
+                appendLogLocal(`Edge-TTS failed: ${data.message}`, 'error');
+            }
+        } catch (err) {
+            diagAlert.style.display = 'block';
+            diagAlert.style.background = '#7f1d1d';
+            diagAlert.style.color = '#fecaca';
+            diagAlert.innerHTML = `<strong>❌ Network Error:</strong> ${escapeHtml(err.message)}`;
+            appendLogLocal(`Network request error: ${err.message}`, 'error');
+        } finally {
+            btnTestTts.disabled = false;
+            btnTestTts.innerHTML = '🧪 Test Edge-TTS Connection';
+        }
+    });
+
+    // Update progress stats UI
+    function recalculateStats() {
+        const rows = document.querySelectorAll('#questions-tbody tr[data-qid]');
+        const totalNeeded = rows.length;
+        let readyCount = 0;
+        rows.forEach(r => {
+            if (r.getAttribute('data-has-audio') === '1') readyCount++;
+        });
+
+        const pct = totalNeeded > 0 ? Math.round((readyCount / totalNeeded) * 100) : 100;
+        document.getElementById('stat-audio-needed').textContent = totalNeeded;
+        document.getElementById('stat-audio-ready').textContent = readyCount;
+        document.getElementById('stat-completion-pct').textContent = pct + '%';
+        document.getElementById('progress-count-text').textContent = `${readyCount} / ${totalNeeded} Questions`;
+        document.getElementById('progress-bar-fill').style.width = pct + '%';
+    }
+
+    // Generate single question audio via AJAX
+    async function generateSingleQuestion(qid, orderIndex, overwrite = false) {
+        const url = `${URL_SINGLE_GEN}/${qid}/?overwrite=${overwrite ? '1' : '0'}`;
+        const resp = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': CSRF_TOKEN,
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
+        });
+        return await resp.json();
+    }
+
+    // Hook single question generate buttons
+    document.querySelectorAll('.btn-generate-single').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const qid = this.getAttribute('data-qid');
+            const order = this.getAttribute('data-order');
+            const overwrite = document.getElementById('chk-overwrite').checked;
+
+            this.disabled = true;
+            this.innerHTML = '⏳ Generating...';
+            appendLogLocal(`Synthesizing Question #${order} (ID ${qid})...`, 'info');
+
+            try {
+                const res = await generateSingleQuestion(qid, order, overwrite || true);
+                const cell = document.getElementById(`audio-cell-${qid}`);
+                const row = document.getElementById(`row-q-${qid}`);
+
+                if (res.success && res.audio_url) {
+                    cell.innerHTML = `<audio controls style="height: 28px; width: 170px;" src="${res.audio_url}"></audio>`;
+                    row.setAttribute('data-has-audio', '1');
+                    this.innerHTML = '🔄 Regenerate';
+                    appendLogLocal(`Question #${order}: ${res.message}`, 'success');
+                } else {
+                    cell.innerHTML = `<span class="badge badge-danger" title="${escapeHtml(res.message)}">🔴 Error: ${escapeHtml(res.message).slice(0, 30)}...</span>`;
+                    this.innerHTML = '⚠️ Retry';
+                    appendLogLocal(`Question #${order} failed: ${res.message}`, 'error');
+                }
+            } catch (err) {
+                appendLogLocal(`Question #${order} network error: ${err.message}`, 'error');
+                this.innerHTML = '⚠️ Retry';
+            } finally {
+                this.disabled = false;
+                recalculateStats();
+            }
+        });
+    });
+
+    // Browser-Guided Sequential Generation (Zero Timeout Guaranteed)
+    const btnStartGuided = document.getElementById('btn-start-guided');
+    const btnStopGuided = document.getElementById('btn-stop-guided');
+
+    btnStartGuided.addEventListener('click', async function() {
+        const rows = Array.from(document.querySelectorAll('#questions-tbody tr[data-qid]'));
+        if (!rows.length) {
+            alert("No questions requiring audio were found in this test.");
+            return;
+        }
+
+        const overwrite = document.getElementById('chk-overwrite').checked;
+        const queue = rows.filter(r => overwrite || r.getAttribute('data-has-audio') !== '1');
+
+        if (!queue.length) {
+            if (confirm("All questions already have audio generated! Would you like to overwrite and regenerate them?")) {
+                document.getElementById('chk-overwrite').checked = true;
+                btnStartGuided.click();
+            }
+            return;
+        }
+
+        isRunning = true;
+        cancelRequested = false;
+        btnStartGuided.style.display = 'none';
+        btnStopGuided.style.display = 'inline-block';
+        document.getElementById('progress-status-text').textContent = `Synthesizing Audio (Queue: ${queue.length})...`;
+
+        appendLogLocal(`🚀 Starting sequential synthesis queue: ${queue.length} question(s)...`, 'info');
+
+        let successCount = 0;
+        let failCount = 0;
+
+        for (let i = 0; i < queue.length; i++) {
+            if (cancelRequested) {
+                appendLogLocal('⏹️ Queue generation stopped by user.', 'warning');
+                break;
+            }
+
+            const row = queue[i];
+            const qid = row.getAttribute('data-qid');
+            const btn = row.querySelector('.btn-generate-single');
+            const order = btn.getAttribute('data-order');
+            const cell = document.getElementById(`audio-cell-${qid}`);
+
+            document.getElementById('progress-status-text').textContent = `Processing Question #${order} (${i + 1}/${queue.length})...`;
+            btn.disabled = true;
+            btn.innerHTML = '⏳...';
+
+            try {
+                const res = await generateSingleQuestion(qid, order, overwrite);
+                if (res.success && res.audio_url) {
+                    successCount++;
+                    cell.innerHTML = `<audio controls style="height: 28px; width: 170px;" src="${res.audio_url}"></audio>`;
+                    row.setAttribute('data-has-audio', '1');
+                    btn.innerHTML = '🔄 Regenerate';
+                    appendLogLocal(`[${i+1}/${queue.length}] ✓ Question #${order}: ${res.message}`, 'success');
+                } else {
+                    failCount++;
+                    cell.innerHTML = `<span class="badge badge-danger" title="${escapeHtml(res.message)}">🔴 Error</span>`;
+                    btn.innerHTML = '⚠️ Retry';
+                    appendLogLocal(`[${i+1}/${queue.length}] ✕ Question #${order} FAILED: ${res.message}`, 'error');
+                }
+            } catch (err) {
+                failCount++;
+                appendLogLocal(`[${i+1}/${queue.length}] ✕ Question #${order} network error: ${err.message}`, 'error');
+                btn.innerHTML = '⚠️ Retry';
+            } finally {
+                btn.disabled = false;
+                recalculateStats();
+            }
+        }
+
+        isRunning = false;
+        btnStartGuided.style.display = 'inline-block';
+        btnStopGuided.style.display = 'none';
+        document.getElementById('progress-status-text').textContent = `Completed! ${successCount} generated, ${failCount} failed.`;
+        appendLogLocal(`🎉 Queue finished: ${successCount} generated, ${failCount} failed.`, successCount > 0 ? 'success' : 'warning');
+    });
+
+    btnStopGuided.addEventListener('click', function() {
+        cancelRequested = true;
+        btnStopGuided.disabled = true;
+        btnStopGuided.innerHTML = 'Stopping...';
+        setTimeout(() => {
+            btnStopGuided.disabled = false;
+            btnStopGuided.innerHTML = '<i class="fas fa-stop mr-1"></i> ⏹️ Stop';
+        }, 1000);
+    });
+
+    // Background Thread Trigger
+    document.getElementById('btn-start-bg').addEventListener('click', function() {
+        const overwrite = document.getElementById('chk-overwrite').checked;
+        window.location.href = `${URL_BG_START}?overwrite=${overwrite ? '1' : '0'}`;
+    });
+
+    // Refresh Page
+    document.getElementById('btn-refresh').addEventListener('click', function() {
+        window.location.reload();
+    });
+
+    // Fetch Logs from Server
+    async function fetchLogs() {
+        try {
+            const resp = await fetch(URL_LOGS);
+            const data = await resp.json();
+            const consoleEl = document.getElementById('log-console');
+            consoleEl.innerHTML = '';
+            const logs = data.logs || [];
+            document.getElementById('log-count').textContent = logs.length;
+
+            if (!logs.length) {
+                consoleEl.innerHTML = '<div class="text-muted font-italic">No logs recorded yet.</div>';
+                return;
+            }
+
+            logs.forEach(item => {
+                const line = document.createElement('div');
+                let color = '#d8dee9';
+                let icon = 'ℹ️';
+                if (item.level === 'success') { color = '#a3be8c'; icon = '✅'; }
+                if (item.level === 'error') { color = '#bf616a'; icon = '❌'; }
+                if (item.level === 'warning') { color = '#ebcb8b'; icon = '⚠️'; }
+
+                line.style.color = color;
+                line.innerHTML = `<span style="color:#64748b;">[${item.timestamp}]</span> ${icon} ${escapeHtml(item.message)}` + 
+                    (item.details ? `<br><small style="margin-left:24px;color:#d08770;">${escapeHtml(item.details)}</small>` : '');
+                consoleEl.appendChild(line);
+            });
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // Clear Logs
+    document.getElementById('btn-clear-logs').addEventListener('click', async function() {
+        if (confirm("Clear all logs for this test?")) {
+            await fetch(`${URL_LOGS}?clear=1`);
+            document.getElementById('log-console').innerHTML = '<div class="text-muted font-italic">No logs recorded yet.</div>';
+            document.getElementById('log-count').textContent = '0';
+        }
+    });
+
+    document.getElementById('btn-poll-logs').addEventListener('click', fetchLogs);
+
+    // Initial log fetch
+    fetchLogs();
+
+})();
+</script>
+{% endblock %}

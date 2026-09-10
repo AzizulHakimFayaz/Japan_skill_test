@@ -441,63 +441,107 @@ def generate_audio_from_script(script_text: str, pause_ms: int = 600) -> bytes:
 
 
 # ============================================================
-# Django Model Helpers
+# Django Model Helpers with Detailed Error Reporting
 # ============================================================
 
-def generate_and_save_question_audio(question, script_text: Optional[str] = None, overwrite: bool = False) -> bool:
+def generate_and_save_question_audio_with_details(question, script_text: Optional[str] = None, overwrite: bool = False) -> Tuple[bool, str]:
     """
-    Generates TTS audio for a Question instance and attaches it to question.audio.
-    
-    Args:
-        question: Question model instance.
-        script_text: Optional script text. Defaults to question.audio_script or question.prompt.
-        overwrite: If False, skips if question.audio is already set.
-        
-    Returns:
-        bool: True if audio was generated and saved, False otherwise.
+    Generates TTS audio for a Question instance and returns (success: bool, detail_message: str).
     """
     if not question:
-        return False
+        return False, "Question instance is None."
 
     if question.audio and not overwrite:
-        return False
+        return True, "Audio already exists for this question (skipped). Enable overwrite to replace."
 
     script = script_text or getattr(question, 'audio_script', '') or ''
     if not script.strip():
         # Fallback to question.prompt if question is of type audio and contains dialogue markers
         prompt = getattr(question, 'prompt', '') or ''
-        if (question.type in ['audio', 'image_audio'] or question.section == 'listening') and ('[' in prompt or '：' in prompt or ':' in prompt):
+        if (question.type in ['audio', 'image_audio', 'audio_typing'] or question.section in ['listening', 'audio']) and ('[' in prompt or '：' in prompt or ':' in prompt):
             script = prompt
         else:
-            return False
+            return False, "No audio_script or dialogue prompt provided for this question."
 
-    audio_bytes = generate_audio_from_script(script)
-    if not audio_bytes:
-        return False
+    turns = parse_dialogue_script(script)
+    if not turns:
+        return False, f"Could not parse dialogue turns from script: '{script[:60]}...'"
 
-    filename = f"q_{question.id or question.order_index or 'tts'}_audio.mp3"
-    question.audio.save(filename, ContentFile(audio_bytes), save=True)
-    return True
+    try:
+        audio_bytes = generate_audio_from_script(script)
+        if not audio_bytes or len(audio_bytes) < 100:
+            return False, "Edge-TTS returned 0 bytes. Check server internet connectivity to Microsoft speech servers."
+
+        filename = f"q_{question.id or question.order_index or 'tts'}_audio.mp3"
+        question.audio.save(filename, ContentFile(audio_bytes), save=True)
+        return True, f"Successfully synthesized {len(turns)} dialogue turn(s) ({len(audio_bytes):,} bytes)."
+    except Exception as e:
+        import traceback
+        return False, f"TTS Synthesis Error: {str(e)}"
+
+
+def generate_and_save_question_audio(question, script_text: Optional[str] = None, overwrite: bool = False) -> bool:
+    """
+    Backward-compatible boolean wrapper for question audio generation.
+    """
+    success, _ = generate_and_save_question_audio_with_details(question, script_text=script_text, overwrite=overwrite)
+    return success
+
+
+def generate_and_save_group_audio_with_details(group, script_text: Optional[str] = None, overwrite: bool = False) -> Tuple[bool, str]:
+    """
+    Generates TTS audio for a QuestionGroup instance and returns (success: bool, detail_message: str).
+    """
+    if not group:
+        return False, "QuestionGroup instance is None."
+
+    if group.audio and not overwrite:
+        return True, "Audio already exists for this group (skipped). Enable overwrite to replace."
+
+    script = script_text or getattr(group, 'audio_script', '') or ''
+    if not script.strip():
+        return False, "No audio_script provided for this group."
+
+    turns = parse_dialogue_script(script)
+    if not turns:
+        return False, f"Could not parse dialogue turns from group script: '{script[:60]}...'"
+
+    try:
+        audio_bytes = generate_audio_from_script(script)
+        if not audio_bytes or len(audio_bytes) < 100:
+            return False, "Edge-TTS returned 0 audio bytes for group."
+
+        filename = f"group_{group.id or group.order_index or 'tts'}_audio.mp3"
+        group.audio.save(filename, ContentFile(audio_bytes), save=True)
+        return True, f"Generated group audio: {len(turns)} turns ({len(audio_bytes):,} bytes)."
+    except Exception as e:
+        return False, f"Group TTS Error: {str(e)}"
 
 
 def generate_and_save_group_audio(group, script_text: Optional[str] = None, overwrite: bool = False) -> bool:
     """
-    Generates TTS audio for a QuestionGroup instance and attaches it to group.audio.
+    Backward-compatible boolean wrapper for group audio generation.
     """
-    if not group:
-        return False
+    success, _ = generate_and_save_group_audio_with_details(group, script_text=script_text, overwrite=overwrite)
+    return success
 
-    if group.audio and not overwrite:
-        return False
 
-    script = script_text or getattr(group, 'audio_script', '') or ''
-    if not script.strip():
-        return False
+def test_edge_tts_connection() -> Tuple[bool, str, float]:
+    """
+    Tests live connection to Microsoft Edge-TTS service from the current server.
+    Returns (success: bool, message: str, latency_seconds: float).
+    """
+    import time
+    start = time.time()
+    test_script = "[Nanami], [こんにちは。音声テストです。]"
+    try:
+        audio_bytes = generate_audio_from_script(test_script)
+        latency = round(time.time() - start, 2)
+        if audio_bytes and len(audio_bytes) > 500:
+            return True, f"Edge-TTS connected successfully! Synthesized {len(audio_bytes):,} bytes in {latency}s.", latency
+        else:
+            return False, f"Connected but received empty audio output ({len(audio_bytes)} bytes) in {latency}s.", latency
+    except Exception as e:
+        latency = round(time.time() - start, 2)
+        return False, f"Connection Failed ({latency}s): {str(e)}", latency
 
-    audio_bytes = generate_audio_from_script(script)
-    if not audio_bytes:
-        return False
-
-    filename = f"group_{group.id or group.order_index or 'tts'}_audio.mp3"
-    group.audio.save(filename, ContentFile(audio_bytes), save=True)
-    return True

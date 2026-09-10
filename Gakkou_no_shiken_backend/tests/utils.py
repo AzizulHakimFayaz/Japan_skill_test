@@ -252,16 +252,25 @@ def generate_test_missing_audio_worker(test_id, question_ids=None, group_ids=Non
                 if overwrite or not q.audio:
                     questions_to_process.append(q)
 
+        from .audio_logger import append_audio_log
+        from .audio_generator import generate_and_save_question_audio_with_details, generate_and_save_group_audio_with_details
+
+        append_audio_log(test_id, f"Audio worker started. Found {len(questions_to_process)} question(s) requiring speech synthesis.", level="info")
+
         print(f"[AUDIO-WORKER] Test #{test_id}: Processing {len(questions_to_process)} question(s) requiring audio...", file=sys.stderr, flush=True)
         success_q = 0
         for q in questions_to_process:
             try:
-                if generate_and_save_question_audio(q, overwrite=overwrite):
+                ok, msg = generate_and_save_question_audio_with_details(q, overwrite=overwrite)
+                if ok:
                     success_q += 1
-                    print(f"[AUDIO-WORKER] ✓ Generated audio for Question #{q.id} (Order {q.order_index})", file=sys.stderr, flush=True)
+                    append_audio_log(test_id, f"Question #{q.order_index} (ID {q.id}): {msg}", level="success")
+                    print(f"[AUDIO-WORKER] ✓ Question #{q.id} (Order {q.order_index}): {msg}", file=sys.stderr, flush=True)
                 else:
-                    print(f"[AUDIO-WORKER] ✕ Skipped/failed Question #{q.id}", file=sys.stderr, flush=True)
+                    append_audio_log(test_id, f"Question #{q.order_index} (ID {q.id}) FAILED: {msg}", level="error", details=msg)
+                    print(f"[AUDIO-WORKER] ✕ Question #{q.id}: {msg}", file=sys.stderr, flush=True)
             except Exception as q_err:
+                append_audio_log(test_id, f"Question #{q.order_index} exception: {str(q_err)}", level="error", details=str(q_err))
                 print(f"[AUDIO-WORKER] Error on Question #{q.id}: {q_err}", file=sys.stderr, flush=True)
 
         # 2. Groups (fetch list with retry)
@@ -283,13 +292,20 @@ def generate_test_missing_audio_worker(test_id, question_ids=None, group_ids=Non
         for g in raw_groups:
             if g.audio_script and g.audio_script.strip() and (overwrite or not g.audio):
                 try:
-                    if generate_and_save_group_audio(g, overwrite=overwrite):
+                    ok_g, msg_g = generate_and_save_group_audio_with_details(g, overwrite=overwrite)
+                    if ok_g:
                         success_g += 1
-                        print(f"[AUDIO-WORKER] ✓ Generated audio for Group #{g.id} ({g.title})", file=sys.stderr, flush=True)
+                        append_audio_log(test_id, f"Group '{g.title}' (ID {g.id}): {msg_g}", level="success")
+                        print(f"[AUDIO-WORKER] ✓ Group #{g.id}: {msg_g}", file=sys.stderr, flush=True)
+                    else:
+                        append_audio_log(test_id, f"Group '{g.title}' FAILED: {msg_g}", level="error", details=msg_g)
                 except Exception as g_err:
+                    append_audio_log(test_id, f"Group '{g.title}' exception: {str(g_err)}", level="error")
                     print(f"[AUDIO-WORKER] Error on Group #{g.id}: {g_err}", file=sys.stderr, flush=True)
 
-        print(f"[AUDIO-WORKER] Test #{test_id} complete: {success_q} questions, {success_g} groups generated.", file=sys.stderr, flush=True)
+        summary_msg = f"Audio generation finished: {success_q}/{len(questions_to_process)} questions, {success_g} groups synthesized."
+        append_audio_log(test_id, summary_msg, level="info" if success_q == len(questions_to_process) else "warning")
+        print(f"[AUDIO-WORKER] Test #{test_id} complete: {summary_msg}", file=sys.stderr, flush=True)
 
         # Invalidate cache so frontend immediately gets the updated audio URLs
         try:
