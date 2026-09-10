@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
+from django.views.decorators.csrf import csrf_exempt
 from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice
 from .utils import import_questions_from_csv, generate_sample_csv_string, generate_sample_ssw_csv_string, export_test_questions_to_csv, generate_test_missing_audio_worker
 from .audio_logger import get_audio_logs, clear_audio_logs, append_audio_log
@@ -224,9 +225,9 @@ class TestAdmin(admin.ModelAdmin):
             path('<int:test_id>/export-csv/', self.admin_site.admin_view(self.admin_export_test_csv_view), name='export_test_csv'),
             path('<int:test_id>/generate-audio/', self.admin_site.admin_view(self.admin_generate_test_audio_view), name='generate_test_audio'),
             path('<int:test_id>/audio-hub/', self.admin_site.admin_view(self.admin_test_audio_hub_view), name='test_audio_hub'),
-            path('<int:test_id>/generate-single-question-audio/<int:question_id>/', self.admin_site.admin_view(self.admin_generate_single_question_audio_api), name='generate_single_question_audio_api'),
-            path('<int:test_id>/test-tts-connection/', self.admin_site.admin_view(self.admin_test_tts_connection_api), name='test_tts_connection_api'),
-            path('<int:test_id>/audio-logs/', self.admin_site.admin_view(self.admin_test_audio_logs_api), name='test_audio_logs_api'),
+            path('<int:test_id>/generate-single-question-audio/<int:question_id>/', csrf_exempt(self.admin_site.admin_view(self.admin_generate_single_question_audio_api)), name='generate_single_question_audio_api'),
+            path('<int:test_id>/test-tts-connection/', csrf_exempt(self.admin_site.admin_view(self.admin_test_tts_connection_api)), name='test_tts_connection_api'),
+            path('<int:test_id>/audio-logs/', csrf_exempt(self.admin_site.admin_view(self.admin_test_audio_logs_api)), name='test_audio_logs_api'),
         ]
         return custom_urls + urls
 
@@ -238,7 +239,10 @@ class TestAdmin(admin.ModelAdmin):
         for q in questions:
             has_script = bool(q.audio_script and q.audio_script.strip()) or (
                 q.type in [Question.QuestionType.AUDIO, Question.QuestionType.IMAGE_AUDIO, Question.QuestionType.AUDIO_TYPING]
-                and bool(q.prompt and ('[' in q.prompt or '：' in q.prompt or ':' in q.prompt))
+                and bool(q.prompt and q.prompt.strip())
+            ) or (
+                q.section in [Question.Section.LISTENING, Question.Section.AUDIO]
+                and bool(q.prompt and q.prompt.strip())
             )
             if has_script or q.audio:
                 audio_questions.append({
@@ -273,41 +277,56 @@ class TestAdmin(admin.ModelAdmin):
 
     def admin_generate_single_question_audio_api(self, request, test_id, question_id):
         from django.shortcuts import get_object_or_404
-        question = get_object_or_404(Question, pk=question_id, test_id=test_id)
-        overwrite = request.POST.get('overwrite') in ['1', 'true', 'yes'] or request.GET.get('overwrite') in ['1', 'true', 'yes']
+        try:
+            question = get_object_or_404(Question, pk=question_id, test_id=test_id)
+            overwrite = request.POST.get('overwrite') in ['1', 'true', 'yes'] or request.GET.get('overwrite') in ['1', 'true', 'yes']
 
-        ok, msg = generate_and_save_question_audio_with_details(question, overwrite=overwrite)
-        if ok:
-            append_audio_log(test_id, f"Question #{question.order_index} (ID {question.id}): {msg}", level="success")
-            question.refresh_from_db()
-            return JsonResponse({
-                'success': True,
-                'message': msg,
-                'audio_url': question.audio.url if question.audio else None,
-                'question_id': question.id,
-                'order_index': question.order_index
-            })
-        else:
-            append_audio_log(test_id, f"Question #{question.order_index} (ID {question.id}) FAILED: {msg}", level="error", details=msg)
+            ok, msg = generate_and_save_question_audio_with_details(question, overwrite=overwrite)
+            if ok:
+                append_audio_log(test_id, f"Question #{question.order_index} (ID {question.id}): {msg}", level="success")
+                question.refresh_from_db()
+                return JsonResponse({
+                    'success': True,
+                    'message': msg,
+                    'audio_url': question.audio.url if question.audio else None,
+                    'question_id': question.id,
+                    'order_index': question.order_index
+                })
+            else:
+                append_audio_log(test_id, f"Question #{question.order_index} (ID {question.id}) FAILED: {msg}", level="error", details=msg)
+                return JsonResponse({
+                    'success': False,
+                    'message': msg,
+                    'error': msg,
+                    'question_id': question.id,
+                    'order_index': question.order_index
+                })
+        except Exception as e:
+            append_audio_log(test_id, f"Question (ID {question_id}) Exception: {str(e)}", level="error")
             return JsonResponse({
                 'success': False,
-                'message': msg,
-                'error': msg,
-                'question_id': question.id,
-                'order_index': question.order_index
+                'message': f"Server error: {str(e)}",
+                'error': str(e),
+                'question_id': question_id
             })
 
     def admin_test_tts_connection_api(self, request, test_id):
-        ok, msg, latency = test_edge_tts_connection()
-        append_audio_log(test_id, f"Diagnostic Test: {msg}", level="success" if ok else "error")
-        return JsonResponse({'success': ok, 'message': msg, 'latency': latency})
+        try:
+            ok, msg, latency = test_edge_tts_connection()
+            append_audio_log(test_id, f"Diagnostic Test: {msg}", level="success" if ok else "error")
+            return JsonResponse({'success': ok, 'message': msg, 'latency': latency})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e), 'latency': 0})
 
     def admin_test_audio_logs_api(self, request, test_id):
-        if request.GET.get('clear') == '1':
-            clear_audio_logs(test_id)
-            return JsonResponse({'status': 'cleared', 'logs': []})
-        logs = get_audio_logs(test_id)
-        return JsonResponse({'logs': logs})
+        try:
+            if request.GET.get('clear') == '1':
+                clear_audio_logs(test_id)
+                return JsonResponse({'status': 'cleared', 'logs': []})
+            logs = get_audio_logs(test_id)
+            return JsonResponse({'logs': logs})
+        except Exception as e:
+            return JsonResponse({'logs': [], 'error': str(e)})
 
     def admin_generate_test_audio_view(self, request, test_id):
         from django.shortcuts import get_object_or_404

@@ -456,9 +456,9 @@ def generate_and_save_question_audio_with_details(question, script_text: Optiona
 
     script = script_text or getattr(question, 'audio_script', '') or ''
     if not script.strip():
-        # Fallback to question.prompt if question is of type audio and contains dialogue markers
+        # Fallback to question.prompt if question is of type audio or listening section
         prompt = getattr(question, 'prompt', '') or ''
-        if (question.type in ['audio', 'image_audio', 'audio_typing'] or question.section in ['listening', 'audio']) and ('[' in prompt or '：' in prompt or ':' in prompt):
+        if (question.type in ['audio', 'image_audio', 'audio_typing'] or question.section in ['listening', 'audio']) and prompt.strip():
             script = prompt
         else:
             return False, "No audio_script or dialogue prompt provided for this question."

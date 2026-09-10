@@ -59,8 +59,10 @@ def package():
         required_fixes = [
             'tests/admin.py',
             'tests/audio_generator.py',
+            'tests/audio_logger.py',
             'tests/utils.py',
             'tests/templates/admin/csv_import.html',
+            'tests/templates/admin/audio_hub.html',
             'tests/management/commands/generate_test_audio.py',
         ]
         for req in required_fixes:

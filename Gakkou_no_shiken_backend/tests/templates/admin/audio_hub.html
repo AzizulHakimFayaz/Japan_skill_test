@@ -192,19 +192,53 @@
     </div>
 </div>
 
+<div style="display:none;">{% csrf_token %}</div>
+
 <script>
 (function() {
     const TEST_ID = {{ test_obj.id }};
-    const CSRF_TOKEN = "{{ csrf_token }}";
+    const CSRF_TOKEN = document.querySelector('[name=csrfmiddlewaretoken]') ? document.querySelector('[name=csrfmiddlewaretoken]').value : "{{ csrf_token }}";
 
-    // URLs
-    const URL_SINGLE_GEN = "{% url 'admin:generate_single_question_audio_api' test_id=test_obj.id question_id=0 %}".slice(0, -2); // remove /0
+    // URLs (using placeholder replacement to prevent any double-slash routing issues)
+    const URL_SINGLE_GEN_PATTERN = "{% url 'admin:generate_single_question_audio_api' test_id=test_obj.id question_id=999999999 %}";
     const URL_TEST_TTS = "{% url 'admin:test_tts_connection_api' test_id=test_obj.id %}";
     const URL_LOGS = "{% url 'admin:test_audio_logs_api' test_id=test_obj.id %}";
     const URL_BG_START = "{% url 'admin:generate_test_audio' test_id=test_obj.id %}";
 
+    function buildSingleGenUrl(qid, overwrite) {
+        return URL_SINGLE_GEN_PATTERN.replace('999999999', qid) + `?overwrite=${overwrite ? '1' : '0'}`;
+    }
+
     let isRunning = false;
     let cancelRequested = false;
+
+    // Safe response parser - extracts status & title from HTML error pages to avoid JSON syntax errors
+    async function parseJsonResponse(resp) {
+        let text = '';
+        try {
+            text = await resp.text();
+            return JSON.parse(text);
+        } catch (err) {
+            let errorMsg = `HTTP ${resp.status} ${resp.statusText || ''}`.trim();
+            if (text) {
+                const h1Match = text.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+                const titleMatch = text.match(/<title[^>]*>([^<]+)<\/title>/i);
+                if (h1Match) {
+                    errorMsg += `: ${h1Match[1].trim()}`;
+                } else if (titleMatch) {
+                    errorMsg += `: ${titleMatch[1].trim()}`;
+                } else {
+                    const cleanText = text.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
+                    if (cleanText) errorMsg += `: ${cleanText.slice(0, 100)}`;
+                }
+            }
+            return {
+                success: false,
+                message: `Server returned non-JSON response (${errorMsg})`,
+                raw: text.slice(0, 300)
+            };
+        }
+    }
 
     // Tabs
     const tabQuestions = document.getElementById('tab-questions-content');
@@ -266,8 +300,11 @@
         appendLogLocal('Testing Edge-TTS connection to Microsoft speech servers...', 'info');
 
         try {
-            const resp = await fetch(URL_TEST_TTS, { credentials: 'same-origin' });
-            const data = await resp.json();
+            const resp = await fetch(URL_TEST_TTS, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin'
+            });
+            const data = await parseJsonResponse(resp);
             diagAlert.style.display = 'block';
 
             if (data.success) {
@@ -314,16 +351,16 @@
 
     // Generate single question audio via AJAX
     async function generateSingleQuestion(qid, orderIndex, overwrite = false) {
-        const url = `${URL_SINGLE_GEN}/${qid}/?overwrite=${overwrite ? '1' : '0'}`;
+        const url = buildSingleGenUrl(qid, overwrite);
         const resp = await fetch(url, {
-            method: 'POST',
+            method: 'GET',
             headers: {
-                'X-CSRFToken': CSRF_TOKEN,
-                'Content-Type': 'application/json'
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             },
             credentials: 'same-origin'
         });
-        return await resp.json();
+        return await parseJsonResponse(resp);
     }
 
     // Hook single question generate buttons
@@ -466,8 +503,11 @@
     // Fetch Logs from Server
     async function fetchLogs() {
         try {
-            const resp = await fetch(URL_LOGS);
-            const data = await resp.json();
+            const resp = await fetch(URL_LOGS, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin'
+            });
+            const data = await parseJsonResponse(resp);
             const consoleEl = document.getElementById('log-console');
             consoleEl.innerHTML = '';
             const logs = data.logs || [];
@@ -500,7 +540,10 @@
     // Clear Logs
     document.getElementById('btn-clear-logs').addEventListener('click', async function() {
         if (confirm("Clear all logs for this test?")) {
-            await fetch(`${URL_LOGS}?clear=1`);
+            await fetch(`${URL_LOGS}?clear=1`, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin'
+            });
             document.getElementById('log-console').innerHTML = '<div class="text-muted font-italic">No logs recorded yet.</div>';
             document.getElementById('log-count').textContent = '0';
         }
