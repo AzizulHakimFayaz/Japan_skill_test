@@ -21,6 +21,7 @@ import {
   Globe,
 } from 'lucide-react';
 import { getCountryFlag } from '@/lib/utils';
+import CountryFlag from '@/components/CountryFlag';
 
 
 export default function LeaderboardPage() {
@@ -155,8 +156,8 @@ export default function LeaderboardPage() {
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[10px] sm:text-xs text-indigo-300 font-extrabold uppercase shrink-0">Your Standing:</span>
                 <strong className="text-sm sm:text-base font-black text-white truncate">{current_user_rank.full_name}</strong>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-800/70 border border-indigo-500/40 text-[10px] sm:text-xs font-bold text-indigo-200 shrink-0">
-                  <span className="text-xs sm:text-sm leading-none">{userFlag}</span>
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-800/70 border border-indigo-500/40 text-[10px] sm:text-xs font-bold text-indigo-200 shrink-0">
+                  <CountryFlag country={userCountry || 'Global'} flagEmoji={userFlag} width={18} height={12} />
                   <span className="truncate max-w-[120px]">{userCountry || 'Global'}</span>
                 </span>
               </div>
@@ -216,7 +217,7 @@ export default function LeaderboardPage() {
 
                   {/* Country Flag Badge */}
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-800/90 border border-slate-700 text-xs font-bold text-slate-200 shadow-xs">
-                    <span className="text-sm leading-none">{secondPlaceFlag}</span>
+                    <CountryFlag country={secondPlaceCountry} flagEmoji={secondPlaceFlag} width={20} height={14} />
                     <span className="truncate max-w-[130px]">{secondPlaceCountry}</span>
                   </div>
 
@@ -271,7 +272,7 @@ export default function LeaderboardPage() {
 
                   {/* Country Flag Badge */}
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-600/50 text-xs font-black text-amber-200 shadow-xs">
-                    <span className="text-base leading-none">{firstPlaceFlag}</span>
+                    <CountryFlag country={firstPlaceCountry} flagEmoji={firstPlaceFlag} width={22} height={15} />
                     <span className="truncate max-w-[140px]">{firstPlaceCountry}</span>
                   </div>
 
@@ -324,7 +325,7 @@ export default function LeaderboardPage() {
 
                   {/* Country Flag Badge */}
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-800/90 border border-slate-700 text-xs font-bold text-slate-200 shadow-xs">
-                    <span className="text-sm leading-none">{thirdPlaceFlag}</span>
+                    <CountryFlag country={thirdPlaceCountry} flagEmoji={thirdPlaceFlag} width={20} height={14} />
                     <span className="truncate max-w-[130px]">{thirdPlaceCountry}</span>
                   </div>
 
@@ -387,8 +388,8 @@ export default function LeaderboardPage() {
                       @{firstPlace.username}
                     </span>
                     <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-950/80 border border-amber-600/40 text-[11px] font-black text-amber-200">
-                        <span className="text-xs">{firstPlaceFlag}</span>
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-950/80 border border-amber-600/40 text-[11px] font-black text-amber-200">
+                        <CountryFlag country={firstPlaceCountry} flagEmoji={firstPlaceFlag} width={18} height={12} />
                         <span className="truncate max-w-[120px]">{firstPlaceCountry}</span>
                       </span>
                       <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-800 rounded text-slate-300 border border-slate-700 truncate max-w-[140px]">
@@ -446,7 +447,7 @@ export default function LeaderboardPage() {
                     <span className="text-[10px] text-slate-400 font-mono block truncate">@{secondPlace.username}</span>
                     <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                       <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-slate-800 text-[10px] font-bold text-slate-200 border border-slate-700">
-                        <span>{secondPlaceFlag}</span>
+                        <CountryFlag country={secondPlaceCountry} flagEmoji={secondPlaceFlag} width={16} height={11} />
                         <span className="truncate max-w-[100px]">{secondPlaceCountry}</span>
                       </span>
                       <span className="text-[9px] text-slate-400 truncate max-w-[110px]">
@@ -495,7 +496,7 @@ export default function LeaderboardPage() {
                     <span className="text-[10px] text-slate-400 font-mono block truncate">@{thirdPlace.username}</span>
                     <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                       <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-slate-800 text-[10px] font-bold text-slate-200 border border-slate-700">
-                        <span>{thirdPlaceFlag}</span>
+                        <CountryFlag country={thirdPlaceCountry} flagEmoji={thirdPlaceFlag} width={16} height={11} />
                         <span className="truncate max-w-[100px]">{thirdPlaceCountry}</span>
                       </span>
                       <span className="text-[9px] text-slate-400 truncate max-w-[110px]">
@@ -595,7 +596,7 @@ export default function LeaderboardPage() {
                           <td className="py-3 px-4">
                             {countryName ? (
                               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200">
-                                <span className="text-sm leading-none">{flag}</span>
+                                <CountryFlag country={countryName} flagEmoji={flag} width={20} height={14} />
                                 <span className="truncate max-w-[120px]">{countryName}</span>
                               </span>
                             ) : (
@@ -674,7 +675,7 @@ export default function LeaderboardPage() {
                             </span>
                             {countryName && (
                               <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700">
-                                <span>{flag}</span>
+                                <CountryFlag country={countryName} flagEmoji={flag} width={16} height={11} />
                                 <span className="truncate max-w-[100px]">{countryName}</span>
                               </span>
                             )}

@@ -25,6 +25,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { getCountryFlag } from '@/lib/utils';
+import CountryFlag from '@/components/CountryFlag';
 
 export default function CandidatePublicProfilePage({ params: paramsPromise }) {
   const params = use(paramsPromise);
@@ -238,7 +239,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
                 )}
                 {(country || location) && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-800/80 text-slate-200 border border-slate-700 text-xs font-bold">
-                    <span className="text-sm leading-none">{country_flag || getCountryFlag(country || location)}</span>
+                    <CountryFlag country={country || location} flagEmoji={country_flag} width={20} height={14} />
                     <span>{country || location}</span>
                   </span>
                 )}

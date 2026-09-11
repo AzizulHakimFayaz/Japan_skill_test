@@ -110,6 +110,70 @@ export const COUNTRY_FLAG_MAP = {
   'Turkey': '🇹🇷',
 };
 
+export const COUNTRY_CODE_MAP = {
+  'bangladesh': 'bd',
+  'nepal': 'np',
+  'vietnam': 'vn',
+  'viet nam': 'vn',
+  'indonesia': 'id',
+  'japan': 'jp',
+  'india': 'in',
+  'myanmar': 'mm',
+  'burma': 'mm',
+  'sri lanka': 'lk',
+  'philippines': 'ph',
+  'pakistan': 'pk',
+  'uzbekistan': 'uz',
+  'mongolia': 'mn',
+  'cambodia': 'kh',
+  'thailand': 'th',
+  'china': 'cn',
+  'brazil': 'br',
+  'peru': 'pe',
+  'malaysia': 'my',
+  'bhutan': 'bt',
+  'laos': 'la',
+  'taiwan': 'tw',
+  'south korea': 'kr',
+  'korea': 'kr',
+  'united states': 'us',
+  'usa': 'us',
+  'united kingdom': 'gb',
+  'uk': 'gb',
+  'canada': 'ca',
+  'australia': 'au',
+  'germany': 'de',
+  'france': 'fr',
+  'italy': 'it',
+  'singapore': 'sg',
+  'united arab emirates': 'ae',
+  'uae': 'ae',
+  'saudi arabia': 'sa',
+  'qatar': 'qa',
+  'oman': 'om',
+  'kuwait': 'kw',
+  'egypt': 'eg',
+  'turkey': 'tr',
+};
+
+export function getCountryCode(countryNameOrCode) {
+  if (!countryNameOrCode) return null;
+  const trimmed = String(countryNameOrCode).trim();
+  if (/^[a-zA-Z]{2}$/.test(trimmed)) {
+    return trimmed.toLowerCase();
+  }
+  const lower = trimmed.toLowerCase();
+  if (COUNTRY_CODE_MAP[lower]) {
+    return COUNTRY_CODE_MAP[lower];
+  }
+  for (const [name, code] of Object.entries(COUNTRY_CODE_MAP)) {
+    if (lower === name || lower.includes(name) || name.includes(lower)) {
+      return code;
+    }
+  }
+  return null;
+}
+
 export function getCountryFlag(countryNameOrCode) {
   if (!countryNameOrCode) return '🌐';
   const trimmed = String(countryNameOrCode).trim();
