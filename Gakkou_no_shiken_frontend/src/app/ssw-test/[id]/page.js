@@ -186,11 +186,12 @@ function SswCbtExamContent({ params: paramsPromise }) {
         answers: answers,
       };
 
-      const result = await submitQuiz(testId, payload);
+      const result = await submitQuiz(testId, payload, previewToken);
       const attemptId = result?.attempt_id;
 
       if (attemptId) {
-        router.push(`/attempt/${attemptId}`);
+        const previewQuery = previewToken ? `?preview=${encodeURIComponent(previewToken)}` : '';
+        router.push(`/attempt/${attemptId}${previewQuery}`);
       } else {
         alert('Examination submitted successfully!');
         router.push('/ssw-skill-test');

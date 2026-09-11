@@ -107,15 +107,20 @@ export async function getQuizData(id, preview = null) {
   return apiRequest(`/api/tests/${id}/quiz/${query}`, { cache: 'no-store' });
 }
 
-export async function submitQuiz(id, answers) {
-  return apiRequest(`/api/tests/${id}/submit/`, {
+export async function submitQuiz(id, answers, preview = null) {
+  const query = preview ? `?preview=${encodeURIComponent(preview)}` : '';
+  const bodyPayload = typeof answers === 'object' && answers !== null && !Array.isArray(answers) && answers.answers
+    ? { ...answers, preview }
+    : { answers, preview };
+  return apiRequest(`/api/tests/${id}/submit/${query}`, {
     method: 'POST',
-    body: JSON.stringify({ answers }),
+    body: JSON.stringify(bodyPayload),
   });
 }
 
-export async function getAttemptResults(id) {
-  return apiRequest(`/api/attempts/${id}/`, { cache: 'no-store' });
+export async function getAttemptResults(id, preview = null) {
+  const query = preview ? `?preview=${encodeURIComponent(preview)}` : '';
+  return apiRequest(`/api/attempts/${id}/${query}`, { cache: 'no-store' });
 }
 
 // ─── Static / Overview Data ───

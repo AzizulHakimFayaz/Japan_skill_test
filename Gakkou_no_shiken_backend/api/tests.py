@@ -90,3 +90,30 @@ class APITests(TestCase):
 
         results_res = self.client.get('/api/auth/my-results/')
         self.assertEqual(results_res.status_code, status.HTTP_200_OK)
+
+    def test_draft_test_preview_submission_and_results(self):
+        # Unpublish test to make it a draft
+        self.test_obj.is_published = False
+        self.test_obj.requires_account = True
+        self.test_obj.save()
+
+        # 1. Anonymous submission without preview -> 403 Forbidden
+        answers = {str(self.q1.id): self.opt1.id}
+        res_fail = self.client.post(f'/api/tests/{self.test_obj.id}/submit/', {'answers': answers}, format='json')
+        self.assertEqual(res_fail.status_code, status.HTTP_403_FORBIDDEN)
+
+        # 2. Anonymous submission with preview=admin -> 201 Created
+        res_ok = self.client.post(
+            f'/api/tests/{self.test_obj.id}/submit/?preview=admin',
+            {'answers': answers, 'preview': 'admin'},
+            format='json'
+        )
+        self.assertEqual(res_ok.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(res_ok.data.get('is_preview'))
+        attempt_id = res_ok.data['attempt_id']
+
+        # 3. Retrieve results of the preview attempt -> 200 OK
+        res_results = self.client.get(f'/api/attempts/{attempt_id}/?preview=admin')
+        self.assertEqual(res_results.status_code, status.HTTP_200_OK)
+        self.assertTrue(res_results.data['attempt']['is_preview'])
+        self.assertEqual(res_results.data['attempt']['score'], 1)

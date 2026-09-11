@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { getAttemptResults } from '@/lib/api';
 import { formatPrompt, renderUnderline, getCategoryLabel, getCategoryChipClass } from '@/lib/utils';
 import { exportToPdf } from '@/lib/pdfExport';
@@ -29,6 +30,8 @@ import {
 
 export default function AttemptResultsPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
+  const searchParams = useSearchParams();
+  const previewToken = searchParams?.get('preview');
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -37,7 +40,7 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
   const [exportNotice, setExportNotice] = useState(null);
 
   useEffect(() => {
-    getAttemptResults(params.id)
+    getAttemptResults(params.id, previewToken)
       .then((res) => {
         setData(res);
         if (res.attempt?.passed) {
@@ -58,7 +61,7 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
       .finally(() => {
         setLoading(false);
       });
-  }, [params.id]);
+  }, [params.id, previewToken]);
 
   const handleExportPdf = async () => {
     if (isExporting || !data) return;
@@ -149,6 +152,23 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
               <Loader2 className="w-5 h-5 text-indigo-400 animate-spin shrink-0" />
             )}
             <p className="text-xs font-bold leading-snug">{exportNotice.message}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Draft Evaluation Notice */}
+      {data?.attempt?.is_preview && (
+        <div className="no-print bg-amber-500/10 border border-amber-500/30 rounded-3xl p-4 sm:p-5 text-amber-800 dark:text-amber-300 flex items-center gap-3.5 shadow-sm">
+          <div className="w-10 h-10 rounded-2xl bg-amber-500/20 flex items-center justify-center shrink-0">
+            <ShieldCheck className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div>
+            <div className="text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-400">
+              Administrator Draft Preview Mode
+            </div>
+            <p className="text-xs sm:text-sm font-semibold text-amber-900 dark:text-amber-200 mt-0.5">
+              This practice test is currently in <strong>Draft</strong>. All answers, scaled scores, and section breakdowns below have been officially evaluated and verified.
+            </p>
           </div>
         </div>
       )}

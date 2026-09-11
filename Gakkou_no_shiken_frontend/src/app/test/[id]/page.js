@@ -411,9 +411,10 @@ function QuizContent({ params: paramsPromise }) {
     });
 
     try {
-      const res = await submitQuiz(params.id, cleanedAnswers);
+      const res = await submitQuiz(params.id, cleanedAnswers, previewToken);
       if (res?.attempt_id) {
-        router.push(`/attempt/${res.attempt_id}`);
+        const previewQuery = previewToken ? `?preview=${encodeURIComponent(previewToken)}` : '';
+        router.push(`/attempt/${res.attempt_id}${previewQuery}`);
       }
     } catch (err) {
       alert(err.message || 'Submission failed. Please try again.');
