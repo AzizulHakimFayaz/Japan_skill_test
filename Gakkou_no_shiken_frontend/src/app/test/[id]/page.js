@@ -553,8 +553,8 @@ function QuizContent({ params: paramsPromise }) {
              TOP HEADER 1: BLACK BAR (Section & Timer)
              ========================================== */}
 
-        <header className="bg-black text-white min-h-[2.5rem] py-1.5 px-3 sm:px-4 flex items-center justify-between gap-2 border-b border-slate-800 text-xs font-sans flex-shrink-0">
-          <div className="flex items-center gap-2 sm:gap-4 truncate">
+        <header className="bg-black text-white min-h-[2.5rem] py-1.5 px-3 sm:px-4 flex items-center justify-between gap-2 border-b border-slate-800 text-xs font-sans flex-shrink-0 relative">
+          <div className="flex items-center gap-2 sm:gap-4 truncate z-10">
             <span className="font-bold whitespace-nowrap bg-slate-800 px-2 py-0.5 rounded text-[11px] sm:text-xs">
               Q {currentStep === 0 ? 'Intro' : isSkillTest ? `${sswActiveSteps.indexOf(currentStepData) + 1}/${sswActiveSteps.length}` : `${currentSectionStepNum}/${totalStepsInSection}`}
             </span>
@@ -563,9 +563,16 @@ function QuizContent({ params: paramsPromise }) {
             </span>
           </div>
 
+          {/* Top Middle Branding: Gakkou No Shiken */}
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 pointer-events-none select-none z-0">
+            <span className="text-xs sm:text-sm font-black tracking-widest uppercase text-white flex items-center gap-1.5 drop-shadow-sm">
+              <span className="inline-block w-2 h-2 rounded-full bg-japan-red"></span>
+              Gakkou No Shiken
+            </span>
+          </div>
 
           {/* Timer & Section Action */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 z-10">
             <div className="flex items-center gap-1.5 text-[11px] sm:text-xs bg-slate-900 px-2.5 py-1 rounded border border-slate-700">
               <svg
                 className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 animate-pulse"
