@@ -24,6 +24,7 @@ import {
   Flame,
   Sparkles,
 } from 'lucide-react';
+import { getCountryFlag } from '@/lib/utils';
 
 export default function CandidatePublicProfilePage({ params: paramsPromise }) {
   const params = use(paramsPromise);
@@ -139,6 +140,8 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
     target_exam_display,
     japanese_level_display,
     location,
+    country,
+    country_flag,
     date_joined,
     rank,
     total_candidates,
@@ -233,10 +236,10 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
                     <span>{japanese_level_display}</span>
                   </span>
                 )}
-                {location && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-800/80 text-slate-300 border border-slate-700 text-xs font-bold">
-                    <MapPin className="w-3.5 h-3.5 text-rose-400" />
-                    <span>{location}</span>
+                {(country || location) && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-800/80 text-slate-200 border border-slate-700 text-xs font-bold">
+                    <span className="text-sm leading-none">{country_flag || getCountryFlag(country || location)}</span>
+                    <span>{country || location}</span>
                   </span>
                 )}
                 <span className="text-[11px] text-slate-400 ml-1 font-medium">

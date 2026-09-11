@@ -6,30 +6,7 @@ from django.urls import reverse
 from django.db.models import Count, Max
 from .models import UserProfile, PasswordResetToken
 
-COUNTRY_FLAG_MAP = {
-    'Bangladesh': '🇧🇩',
-    'Nepal': '🇳🇵',
-    'Vietnam': '🇻🇳',
-    'Indonesia': '🇮🇩',
-    'Japan': '🇯🇵',
-    'India': '🇮🇳',
-    'Myanmar': '🇲🇲',
-    'Sri Lanka': '🇱🇰',
-    'Philippines': '🇵🇭',
-    'Pakistan': '🇵🇰',
-    'Uzbekistan': '🇺🇿',
-    'Mongolia': '🇲🇳',
-    'Cambodia': '🇰🇭',
-    'Thailand': '🇹🇭',
-    'China': '🇨🇳',
-    'Brazil': '🇧🇷',
-    'Peru': '🇵🇪',
-}
-
-def get_flag(country):
-    if not country:
-        return '🌐'
-    return COUNTRY_FLAG_MAP.get(country.strip(), '📍')
+from accounts.geolocation import COUNTRY_FLAG_MAP, get_country_flag as get_flag
 
 
 class UserProfileInline(admin.StackedInline):

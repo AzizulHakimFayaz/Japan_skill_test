@@ -63,3 +63,74 @@ export function getCategoryChipClass(category) {
   }
   return 'bg-indigo-50 text-indigo-700 border border-indigo-100';
 }
+
+export const COUNTRY_FLAG_MAP = {
+  'Bangladesh': '🇧🇩',
+  'Nepal': '🇳🇵',
+  'Vietnam': '🇻🇳',
+  'Viet Nam': '🇻🇳',
+  'Indonesia': '🇮🇩',
+  'Japan': '🇯🇵',
+  'India': '🇮🇳',
+  'Myanmar': '🇲🇲',
+  'Burma': '🇲🇲',
+  'Sri Lanka': '🇱🇰',
+  'Philippines': '🇵🇭',
+  'Pakistan': '🇵🇰',
+  'Uzbekistan': '🇺🇿',
+  'Mongolia': '🇲🇳',
+  'Cambodia': '🇰🇭',
+  'Thailand': '🇹🇭',
+  'China': '🇨🇳',
+  'Brazil': '🇧🇷',
+  'Peru': '🇵🇪',
+  'Malaysia': '🇲🇾',
+  'Bhutan': '🇧🇹',
+  'Laos': '🇱🇦',
+  'Taiwan': '🇹🇼',
+  'South Korea': '🇰🇷',
+  'Korea': '🇰🇷',
+  'United States': '🇺🇸',
+  'USA': '🇺🇸',
+  'United Kingdom': '🇬🇧',
+  'UK': '🇬🇧',
+  'Canada': '🇨🇦',
+  'Australia': '🇦🇺',
+  'Germany': '🇩🇪',
+  'France': '🇫🇷',
+  'Italy': '🇮🇹',
+  'Singapore': '🇸🇬',
+  'United Arab Emirates': '🇦🇪',
+  'UAE': '🇦🇪',
+  'Saudi Arabia': '🇸🇦',
+  'Qatar': '🇶🇦',
+  'Oman': '🇴🇲',
+  'Kuwait': '🇰🇼',
+  'Egypt': '🇪🇬',
+  'Turkey': '🇹🇷',
+};
+
+export function getCountryFlag(countryNameOrCode) {
+  if (!countryNameOrCode) return '🌐';
+  const trimmed = String(countryNameOrCode).trim();
+  if (COUNTRY_FLAG_MAP[trimmed]) return COUNTRY_FLAG_MAP[trimmed];
+  if (/^[a-zA-Z]{2}$/.test(trimmed)) {
+    try {
+      return trimmed
+        .toUpperCase()
+        .split('')
+        .map((c) => String.fromCodePoint(c.charCodeAt(0) + 127397))
+        .join('');
+    } catch {
+      return '🌐';
+    }
+  }
+  const lower = trimmed.toLowerCase();
+  for (const [name, flag] of Object.entries(COUNTRY_FLAG_MAP)) {
+    if (name.toLowerCase() === lower || lower.includes(name.toLowerCase())) {
+      return flag;
+    }
+  }
+  return '🌐';
+}
+

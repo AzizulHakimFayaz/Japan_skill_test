@@ -6,31 +6,7 @@ from django.utils import timezone
 from django.db.models import Count, Avg, Max, Q
 from accounts.models import UserProfile
 from tests.models import Test, Attempt
-
-COUNTRY_FLAG_MAP = {
-    'Bangladesh': '🇧🇩',
-    'Nepal': '🇳🇵',
-    'Vietnam': '🇻🇳',
-    'Indonesia': '🇮🇩',
-    'Japan': '🇯🇵',
-    'India': '🇮🇳',
-    'Myanmar': '🇲🇲',
-    'Sri Lanka': '🇱🇰',
-    'Philippines': '🇵🇭',
-    'Pakistan': '🇵🇰',
-    'Uzbekistan': '🇺🇿',
-    'Mongolia': '🇲🇳',
-    'Cambodia': '🇰🇭',
-    'Thailand': '🇹🇭',
-    'China': '🇨🇳',
-    'Brazil': '🇧🇷',
-    'Peru': '🇵🇪',
-}
-
-def get_country_flag(country_name):
-    if not country_name:
-        return '🌐'
-    return COUNTRY_FLAG_MAP.get(country_name.strip(), '📍')
+from accounts.geolocation import COUNTRY_FLAG_MAP, get_country_flag
 
 
 @staff_member_required

@@ -19,7 +19,7 @@ from django.utils import timezone
 
 from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice
 from accounts.models import UserProfile, EmailVerificationOTP, PasswordResetToken
-from accounts.geolocation import get_client_ip, lookup_ip_country
+from accounts.geolocation import get_client_ip, lookup_ip_country, resolve_user_country_and_flag, get_country_flag
 from accounts.emails import send_password_reset_email
 from accounts.throttling import ForgotPasswordRateThrottle, is_email_rate_limited
 from tests.data.jft_data import get_jft_info, get_jft_test_centers, get_jft_resources
@@ -1224,6 +1224,7 @@ def compute_leaderboard_candidates():
         
         profile = getattr(u, 'profile', None)
         full_name = f"{u.first_name} {u.last_name}".strip()
+        country, country_flag = resolve_user_country_and_flag(profile)
 
         candidates_list.append({
             'user_id': u.id,
@@ -1235,6 +1236,8 @@ def compute_leaderboard_candidates():
             'japanese_level': profile.japanese_level if profile else 'n4',
             'japanese_level_display': profile.get_japanese_level_display() if profile else 'Elementary (N4 / A2)',
             'location': profile.location if profile else '',
+            'country': country,
+            'country_flag': country_flag,
             'total_attempts': s['total_attempts'],
             'passed_attempts': s['passed_attempts'],
             'highest_score': s['highest_score'],
@@ -1278,6 +1281,7 @@ class LeaderboardAPIView(APIView):
             if current_user_rank is None:
                 profile = getattr(request.user, 'profile', None)
                 full_name = f"{request.user.first_name} {request.user.last_name}".strip()
+                country, country_flag = resolve_user_country_and_flag(profile)
                 current_user_rank = {
                     'user_id': request.user.id,
                     'username': request.user.username,
@@ -1288,6 +1292,8 @@ class LeaderboardAPIView(APIView):
                     'japanese_level': profile.japanese_level if profile else 'n4',
                     'japanese_level_display': profile.get_japanese_level_display() if profile else 'N4',
                     'location': profile.location if profile else '',
+                    'country': country,
+                    'country_flag': country_flag,
                     'total_attempts': 0,
                     'passed_attempts': 0,
                     'highest_score': 0,
@@ -1409,6 +1415,7 @@ class CandidatePublicProfileAPIView(APIView):
         ]
 
         full_name = f"{target_user.first_name} {target_user.last_name}".strip() or target_user.username
+        country, country_flag = resolve_user_country_and_flag(profile)
 
         return Response({
             'id': target_user.id,
@@ -1423,6 +1430,8 @@ class CandidatePublicProfileAPIView(APIView):
             'japanese_level': profile.japanese_level,
             'japanese_level_display': profile.get_japanese_level_display(),
             'location': profile.location,
+            'country': country,
+            'country_flag': country_flag,
             'date_joined': target_user.date_joined.strftime('%B %Y'),
             'is_staff': target_user.is_staff,
             'rank': candidate_rank,

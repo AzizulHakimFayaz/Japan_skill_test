@@ -37,6 +37,83 @@ COUNTRY_CANONICAL_NAMES = {
     'korea (south)': 'South Korea',
 }
 
+COUNTRY_FLAG_MAP = {
+    'Bangladesh': '🇧🇩',
+    'Nepal': '🇳🇵',
+    'Vietnam': '🇻🇳',
+    'Viet Nam': '🇻🇳',
+    'Indonesia': '🇮🇩',
+    'Japan': '🇯🇵',
+    'India': '🇮🇳',
+    'Myanmar': '🇲🇲',
+    'Burma': '🇲🇲',
+    'Sri Lanka': '🇱🇰',
+    'Philippines': '🇵🇭',
+    'Pakistan': '🇵🇰',
+    'Uzbekistan': '🇺🇿',
+    'Mongolia': '🇲🇳',
+    'Cambodia': '🇰🇭',
+    'Thailand': '🇹🇭',
+    'China': '🇨🇳',
+    'Brazil': '🇧🇷',
+    'Peru': '🇵🇪',
+    'Malaysia': '🇲🇾',
+    'Bhutan': '🇧🇹',
+    'Laos': '🇱🇦',
+    'Taiwan': '🇹🇼',
+    'South Korea': '🇰🇷',
+    'Korea': '🇰🇷',
+    'United States': '🇺🇸',
+    'USA': '🇺🇸',
+    'United Kingdom': '🇬🇧',
+    'UK': '🇬🇧',
+    'Canada': '🇨🇦',
+    'Australia': '🇦🇺',
+    'Germany': '🇩🇪',
+    'France': '🇫🇷',
+    'Italy': '🇮🇹',
+    'Singapore': '🇸🇬',
+    'United Arab Emirates': '🇦🇪',
+    'UAE': '🇦🇪',
+    'Saudi Arabia': '🇸🇦',
+    'Qatar': '🇶🇦',
+    'Oman': '🇴🇲',
+    'Kuwait': '🇰🇼',
+    'Egypt': '🇪🇬',
+    'Turkey': '🇹🇷',
+}
+
+
+def get_country_flag(country_name_or_code: Optional[str]) -> str:
+    """Returns the Unicode flag emoji for a country name or ISO-3166 2-letter code."""
+    if not country_name_or_code:
+        return '🌐'
+    val = str(country_name_or_code).strip()
+    if len(val) == 2 and val.isalpha():
+        try:
+            return chr(ord(val[0].upper()) + 127397) + chr(ord(val[1].upper()) + 127397)
+        except Exception:
+            pass
+    return COUNTRY_FLAG_MAP.get(val, '🌐')
+
+
+def resolve_user_country_and_flag(profile) -> tuple:
+    """
+    Extracts canonical country name and flag emoji from a UserProfile.
+    Falls back to location string if country is not set.
+    """
+    if not profile:
+        return '', '🌐'
+    country = (profile.country or '').strip()
+    if not country and profile.location:
+        loc = profile.location.strip().lower()
+        for known_country in COUNTRY_FLAG_MAP.keys():
+            if known_country.lower() in loc:
+                country = known_country
+                break
+    flag = get_country_flag(country) if country else '🌐'
+    return country, flag
+
 
 def get_client_ip(request) -> Optional[str]:
     """

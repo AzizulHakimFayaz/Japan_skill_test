@@ -64,6 +64,10 @@ def package():
             'tests/templates/admin/csv_import.html',
             'tests/templates/admin/audio_hub.html',
             'tests/management/commands/generate_test_audio.py',
+            'accounts/geolocation.py',
+            'accounts/admin.py',
+            'accounts/admin_views.py',
+            'api/views.py',
         ]
         for req in required_fixes:
             assert req in namelist, f"CRITICAL: Required fix file missing from zip: {req}"
