@@ -27,6 +27,7 @@ import {
   Share2,
   Keyboard,
 } from 'lucide-react';
+import ZoomableImage from '@/components/ZoomableImage';
 
 export default function AttemptResultsPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
@@ -635,14 +636,24 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
 
             {question.image_url && (
               <div className="inline-block bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 rounded-xl p-2 max-w-sm">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={question.image_url} alt="Question illustration" className="max-h-48 w-auto rounded-lg object-contain" />
+                <ZoomableImage
+                  src={question.image_url}
+                  alt="Question illustration"
+                  className="max-h-48 w-auto rounded-lg object-contain"
+                  caption="Question Illustration"
+                />
               </div>
             )}
 
             {question.audio_url && (
               <div className="p-3 bg-slate-900 text-white max-w-md rounded-xl">
-                <audio controls src={question.audio_url} className="w-full"></audio>
+                <audio
+                  controls
+                  controlsList="nodownload noplaybackrate"
+                  onContextMenu={(e) => e.preventDefault()}
+                  src={question.audio_url}
+                  className="w-full"
+                ></audio>
               </div>
             )}
 
@@ -708,11 +719,11 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
                     >
                       <div className="flex items-center gap-3">
                         {option.image_url && (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <ZoomableImage
                             src={option.image_url}
                             alt="Option illustration"
                             className="max-h-20 sm:max-h-24 w-auto object-contain rounded border border-slate-300 dark:border-slate-700 bg-white p-1"
+                            caption="Option Illustration"
                           />
                         )}
                         {option.label && <span>{option.label}</span>}

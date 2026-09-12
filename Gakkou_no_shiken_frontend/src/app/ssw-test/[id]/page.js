@@ -46,6 +46,7 @@ import {
   Keyboard,
   FileCheck,
 } from 'lucide-react';
+import ZoomableImage from '@/components/ZoomableImage';
 
 /**
  * Utility: Render text with [red]...[/red] or __underline__ formatting.
@@ -539,6 +540,8 @@ function SswCbtExamContent({ params: paramsPromise }) {
                       <audio
                         ref={audioRef}
                         src={resolvedAudioUrl}
+                        controlsList="nodownload noplaybackrate"
+                        onContextMenu={(e) => e.preventDefault()}
                         onTimeUpdate={handleAudioTimeUpdate}
                         onEnded={handleAudioEnded}
                         preload="auto"
@@ -554,10 +557,11 @@ function SswCbtExamContent({ params: paramsPromise }) {
                 {/* 3. Question Image (if present) */}
                 {currentQuestion.image_url && (
                   <div className="flex justify-center p-2 bg-slate-50 rounded-xl border border-slate-200 max-h-72 overflow-hidden">
-                    <img
+                    <ZoomableImage
                       src={currentQuestion.image_url}
                       alt={`Question ${currentIdx + 1}`}
                       className="max-h-64 object-contain rounded"
+                      caption={`Question ${currentIdx + 1} Illustration`}
                     />
                   </div>
                 )}
@@ -625,10 +629,12 @@ function SswCbtExamContent({ params: paramsPromise }) {
                             </div>
 
                             {opt.image_url && (
-                              <img
+                              <ZoomableImage
                                 src={opt.image_url}
                                 alt={`Option ${optIdx + 1}`}
                                 className="max-h-12 object-contain ml-2 rounded"
+                                stopLabelPropagation={true}
+                                caption={`Option ${optIdx + 1}`}
                               />
                             )}
                           </button>

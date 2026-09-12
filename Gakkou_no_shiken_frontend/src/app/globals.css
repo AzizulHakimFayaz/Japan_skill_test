@@ -553,4 +553,16 @@ u {
   }
 }
 
+/* --- Audio Player: Hide 3-Dot Overflow Menu & Download Button --- */
+audio::-internal-media-controls-download-button,
+audio::-webkit-media-controls-download-button,
+audio::-webkit-media-controls-overflow-button {
+  display: none !important;
+}
+
+audio {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 

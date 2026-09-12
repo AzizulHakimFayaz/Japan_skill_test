@@ -11,6 +11,7 @@ import ExamSecurityGuard from '@/components/ExamSecurityGuard';
 import ScheduledCountdownBadge from '@/components/ScheduledCountdownBadge';
 import { useLanguage } from '@/components/LanguageContext';
 import { Globe, ExternalLink, Flag, Lock, ShieldCheck, Clock, ArrowLeft, Hourglass, Sparkles, AlertTriangle, Keyboard } from 'lucide-react';
+import ZoomableImage from '@/components/ZoomableImage';
 
 
 
@@ -930,20 +931,20 @@ function QuizContent({ params: paramsPromise }) {
               {/* Shared Group Image or Standalone Question Image */}
               {currentStepData.group?.image_url ? (
                 <div className="my-3 sm:my-4 flex justify-start">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <ZoomableImage
                     src={currentStepData.group.image_url}
                     alt="Shared passage illustration"
                     className="max-h-64 sm:max-h-96 w-auto object-contain rounded border border-slate-300 shadow-xs"
+                    caption="Passage Illustration"
                   />
                 </div>
               ) : currentStepData.questions[0]?.image_url ? (
                 <div className="my-3 sm:my-4 flex justify-start">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <ZoomableImage
                     src={currentStepData.questions[0].image_url}
                     alt="Question illustration"
                     className="max-h-56 sm:max-h-80 w-auto object-contain rounded border border-slate-200 shadow-xs"
+                    caption="Question Illustration"
                   />
                 </div>
               ) : null}
@@ -951,11 +952,23 @@ function QuizContent({ params: paramsPromise }) {
               {/* Shared Group Audio or Standalone Question Audio */}
               {currentStepData.group?.audio_url ? (
                 <div className="my-3 sm:my-4 p-3 bg-slate-900 text-white rounded-xl max-w-md shadow-xs">
-                  <audio controls src={currentStepData.group.audio_url} className="w-full h-9"></audio>
+                  <audio
+                    controls
+                    controlsList="nodownload noplaybackrate"
+                    onContextMenu={(e) => e.preventDefault()}
+                    src={currentStepData.group.audio_url}
+                    className="w-full h-9"
+                  ></audio>
                 </div>
               ) : currentStepData.questions[0]?.audio_url ? (
                 <div className="my-3 sm:my-4 p-3 bg-slate-900 text-white rounded-xl max-w-md shadow-xs">
-                  <audio controls src={currentStepData.questions[0].audio_url} className="w-full h-9"></audio>
+                  <audio
+                    controls
+                    controlsList="nodownload noplaybackrate"
+                    onContextMenu={(e) => e.preventDefault()}
+                    src={currentStepData.questions[0].audio_url}
+                    className="w-full h-9"
+                  ></audio>
                 </div>
               ) : null}
 
@@ -1030,11 +1043,11 @@ function QuizContent({ params: paramsPromise }) {
                               />
                               <div className="w-full h-full font-bold flex flex-col sm:flex-row items-start sm:items-center gap-3">
                                 {option.image_url && (
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  <img
+                                  <ZoomableImage
                                     src={option.image_url}
                                     alt="Option illustration"
                                     className="max-h-28 sm:max-h-36 w-auto object-contain rounded border border-slate-300 bg-white p-1 flex-shrink-0"
+                                    stopLabelPropagation={true}
                                   />
                                 )}
                                 {option.label && <span className="leading-snug">{option.label}</span>}
