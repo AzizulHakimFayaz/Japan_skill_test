@@ -42,12 +42,16 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 bg-white/90 dark:bg-[#060913]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 shadow-xs transition-colors duration-300">
       <nav className="max-w-[1920px] mx-auto px-2.5 sm:px-4 lg:px-6 xl:px-8 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-3">
-        {/* Brand Logo & Mobile Top Left Notification */}
+        {/* Brand Logo & Mobile Left Extended Menu Button */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 min-w-0">
-          {/* Mobile Top Left Notification Bell */}
-          <div className="lg:hidden shrink-0">
-            <NotificationBell align="left" compact={true} />
-          </div>
+          {/* Mobile Extended Menu Button */}
+          <button
+            onClick={() => setOpen(!open)}
+            aria-label="Open mobile menu"
+            className="p-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100/90 dark:hover:bg-slate-800/90 active:scale-95 focus:outline-none transition-all shrink-0 cursor-pointer lg:hidden"
+          >
+            {open ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
+          </button>
 
           <Link href="/" className="flex items-center gap-1.5 sm:gap-2 group btn-touch-active shrink-0 min-w-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -245,7 +249,7 @@ export default function Navbar() {
           </div>
         </div>
 
-          {/* Mobile Top App Actions (Avatar / Theme Toggle / Menu) */}
+          {/* Mobile Top App Actions (Avatar / Theme Toggle / Notification) */}
           <div className="flex items-center gap-1 sm:gap-1.5 lg:hidden shrink-0">
             <LanguageSwitcher compact={true} />
             <ThemeToggle size="compact" />
@@ -259,13 +263,8 @@ export default function Navbar() {
               </Link>
             )}
 
-            <button
-              onClick={() => setOpen(!open)}
-              aria-label="Open mobile menu"
-              className="p-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100/90 dark:hover:bg-slate-800/90 active:scale-95 focus:outline-none transition-all shrink-0 cursor-pointer"
-            >
-              {open ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
-            </button>
+            {/* Mobile Notification Bell */}
+            <NotificationBell align="right" compact={true} />
           </div>
 
           {/* Mobile Slide-Down App Menu Drawer */}
