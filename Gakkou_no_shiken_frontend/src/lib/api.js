@@ -1,6 +1,12 @@
-// Centralized API Client for Django REST Framework Backend
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? 'https://gakkounoshiken.site' : 'http://127.0.0.1:8000');
-
+function getApiBase() {
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return 'http://127.0.0.1:8000';
+    }
+  }
+  return process.env.NEXT_PUBLIC_API_URL || 'https://gakkounoshiken.site';
+}
 
 export function getAuthToken() {
   if (typeof window === 'undefined') return null;
@@ -42,7 +48,8 @@ export function setStoredUser(user) {
 }
 
 async function apiRequest(endpoint, options = {}) {
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
+  const apiBase = getApiBase();
+  const url = endpoint.startsWith('http') ? endpoint : `${apiBase}${endpoint}`;
   const token = getAuthToken();
 
   const headers = {
@@ -305,6 +312,26 @@ export async function downloadNoticePdf(id) {
   return apiRequest(`/api/notices/${id}/download/`, {
     method: 'POST',
   });
+}
+
+// ─── Curriculum & Study Hub API ───
+export async function getCurriculumLessons(params = {}) {
+  const query = new URLSearchParams();
+  if (params.type) query.set('type', params.type);
+  if (params.level) query.set('level', params.level);
+  if (params.search) query.set('search', params.search);
+
+  const qs = query.toString();
+  return apiRequest(`/api/curriculum/lessons/${qs ? `?${qs}` : ''}`);
+}
+
+export async function getCurriculumLessonDetail(id) {
+  return apiRequest(`/api/curriculum/lessons/${id}/`);
+}
+
+export async function searchCurriculum(q) {
+  if (!q) return { vocabularies: [], kanjis: [] };
+  return apiRequest(`/api/curriculum/search/?q=${encodeURIComponent(q)}`);
 }
 
 

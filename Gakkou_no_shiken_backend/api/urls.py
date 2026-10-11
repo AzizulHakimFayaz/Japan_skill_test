@@ -52,6 +52,11 @@ urlpatterns = [
     path('games/sync/', views.GameProgressSyncAPIView.as_view(), name='api_game_sync'),
     path('games/leaderboard/', views.GameLeaderboardAPIView.as_view(), name='api_game_leaderboard'),
 
+    # Curriculum & Study Hub (Lesson-wise Vocab & Kanji with EN/BN)
+    path('curriculum/lessons/', views.CurriculumLessonListAPIView.as_view(), name='api_curriculum_lessons_list'),
+    path('curriculum/lessons/<int:pk>/', views.CurriculumLessonDetailAPIView.as_view(), name='api_curriculum_lesson_detail'),
+    path('curriculum/search/', views.CurriculumSearchAPIView.as_view(), name='api_curriculum_search'),
+
     # One-Click Setup Trigger & Admin Helpers
     path('setup-database/', views.SetupDatabaseAPIView.as_view(), name='api_setup_database'),
     path('run-migration/', views.RunMigrationAPIView.as_view(), name='api_run_migration'),

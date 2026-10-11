@@ -511,3 +511,73 @@ class Notice(models.Model):
         verbose_name_plural = "Notices & Study Materials"
 
 
+class CurriculumLesson(models.Model):
+    class LessonType(models.TextChoices):
+        VOCABULARY = "vocabulary", "Vocabulary"
+        KANJI = "kanji", "Kanji"
+
+    class Level(models.TextChoices):
+        N5 = "N5", "JLPT N5"
+        N4 = "N4", "JLPT N4"
+
+    lesson_type = models.CharField(max_length=20, choices=LessonType.choices, default=LessonType.VOCABULARY)
+    level = models.CharField(max_length=10, choices=Level.choices, default=Level.N5)
+    lesson_number = models.PositiveIntegerField()
+    title = models.CharField(max_length=255)
+    title_ja = models.CharField(max_length=255, blank=True)
+    description = models.TextField(blank=True)
+    items_count = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['lesson_type', 'level', 'lesson_number']
+        unique_together = ('lesson_type', 'level', 'lesson_number')
+        verbose_name = "Curriculum Lesson"
+        verbose_name_plural = "Curriculum Lessons"
+
+    def __str__(self):
+        return f"[{self.level} {self.lesson_type.title()} L{self.lesson_number}] {self.title}"
+
+
+class CurriculumVocabulary(models.Model):
+    lesson = models.ForeignKey(CurriculumLesson, on_delete=models.CASCADE, related_name="vocabularies")
+    order_index = models.PositiveIntegerField(default=0)
+    word = models.CharField(max_length=120)
+    furigana = models.CharField(max_length=120, blank=True)
+    romaji = models.CharField(max_length=120, blank=True)
+    meaning_en = models.CharField(max_length=300)
+    meaning_bn = models.CharField(max_length=300, blank=True)
+    speech = models.CharField(max_length=120, blank=True)
+    part_of_speech = models.CharField(max_length=60, blank=True)
+
+    class Meta:
+        ordering = ['order_index', 'id']
+        verbose_name = "Curriculum Vocabulary"
+        verbose_name_plural = "Curriculum Vocabularies"
+
+    def __str__(self):
+        return f"{self.word} ({self.meaning_en})"
+
+
+class CurriculumKanji(models.Model):
+    lesson = models.ForeignKey(CurriculumLesson, on_delete=models.CASCADE, related_name="kanjis")
+    order_index = models.PositiveIntegerField(default=0)
+    character = models.CharField(max_length=30)
+    onyomi = models.CharField(max_length=150, blank=True)
+    kunyomi = models.CharField(max_length=150, blank=True)
+    romaji = models.CharField(max_length=150, blank=True)
+    meaning_en = models.CharField(max_length=300)
+    meaning_bn = models.CharField(max_length=300, blank=True)
+    speech = models.CharField(max_length=120, blank=True)
+    stroke_count = models.PositiveIntegerField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['order_index', 'id']
+        verbose_name = "Curriculum Kanji"
+        verbose_name_plural = "Curriculum Kanji Items"
+
+    def __str__(self):
+        return f"{self.character} ({self.meaning_en})"
+
+

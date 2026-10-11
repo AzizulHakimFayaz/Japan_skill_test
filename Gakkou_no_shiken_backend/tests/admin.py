@@ -5,7 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.views.decorators.csrf import csrf_exempt
-from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice
+from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji
 from .utils import import_questions_from_csv, generate_sample_csv_string, generate_sample_ssw_csv_string, export_test_questions_to_csv, generate_test_missing_audio_worker
 from .audio_logger import get_audio_logs, clear_audio_logs, append_audio_log
 from .audio_generator import test_edge_tts_connection, generate_and_save_question_audio_with_details
@@ -1214,6 +1214,48 @@ class NoticeAdmin(admin.ModelAdmin):
         count = queryset.update(is_pinned=False)
         self.message_user(request, f"Successfully unpinned {count} notice(s).", messages.INFO)
     unpin_notices.short_description = "Unpin selected notices"
+
+
+# ─── Curriculum Admin ──────────────────────────────────────────────
+class CurriculumVocabularyInline(admin.TabularInline):
+    model = CurriculumVocabulary
+    extra = 0
+    fields = ('order_index', 'word', 'furigana', 'romaji', 'meaning_en', 'meaning_bn', 'speech')
+    ordering = ('order_index',)
+
+class CurriculumKanjiInline(admin.TabularInline):
+    model = CurriculumKanji
+    extra = 0
+    fields = ('order_index', 'character', 'onyomi', 'kunyomi', 'romaji', 'meaning_en', 'meaning_bn')
+    ordering = ('order_index',)
+
+@admin.register(CurriculumLesson)
+class CurriculumLessonAdmin(admin.ModelAdmin):
+    list_display = ('id', 'lesson_type', 'level', 'lesson_number', 'title', 'items_count')
+    list_filter = ('lesson_type', 'level')
+    search_fields = ('title', 'title_ja')
+    ordering = ('lesson_type', 'level', 'lesson_number')
+
+    def get_inlines(self, request, obj):
+        if obj and obj.lesson_type == CurriculumLesson.LessonType.VOCABULARY:
+            return [CurriculumVocabularyInline]
+        elif obj and obj.lesson_type == CurriculumLesson.LessonType.KANJI:
+            return [CurriculumKanjiInline]
+        return []
+
+@admin.register(CurriculumVocabulary)
+class CurriculumVocabularyAdmin(admin.ModelAdmin):
+    list_display = ('id', 'lesson', 'order_index', 'word', 'furigana', 'meaning_en', 'meaning_bn')
+    list_filter = ('lesson__level', 'lesson__lesson_type')
+    search_fields = ('word', 'furigana', 'romaji', 'meaning_en', 'meaning_bn')
+    ordering = ('lesson', 'order_index')
+
+@admin.register(CurriculumKanji)
+class CurriculumKanjiAdmin(admin.ModelAdmin):
+    list_display = ('id', 'lesson', 'order_index', 'character', 'onyomi', 'kunyomi', 'meaning_en', 'meaning_bn')
+    list_filter = ('lesson__level', 'lesson__lesson_type')
+    search_fields = ('character', 'onyomi', 'kunyomi', 'romaji', 'meaning_en', 'meaning_bn')
+    ordering = ('lesson', 'order_index')
 
 
 # ─── Admin site branding ──────────────────────────────────────────────

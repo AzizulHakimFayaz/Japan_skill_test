@@ -14,10 +14,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.management import call_command
-from django.db.models import Q
+from django.db.models import Count, Q, Case, When, Value, IntegerField
 from django.utils import timezone
 
-from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice
+from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji
 from accounts.models import UserProfile, EmailVerificationOTP, PasswordResetToken
 from accounts.geolocation import get_client_ip, lookup_ip_country, resolve_user_country_and_flag, get_country_flag
 from accounts.emails import send_password_reset_email
@@ -40,6 +40,10 @@ from .serializers import (
     ResetPasswordRequestSerializer,
     NoticeSerializer,
     get_absolute_media_url,
+    CurriculumLessonListSerializer,
+    CurriculumLessonDetailSerializer,
+    CurriculumVocabularySerializer,
+    CurriculumKanjiSerializer,
 )
 
 
@@ -2088,6 +2092,148 @@ class GameLeaderboardAPIView(APIView):
             'status': 'success',
             'top_3': ranks[:3],
             'leaderboard': ranks,
+        })
+
+
+# ─── Curriculum Lessons & Study Hub API ──────────────────────────────
+
+class CurriculumLessonListAPIView(APIView):
+    """Returns lesson-wise vocabulary and kanji lists with counts and filter options."""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        lesson_type = request.query_params.get('type')  # 'vocabulary' or 'kanji'
+        level = request.query_params.get('level')        # 'N5' or 'N4'
+        search = request.query_params.get('search', '').strip()
+
+        qs = CurriculumLesson.objects.all()
+
+        if lesson_type in ['vocabulary', 'kanji']:
+            qs = qs.filter(lesson_type=lesson_type)
+
+        if level in ['N5', 'N4']:
+            qs = qs.filter(level=level)
+
+        if search:
+            qs = qs.filter(Q(title__icontains=search) | Q(title_ja__icontains=search))
+
+        qs = qs.annotate(
+            level_order=Case(
+                When(level='N5', then=Value(1)),
+                When(level='N4', then=Value(2)),
+                default=Value(3),
+                output_field=IntegerField()
+            ),
+            type_order=Case(
+                When(lesson_type='vocabulary', then=Value(1)),
+                When(lesson_type='kanji', then=Value(2)),
+                default=Value(3),
+                output_field=IntegerField()
+            )
+        ).order_by('type_order', 'level_order', 'lesson_number')
+
+        # Calculate counts
+        stats = {
+            'total_vocab_lessons': CurriculumLesson.objects.filter(lesson_type='vocabulary').count(),
+            'total_kanji_lessons': CurriculumLesson.objects.filter(lesson_type='kanji').count(),
+            'n5_vocab_lessons': CurriculumLesson.objects.filter(lesson_type='vocabulary', level='N5').count(),
+            'n4_vocab_lessons': CurriculumLesson.objects.filter(lesson_type='vocabulary', level='N4').count(),
+            'n5_kanji_lessons': CurriculumLesson.objects.filter(lesson_type='kanji', level='N5').count(),
+            'n4_kanji_lessons': CurriculumLesson.objects.filter(lesson_type='kanji', level='N4').count(),
+            'total_words': CurriculumVocabulary.objects.count(),
+            'total_kanji': CurriculumKanji.objects.count(),
+        }
+
+        serializer = CurriculumLessonListSerializer(qs, many=True)
+        return Response({
+            'stats': stats,
+            'lessons': serializer.data
+        })
+
+
+class CurriculumLessonDetailAPIView(APIView):
+    """Returns detail for a specific lesson with all its vocabulary or kanji items."""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, pk):
+        lesson = get_object_or_404(
+            CurriculumLesson.objects.prefetch_related('vocabularies', 'kanjis'),
+            pk=pk
+        )
+        serializer = CurriculumLessonDetailSerializer(lesson)
+        return Response(serializer.data)
+
+
+class CurriculumSearchAPIView(APIView):
+    """Global instant search across vocabulary and kanji database."""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        query = request.query_params.get('q', '').strip()
+        if not query or len(query) < 2:
+            return Response({
+                'vocabularies': [],
+                'kanjis': [],
+                'query': query,
+                'count': 0
+            })
+
+        vocab_matches = CurriculumVocabulary.objects.filter(
+            Q(word__icontains=query) |
+            Q(furigana__icontains=query) |
+            Q(romaji__icontains=query) |
+            Q(meaning_en__icontains=query) |
+            Q(meaning_bn__icontains=query)
+        ).select_related('lesson')[:50]
+
+        kanji_matches = CurriculumKanji.objects.filter(
+            Q(character__icontains=query) |
+            Q(onyomi__icontains=query) |
+            Q(kunyomi__icontains=query) |
+            Q(romaji__icontains=query) |
+            Q(meaning_en__icontains=query) |
+            Q(meaning_bn__icontains=query)
+        ).select_related('lesson')[:50]
+
+        vocab_data = []
+        for v in vocab_matches:
+            vocab_data.append({
+                'id': v.id,
+                'lesson_id': v.lesson_id,
+                'lesson_number': v.lesson.lesson_number,
+                'level': v.lesson.level,
+                'lesson_title': v.lesson.title,
+                'word': v.word,
+                'furigana': v.furigana,
+                'romaji': v.romaji,
+                'meaning_en': v.meaning_en,
+                'meaning_bn': v.meaning_bn,
+                'speech': v.speech,
+            })
+
+        kanji_data = []
+        for k in kanji_matches:
+            kanji_data.append({
+                'id': k.id,
+                'lesson_id': k.lesson_id,
+                'lesson_number': k.lesson.lesson_number,
+                'level': k.lesson.level,
+                'lesson_title': k.lesson.title,
+                'character': k.character,
+                'onyomi': k.onyomi,
+                'kunyomi': k.kunyomi,
+                'romaji': k.romaji,
+                'meaning_en': k.meaning_en,
+                'meaning_bn': k.meaning_bn,
+                'speech': k.speech,
+            })
+
+        return Response({
+            'query': query,
+            'vocab_count': len(vocab_data),
+            'kanji_count': len(kanji_data),
+            'vocabularies': vocab_data,
+            'kanjis': kanji_data
         })
 
 

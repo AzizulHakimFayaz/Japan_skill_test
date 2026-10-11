@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from tests.models import Test, QuestionGroup, Question, AnswerOption, Attempt, Notice
+from tests.models import Test, QuestionGroup, Question, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji
 
 
 
@@ -456,4 +456,94 @@ class NoticeSerializer(serializers.ModelSerializer):
             days = int(seconds / 86400)
             return f"{days}d ago"
         return obj.created_at.strftime('%b %d, %Y')
+
+
+# ─── Curriculum Serializers ──────────────────────────────────────────
+
+class CurriculumVocabularySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CurriculumVocabulary
+        fields = [
+            'id',
+            'order_index',
+            'word',
+            'furigana',
+            'romaji',
+            'meaning_en',
+            'meaning_bn',
+            'speech',
+            'part_of_speech',
+        ]
+
+
+class CurriculumKanjiSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CurriculumKanji
+        fields = [
+            'id',
+            'order_index',
+            'character',
+            'onyomi',
+            'kunyomi',
+            'romaji',
+            'meaning_en',
+            'meaning_bn',
+            'speech',
+            'stroke_count',
+        ]
+
+
+class CurriculumLessonListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CurriculumLesson
+        fields = [
+            'id',
+            'lesson_type',
+            'level',
+            'lesson_number',
+            'title',
+            'title_ja',
+            'description',
+            'items_count',
+        ]
+
+
+class CurriculumLessonDetailSerializer(serializers.ModelSerializer):
+    vocabularies = CurriculumVocabularySerializer(many=True, read_only=True)
+    kanjis = CurriculumKanjiSerializer(many=True, read_only=True)
+    prev_lesson_id = serializers.SerializerMethodField()
+    next_lesson_id = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CurriculumLesson
+        fields = [
+            'id',
+            'lesson_type',
+            'level',
+            'lesson_number',
+            'title',
+            'title_ja',
+            'description',
+            'items_count',
+            'vocabularies',
+            'kanjis',
+            'prev_lesson_id',
+            'next_lesson_id',
+        ]
+
+    def get_prev_lesson_id(self, obj):
+        prev = CurriculumLesson.objects.filter(
+            lesson_type=obj.lesson_type,
+            level=obj.level,
+            lesson_number__lt=obj.lesson_number
+        ).order_by('-lesson_number').first()
+        return prev.id if prev else None
+
+    def get_next_lesson_id(self, obj):
+        nxt = CurriculumLesson.objects.filter(
+            lesson_type=obj.lesson_type,
+            level=obj.level,
+            lesson_number__gt=obj.lesson_number
+        ).order_by('lesson_number').first()
+        return nxt.id if nxt else None
 
