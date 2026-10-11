@@ -40,8 +40,9 @@ export default function Navbar() {
   const isActive = (path) => pathname === path;
 
   return (
-    <header className="sticky top-0 z-40 bg-white/90 dark:bg-[#060913]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 shadow-xs transition-colors duration-300">
-      <nav className="max-w-[1920px] mx-auto px-2.5 sm:px-4 lg:px-6 xl:px-8 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-3">
+    <>
+      <header className="sticky top-0 z-40 bg-white/90 dark:bg-[#060913]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 shadow-xs transition-colors duration-300">
+        <nav className="max-w-[1920px] mx-auto px-2.5 sm:px-4 lg:px-6 xl:px-8 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-3">
         {/* Brand Logo & Mobile Left Extended Menu Button */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 min-w-0">
           {/* Mobile Extended Menu Button */}
@@ -266,200 +267,238 @@ export default function Navbar() {
             {/* Mobile Notification Bell */}
             <NotificationBell align="right" compact={true} />
           </div>
+        </nav>
+      </header>
 
-          {/* Mobile Slide-Down App Menu Drawer */}
-          {open && (
-            <div className="absolute top-16 right-3 left-3 bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-2xl p-5 flex flex-col gap-3 lg:hidden z-50 animate-fade-in">
-              <div className="flex items-center justify-between px-2 pb-2 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-japan-red animate-pulse"></span>
-                  <span className="text-xs font-black text-slate-800 dark:text-slate-200 tracking-wide">学校の試験 • {t('cbt_portal')}</span>
+      {/* Mobile Left Slide-Over Navigation Drawer (Outside header so fixed positioning is viewport-relative) */}
+      {open && (
+        <div className="lg:hidden">
+          {/* Dim Backdrop Overlay */}
+          <div
+            onClick={() => setOpen(false)}
+            aria-hidden="true"
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 transition-opacity duration-200 animate-fade-in"
+          />
+
+          {/* Sleek Off-Canvas Left Drawer */}
+          <aside
+            aria-label="Mobile Navigation Menu"
+            className="fixed inset-y-0 left-0 w-[285px] sm:w-[320px] max-w-[82vw] h-screen bg-white dark:bg-[#070b16] border-r border-slate-200/90 dark:border-slate-800/90 shadow-2xl z-50 flex flex-col animate-in slide-in-from-left duration-200"
+          >
+            {/* Drawer Header */}
+            <div className="p-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-slate-50/80 dark:bg-slate-900/60">
+              <div className="flex items-center gap-2 min-w-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/img/logo.png"
+                  alt="Gakkou No Shiken"
+                  className="h-6 w-auto object-contain shrink-0"
+                />
+                <div className="min-w-0">
+                  <div className="text-xs font-black text-slate-900 dark:text-white truncate leading-none">
+                    Gakkou No <span className="text-japan-red">Shiken</span>
+                  </div>
+                  <span className="text-[9px] font-bold text-japan-red leading-none block mt-0.5">
+                    CBT 2026 Portal
+                  </span>
                 </div>
-                <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 border border-rose-200/80 dark:border-rose-800/60 px-2 py-0.5 rounded-full uppercase">
-                  2026 Live
-                </span>
+              </div>
+
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="Close menu"
+                className="p-1 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Drawer Scrollable Navigation Links */}
+            <div className="flex-1 overflow-y-auto p-2.5 space-y-0.5 overscroll-contain">
+              <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                Main Portal
               </div>
 
               <Link
                 href="/"
                 onClick={() => setOpen(false)}
-                className="px-4 py-3 rounded-2xl text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
               >
-                <span className="flex items-center gap-2.5">
-                  <Home className="w-5 h-5 text-japan-red" />
+                <span className="flex items-center gap-2">
+                  <Home className="w-4 h-4 text-japan-red shrink-0" />
                   <span>{t('home')}</span>
                 </span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               </Link>
 
               <Link
                 href="/jft-basic"
                 onClick={() => setOpen(false)}
-                className="px-4 py-3 rounded-2xl text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
               >
-                <span className="flex items-center gap-2.5">
-                  <BookOpen className="w-5 h-5 text-japan-red" />
+                <span className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-japan-red shrink-0" />
                   <span>{t('jft_basic')}</span>
                 </span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               </Link>
 
               <Link
                 href="/ssw-skill-test"
                 onClick={() => setOpen(false)}
-                className="px-4 py-3 rounded-2xl text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
               >
-                <span className="flex items-center gap-2.5">
-                  <Layers className="w-5 h-5 text-japan-red" />
+                <span className="flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-japan-red shrink-0" />
                   <span>{t('ssw_skills')}</span>
                 </span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               </Link>
 
               <Link
                 href="/tools"
                 onClick={() => setOpen(false)}
-                className="px-4 py-3 rounded-2xl text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
               >
-                <span className="flex items-center gap-2.5">
-                  <Sparkles className="w-5 h-5 text-japan-red" />
-                  <span>Candidate Tools (Flashcards &amp; Particle Drill)</span>
+                <span className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-japan-red shrink-0" />
+                  <span>Candidate Tools</span>
                 </span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               </Link>
 
               <Link
                 href="/game-zone"
                 onClick={() => setOpen(false)}
-                className="px-4 py-3 rounded-2xl text-base font-bold text-rose-800 dark:text-rose-300 bg-rose-50/70 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-950/60 transition-all flex items-center justify-between"
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-rose-700 dark:text-rose-300 bg-rose-50/70 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-950/60 transition-all flex items-center justify-between"
               >
-                <span className="flex items-center gap-2.5">
-                  <Gamepad2 className="w-5 h-5 text-japan-red" />
-                  <span>Game Zone (Arcade &amp; Word Match)</span>
+                <span className="flex items-center gap-2">
+                  <Gamepad2 className="w-4 h-4 text-japan-red shrink-0" />
+                  <span>Game Zone (Arcade)</span>
                 </span>
-                <ChevronRight className="w-4 h-4 text-rose-600" />
+                <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-japan-red text-white">8 Games</span>
               </Link>
-
 
               <Link
                 href="/leaderboard"
                 onClick={() => setOpen(false)}
-                className="px-4 py-3 rounded-2xl text-base font-bold text-amber-800 dark:text-amber-300 bg-amber-50/70 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-950/60 transition-all flex items-center justify-between"
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-amber-800 dark:text-amber-300 bg-amber-50/60 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-950/50 transition-all flex items-center justify-between"
               >
-                <span className="flex items-center gap-2.5">
-                  <Trophy className="w-5 h-5 text-amber-500" />
+                <span className="flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
                   <span>{t('leaderboard')}</span>
                 </span>
-                <ChevronRight className="w-4 h-4 text-amber-600" />
+                <ChevronRight className="w-3.5 h-3.5 text-amber-600" />
               </Link>
+
+              <div className="pt-2 pb-1 px-2 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                Resources &amp; Support
+              </div>
 
               <Link
                 href="/notices"
                 onClick={() => setOpen(false)}
-                className="px-4 py-3 rounded-2xl text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
               >
-                <span className="flex items-center gap-2.5">
-                  <FileText className="w-5 h-5 text-japan-red" />
-                  <span>Notices &amp; Study Materials (PDFs)</span>
+                <span className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-japan-red shrink-0" />
+                  <span>Notices &amp; Materials</span>
                 </span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               </Link>
 
               <Link
                 href="/how-it-works"
                 onClick={() => setOpen(false)}
-                className="px-4 py-3 rounded-2xl text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
               >
-                <span className="flex items-center gap-2.5">
-                  <HelpCircle className="w-5 h-5 text-japan-red" />
-                  <span>How It Works &amp; Exam Guide</span>
+                <span className="flex items-center gap-2">
+                  <HelpCircle className="w-4 h-4 text-japan-red shrink-0" />
+                  <span>Exam Guide</span>
                 </span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               </Link>
 
               <Link
                 href="/about"
                 onClick={() => setOpen(false)}
-                className="px-4 py-3 rounded-2xl text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
               >
-                <span className="flex items-center gap-2.5">
-                  <Info className="w-5 h-5 text-japan-red" />
-                  <span>About Us &amp; Test Center Quality</span>
+                <span className="flex items-center gap-2">
+                  <Info className="w-4 h-4 text-japan-red shrink-0" />
+                  <span>About Us</span>
                 </span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               </Link>
 
               <Link
                 href="/contact"
                 onClick={() => setOpen(false)}
-                className="px-4 py-3 rounded-2xl text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
               >
-                <span className="flex items-center gap-2.5">
-                  <Mail className="w-5 h-5 text-japan-red" />
-                  <span>Contact &amp; Support Desk</span>
+                <span className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-japan-red shrink-0" />
+                  <span>Contact &amp; Support</span>
                 </span>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               </Link>
+            </div>
 
-
+            {/* Drawer Footer Account Area */}
+            <div className="p-3 border-t border-slate-100 dark:border-slate-800 shrink-0 bg-slate-50/60 dark:bg-slate-900/40">
               {isAuthenticated && user ? (
-                <>
+                <div className="flex items-center justify-between gap-2">
                   <Link
                     href="/accounts/my-results"
                     onClick={() => setOpen(false)}
-                    className="px-4 py-3 rounded-2xl text-base font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+                    className="flex items-center gap-2 min-w-0"
                   >
-                    <span className="flex items-center gap-2.5">
-                      <User className="w-5 h-5 text-japan-red" />
-                      <span>{t('my_results')}</span>
-                    </span>
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
-                  </Link>
-                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between mt-1">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-japan-red text-white font-extrabold flex items-center justify-center">
-                        {user.username?.slice(0, 1).toUpperCase()}
-                      </div>
-                      <div>
-                        <span className="text-xs font-bold text-slate-400 block">Signed in</span>
-                        <strong className="text-sm font-extrabold text-slate-900 dark:text-white">{user.username}</strong>
-                      </div>
+                    <div className="w-8 h-8 rounded-xl bg-japan-red text-white text-xs font-black flex items-center justify-center shrink-0">
+                      {user.username?.slice(0, 1).toUpperCase()}
                     </div>
-                    <button
-                      onClick={() => {
-                        logout();
-                        setOpen(false);
-                      }}
-                      className="text-xs font-bold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors shadow-xs flex items-center gap-1 cursor-pointer"
-                    >
-                      <LogOut className="w-3.5 h-3.5" />
-                      <span>{t('sign_out')}</span>
-                    </button>
-                  </div>
-                </>
+                    <div className="min-w-0">
+                      <strong className="text-xs font-extrabold text-slate-900 dark:text-white truncate block">
+                        {user.username}
+                      </strong>
+                      <span className="text-[10px] text-japan-red font-bold">My Profile</span>
+                    </div>
+                  </Link>
+
+                  <button
+                    onClick={() => {
+                      logout();
+                      setOpen(false);
+                    }}
+                    className="text-[11px] font-bold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-2xs flex items-center gap-1 cursor-pointer shrink-0"
+                  >
+                    <LogOut className="w-3 h-3" />
+                    <span>{t('sign_out')}</span>
+                  </button>
+                </div>
               ) : (
-                <div className="grid grid-cols-2 gap-3 pt-2">
+                <div className="grid grid-cols-2 gap-2">
                   <Link
                     href="/accounts/login"
                     onClick={() => setOpen(false)}
-                    className="text-center font-bold text-slate-800 dark:text-slate-200 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-95 flex items-center justify-center gap-1.5 text-sm"
+                    className="text-center font-bold text-slate-800 dark:text-slate-200 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-xs flex items-center justify-center gap-1"
                   >
-                    <LogIn className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                    <LogIn className="w-3.5 h-3.5" />
                     <span>{t('sign_in')}</span>
                   </Link>
                   <Link
                     href="/accounts/signup"
                     onClick={() => setOpen(false)}
-                    className="text-center font-extrabold bg-gradient-to-r from-japan-red to-rose-600 text-white py-3 rounded-2xl shadow-md shadow-red-500/25 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-1.5 text-sm"
+                    className="text-center font-extrabold bg-gradient-to-r from-japan-red to-rose-600 text-white py-2 rounded-xl shadow-xs transition-all text-xs flex items-center justify-center gap-1"
                   >
-                    <Sparkles className="w-4 h-4" />
+                    <Sparkles className="w-3.5 h-3.5" />
                     <span>{t('register')}</span>
                   </Link>
                 </div>
               )}
             </div>
-          )}
-      </nav>
-    </header>
+          </aside>
+        </div>
+      )}
+    </>
   );
 }
