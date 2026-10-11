@@ -118,7 +118,7 @@ export default function CurriculumHubPage() {
           <div className="space-y-3 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-bold uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5 text-japan-red" />
-              <span>Minna no Nihongo &amp; JLPT N5/N4 Curriculum</span>
+              <span>Minna no Nihongo &amp; N5/N4 Curriculum</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white leading-tight">
               Japanese Vocabulary &amp; Kanji Hub
@@ -145,7 +145,7 @@ export default function CurriculumHubPage() {
               <div className="text-[11px] text-slate-400 mt-1">888 Characters</div>
             </div>
             <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-              <div className="text-xs text-slate-400 font-medium">JLPT Levels</div>
+              <div className="text-xs text-slate-400 font-medium">Levels</div>
               <div className="text-xl sm:text-2xl font-black text-white mt-0.5">N5 &amp; N4</div>
               <div className="text-[11px] text-emerald-400 font-semibold mt-1">Beginner to A2</div>
             </div>
@@ -193,12 +193,12 @@ export default function CurriculumHubPage() {
             </button>
           </div>
 
-          {/* Level Filter Pills */}
+          {/* Level Filter Pills: Only All Levels, N5, N4 (No JLPT) */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
             {[
               { id: 'ALL', label: 'All Levels' },
-              { id: 'N5', label: 'JLPT N5' },
-              { id: 'N4', label: 'JLPT N4' },
+              { id: 'N5', label: 'N5' },
+              { id: 'N4', label: 'N4' },
             ].map((lvl) => (
               <button
                 key={lvl.id}
@@ -420,11 +420,11 @@ export default function CurriculumHubPage() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => (
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
+            {[...Array(8)].map((_, i) => (
               <div
                 key={i}
-                className="h-44 rounded-3xl bg-slate-100 dark:bg-slate-850 animate-pulse p-6"
+                className="h-36 sm:h-44 rounded-2xl sm:rounded-3xl bg-slate-100 dark:bg-slate-850 animate-pulse p-4 sm:p-6"
               />
             ))}
           </div>
@@ -437,14 +437,14 @@ export default function CurriculumHubPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
             {lessons.map((lesson) => {
               const isN5 = lesson.level === 'N5';
               return (
                 <Link
                   key={lesson.id}
                   href={`/lessons/${lesson.id}`}
-                  className="group relative p-5 sm:p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-japan-red dark:hover:border-rose-500 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between gap-4 overflow-hidden"
+                  className="group relative p-3 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-japan-red dark:hover:border-rose-500 shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between gap-2.5 sm:gap-4 overflow-hidden"
                 >
                   {/* Accent Top Bar */}
                   <div className={`absolute top-0 left-0 right-0 h-1 transition-all ${
@@ -454,45 +454,45 @@ export default function CurriculumHubPage() {
                   }`} />
 
                   {/* Header Row */}
-                  <div className="flex items-start justify-between gap-2 pt-1">
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2.5 py-1 rounded-xl text-xs font-black tracking-wide ${
+                  <div className="flex items-start justify-between gap-1 sm:gap-2 pt-0.5 sm:pt-1">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <span className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black tracking-wide ${
                         isN5
                           ? 'bg-rose-50 dark:bg-rose-950/70 text-japan-red dark:text-rose-300 border border-rose-200/80 dark:border-rose-900/40'
                           : 'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-900/40'
                       }`}>
                         {lesson.level}
                       </span>
-                      <span className="text-xs font-mono font-bold text-slate-400">
-                        Lesson {lesson.lesson_number}
+                      <span className="text-[11px] sm:text-xs font-mono font-bold text-slate-400">
+                        L{lesson.lesson_number}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-300">
+                    <div className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] sm:text-[11px] font-bold text-slate-600 dark:text-slate-300">
                       <span>{lesson.items_count}</span>
-                      <span>{lesson.lesson_type === 'vocabulary' ? 'words' : 'kanji'}</span>
+                      <span className="hidden sm:inline">{lesson.lesson_type === 'vocabulary' ? 'words' : 'kanji'}</span>
                     </div>
                   </div>
 
                   {/* Lesson Title */}
                   <div className="space-y-1">
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors line-clamp-2">
+                    <h3 className="text-xs sm:text-base font-bold text-slate-900 dark:text-white group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors line-clamp-2 leading-snug">
                       {lesson.title}
                     </h3>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                      <span>Dual English &amp; বাংলা</span>
+                    <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 hidden sm:flex items-center gap-1.5">
+                      <span>EN + বাংলা</span>
                       <span>•</span>
-                      <span>Native Audio</span>
+                      <span>Audio</span>
                     </div>
                   </div>
 
                   {/* Bottom Action Footer */}
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-300 group-hover:text-japan-red dark:group-hover:text-rose-400">
+                  <div className="pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] sm:text-xs font-bold text-slate-600 dark:text-slate-300 group-hover:text-japan-red dark:group-hover:text-rose-400">
                     <span className="flex items-center gap-1">
-                      <span>Start Learning</span>
+                      <span>Start</span>
                     </span>
-                    <div className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 group-hover:bg-rose-50 dark:group-hover:bg-rose-950/60 group-hover:text-japan-red transition-all">
-                      <ArrowRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
+                    <div className="p-1 sm:p-1.5 rounded-lg sm:rounded-xl bg-slate-100 dark:bg-slate-800 group-hover:bg-rose-50 dark:group-hover:bg-rose-950/60 group-hover:text-japan-red transition-all">
+                      <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transform group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </div>
                 </Link>

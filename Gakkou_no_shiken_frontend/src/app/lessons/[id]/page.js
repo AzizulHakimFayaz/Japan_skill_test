@@ -174,9 +174,9 @@ export default function LessonStudyPage() {
       <div className="max-w-6xl mx-auto px-4 py-12 space-y-6 animate-pulse">
         <div className="h-6 w-48 bg-slate-200 dark:bg-slate-800 rounded-lg" />
         <div className="h-32 bg-slate-200 dark:bg-slate-800 rounded-3xl" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-44 bg-slate-200 dark:bg-slate-800 rounded-2xl" />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="h-36 sm:h-44 bg-slate-200 dark:bg-slate-800 rounded-2xl" />
           ))}
         </div>
       </div>
@@ -567,21 +567,21 @@ export default function LessonStudyPage() {
       {/* VIEW MODE 2: Card Grid View */}
       {viewMode === 'grid' && (
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
             {items.map((item, idx) => {
               const isFav = bookmarkedIds.has(item.id);
               return (
                 <div
                   key={item.id}
-                  className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-japan-red/60 dark:hover:border-rose-500/60 transition-all duration-200 shadow-xs hover:shadow-lg flex flex-col justify-between gap-4 group"
+                  className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-japan-red/60 dark:hover:border-rose-500/60 transition-all duration-200 shadow-2xs hover:shadow-lg flex flex-col justify-between gap-2.5 sm:gap-4 group"
                 >
                   {/* Top card row: order number, audio button, bookmark */}
                   <div className="flex items-start justify-between">
-                    <span className="text-xs font-mono font-bold text-slate-400">
+                    <span className="text-[10px] sm:text-xs font-mono font-bold text-slate-400">
                       #{String(item.order_index || idx + 1).padStart(2, '0')}
                     </span>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1 sm:gap-1.5">
                       <button
                         onClick={() =>
                           playSpeech(
@@ -589,64 +589,64 @@ export default function LessonStudyPage() {
                             `item-${item.id}`
                           )
                         }
-                        className="p-2 rounded-xl bg-slate-100 dark:bg-slate-850 text-slate-700 dark:text-slate-300 hover:text-japan-red hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-all cursor-pointer"
+                        className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-slate-100 dark:bg-slate-850 text-slate-700 dark:text-slate-300 hover:text-japan-red hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-all cursor-pointer"
                         title="Listen to Japanese pronunciation"
                       >
-                        <Volume2 className={`w-4 h-4 ${speakingId === `item-${item.id}` ? 'text-japan-red animate-pulse' : ''}`} />
+                        <Volume2 className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${speakingId === `item-${item.id}` ? 'text-japan-red animate-pulse' : ''}`} />
                       </button>
 
                       <button
                         onClick={() => toggleBookmark(item.id)}
-                        className="p-2 rounded-xl text-slate-400 hover:text-japan-red hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-all cursor-pointer"
+                        className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl text-slate-400 hover:text-japan-red hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-all cursor-pointer"
                         title="Bookmark this word"
                       >
                         {isFav ? (
-                          <BookmarkCheck className="w-4 h-4 text-japan-red fill-japan-red" />
+                          <BookmarkCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-japan-red fill-japan-red" />
                         ) : (
-                          <Bookmark className="w-4 h-4" />
+                          <Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         )}
                       </button>
                     </div>
                   </div>
 
                   {/* Japanese Character / Word Display */}
-                  <div className="space-y-1">
+                  <div className="space-y-0.5 sm:space-y-1">
                     {isVocab ? (
                       <>
-                        <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-japanese tracking-tight">
+                        <div className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white font-japanese tracking-tight leading-tight">
                           {item.word}
                         </div>
                         {showFurigana && item.furigana && item.furigana !== item.word && (
-                          <div className="text-xs font-japanese font-semibold text-rose-500 dark:text-rose-400">
+                          <div className="text-[11px] sm:text-xs font-japanese font-semibold text-rose-500 dark:text-rose-400">
                             {item.furigana}
                           </div>
                         )}
                         {showRomaji && item.romaji && (
-                          <div className="text-[11px] font-mono text-slate-400">
+                          <div className="text-[10px] sm:text-[11px] font-mono text-slate-400">
                             {item.romaji}
                           </div>
                         )}
                       </>
                     ) : (
                       <>
-                        <div className="flex items-baseline gap-3">
-                          <span className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white font-japanese">
+                        <div className="flex items-baseline gap-2 sm:gap-3">
+                          <span className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white font-japanese">
                             {item.character}
                           </span>
                           {showRomaji && item.romaji && (
-                            <span className="text-xs font-mono text-slate-400">
+                            <span className="text-[10px] sm:text-xs font-mono text-slate-400">
                               {item.romaji}
                             </span>
                           )}
                         </div>
-                        <div className="text-xs space-y-0.5 pt-1">
+                        <div className="text-[10px] sm:text-xs space-y-0.5 pt-1">
                           {item.onyomi && (
-                            <div className="text-[11px] text-slate-500 dark:text-slate-400 font-japanese">
+                            <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-japanese">
                               On: <span className="font-semibold text-slate-800 dark:text-slate-200">{item.onyomi}</span>
                             </div>
                           )}
                           {item.kunyomi && (
-                            <div className="text-[11px] text-slate-500 dark:text-slate-400 font-japanese">
+                            <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-japanese">
                               Kun: <span className="font-semibold text-slate-800 dark:text-slate-200">{item.kunyomi}</span>
                             </div>
                           )}
@@ -656,14 +656,14 @@ export default function LessonStudyPage() {
                   </div>
 
                   {/* Meanings: English & Bengali */}
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-1.5">
+                  <div className="pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-1">
                     {(languageMode === 'both' || languageMode === 'en') && (
-                      <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-snug">
+                      <div className="text-[11px] sm:text-xs font-semibold text-slate-800 dark:text-slate-200 leading-snug">
                         {item.meaning_en}
                       </div>
                     )}
                     {(languageMode === 'both' || languageMode === 'bn') && item.meaning_bn && (
-                      <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400 font-bengali leading-snug">
+                      <div className="text-[11px] sm:text-xs font-bold text-emerald-600 dark:text-emerald-400 font-bengali leading-snug">
                         {item.meaning_bn}
                       </div>
                     )}
