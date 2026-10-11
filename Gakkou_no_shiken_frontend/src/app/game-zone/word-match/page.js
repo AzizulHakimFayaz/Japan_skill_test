@@ -290,13 +290,22 @@ export default function WordMatchPage() {
     }, 600);
   };
 
-  // Check Answer Button (manually validates or confirms current match)
+  // Inline alert toast
+  const [matchAlert, setMatchAlert] = useState(null);
+
+  // Check Answer Button
   const handleCheckAnswer = () => {
     if (selectedWordId && selectedMeaningId) {
       evaluateMatch(selectedWordId, selectedMeaningId);
+    } else if (selectedWordId && !selectedMeaningId) {
+      setMatchAlert('👉 Now tap the matching English/Bengali meaning on the right!');
+      setTimeout(() => setMatchAlert(null), 2500);
+    } else if (!selectedWordId && selectedMeaningId) {
+      setMatchAlert('👈 Now tap the matching Japanese word on the left!');
+      setTimeout(() => setMatchAlert(null), 2500);
     } else {
-      // Auto-match first available
-      handleHint();
+      setMatchAlert('👆 Tap 1 Japanese word and 1 Meaning card to connect them!');
+      setTimeout(() => setMatchAlert(null), 2500);
     }
   };
 
@@ -611,6 +620,13 @@ export default function WordMatchPage() {
             </div>
           </div>
         </div>
+
+        {/* Alert Tip Banner */}
+        {matchAlert && (
+          <div className="mx-auto my-1.5 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs sm:text-sm font-bold animate-fadeIn text-center">
+            {matchAlert}
+          </div>
+        )}
 
         {/* Bottom Action Bar (Shuffle, Check Answer, Hint) */}
         <div className="flex items-center justify-between gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-100 dark:border-slate-800/80 flex-wrap relative z-20">

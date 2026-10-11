@@ -447,7 +447,7 @@ export default function KanjiHunterPage() {
 
             <div className="flex flex-col gap-2.5">
               <Link
-                href="/login?redirect=/game-zone/kanji-hunter"
+                href="/accounts/login?redirect=/game-zone/kanji-hunter"
                 className="w-full py-3 rounded-2xl bg-japan-red hover:bg-red-700 text-white font-extrabold text-sm text-center shadow-md shadow-red-500/20 transition-all flex items-center justify-center gap-2"
               >
                 <LogIn className="w-4 h-4" />
