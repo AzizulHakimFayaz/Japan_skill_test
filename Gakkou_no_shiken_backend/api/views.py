@@ -1652,6 +1652,19 @@ class RunMigrationAPIView(APIView):
         except Exception as e:
             logs.append(f"❌ Status Check Error: {e}")
 
+        # 4. Curriculum Database Auto-Seed
+        try:
+            from tests.models import CurriculumLesson
+            if CurriculumLesson.objects.count() == 0:
+                out = io.StringIO()
+                with redirect_stdout(out), redirect_stderr(out):
+                    call_command('import_curriculum')
+                logs.append(f"✅ Curriculum Seed Output:\n{out.getvalue().strip()}")
+            else:
+                logs.append(f"✅ Curriculum Database: {CurriculumLesson.objects.count()} lessons present.")
+        except Exception as e:
+            logs.append(f"⚠️ Curriculum Seed Note: {e}")
+
         # 5. Superuser verification (does not overwrite custom passwords unless ?admin_pwd= is passed)
         try:
             custom_pwd = None
