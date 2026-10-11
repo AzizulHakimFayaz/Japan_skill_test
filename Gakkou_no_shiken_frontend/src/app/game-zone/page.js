@@ -219,32 +219,35 @@ export default function GameZoneHomePage() {
         </div>
       </div>
 
-      {/* 2. Leaderboard & Rankings Podium Strip (Mobile Responsive) */}
-      <div className="bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-amber-500/10 dark:from-amber-950/30 dark:via-rose-950/30 dark:to-amber-950/30 border border-amber-300/40 dark:border-amber-900/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-500 text-white flex items-center justify-center text-xl sm:text-2xl shadow-md shadow-amber-500/20 shrink-0">
+      {/* 2. Leaderboard & Rankings Podium Strip (Cyber Arcade Style) */}
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#0c1328] via-[#090e1c] to-[#0c1328] border border-cyan-500/30 p-3 sm:p-5 flex items-center justify-between gap-3 flex-wrap shadow-xl">
+        <div className="absolute top-0 right-1/4 w-40 h-20 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 relative">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-500 text-slate-950 flex items-center justify-center text-xl sm:text-2xl shadow-lg shadow-amber-500/30 shrink-0 font-black">
             🏆
           </div>
           <div className="min-w-0">
-            <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-tight flex items-center gap-1.5 truncate">
-              <span>National Leaderboard &amp; Top 3</span>
-              <span className="text-[9px] sm:text-[10px] font-black uppercase px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-900 shrink-0">
-                Live
+            <h2 className="text-sm sm:text-base font-black text-white leading-tight flex items-center gap-1.5 truncate">
+              <span className="bg-gradient-to-r from-amber-300 to-cyan-300 bg-clip-text text-transparent">
+                Hall of Champions &amp; Top 3
+              </span>
+              <span className="text-[9px] sm:text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-rose-950/80 border border-rose-500/50 text-rose-300 shrink-0">
+                Live League
               </span>
             </h2>
-            <p className="text-[11px] sm:text-xs font-bold text-slate-600 dark:text-slate-400 mt-0.5 truncate">
-              Play games, earn XP, maintain streaks and challenge top learners!
+            <p className="text-[11px] sm:text-xs font-bold text-slate-300 mt-0.5 truncate">
+              Compete with top candidates, earn XP, maintain daily streaks, and take the crown!
             </p>
           </div>
         </div>
 
         <Link
           href="/game-zone/ranks"
-          className="px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl sm:rounded-2xl bg-white dark:bg-[#11182c] border border-amber-300/80 dark:border-amber-700/60 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-slate-900 dark:text-white text-xs sm:text-sm font-black transition-all flex items-center gap-1.5 shadow-xs shrink-0"
+          className="relative px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 text-xs sm:text-sm font-black transition-all flex items-center gap-1.5 shadow-md shadow-amber-500/20 shrink-0 cursor-pointer hover:scale-103"
         >
-          <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
-          <span>View Top 3 Podium</span>
-          <ArrowRight className="w-3.5 h-3.5 text-japan-red" />
+          <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-950" />
+          <span>View Champions Podium</span>
+          <ArrowRight className="w-3.5 h-3.5 text-slate-950" />
         </Link>
       </div>
 
