@@ -20,6 +20,7 @@ import {
   Star,
   CheckCircle2,
 } from 'lucide-react';
+import { useAuth } from '@/components/AuthContext';
 import { getInitialGameProgress } from '@/lib/gameStore';
 
 const ARCADE_GAMES = [
@@ -122,6 +123,7 @@ const ARCADE_GAMES = [
 ];
 
 export default function GameZoneHomePage() {
+  const { user, isAuthenticated } = useAuth();
   const [progress, setProgress] = useState(getInitialGameProgress());
 
   useEffect(() => {
@@ -146,14 +148,19 @@ export default function GameZoneHomePage() {
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent"></div>
 
           <div className="absolute inset-0 p-6 sm:p-8 md:p-10 flex flex-col justify-end text-white">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
               <span className="px-3 py-1 rounded-full bg-japan-red text-white text-xs font-black tracking-wider uppercase">
                 Arcade Zone
               </span>
               <span className="px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold backdrop-blur-xs flex items-center gap-1">
                 <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
-                <span>{progress.streak} Day Streak</span>
+                <span>{progress.streak > 0 ? `${progress.streak} Day Streak` : 'Start Your Streak'}</span>
               </span>
+              {!isAuthenticated && (
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-xs font-black shadow-xs">
+                  Guest Mode
+                </span>
+              )}
             </div>
 
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white drop-shadow-md">
@@ -173,7 +180,11 @@ export default function GameZoneHomePage() {
               </Link>
               <div className="text-xs font-bold text-slate-300 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 backdrop-blur-xs">
                 <Trophy className="w-4 h-4 text-amber-400" />
-                <span>Earn XP • Level {progress.level} ({progress.xp} XP)</span>
+                <span>
+                  {progress.xp > 0
+                    ? `Level ${progress.level} • ${progress.xp} XP`
+                    : 'Level 1 (0 XP)'}
+                </span>
               </div>
             </div>
           </div>

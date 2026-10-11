@@ -23,8 +23,11 @@ import {
   ChevronRight,
   Sparkles,
   Trophy,
+  LogIn,
+  User,
 } from 'lucide-react';
-import { getInitialGameProgress } from '@/lib/gameStore';
+import { useAuth } from '@/components/AuthContext';
+import { getInitialGameProgress, fetchBackendGameProgress } from '@/lib/gameStore';
 
 const GAME_NAV_ITEMS = [
   { href: '/game-zone', label: 'Game Zone Home', icon: Home, badge: 'Hub' },
@@ -41,6 +44,7 @@ const GAME_NAV_ITEMS = [
 
 export default function GameZoneLayout({ children }) {
   const pathname = usePathname();
+  const { user, isAuthenticated } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [progress, setProgress] = useState(getInitialGameProgress());
 
@@ -48,11 +52,19 @@ export default function GameZoneLayout({ children }) {
     const update = () => setProgress(getInitialGameProgress());
     window.addEventListener('game_progress_updated', update);
     window.addEventListener('storage', update);
+
+    // If authenticated, sync with backend database
+    if (isAuthenticated) {
+      fetchBackendGameProgress().then((backendData) => {
+        if (backendData) setProgress(backendData);
+      });
+    }
+
     return () => {
       window.removeEventListener('game_progress_updated', update);
       window.removeEventListener('storage', update);
     };
-  }, []);
+  }, [isAuthenticated]);
 
   const xpInCurrentLevel = progress.xp % 100;
   const xpTarget = 100;
@@ -73,7 +85,9 @@ export default function GameZoneLayout({ children }) {
                 Play &amp; Learn
               </span>
             </h1>
-            <p className="text-[10px] text-slate-500 font-bold">Lvl {progress.level} • {progress.xp} XP</p>
+            <p className="text-[10px] text-slate-500 font-bold">
+              {isAuthenticated ? `@${user?.username} • ` : 'Guest • '}Lvl {progress.level} • {progress.xp} XP
+            </p>
           </div>
         </div>
         <button
@@ -151,29 +165,44 @@ export default function GameZoneLayout({ children }) {
               </nav>
             </div>
 
-            {/* "Your Progress" Card (Matching mockup) */}
+            {/* "Your Progress" Card (Dynamic for Guest and Logged-in Users) */}
             <div className="bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/90 rounded-3xl p-4 shadow-sm flex flex-col gap-3.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   Your Progress
                 </span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-black text-amber-500 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-200/80 dark:border-amber-900/40">
-                  <Crown className="w-3 h-3 text-amber-500" />
-                  Level {progress.level}
-                </span>
+                {isAuthenticated ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-black text-amber-500 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-200/80 dark:border-amber-900/40">
+                    <Crown className="w-3 h-3 text-amber-500" />
+                    Level {progress.level}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-[10.5px] font-black text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span>Guest Mode</span>
+                  </span>
+                )}
               </div>
 
               {/* XP Bar */}
               <div>
                 <div className="flex items-center justify-between text-[11px] font-extrabold text-slate-600 dark:text-slate-400 mb-1.5">
-                  <span className="text-slate-800 dark:text-slate-200 font-black">Level {progress.level}</span>
-                  <span className="text-japan-red font-bold">{progress.xp} XP</span>
+                  <span className="text-slate-800 dark:text-slate-200 font-black">
+                    {isAuthenticated ? `@${user?.username || 'Candidate'}` : 'Guest Player'}
+                  </span>
+                  <span className="text-japan-red font-bold">
+                    Lvl {progress.level} • {progress.xp} XP
+                  </span>
                 </div>
                 <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-japan-red to-rose-500 rounded-full transition-all duration-500"
                     style={{ width: `${progressPercent}%` }}
                   ></div>
+                </div>
+                <div className="flex justify-between items-center text-[9.5px] text-slate-400 font-bold mt-1">
+                  <span>{progress.xp % 100} / 100 XP to Level {progress.level + 1}</span>
+                  <span>{progressPercent}%</span>
                 </div>
               </div>
 
@@ -209,18 +238,34 @@ export default function GameZoneLayout({ children }) {
                     {progress.learning}
                   </span>
                 </div>
-
-                {/* Needs Practice */}
-                <div className="flex items-center justify-between text-slate-700 dark:text-slate-300">
-                  <span className="flex items-center gap-1.5">
-                    <AlertCircle className="w-4 h-4 text-rose-500" />
-                    <span>Needs Practice</span>
-                  </span>
-                  <span className="font-black text-rose-500">
-                    {progress.needsPractice}
-                  </span>
-                </div>
               </div>
+
+              {/* Guest Login / Save Reminder Banner */}
+              {!isAuthenticated && (
+                <div className="mt-1 p-2.5 rounded-2xl bg-amber-500/10 border border-amber-300/40 dark:border-amber-800/50 text-amber-800 dark:text-amber-300 text-[11px] flex flex-col gap-1.5">
+                  <div className="flex items-center gap-1 font-black text-amber-700 dark:text-amber-300">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <span>Save Your Rank &amp; XP</span>
+                  </div>
+                  <p className="text-[10px] leading-tight font-medium text-slate-600 dark:text-slate-400">
+                    You are in guest mode. Log in or create an account to save your progress permanently and climb the national leaderboard!
+                  </p>
+                  <div className="flex items-center gap-1.5 pt-1">
+                    <Link
+                      href="/accounts/login"
+                      className="flex-1 py-1 px-2 rounded-xl bg-slate-800 text-white dark:bg-slate-700 text-[10.5px] font-black text-center hover:bg-slate-900 transition-colors"
+                    >
+                      Log In
+                    </Link>
+                    <Link
+                      href="/accounts/signup"
+                      className="flex-1 py-1 px-2 rounded-xl bg-japan-red text-white text-[10.5px] font-black text-center hover:bg-rose-700 transition-colors shadow-xs"
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
           </aside>
 
