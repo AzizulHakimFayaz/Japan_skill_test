@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from './AuthContext';
-import { Home, BookOpen, Layers, Trophy, User, LogIn } from 'lucide-react';
+import { Home, Sparkles, Gamepad2, Trophy, User, LogIn } from 'lucide-react';
 
 export default function MobileDock() {
   const pathname = usePathname();
@@ -16,8 +16,8 @@ export default function MobileDock() {
   }
 
   const isHome = pathname === '/';
-  const isJft = pathname?.includes('/jft');
-  const isSsw = pathname?.includes('/ssw');
+  const isTools = pathname?.startsWith('/tools');
+  const isGameZone = pathname?.startsWith('/game-zone');
   const isLeaderboard = pathname?.includes('/leaderboard');
   const isProfile = pathname?.includes('/my-results') || pathname?.includes('/login') || pathname?.includes('/signup');
 
@@ -37,30 +37,30 @@ export default function MobileDock() {
           <span className="text-[10px] leading-tight">Home</span>
         </Link>
 
-        {/* Tab 2: JFT Info */}
+        {/* Tab 2: Tools */}
         <Link
-          href="/jft-basic"
+          href="/tools"
           className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-all ${
-            isJft ? 'text-japan-red dark:text-rose-400 font-black' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
+            isTools ? 'text-japan-red dark:text-rose-400 font-black' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
           }`}
         >
-          <div className={`p-1 rounded-xl transition-all ${isJft ? 'bg-rose-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400' : ''}`}>
-            <BookOpen className="w-5 h-5" />
+          <div className={`p-1 rounded-xl transition-all ${isTools ? 'bg-rose-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400' : ''}`}>
+            <Sparkles className="w-5 h-5" />
           </div>
-          <span className="text-[10px] leading-tight">JFT Info</span>
+          <span className="text-[10px] leading-tight">Tools</span>
         </Link>
 
-        {/* Tab 3: SSW Tests */}
+        {/* Tab 3: Game Zone */}
         <Link
-          href="/ssw-skill-test"
+          href="/game-zone"
           className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-all ${
-            isSsw ? 'text-japan-red dark:text-rose-400 font-black' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
+            isGameZone ? 'text-japan-red dark:text-rose-400 font-black' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
           }`}
         >
-          <div className={`p-1 rounded-xl transition-all ${isSsw ? 'bg-rose-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400' : ''}`}>
-            <Layers className="w-5 h-5" />
+          <div className={`p-1 rounded-xl transition-all ${isGameZone ? 'bg-rose-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400' : ''}`}>
+            <Gamepad2 className="w-5 h-5" />
           </div>
-          <span className="text-[10px] leading-tight">SSW</span>
+          <span className="text-[10px] leading-tight">Game Zone</span>
         </Link>
 
         {/* Tab 4: Leaderboard */}

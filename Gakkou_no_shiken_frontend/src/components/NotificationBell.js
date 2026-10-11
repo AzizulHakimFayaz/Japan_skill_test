@@ -19,7 +19,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 
-export default function NotificationBell() {
+export default function NotificationBell({ align = 'right', compact = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -156,13 +156,15 @@ export default function NotificationBell() {
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Notifications and Notices"
-        className={`relative p-2 rounded-xl border transition-all duration-200 flex items-center justify-center cursor-pointer ${
+        className={`relative ${
+          compact ? 'p-1.5 rounded-xl' : 'p-2 rounded-xl'
+        } border transition-all duration-200 flex items-center justify-center cursor-pointer ${
           isOpen
             ? 'bg-rose-50 dark:bg-rose-950/40 border-japan-red/40 text-japan-red shadow-xs'
             : 'bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-200'
         }`}
       >
-        <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform group-hover:rotate-12" />
+        <Bell className={`${compact ? 'w-4 h-4' : 'w-4 h-4 sm:w-4.5 sm:h-4.5'} transition-transform group-hover:rotate-12`} />
 
         {/* Unread Badge Counter */}
         {unreadCount > 0 && (
@@ -174,7 +176,7 @@ export default function NotificationBell() {
 
       {/* Notification Dropdown Drawer */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-[calc(100vw-1.5rem)] sm:w-[26rem] max-w-[28rem] bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden font-sans animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className={`absolute ${align === 'left' ? 'left-0' : 'right-0'} mt-2 w-[calc(100vw-1.5rem)] sm:w-[26rem] max-w-[28rem] bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden font-sans animate-in fade-in slide-in-from-top-2 duration-150`}>
           {/* Header Bar */}
           <div className="p-3.5 sm:p-4 bg-slate-50/90 dark:bg-slate-900/90 border-b border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
             <div className="flex items-center gap-2">
