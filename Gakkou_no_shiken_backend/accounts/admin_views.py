@@ -164,6 +164,29 @@ def admin_statistics_view(request):
             'completed_at': att.completed_at,
         })
 
+    # 6. Game Zone & Arcade Platform Metrics
+    game_profiles = UserProfile.objects.filter(game_xp__gt=0).select_related('user').order_by('-game_xp')
+    total_gamers = game_profiles.count()
+    total_game_xp = sum(p.game_xp for p in game_profiles)
+    total_words_mastered = sum(p.game_words_mastered for p in game_profiles)
+    avg_game_level = round(sum(p.game_level for p in game_profiles) / total_gamers, 1) if total_gamers > 0 else 1
+
+    top_gamers_list = []
+    for rank, p in enumerate(game_profiles[:10], start=1):
+        c_flag = get_country_flag(p.country) if p.country else '🇧🇩'
+        top_gamers_list.append({
+            'rank': rank,
+            'username': p.user.username,
+            'full_name': f"{p.user.first_name} {p.user.last_name}".strip() or p.user.username,
+            'country': p.country or 'Bangladesh',
+            'flag': c_flag,
+            'xp': p.game_xp,
+            'level': p.game_level,
+            'streak': p.game_streak,
+            'mastered': p.game_words_mastered,
+            'last_played': p.game_last_played,
+        })
+
     context = {
         'title': 'Live Statistics & Analytics',
         # User Stats
@@ -181,6 +204,12 @@ def admin_statistics_view(request):
         'overall_pass_rate': overall_pass_rate,
         'avg_scaled_score': avg_scaled_score,
         'max_scaled_score': max_scaled_score,
+        # Game Zone Stats
+        'total_gamers': total_gamers,
+        'total_game_xp': total_game_xp,
+        'total_words_mastered': total_words_mastered,
+        'avg_game_level': avg_game_level,
+        'top_gamers': top_gamers_list,
         # Breakdown data
         'countries_data': countries_data,
         'sources_data': sources_data,

@@ -22,12 +22,14 @@ import {
   X,
   ChevronRight,
   Sparkles,
+  Trophy,
 } from 'lucide-react';
 import { getInitialGameProgress } from '@/lib/gameStore';
 
 const GAME_NAV_ITEMS = [
   { href: '/game-zone', label: 'Game Zone Home', icon: Home, badge: 'Hub' },
   { href: '/game-zone/word-match', label: 'Word Match', icon: Layers, badge: 'Hot', activeColor: 'text-japan-red' },
+  { href: '/game-zone/ranks', label: 'Rankings & Top 3', icon: Trophy, badge: 'Podium' },
   { href: '/game-zone/word-rush', label: 'Word Rush', icon: Zap, badge: 'Speed' },
   { href: '/game-zone/vocab-snake', label: 'Vocab Snake', icon: Gamepad2, badge: 'Classic' },
   { href: '/game-zone/sentence-builder', label: 'Sentence Builder', icon: BookOpen, badge: 'Grammar' },

@@ -180,7 +180,36 @@ export default function GameZoneHomePage() {
         </div>
       </div>
 
-      {/* 2. Game Arcade Grid */}
+      {/* 2. Leaderboard & Rankings Podium Strip */}
+      <div className="bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-amber-500/10 dark:from-amber-950/30 dark:via-rose-950/30 dark:to-amber-950/30 border border-amber-300/40 dark:border-amber-900/40 rounded-3xl p-4 sm:p-5 flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-500 text-white flex items-center justify-center text-2xl shadow-md shadow-amber-500/20 shrink-0">
+            🏆
+          </div>
+          <div>
+            <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight flex items-center gap-2">
+              <span>National Leaderboard &amp; Top 3</span>
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-400 text-slate-900">
+                Live Podium
+              </span>
+            </h2>
+            <p className="text-xs font-bold text-slate-600 dark:text-slate-400 mt-0.5">
+              Play games, earn XP, maintain your streak and challenge top Japanese learners worldwide!
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="/game-zone/ranks"
+          className="px-5 py-2.5 rounded-2xl bg-white dark:bg-[#11182c] border border-amber-300/80 dark:border-amber-700/60 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-slate-900 dark:text-white text-xs sm:text-sm font-black transition-all flex items-center gap-2 shadow-xs shrink-0"
+        >
+          <Trophy className="w-4 h-4 text-amber-500" />
+          <span>View Rankings &amp; Top 3</span>
+          <ArrowRight className="w-4 h-4 text-japan-red" />
+        </Link>
+      </div>
+
+      {/* 3. Game Arcade Grid */}
       <div>
         <div className="flex items-center justify-between mb-4 px-1">
           <div>

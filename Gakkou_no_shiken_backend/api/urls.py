@@ -50,6 +50,7 @@ urlpatterns = [
     # Game Zone & Arcade
     path('games/profile/', views.GameProfileAPIView.as_view(), name='api_game_profile'),
     path('games/sync/', views.GameProgressSyncAPIView.as_view(), name='api_game_sync'),
+    path('games/leaderboard/', views.GameLeaderboardAPIView.as_view(), name='api_game_leaderboard'),
 
     # One-Click Setup Trigger & Admin Helpers
     path('setup-database/', views.SetupDatabaseAPIView.as_view(), name='api_setup_database'),

@@ -2046,6 +2046,51 @@ class GameProgressSyncAPIView(APIView):
         })
 
 
+class GameLeaderboardAPIView(APIView):
+    """Returns top ranked Game Zone players for public leaderboard & top 3 podium."""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        top_profiles = UserProfile.objects.filter(game_xp__gt=0).select_related('user').order_by('-game_xp', '-game_streak')[:25]
+        
+        ranks = []
+        for idx, p in enumerate(top_profiles, start=1):
+            ranks.append({
+                'rank': idx,
+                'username': p.user.username,
+                'full_name': f"{p.user.first_name} {p.user.last_name}".strip() or p.user.username,
+                'country': p.country or 'Bangladesh',
+                'country_flag': get_country_flag(p.country) if p.country else '🇧🇩',
+                'level': p.game_level,
+                'xp': p.game_xp,
+                'streak': p.game_streak,
+                'mastered': p.game_words_mastered,
+            })
+
+        if len(ranks) < 3:
+            seed_players = [
+                {'rank': 1, 'username': 'SakuraSenpai', 'full_name': 'Sakura Tanaka', 'country': 'Japan', 'country_flag': '🇯🇵', 'level': 18, 'xp': 2450, 'streak': 14, 'mastered': 520},
+                {'rank': 2, 'username': 'FayazNinja', 'full_name': 'Azizul Hakim', 'country': 'Bangladesh', 'country_flag': '🇧🇩', 'level': 15, 'xp': 1850, 'streak': 9, 'mastered': 460},
+                {'rank': 3, 'username': 'KenjiSpeed', 'full_name': 'Kenji Sato', 'country': 'Japan', 'country_flag': '🇯🇵', 'level': 12, 'xp': 1200, 'streak': 6, 'mastered': 380},
+                {'rank': 4, 'username': 'RahimBD', 'full_name': 'Rahim Ahmed', 'country': 'Bangladesh', 'country_flag': '🇧🇩', 'level': 10, 'xp': 950, 'streak': 5, 'mastered': 310},
+                {'rank': 5, 'username': 'AungMinMM', 'full_name': 'Aung Min', 'country': 'Myanmar', 'country_flag': '🇲🇲', 'level': 8, 'xp': 720, 'streak': 4, 'mastered': 240},
+            ]
+            for s in seed_players:
+                if not any(r['username'].lower() == s['username'].lower() for r in ranks):
+                    ranks.append(s)
+                    if len(ranks) >= 5:
+                        break
+
+        for i, r in enumerate(ranks, start=1):
+            r['rank'] = i
+
+        return Response({
+            'status': 'success',
+            'top_3': ranks[:3],
+            'leaderboard': ranks,
+        })
+
+
 
 
 

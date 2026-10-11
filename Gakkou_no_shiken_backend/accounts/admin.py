@@ -22,6 +22,11 @@ class UserProfileInline(admin.StackedInline):
         'bio',
         'target_exam',
         'japanese_level',
+        'game_xp',
+        'game_level',
+        'game_streak',
+        'game_words_mastered',
+        'game_last_played',
     )
     readonly_fields = ('country_source', 'country_confirmation_status', 'last_known_ip')
 
@@ -39,6 +44,7 @@ class CustomUserAdmin(BaseUserAdmin):
         'candidate_card',
         'country_badge',
         'exam_activity',
+        'game_stats_badge',
         'target_exam_badge',
         'role_badge',
         'status_pill',
@@ -133,6 +139,21 @@ class CustomUserAdmin(BaseUserAdmin):
         return format_html('<span class="badge bg-secondary opacity-50">0 attempts</span>')
     exam_activity.short_description = 'Mock Exams'
     exam_activity.admin_order_field = 'total_attempts_count'
+
+    def game_stats_badge(self, obj):
+        profile = getattr(obj, 'profile', None)
+        if not profile or profile.game_xp == 0:
+            return format_html('<span class="badge bg-secondary opacity-50">No Games</span>')
+        return format_html(
+            '<span class="badge bg-danger text-white border border-danger font-weight-bold" style="font-size:11px;">'
+            '<i class="fas fa-gamepad me-1"></i> Lvl {} • {} XP <span class="ms-1 opacity-75">🔥{}d</span>'
+            '</span>',
+            profile.game_level,
+            profile.game_xp,
+            profile.game_streak
+        )
+    game_stats_badge.short_description = 'Game Zone Stats'
+    game_stats_badge.admin_order_field = 'profile__game_xp'
 
     def target_exam_badge(self, obj):
         profile = getattr(obj, 'profile', None)
