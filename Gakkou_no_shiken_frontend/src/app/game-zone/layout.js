@@ -85,18 +85,40 @@ export default function GameZoneLayout({ children }) {
                 Play &amp; Learn
               </span>
             </h1>
-            <p className="text-[10px] text-slate-500 font-bold">
+            <p suppressHydrationWarning className="text-[10px] text-slate-500 font-bold">
               {isAuthenticated ? `@${user?.username} • ` : 'Guest • '}Lvl {progress.level} • {progress.xp} XP
             </p>
           </div>
         </div>
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-japan-red transition-colors"
+          className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-japan-red transition-colors cursor-pointer"
           aria-label="Toggle Game Navigation"
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
+      </div>
+
+      {/* Mobile Quick Horizontal Games Navigation Strip */}
+      <div className="lg:hidden overflow-x-auto no-scrollbar py-2 px-3 bg-white/80 dark:bg-[#0b101e]/80 border-b border-slate-200/60 dark:border-slate-800/60 flex items-center gap-1.5 backdrop-blur-md sticky top-[102px] z-20">
+        {GAME_NAV_ITEMS.map((item) => {
+          const isActive = pathname === item.href;
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
+                isActive
+                  ? 'bg-japan-red text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span className="whitespace-nowrap">{item.label}</span>
+            </Link>
+          );
+        })}
       </div>
 
       <div className="max-w-[1920px] mx-auto px-2 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-6">
@@ -124,8 +146,8 @@ export default function GameZoneLayout({ children }) {
                 </div>
               </div>
 
-              {/* Game Links List */}
-              <nav className="flex flex-col gap-1">
+              {/* Game Links: Grid on mobile, Column on desktop */}
+              <nav className="grid grid-cols-2 lg:flex lg:flex-col gap-1.5 sm:gap-1">
                 {GAME_NAV_ITEMS.map((item) => {
                   const isActive = pathname === item.href;
                   const Icon = item.icon;
@@ -140,7 +162,7 @@ export default function GameZoneLayout({ children }) {
                           : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="flex items-center gap-2 min-w-0">
                         <Icon
                           className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${
                             isActive ? 'text-japan-red dark:text-rose-400' : 'text-slate-500 dark:text-slate-400'
@@ -150,7 +172,7 @@ export default function GameZoneLayout({ children }) {
                       </div>
                       {item.badge && (
                         <span
-                          className={`text-[9.5px] font-black uppercase px-1.5 py-0.5 rounded-md tracking-wider ${
+                          className={`text-[9px] sm:text-[9.5px] font-black uppercase px-1.5 py-0.5 rounded-md tracking-wider hidden xs:inline ${
                             isActive
                               ? 'bg-japan-red text-white'
                               : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
@@ -186,7 +208,7 @@ export default function GameZoneLayout({ children }) {
 
               {/* XP Bar */}
               <div>
-                <div className="flex items-center justify-between text-[11px] font-extrabold text-slate-600 dark:text-slate-400 mb-1.5">
+                <div suppressHydrationWarning className="flex items-center justify-between text-[11px] font-extrabold text-slate-600 dark:text-slate-400 mb-1.5">
                   <span className="text-slate-800 dark:text-slate-200 font-black">
                     {isAuthenticated ? `@${user?.username || 'Candidate'}` : 'Guest Player'}
                   </span>
