@@ -72,6 +72,13 @@ class UserProfile(models.Model):
         help_text="Last recorded client IP address for security audit & geolocation"
     )
 
+    # Game Zone & Arcade Stats
+    game_xp = models.PositiveIntegerField(default=0, help_text="Total XP earned across learning games.")
+    game_level = models.PositiveIntegerField(default=1, help_text="Calculated Arcade level.")
+    game_streak = models.PositiveIntegerField(default=0, help_text="Consecutive days played in Game Zone.")
+    game_words_mastered = models.PositiveIntegerField(default=0, help_text="Total vocabulary items matched/mastered.")
+    game_last_played = models.DateField(null=True, blank=True, help_text="Last date game was played.")
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

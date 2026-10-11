@@ -56,6 +56,21 @@ def ensure_schema_synced():
             if 'last_known_ip' not in profile_cols:
                 cursor.execute("ALTER TABLE accounts_userprofile ADD COLUMN last_known_ip char(39) NULL")
                 logs.append("Added 'last_known_ip' column to accounts_userprofile.")
+            if 'game_xp' not in profile_cols:
+                cursor.execute("ALTER TABLE accounts_userprofile ADD COLUMN game_xp integer NOT NULL DEFAULT 0")
+                logs.append("Added 'game_xp' column to accounts_userprofile.")
+            if 'game_level' not in profile_cols:
+                cursor.execute("ALTER TABLE accounts_userprofile ADD COLUMN game_level integer NOT NULL DEFAULT 1")
+                logs.append("Added 'game_level' column to accounts_userprofile.")
+            if 'game_streak' not in profile_cols:
+                cursor.execute("ALTER TABLE accounts_userprofile ADD COLUMN game_streak integer NOT NULL DEFAULT 0")
+                logs.append("Added 'game_streak' column to accounts_userprofile.")
+            if 'game_words_mastered' not in profile_cols:
+                cursor.execute("ALTER TABLE accounts_userprofile ADD COLUMN game_words_mastered integer NOT NULL DEFAULT 0")
+                logs.append("Added 'game_words_mastered' column to accounts_userprofile.")
+            if 'game_last_played' not in profile_cols:
+                cursor.execute("ALTER TABLE accounts_userprofile ADD COLUMN game_last_played date NULL")
+                logs.append("Added 'game_last_played' column to accounts_userprofile.")
         except Exception as e:
             logs.append(f"Note on accounts_userprofile columns: {e}")
 
@@ -140,6 +155,7 @@ def ensure_schema_synced():
                 ('accounts', '0001_initial'),
                 ('accounts', '0002_emailverificationotp'),
                 ('accounts', '0003_emailverificationotp_country_userprofile_country_and_more'),
+                ('accounts', '0004_userprofile_game_last_played_userprofile_game_level_and_more'),
                 ('tests', '0014_question_audio_script_questiongroup_audio_script_and_more'),
                 ('tests', '0015_notice'),
                 ('tests', '0016_test_scheduled_release_at'),

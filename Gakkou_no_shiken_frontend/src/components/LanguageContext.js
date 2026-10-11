@@ -13,6 +13,7 @@ const TRANSLATIONS = {
     register: 'Register',
     my_results: 'My Results',
     sign_out: 'Sign Out',
+    game_zone: 'Game Zone',
     admin_panel: 'Admin',
     cbt_portal: 'CBT Portal',
     
@@ -100,6 +101,7 @@ const TRANSLATIONS = {
     register: 'রেজিস্ট্রেশন',
     my_results: 'আমার ফলাফল',
     sign_out: 'সাইন আউট',
+    game_zone: 'গেম জোন',
     admin_panel: 'অ্যাডমিন',
     cbt_portal: 'সিবিটি পোর্টাল',
     

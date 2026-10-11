@@ -27,6 +27,7 @@ import {
   Bell,
   Info,
   Mail,
+  Gamepad2,
 } from 'lucide-react';
 
 
@@ -113,6 +114,17 @@ export default function Navbar() {
             >
               <Sparkles className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-japan-red shrink-0" />
               <span>Tools</span>
+            </Link>
+            <Link
+              href="/game-zone"
+              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                isActive('/game-zone') || pathname.startsWith('/game-zone')
+                  ? 'text-japan-red bg-rose-50 dark:bg-rose-950/60 border border-rose-200/80 dark:border-rose-900/40 shadow-2xs'
+                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <Gamepad2 className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-japan-red shrink-0" />
+              <span>{t('game_zone')}</span>
             </Link>
             <Link
               href="/leaderboard"
@@ -310,6 +322,18 @@ export default function Navbar() {
                   <span>Candidate Tools (Flashcards &amp; Particle Drill)</span>
                 </span>
                 <ChevronRight className="w-4 h-4 text-slate-400" />
+              </Link>
+
+              <Link
+                href="/game-zone"
+                onClick={() => setOpen(false)}
+                className="px-4 py-3 rounded-2xl text-base font-bold text-rose-800 dark:text-rose-300 bg-rose-50/70 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-950/60 transition-all flex items-center justify-between"
+              >
+                <span className="flex items-center gap-2.5">
+                  <Gamepad2 className="w-5 h-5 text-japan-red" />
+                  <span>Game Zone (Arcade &amp; Word Match)</span>
+                </span>
+                <ChevronRight className="w-4 h-4 text-rose-600" />
               </Link>
 
 

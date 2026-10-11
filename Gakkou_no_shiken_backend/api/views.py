@@ -1997,6 +1997,56 @@ class TestImportQuestionsCsvAPIView(APIView):
             return Response({"detail": f"Import failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class GameProfileAPIView(APIView):
+    """Retrieves current candidate's Game Zone XP, level, and stats."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        profile = getattr(request.user, 'profile', None)
+        if not profile:
+            return Response({'xp': 0, 'level': 1, 'streak': 0, 'mastered': 0})
+        return Response({
+            'xp': profile.game_xp,
+            'level': profile.game_level,
+            'streak': profile.game_streak,
+            'mastered': profile.game_words_mastered,
+            'last_played': profile.game_last_played,
+        })
+
+
+class GameProgressSyncAPIView(APIView):
+    """Receives and syncs client-side game XP, level, and streak."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        xp = request.data.get('xp')
+        level = request.data.get('level')
+        streak = request.data.get('streak')
+        mastered = request.data.get('mastered')
+
+        if xp is not None:
+            profile.game_xp = max(profile.game_xp, int(xp))
+        if level is not None:
+            profile.game_level = max(profile.game_level, int(level))
+        if streak is not None:
+            profile.game_streak = max(profile.game_streak, int(streak))
+        if mastered is not None:
+            profile.game_words_mastered = max(profile.game_words_mastered, int(mastered))
+
+        profile.game_last_played = timezone.now().date()
+        profile.save()
+
+        return Response({
+            'status': 'synced',
+            'xp': profile.game_xp,
+            'level': profile.game_level,
+            'streak': profile.game_streak,
+            'mastered': profile.game_words_mastered,
+        })
+
+
+
 
 
 

@@ -47,6 +47,10 @@ urlpatterns = [
     path('notices/<int:pk>/', views.NoticeDetailAPIView.as_view(), name='api_notice_detail'),
     path('notices/<int:pk>/download/', views.NoticeDownloadAPIView.as_view(), name='api_notice_download'),
 
+    # Game Zone & Arcade
+    path('games/profile/', views.GameProfileAPIView.as_view(), name='api_game_profile'),
+    path('games/sync/', views.GameProgressSyncAPIView.as_view(), name='api_game_sync'),
+
     # One-Click Setup Trigger & Admin Helpers
     path('setup-database/', views.SetupDatabaseAPIView.as_view(), name='api_setup_database'),
     path('run-migration/', views.RunMigrationAPIView.as_view(), name='api_run_migration'),
