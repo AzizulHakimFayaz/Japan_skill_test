@@ -24,6 +24,9 @@ import {
   Crown,
   Medal,
   LogIn,
+  Star,
+  Zap,
+  TrendingUp,
 } from 'lucide-react';
 import { useAuth } from '@/components/AuthContext';
 import { playSound } from '@/lib/gameAudio';
@@ -43,6 +46,7 @@ export default function WordMatchPage() {
   const [hintsRemaining, setHintsRemaining] = useState(3);
   const [showFurigana, setShowFurigana] = useState(true);
   const [combo, setCombo] = useState(0);
+  const [maxCombo, setMaxCombo] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isRoundWon, setIsRoundWon] = useState(false);
   const [showGuestModal, setShowGuestModal] = useState(false);
@@ -57,6 +61,14 @@ export default function WordMatchPage() {
   const [selectedMeaningId, setSelectedMeaningId] = useState(null);
   const [matchedPairs, setMatchedPairs] = useState([]);
   const [shakingCard, setShakingCard] = useState(null);
+  const [speakingWordId, setSpeakingWordId] = useState(null);
+
+  // Modern Language Platform Game Animations State
+  const [countdownStep, setCountdownStep] = useState('ready'); // 'ready' | 'go' | null
+  const [floatingScores, setFloatingScores] = useState([]); // [{ id, text, color }]
+  const [comboBanner, setComboBanner] = useState(null); // 'NICE!' | 'EXCELLENT!' | 'FEVER!'
+  const [displayXpCount, setDisplayXpCount] = useState(0); // Animated counter in victory modal
+  const [revealedStars, setRevealedStars] = useState(0); // Animated star slam in victory modal
 
   // Fetch real top 3 leaderboard from backend API
   useEffect(() => {
@@ -94,7 +106,7 @@ export default function WordMatchPage() {
     return GAME_VOCABULARY.filter((w) => w.category === selectedCategory);
   }, [selectedCategory]);
 
-  // Start / Load a round
+  // Start / Load a round with snappy arcade countdown
   const loadRound = useCallback(() => {
     const shuffled = [...vocabPool].sort(() => 0.5 - Math.random());
     const selected = shuffled.slice(0, ROUND_SIZE);
@@ -105,9 +117,32 @@ export default function WordMatchPage() {
     setSelectedWordId(null);
     setSelectedMeaningId(null);
     setCombo(0);
+    setMaxCombo(0);
     setTimeLeft(INITIAL_TIME_SECONDS);
     setIsGameOver(false);
     setIsRoundWon(false);
+    setFloatingScores([]);
+    setComboBanner(null);
+    setRevealedStars(0);
+    setDisplayXpCount(0);
+
+    // Trigger high-energy 1.2s "Ready... GO!" arcade intro
+    setCountdownStep('ready');
+    playSound.countdown();
+
+    const timer1 = setTimeout(() => {
+      setCountdownStep('go');
+      playSound.countdownGo();
+    }, 600);
+
+    const timer2 = setTimeout(() => {
+      setCountdownStep(null);
+    }, 1150);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
   }, [vocabPool]);
 
   // Initial load
@@ -115,13 +150,18 @@ export default function WordMatchPage() {
     loadRound();
   }, [loadRound]);
 
+  // Skip countdown on tap
+  const skipCountdown = () => {
+    setCountdownStep(null);
+    playSound.countdownGo();
+  };
+
   // Update line positions dynamically
   const updateConnectionLines = useCallback(() => {
     if (!containerRef.current) return;
     const containerRect = containerRef.current.getBoundingClientRect();
     const lines = [];
 
-    // Helper to calculate line between word card and meaning card
     const calculateLine = (wordId, meaningId, status) => {
       const wordEl = document.getElementById(`word-anchor-${wordId}`);
       const meaningEl = document.getElementById(`meaning-anchor-${meaningId}`);
@@ -138,13 +178,11 @@ export default function WordMatchPage() {
       return { wordId, meaningId, x1, y1, x2, y2, status };
     };
 
-    // Matched pairs lines
     matchedPairs.forEach((id) => {
       const line = calculateLine(id, id, 'matched');
       if (line) lines.push(line);
     });
 
-    // Active selected pair line
     if (selectedWordId && selectedMeaningId) {
       const line = calculateLine(selectedWordId, selectedMeaningId, 'active');
       if (line) lines.push(line);
@@ -159,9 +197,9 @@ export default function WordMatchPage() {
     return () => window.removeEventListener('resize', updateConnectionLines);
   }, [updateConnectionLines]);
 
-  // Countdown Timer
+  // Countdown Timer (Paused during intro countdown)
   useEffect(() => {
-    if (isGameOver || isRoundWon) return;
+    if (isGameOver || isRoundWon || countdownStep !== null) return;
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -173,7 +211,7 @@ export default function WordMatchPage() {
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [isGameOver, isRoundWon]);
+  }, [isGameOver, isRoundWon, countdownStep]);
 
   const handleTimeOut = () => {
     playSound.error();
@@ -188,13 +226,16 @@ export default function WordMatchPage() {
 
   // Click on Japanese Word Card
   const handleWordClick = (item) => {
-    if (matchedPairs.includes(item.id)) return;
+    if (matchedPairs.includes(item.id) || countdownStep !== null) return;
     playSound.click();
+
+    // Trigger visual speaking ripple & audio
+    setSpeakingWordId(item.id);
+    setTimeout(() => setSpeakingWordId(null), 1200);
     playSound.speakJapanese(item.kana || item.kanji);
 
     setSelectedWordId(item.id);
 
-    // If meaning already selected, evaluate match
     if (selectedMeaningId) {
       evaluateMatch(item.id, selectedMeaningId);
     }
@@ -202,23 +243,54 @@ export default function WordMatchPage() {
 
   // Click on Meaning Card
   const handleMeaningClick = (item) => {
-    if (matchedPairs.includes(item.id)) return;
+    if (matchedPairs.includes(item.id) || countdownStep !== null) return;
     playSound.click();
 
     setSelectedMeaningId(item.id);
 
-    // If word already selected, evaluate match
     if (selectedWordId) {
       evaluateMatch(selectedWordId, item.id);
     }
   };
 
-  // Evaluate pair
+  // Evaluate pair with floating scores & combo multipliers
   const evaluateMatch = (wordId, meaningId) => {
     if (wordId === meaningId) {
       // Correct Match!
       playSound.match();
-      setCombo((prev) => prev + 1);
+
+      const newCombo = combo + 1;
+      setCombo(newCombo);
+      setMaxCombo((prev) => Math.max(prev, newCombo));
+
+      // Calculate Floating XP
+      const baseGain = 50;
+      const comboBonus = newCombo > 1 ? (newCombo - 1) * 10 : 0;
+      const totalScoreText = newCombo > 1 ? `+${baseGain + comboBonus} XP 🔥 x${newCombo}` : `+${baseGain} XP ⚡`;
+
+      const scoreId = Date.now() + Math.random();
+      const newFloatingScore = {
+        id: scoreId,
+        text: totalScoreText,
+        color: newCombo >= 3 ? 'text-amber-400' : 'text-emerald-500',
+      };
+      setFloatingScores((prev) => [...prev.slice(-3), newFloatingScore]);
+      setTimeout(() => {
+        setFloatingScores((prev) => prev.filter((s) => s.id !== scoreId));
+      }, 1000);
+
+      // Combo Banner Notification
+      if (newCombo >= 4) {
+        setComboBanner('FEVER MODE! 👑 (完璧!)');
+      } else if (newCombo === 3) {
+        setComboBanner('EXCELLENT! ⚡ (その調子!)');
+      } else if (newCombo === 2) {
+        setComboBanner('COMBO x2! 🔥 (すばらしい!)');
+      } else {
+        setComboBanner('MATCH! ✨');
+      }
+      setTimeout(() => setComboBanner(null), 1200);
+
       const updatedMatches = [...matchedPairs, wordId];
       setMatchedPairs(updatedMatches);
       setSelectedWordId(null);
@@ -226,7 +298,7 @@ export default function WordMatchPage() {
 
       // Check if round won
       if (updatedMatches.length === boardItems.length) {
-        handleRoundWin();
+        handleRoundWin(newCombo);
       }
     } else {
       // Wrong Match!
@@ -234,6 +306,9 @@ export default function WordMatchPage() {
       setCombo(0);
       setShakingCard(meaningId);
       setTimeout(() => setShakingCard(null), 500);
+
+      setComboBanner('MISS! ❌ -1 Heart');
+      setTimeout(() => setComboBanner(null), 1200);
 
       setLives((prev) => {
         const next = prev - 1;
@@ -246,22 +321,63 @@ export default function WordMatchPage() {
     }
   };
 
-  // Round Won
-  const handleRoundWin = () => {
+  // Calculate earned stars based on performance
+  const earnedStars = useMemo(() => {
+    let stars = 1; // 1 star always for completing all pairs
+    if (timeLeft >= 15) stars += 1; // Speed Star: finished with >= 15s left
+    if (lives === 3) stars += 1; // Flawless Star: 0 errors
+    return stars;
+  }, [timeLeft, lives]);
+
+  // Round Won with Duolingo-style celebration
+  const handleRoundWin = (finalCombo = 0) => {
     setIsRoundWon(true);
     playSound.fanfare();
     confetti({
-      particleCount: 80,
-      spread: 70,
+      particleCount: 90,
+      spread: 80,
       origin: { y: 0.6 },
     });
-    addGameReward({ xpGain: 50, wordsMastered: boardItems.length });
 
-    // If guest or not logged in, trigger the guest login & rank-up pop-up
+    const xpEarned = 50 + (earnedStars >= 3 ? 20 : earnedStars === 2 ? 10 : 0);
+    addGameReward({ xpGain: xpEarned, wordsMastered: boardItems.length });
+
+    // Animate Stars slam down sequentially
+    setTimeout(() => {
+      setRevealedStars(1);
+      playSound.star(0);
+    }, 250);
+
+    if (earnedStars >= 2) {
+      setTimeout(() => {
+        setRevealedStars(2);
+        playSound.star(1);
+      }, 600);
+    }
+
+    if (earnedStars >= 3) {
+      setTimeout(() => {
+        setRevealedStars(3);
+        playSound.star(2);
+      }, 950);
+    }
+
+    // Animate XP count-up ticker
+    let currentXp = 0;
+    const interval = setInterval(() => {
+      currentXp += 5;
+      if (currentXp >= xpEarned) {
+        currentXp = xpEarned;
+        clearInterval(interval);
+      }
+      setDisplayXpCount(currentXp);
+    }, 40);
+
+    // If guest, show rank-up modal after celebration
     if (!isAuthenticated) {
       setTimeout(() => {
         setShowGuestModal(true);
-      }, 700);
+      }, 2200);
     }
   };
 
@@ -284,28 +400,24 @@ export default function WordMatchPage() {
     setSelectedWordId(unmatched.id);
     setSelectedMeaningId(unmatched.id);
 
-    // Auto complete after short preview
     setTimeout(() => {
       evaluateMatch(unmatched.id, unmatched.id);
     }, 600);
   };
-
-  // Inline alert toast
-  const [matchAlert, setMatchAlert] = useState(null);
 
   // Check Answer Button
   const handleCheckAnswer = () => {
     if (selectedWordId && selectedMeaningId) {
       evaluateMatch(selectedWordId, selectedMeaningId);
     } else if (selectedWordId && !selectedMeaningId) {
-      setMatchAlert('👉 Now tap the matching English/Bengali meaning on the right!');
-      setTimeout(() => setMatchAlert(null), 2500);
+      setComboBanner('👉 Tap matching Meaning on the right!');
+      setTimeout(() => setComboBanner(null), 2000);
     } else if (!selectedWordId && selectedMeaningId) {
-      setMatchAlert('👈 Now tap the matching Japanese word on the left!');
-      setTimeout(() => setMatchAlert(null), 2500);
+      setComboBanner('👈 Tap matching Japanese word on the left!');
+      setTimeout(() => setComboBanner(null), 2000);
     } else {
-      setMatchAlert('👆 Tap 1 Japanese word and 1 Meaning card to connect them!');
-      setTimeout(() => setMatchAlert(null), 2500);
+      setComboBanner('👆 Tap 1 Japanese word and 1 Meaning card!');
+      setTimeout(() => setComboBanner(null), 2000);
     }
   };
 
@@ -321,9 +433,8 @@ export default function WordMatchPage() {
 
   return (
     <div className="flex flex-col gap-4 max-w-6xl mx-auto pb-28 sm:pb-12">
-      {/* 1. Kawaii Anime Mascot Header Banner (Matching mockup) */}
+      {/* ── 1. Anime Mascot Header Banner ── */}
       <div className="relative rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800/80 shadow-md">
-        {/* Background Graphic */}
         <div className="relative h-44 sm:h-56 md:h-64 w-full">
           <Image
             src="/img/game_banner.jpg"
@@ -332,11 +443,9 @@ export default function WordMatchPage() {
             priority
             className="object-cover object-center"
           />
-          {/* Subtle gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-sky-950/70 via-sky-900/40 to-transparent"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 
-          {/* Banner Text & Details */}
           <div className="absolute inset-0 p-4 sm:p-6 md:p-8 flex flex-col justify-end text-white">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span className="px-2.5 py-0.5 rounded-full bg-japan-red/90 text-white text-[10px] sm:text-xs font-black tracking-wider uppercase backdrop-blur-xs">
@@ -346,7 +455,6 @@ export default function WordMatchPage() {
                 Interactive Pairs
               </span>
 
-              {/* Top 3 Quick Preview Badge */}
               <Link
                 href="/game-zone/ranks"
                 className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/30 hover:bg-amber-400/40 text-amber-100 border border-amber-300/40 text-[10px] sm:text-xs font-black backdrop-blur-xs transition-all"
@@ -364,7 +472,7 @@ export default function WordMatchPage() {
               Match Japanese words with the correct meaning! Tap to hear native pronunciation.
             </p>
 
-            {/* Category / Filter Tags (Matching mockup tags) */}
+            {/* Category / Filter Tags */}
             <div className="flex items-center gap-1.5 sm:gap-2 mt-3 overflow-x-auto no-scrollbar py-1">
               {CATEGORIES.map((cat) => {
                 const isSelected = selectedCategory === cat.id;
@@ -391,11 +499,53 @@ export default function WordMatchPage() {
         </div>
       </div>
 
-      {/* 2. Main Game Arena Card (Matching Mockup White Area) */}
+      {/* ── 2. Main Game Arena Card ── */}
       <div
         ref={containerRef}
-        className="relative bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/90 rounded-3xl p-4 sm:p-6 shadow-sm flex flex-col gap-5"
+        className="relative bg-white dark:bg-[#0c1222] border border-slate-200/80 dark:border-slate-800/90 rounded-3xl p-4 sm:p-6 shadow-sm flex flex-col gap-5 overflow-hidden"
       >
+        {/* ── A. Arcade Countdown Screen Overlay ("READY... GO!") ── */}
+        {countdownStep && (
+          <div
+            onClick={skipCountdown}
+            className="absolute inset-0 z-40 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center p-4 cursor-pointer transition-opacity"
+          >
+            <div className="flex flex-col items-center text-center animate-combo-bounce">
+              <span className="text-xs sm:text-sm font-black text-amber-400 tracking-widest uppercase mb-1">
+                ROUND {questionIndex} OF {TOTAL_QUESTIONS}
+              </span>
+
+              {countdownStep === 'ready' ? (
+                <div className="text-3xl sm:text-5xl font-black text-white tracking-tight drop-shadow-lg flex items-center gap-2">
+                  <span>READY...</span>
+                  <span className="text-japan-red">準備!</span>
+                </div>
+              ) : (
+                <div className="text-4xl sm:text-6xl font-black text-amber-300 tracking-tight drop-shadow-[0_0_20px_rgba(251,191,36,0.8)] flex items-center gap-2 animate-pulse">
+                  <span>🔥 START!</span>
+                  <span>はじめ!</span>
+                </div>
+              )}
+
+              <span className="text-[10px] text-slate-400 mt-3 font-bold">
+                Tap anywhere to start
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* ── B. Floating XP Scores Layer ── */}
+        <div className="absolute inset-0 pointer-events-none z-30 overflow-hidden">
+          {floatingScores.map((score) => (
+            <div
+              key={score.id}
+              className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lg sm:text-2xl font-black drop-shadow-md ${score.color} animate-float-score`}
+            >
+              {score.text}
+            </div>
+          ))}
+        </div>
+
         {/* Dynamic SVG Connection Lines Overlay */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none z-10"
@@ -404,13 +554,11 @@ export default function WordMatchPage() {
           {connectionLines.map((line, idx) => {
             const isMatched = line.status === 'matched';
             const strokeColor = isMatched ? '#10b981' : '#34d399';
-            // Smooth horizontal bezier curve
             const dx = Math.abs(line.x2 - line.x1) * 0.5;
             const path = `M ${line.x1} ${line.y1} C ${line.x1 + dx} ${line.y1}, ${line.x2 - dx} ${line.y2}, ${line.x2} ${line.y2}`;
 
             return (
               <g key={`line-${idx}`}>
-                {/* Outer Glow */}
                 <path
                   d={path}
                   fill="none"
@@ -420,18 +568,16 @@ export default function WordMatchPage() {
                   strokeDasharray={isMatched ? 'none' : '4 4'}
                   className={!isMatched ? 'animate-pulse' : ''}
                 />
-                {/* Origin Dot */}
                 <circle cx={line.x1} cy={line.y1} r="4" fill={strokeColor} />
-                {/* Target Dot */}
                 <circle cx={line.x2} cy={line.y2} r="4" fill={strokeColor} />
               </g>
             );
           })}
         </svg>
 
-        {/* Top HUD Bar (Question, Furigana Toggle, Combo, Timer, Hearts) */}
+        {/* Top HUD Bar */}
         <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800/80 flex-wrap">
-          {/* Question Counter + Progress Bar */}
+          {/* Round Counter & Progress Bar */}
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black text-slate-800 dark:text-slate-200">
               <Sparkles className="w-4 h-4 text-japan-red" />
@@ -443,9 +589,12 @@ export default function WordMatchPage() {
                 style={{ width: `${(questionIndex / TOTAL_QUESTIONS) * 100}%` }}
               ></div>
             </div>
+
+            {/* Dynamic Combo Flame Badge */}
             {combo > 1 && (
-              <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 text-[10px] sm:text-xs font-black animate-pulse shadow-xs">
-                🔥 {combo}x Combo!
+              <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 text-[10px] sm:text-xs font-black shadow-xs animate-combo-bounce flex items-center gap-1">
+                <Flame className="w-3.5 h-3.5 fill-slate-950" />
+                <span>{combo}x Combo!</span>
               </span>
             )}
           </div>
@@ -460,7 +609,11 @@ export default function WordMatchPage() {
             </button>
 
             {/* Center Timer */}
-            <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200/80 dark:border-amber-900/40 font-mono font-black text-xs sm:text-sm">
+            <div className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-2xl border font-mono font-black text-xs sm:text-sm transition-colors ${
+              timeLeft <= 10
+                ? 'bg-rose-50 text-rose-600 border-rose-300 animate-pulse'
+                : 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border-amber-200/80 dark:border-amber-900/40'
+            }`}>
               <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
               <span>00:{String(timeLeft).padStart(2, '0')}</span>
             </div>
@@ -484,7 +637,14 @@ export default function WordMatchPage() {
           </div>
         </div>
 
-        {/* 2-Columns Matching Board (Side-by-side on all screens without spoiler emojis) */}
+        {/* ── In-game Combo & Notification Toast ── */}
+        {comboBanner && (
+          <div className="mx-auto px-4 py-1.5 rounded-full bg-slate-900/90 text-amber-300 border border-amber-400/50 text-xs sm:text-sm font-black shadow-lg animate-combo-bounce text-center z-20">
+            {comboBanner}
+          </div>
+        )}
+
+        {/* ── 2-Columns Matching Board (With Staggered Card Deal Animations) ── */}
         <div className="grid grid-cols-2 gap-2 sm:gap-4 md:gap-6 relative z-20">
           {/* Column 1: Japanese Words */}
           <div className="flex flex-col gap-2 sm:gap-3">
@@ -501,21 +661,23 @@ export default function WordMatchPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-              {boardItems.map((item) => {
+              {boardItems.map((item, index) => {
                 const isMatched = matchedPairs.includes(item.id);
                 const isSelected = selectedWordId === item.id;
+                const isSpeaking = speakingWordId === item.id;
 
                 return (
                   <button
                     key={`word-${item.id}`}
                     onClick={() => handleWordClick(item)}
                     disabled={isMatched}
-                    className={`relative p-2.5 sm:p-3.5 md:p-4 rounded-xl sm:rounded-2xl border-2 transition-all duration-200 text-left flex items-center justify-between group cursor-pointer h-full ${
+                    style={{ animationDelay: `${index * 55}ms` }}
+                    className={`animate-card-deal relative p-2.5 sm:p-3.5 md:p-4 rounded-xl sm:rounded-2xl border-2 transition-all duration-200 text-left flex items-center justify-between group cursor-pointer h-full ${
                       isMatched
                         ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-600/80 shadow-xs'
                         : isSelected
                         ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-500 ring-2 ring-emerald-300 dark:ring-emerald-700 scale-102 shadow-sm'
-                        : 'bg-slate-50/70 dark:bg-[#11182c] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100/80'
+                        : 'bg-slate-50/70 dark:bg-[#11182c] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100/80 hover:scale-101'
                     }`}
                   >
                     {/* Word text & Furigana */}
@@ -530,12 +692,17 @@ export default function WordMatchPage() {
                       )}
                     </div>
 
-                    {/* Pronunciation Audio icon */}
-                    <div className="flex items-center gap-1 shrink-0">
-                      <Volume2 className="w-3.5 h-3.5 text-japan-red opacity-70 group-hover:opacity-100 transition-opacity" />
+                    {/* Pronunciation Audio Icon with Voice Ripple */}
+                    <div className="relative flex items-center gap-1 shrink-0">
+                      {isSpeaking && (
+                        <span className="absolute -inset-1 rounded-full bg-japan-red/30 animate-ping"></span>
+                      )}
+                      <Volume2 className={`w-3.5 h-3.5 transition-colors ${
+                        isSpeaking ? 'text-japan-red scale-110' : 'text-slate-400 group-hover:text-japan-red'
+                      }`} />
                     </div>
 
-                    {/* Connecting anchor node for SVG line */}
+                    {/* Connecting anchor node */}
                     <div
                       id={`word-anchor-${item.id}`}
                       className={`absolute -right-1 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full border-2 transition-all ${
@@ -567,7 +734,7 @@ export default function WordMatchPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-              {meaningItems.map((item) => {
+              {meaningItems.map((item, index) => {
                 const isMatched = matchedPairs.includes(item.id);
                 const isSelected = selectedMeaningId === item.id;
                 const isShaking = shakingCard === item.id;
@@ -577,17 +744,17 @@ export default function WordMatchPage() {
                     key={`meaning-${item.id}`}
                     onClick={() => handleMeaningClick(item)}
                     disabled={isMatched}
-                    className={`relative p-2.5 sm:p-3.5 md:p-4 rounded-xl sm:rounded-2xl border-2 transition-all duration-200 text-left flex items-center justify-between group cursor-pointer h-full ${
+                    style={{ animationDelay: `${index * 55}ms` }}
+                    className={`animate-card-deal relative p-2.5 sm:p-3.5 md:p-4 rounded-xl sm:rounded-2xl border-2 transition-all duration-200 text-left flex items-center justify-between group cursor-pointer h-full ${
                       isShaking
                         ? 'animate-shake bg-rose-50 dark:bg-rose-950/40 border-rose-400 ring-2 ring-rose-300'
                         : isMatched
                         ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-600/80 shadow-xs'
                         : isSelected
                         ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-500 ring-2 ring-emerald-300 dark:ring-emerald-700 scale-102 shadow-sm'
-                        : 'bg-slate-50/70 dark:bg-[#11182c] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100/80'
+                        : 'bg-slate-50/70 dark:bg-[#11182c] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100/80 hover:scale-101'
                     }`}
                   >
-                    {/* Connecting anchor node for SVG line */}
                     <div
                       id={`meaning-anchor-${item.id}`}
                       className={`absolute -left-1 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full border-2 transition-all ${
@@ -599,7 +766,6 @@ export default function WordMatchPage() {
                       }`}
                     ></div>
 
-                    {/* Meaning (English & Bangla - No spoilers!) */}
                     <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 pr-1">
                       <div className="min-w-0">
                         <div className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white leading-tight truncate">
@@ -621,16 +787,8 @@ export default function WordMatchPage() {
           </div>
         </div>
 
-        {/* Alert Tip Banner */}
-        {matchAlert && (
-          <div className="mx-auto my-1.5 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs sm:text-sm font-bold animate-fadeIn text-center">
-            {matchAlert}
-          </div>
-        )}
-
-        {/* Bottom Action Bar (Shuffle, Check Answer, Hint) */}
+        {/* Bottom Action Bar */}
         <div className="flex items-center justify-between gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-100 dark:border-slate-800/80 flex-wrap relative z-20">
-          {/* Shuffle Button */}
           <button
             onClick={handleShuffle}
             className="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs sm:text-sm font-extrabold transition-all cursor-pointer shadow-2xs"
@@ -639,7 +797,6 @@ export default function WordMatchPage() {
             <span className="hidden xs:inline">Shuffle</span>
           </button>
 
-          {/* Large Red Primary Check Answer Button (Matching Mockup) */}
           <button
             onClick={handleCheckAnswer}
             className="flex-1 max-w-sm flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-japan-red via-rose-600 to-rose-700 hover:from-red-600 hover:to-rose-800 text-white text-xs sm:text-sm md:text-base font-black shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/35 transition-all transform active:scale-98 cursor-pointer"
@@ -648,7 +805,6 @@ export default function WordMatchPage() {
             <span>Check Answer</span>
           </button>
 
-          {/* Hint Button */}
           <button
             onClick={handleHint}
             disabled={hintsRemaining <= 0}
@@ -667,62 +823,107 @@ export default function WordMatchPage() {
         </div>
       </div>
 
-      {/* Round Won Modal */}
+      {/* ── 3. Duolingo-Style 3-Star Celebration Victory Modal ── */}
       {isRoundWon && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl flex flex-col items-center text-center animate-fade-in">
-            <div className="w-16 h-16 rounded-3xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl mb-3 shadow-md">
-              🎉
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white dark:bg-[#0c1222] border-2 border-amber-400 dark:border-amber-500 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl flex flex-col items-center text-center animate-combo-bounce relative overflow-hidden">
+            {/* Ambient celebration lighting */}
+            <div className="absolute -top-12 -right-12 w-40 h-40 bg-amber-400/20 rounded-full blur-2xl pointer-events-none"></div>
+
+            {/* 3-Star Rating Slam Animation */}
+            <div className="flex items-center justify-center gap-2 mb-2">
+              {[1, 2, 3].map((starIdx) => {
+                const isEarned = starIdx <= revealedStars;
+                return (
+                  <div
+                    key={starIdx}
+                    className={`transition-all duration-300 ${
+                      isEarned ? 'animate-star-slam text-amber-400' : 'text-slate-200 dark:text-slate-800 scale-90'
+                    }`}
+                  >
+                    <Star
+                      className={`w-10 h-10 sm:w-12 sm:h-12 ${
+                        isEarned
+                          ? 'fill-amber-400 text-amber-500 drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]'
+                          : 'fill-current text-current'
+                      }`}
+                    />
+                  </div>
+                );
+              })}
             </div>
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white">
-              Subarashii! (素晴らしい)
+
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              STAGE CLEAR!
             </h2>
-            <p className="text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 mt-1">
-              You matched all {ROUND_SIZE} Japanese words perfectly!
+            <p className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 mt-0.5">
+              すばらしい! You mastered all {ROUND_SIZE} Japanese words!
             </p>
 
-            <div className="flex items-center justify-center gap-3 my-5 w-full">
-              <div className="px-4 py-2 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/40 text-center">
+            {/* Performance Stats Cards */}
+            <div className="grid grid-cols-3 gap-2 my-4 w-full">
+              <div className="p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/40 text-center">
                 <span className="text-[10px] font-black uppercase text-slate-400 block">Reward</span>
-                <span className="text-base font-black text-japan-red">+50 XP</span>
+                <span className="text-base sm:text-lg font-black text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1">
+                  <Zap className="w-4 h-4 fill-amber-500" />
+                  <span>+{displayXpCount} XP</span>
+                </span>
               </div>
-              <div className="px-4 py-2 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/40 text-center">
-                <span className="text-[10px] font-black uppercase text-slate-400 block">Streak</span>
-                <span className="text-base font-black text-amber-600">+1 Day</span>
+              <div className="p-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 text-center">
+                <span className="text-[10px] font-black uppercase text-slate-400 block">Time</span>
+                <span className="text-base sm:text-lg font-black text-japan-red">
+                  {INITIAL_TIME_SECONDS - timeLeft}s
+                </span>
+              </div>
+              <div className="p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/40 text-center">
+                <span className="text-[10px] font-black uppercase text-slate-400 block">Hearts</span>
+                <span className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400">
+                  {lives}/3 ❤️
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 w-full">
-              <button
-                onClick={loadRound}
-                className="flex-1 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 transition-colors"
-              >
-                Replay Set
-              </button>
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-2 w-full mt-2">
               <button
                 onClick={nextQuestion}
-                className="flex-1 py-3 rounded-2xl bg-japan-red hover:bg-rose-700 text-white text-xs font-black shadow-md shadow-red-500/25 transition-all flex items-center justify-center gap-1.5"
+                className="w-full py-3.5 rounded-2xl bg-japan-red hover:bg-rose-700 text-white text-sm font-black shadow-lg shadow-red-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-102"
               >
-                <span>Next Question</span>
-                <ChevronRight className="w-4 h-4" />
+                <span>NEXT ROUND</span>
+                <ChevronRight className="w-5 h-5" />
               </button>
+
+              <div className="flex items-center gap-2 w-full">
+                <button
+                  onClick={loadRound}
+                  className="flex-1 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 transition-colors"
+                >
+                  Replay Set
+                </button>
+                <Link
+                  href="/game-zone/ranks"
+                  className="flex-1 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-200 transition-colors text-center"
+                >
+                  Leaderboard 🏆
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Game Over Modal */}
+      {/* ── 4. Game Over Modal with Mistakes Review ── */}
       {isGameOver && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
           <div className="bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl flex flex-col items-center text-center animate-fade-in">
-            <div className="w-16 h-16 rounded-3xl bg-rose-50 text-rose-600 flex items-center justify-center text-3xl mb-3 shadow-md">
+            <div className="w-16 h-16 rounded-3xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center text-3xl mb-3 shadow-md">
               💔
             </div>
             <h2 className="text-2xl font-black text-slate-900 dark:text-white">
               Don&apos;t Give Up! (諦めないで)
             </h2>
             <p className="text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400 mt-1">
-              You ran out of hearts. Mistakes are the best way to learn vocabulary!
+              You ran out of hearts. In Japan they say: &quot;七転び八起き&quot; (Fall seven times, stand up eight)!
             </p>
 
             <div className="flex items-center gap-3 my-5 w-full">
@@ -731,7 +932,7 @@ export default function WordMatchPage() {
                   setLives(3);
                   loadRound();
                 }}
-                className="w-full py-3 rounded-2xl bg-gradient-to-r from-japan-red to-rose-600 text-white text-sm font-black shadow-md shadow-red-500/25 hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-japan-red to-rose-600 text-white text-sm font-black shadow-md shadow-red-500/25 hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-102"
               >
                 <RotateCw className="w-4 h-4" />
                 <span>Try Again with 3 Hearts</span>
@@ -741,14 +942,12 @@ export default function WordMatchPage() {
         </div>
       )}
 
-      {/* Guest / Not Logged-in Rank-Up & Save Progress Modal */}
+      {/* ── 5. Guest / Not Logged-in Rank-Up & Save Progress Modal ── */}
       {showGuestModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div className="bg-white dark:bg-[#0c1222] border-2 border-amber-400/90 dark:border-amber-500/80 rounded-3xl p-5 sm:p-7 max-w-lg w-full shadow-2xl relative overflow-hidden animate-fade-in my-auto">
-            {/* Top golden decorative ambient blur */}
             <div className="absolute -top-12 -right-12 w-36 h-36 bg-amber-400/20 rounded-full blur-2xl pointer-events-none"></div>
 
-            {/* Close button */}
             <button
               onClick={() => setShowGuestModal(false)}
               className="absolute top-4 right-4 p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
@@ -757,7 +956,6 @@ export default function WordMatchPage() {
               <X className="w-4 h-4" />
             </button>
 
-            {/* Header Badge & Title */}
             <div className="flex flex-col items-center text-center">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-800 text-amber-600 dark:text-amber-400 text-xs font-black mb-3">
                 <Crown className="w-3.5 h-3.5 text-amber-500" />
@@ -818,11 +1016,10 @@ export default function WordMatchPage() {
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex flex-col gap-2 w-full">
               <Link
                 href="/accounts/signup"
-                className="w-full py-3 rounded-2xl bg-gradient-to-r from-japan-red via-rose-600 to-rose-700 hover:from-red-600 hover:to-rose-800 text-white font-black text-xs sm:text-sm text-center shadow-lg shadow-red-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3 rounded-2xl bg-japan-red hover:bg-rose-700 text-white font-black text-xs sm:text-sm text-center shadow-lg shadow-red-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Crown className="w-4 h-4" />
                 <span>Sign Up Free to Save &amp; Rank Up</span>
