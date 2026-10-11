@@ -25,52 +25,161 @@ import {
 import { useAuth } from '@/components/AuthContext';
 import { getInitialGameProgress } from '@/lib/gameStore';
 
-// Safe country mapping for high-contrast, beautiful flag badges on all mobile & desktop platforms
+// Safe country mapping with distinct light and dark theme styling
 const COUNTRY_LOOKUP = {
-  japan: { code: 'JP', name: 'Japan', flag: '🇯🇵', accent: 'bg-rose-500/20 text-rose-300 border-rose-500/30' },
-  jp: { code: 'JP', name: 'Japan', flag: '🇯🇵', accent: 'bg-rose-500/20 text-rose-300 border-rose-500/30' },
-  bangladesh: { code: 'BD', name: 'Bangladesh', flag: '🇧🇩', accent: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
-  bd: { code: 'BD', name: 'Bangladesh', flag: '🇧🇩', accent: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
-  myanmar: { code: 'MM', name: 'Myanmar', flag: '🇲🇲', accent: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
-  mm: { code: 'MM', name: 'Myanmar', flag: '🇲🇲', accent: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
-  indonesia: { code: 'ID', name: 'Indonesia', flag: '🇮🇩', accent: 'bg-red-500/20 text-red-300 border-red-500/30' },
-  id: { code: 'ID', name: 'Indonesia', flag: '🇮🇩', accent: 'bg-red-500/20 text-red-300 border-red-500/30' },
-  thailand: { code: 'TH', name: 'Thailand', flag: '🇹🇭', accent: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
-  th: { code: 'TH', name: 'Thailand', flag: '🇹🇭', accent: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
-  nepal: { code: 'NP', name: 'Nepal', flag: '🇳🇵', accent: 'bg-red-500/20 text-red-300 border-red-500/30' },
-  np: { code: 'NP', name: 'Nepal', flag: '🇳🇵', accent: 'bg-red-500/20 text-red-300 border-red-500/30' },
-  vietnam: { code: 'VN', name: 'Vietnam', flag: '🇻🇳', accent: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
-  vn: { code: 'VN', name: 'Vietnam', flag: '🇻🇳', accent: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
-  philippines: { code: 'PH', name: 'Philippines', flag: '🇵🇭', accent: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
-  ph: { code: 'PH', name: 'Philippines', flag: '🇵🇭', accent: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
-  india: { code: 'IN', name: 'India', flag: '🇮🇳', accent: 'bg-orange-500/20 text-orange-300 border-orange-500/30' },
-  in: { code: 'IN', name: 'India', flag: '🇮🇳', accent: 'bg-orange-500/20 text-orange-300 border-orange-500/30' },
+  japan: {
+    code: 'JP',
+    name: 'Japan',
+    flag: '🇯🇵',
+    accent: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-500/30',
+  },
+  jp: {
+    code: 'JP',
+    name: 'Japan',
+    flag: '🇯🇵',
+    accent: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-500/30',
+  },
+  bangladesh: {
+    code: 'BD',
+    name: 'Bangladesh',
+    flag: '🇧🇩',
+    accent: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30',
+  },
+  bd: {
+    code: 'BD',
+    name: 'Bangladesh',
+    flag: '🇧🇩',
+    accent: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30',
+  },
+  myanmar: {
+    code: 'MM',
+    name: 'Myanmar',
+    flag: '🇲🇲',
+    accent: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30',
+  },
+  mm: {
+    code: 'MM',
+    name: 'Myanmar',
+    flag: '🇲🇲',
+    accent: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30',
+  },
+  indonesia: {
+    code: 'ID',
+    name: 'Indonesia',
+    flag: '🇮🇩',
+    accent: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-300 dark:border-red-500/30',
+  },
+  id: {
+    code: 'ID',
+    name: 'Indonesia',
+    flag: '🇮🇩',
+    accent: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-300 dark:border-red-500/30',
+  },
+  thailand: {
+    code: 'TH',
+    name: 'Thailand',
+    flag: '🇹🇭',
+    accent: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30',
+  },
+  th: {
+    code: 'TH',
+    name: 'Thailand',
+    flag: '🇹🇭',
+    accent: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30',
+  },
+  nepal: {
+    code: 'NP',
+    name: 'Nepal',
+    flag: '🇳🇵',
+    accent: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-300 dark:border-red-500/30',
+  },
+  np: {
+    code: 'NP',
+    name: 'Nepal',
+    flag: '🇳🇵',
+    accent: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-300 dark:border-red-500/30',
+  },
+  vietnam: {
+    code: 'VN',
+    name: 'Vietnam',
+    flag: '🇻🇳',
+    accent: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30',
+  },
+  vn: {
+    code: 'VN',
+    name: 'Vietnam',
+    flag: '🇻🇳',
+    accent: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/30',
+  },
+  philippines: {
+    code: 'PH',
+    name: 'Philippines',
+    flag: '🇵🇭',
+    accent: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30',
+  },
+  ph: {
+    code: 'PH',
+    name: 'Philippines',
+    flag: 'PH',
+    accent: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30',
+  },
+  india: {
+    code: 'IN',
+    name: 'India',
+    flag: '🇮🇳',
+    accent: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-500/20 dark:text-orange-300 dark:border-orange-500/30',
+  },
+  in: {
+    code: 'IN',
+    name: 'India',
+    flag: 'IN',
+    accent: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-500/20 dark:text-orange-300 dark:border-orange-500/30',
+  },
 };
 
 function getCountryMeta(countryStr) {
-  if (!countryStr) return { code: 'BD', name: 'Bangladesh', flag: '🇧🇩', accent: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' };
+  if (!countryStr) {
+    return {
+      code: 'BD',
+      name: 'Bangladesh',
+      flag: '🇧🇩',
+      accent: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30',
+    };
+  }
   const key = String(countryStr).trim().toLowerCase();
   return (
     COUNTRY_LOOKUP[key] || {
       code: countryStr.length === 2 ? countryStr.toUpperCase() : 'GL',
       name: countryStr,
       flag: '🌐',
-      accent: 'bg-slate-700/30 text-slate-300 border-slate-600/40',
+      accent: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-700/30 dark:text-slate-300 dark:border-slate-600/40',
     }
   );
 }
 
 function getTierBadge(level) {
   if (level >= 15) {
-    return { name: 'GRANDMASTER', style: 'bg-purple-950/80 text-purple-300 border-purple-500/50' };
+    return {
+      name: 'GRANDMASTER',
+      style: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-950/80 dark:text-purple-300 dark:border-purple-500/50',
+    };
   }
   if (level >= 10) {
-    return { name: 'DIAMOND', style: 'bg-cyan-950/80 text-cyan-300 border-cyan-500/50' };
+    return {
+      name: 'DIAMOND',
+      style: 'bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-950/80 dark:text-cyan-300 dark:border-cyan-500/50',
+    };
   }
   if (level >= 6) {
-    return { name: 'PLATINUM', style: 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50' };
+    return {
+      name: 'PLATINUM',
+      style: 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-500/50',
+    };
   }
-  return { name: 'CONTENDER', style: 'bg-amber-950/80 text-amber-300 border-amber-500/50' };
+  return {
+    name: 'CONTENDER',
+    style: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-500/50',
+  };
 }
 
 const FALLBACK_LEADERBOARD = [
@@ -107,7 +216,6 @@ export default function GameZoneRanksPage() {
         if (res.ok) {
           const data = await res.json();
           if (data?.leaderboard && data.leaderboard.length > 0) {
-            // Keep real candidates and fill up to 8 with seed candidates if needed for competitive arena vibe
             const combined = [...data.leaderboard];
             FALLBACK_LEADERBOARD.forEach((fallback) => {
               if (
@@ -167,12 +275,11 @@ export default function GameZoneRanksPage() {
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6 max-w-5xl mx-auto pb-24 sm:pb-16 px-1 sm:px-0">
-      {/* ── 1. Cyber Arcade Top Banner ── */}
-      <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-[#0c1328] via-[#090e1c] to-[#060a14] border border-cyan-500/30 p-4 sm:p-7 shadow-2xl">
-        {/* Neon Glow Radiance */}
-        <div className="absolute -top-12 -right-12 w-48 sm:w-64 h-48 sm:h-64 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute -bottom-10 -left-10 w-44 sm:w-60 h-44 sm:h-60 bg-rose-600/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:20px_20px] opacity-10 pointer-events-none"></div>
+      {/* ── 1. Cyber Arcade Top Banner (Clean in Light, Cyber in Dark) ── */}
+      <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white dark:bg-gradient-to-br dark:from-[#0c1328] dark:via-[#090e1c] dark:to-[#060a14] border border-slate-200/90 dark:border-cyan-500/30 p-4 sm:p-7 shadow-xs dark:shadow-2xl transition-colors">
+        {/* Glow Radiance */}
+        <div className="absolute -top-12 -right-12 w-48 sm:w-64 h-48 sm:h-64 bg-amber-400/10 dark:bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute -bottom-10 -left-10 w-44 sm:w-60 h-44 sm:h-60 bg-rose-500/10 dark:bg-rose-600/20 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -180,40 +287,40 @@ export default function GameZoneRanksPage() {
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               <Link
                 href="/game-zone"
-                className="text-[11px] font-black text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors px-2 py-1 rounded-lg bg-cyan-950/60 border border-cyan-500/40"
+                className="text-[11px] font-black text-slate-700 dark:text-cyan-400 hover:text-japan-red dark:hover:text-cyan-300 flex items-center gap-1 transition-colors px-2 py-1 rounded-lg bg-slate-100 dark:bg-cyan-950/60 border border-slate-200 dark:border-cyan-500/40"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>ARCADE HUB</span>
               </Link>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950/70 border border-rose-500/50 text-[10px] font-black text-rose-300 uppercase tracking-wider">
-                <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/70 border border-rose-200 dark:border-rose-500/50 text-[10px] font-black text-japan-red dark:text-rose-300 uppercase tracking-wider">
+                <span className="w-2 h-2 rounded-full bg-japan-red animate-ping"></span>
                 <span>SEASON 1 LIVE</span>
               </div>
             </div>
 
-            {/* Title with Gaming Neon Gradient */}
-            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-2.5 drop-shadow-md">
-              <Trophy className="w-7 h-7 sm:w-9 sm:h-9 text-amber-400 fill-amber-400/25 shrink-0 drop-shadow-[0_0_15px_rgba(251,191,36,0.7)]" />
-              <span className="bg-gradient-to-r from-amber-300 via-rose-300 to-cyan-300 bg-clip-text text-transparent">
+            {/* Title with Japanese Arcade Vibe */}
+            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5 drop-shadow-xs">
+              <Trophy className="w-7 h-7 sm:w-9 sm:h-9 text-amber-500 fill-amber-500/20 shrink-0 drop-shadow-[0_0_12px_rgba(251,191,36,0.6)]" />
+              <span className="bg-gradient-to-r from-slate-900 via-rose-700 to-amber-600 dark:from-amber-300 dark:via-rose-300 dark:to-cyan-300 bg-clip-text text-transparent">
                 HALL OF CHAMPIONS
               </span>
             </h1>
-            <p className="text-xs sm:text-sm font-bold text-slate-300 mt-1 max-w-xl">
+            <p className="text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 mt-1 max-w-xl">
               Climb the ranks by playing Japanese arcade games. Earn XP, maintain daily streaks, and secure your place on the podium!
             </p>
 
             {/* Quick Stat Counter Pills */}
             <div className="flex items-center gap-2 mt-3 flex-wrap">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-slate-700/80 text-[11px] font-black text-amber-400">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 text-[11px] font-black text-amber-700 dark:text-amber-400">
                 <Crown className="w-3.5 h-3.5" />
                 <span>{leaderboard[0]?.full_name || 'Champion'} #1</span>
               </div>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-slate-700/80 text-[11px] font-black text-cyan-400">
-                <Zap className="w-3.5 h-3.5" />
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 text-[11px] font-black text-slate-800 dark:text-cyan-400">
+                <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                 <span>{leaderboard[0]?.xp || 2450} Max XP</span>
               </div>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-slate-700/80 text-[11px] font-black text-orange-400">
-                <Flame className="w-3.5 h-3.5 fill-orange-400" />
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 text-[11px] font-black text-orange-600 dark:text-orange-400">
+                <Flame className="w-3.5 h-3.5 fill-orange-500 text-orange-500" />
                 <span>{leaderboard[0]?.streak || 14}d Streak</span>
               </div>
             </div>
@@ -223,7 +330,7 @@ export default function GameZoneRanksPage() {
           <div className="shrink-0">
             <Link
               href="/game-zone/word-match"
-              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-japan-red via-rose-600 to-red-600 hover:from-red-600 hover:to-rose-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-red-500/30 hover:scale-102 active:scale-98 transition-all flex items-center justify-center gap-2 border border-red-400/40 cursor-pointer"
+              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-japan-red hover:bg-rose-700 text-white font-black text-xs sm:text-sm shadow-md shadow-red-500/25 hover:scale-102 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Zap className="w-4 h-4 fill-white" />
               <span>PLAY &amp; RANK UP</span>
@@ -232,13 +339,13 @@ export default function GameZoneRanksPage() {
         </div>
       </div>
 
-      {/* ── 2. Top 3 Championship Podium (True 3-Tier Esports Stage) ── */}
-      <div className="relative rounded-2xl sm:rounded-3xl bg-gradient-to-b from-[#0b1226] via-[#080d1d] to-[#050811] border border-cyan-500/25 p-3 sm:p-6 shadow-xl overflow-hidden">
+      {/* ── 2. Top 3 Championship Podium (Dual Theme Compatible) ── */}
+      <div className="relative rounded-2xl sm:rounded-3xl bg-white dark:bg-gradient-to-b dark:from-[#0b1226] dark:via-[#080d1d] dark:to-[#050811] border border-slate-200/90 dark:border-cyan-500/25 p-3.5 sm:p-6 shadow-xs dark:shadow-xl overflow-hidden transition-colors">
         {/* Neon Stage Spotlight */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 sm:w-96 h-28 bg-amber-400/15 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 sm:w-96 h-28 bg-amber-400/10 dark:bg-amber-400/15 rounded-full blur-2xl pointer-events-none"></div>
 
         <div className="text-center mb-3">
-          <span className="text-[10px] sm:text-xs font-black tracking-widest uppercase text-amber-400 flex items-center justify-center gap-1">
+          <span className="text-[10px] sm:text-xs font-black tracking-widest uppercase text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1">
             <Sparkles className="w-3.5 h-3.5" />
             <span>CHAMPIONSHIP PODIUM</span>
             <Sparkles className="w-3.5 h-3.5" />
@@ -252,11 +359,11 @@ export default function GameZoneRanksPage() {
             <div className="flex flex-col items-center text-center">
               {/* Badge & Avatar */}
               <div className="mb-1.5 flex flex-col items-center">
-                <span className="text-[11px] sm:text-xs font-black text-cyan-300 drop-shadow-[0_0_8px_rgba(103,232,249,0.8)] mb-1">
+                <span className="text-[11px] sm:text-xs font-black text-slate-600 dark:text-cyan-300 mb-1">
                   #2
                 </span>
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-slate-300 via-cyan-200 to-slate-400 p-0.5 shadow-lg shadow-cyan-500/20 flex items-center justify-center">
-                  <div className="w-full h-full rounded-[14px] bg-[#0c1429] flex items-center justify-center text-base sm:text-xl font-black">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-slate-200 via-slate-300 to-slate-400 dark:from-slate-300 dark:via-cyan-200 dark:to-slate-400 p-0.5 shadow-md shadow-slate-300/30 dark:shadow-cyan-500/20 flex items-center justify-center">
+                  <div className="w-full h-full rounded-[14px] bg-slate-50 dark:bg-[#0c1429] flex items-center justify-center text-base sm:text-xl font-black">
                     🥈
                   </div>
                 </div>
@@ -264,34 +371,34 @@ export default function GameZoneRanksPage() {
 
               {/* Player Info Card */}
               <div className="w-full px-0.5 mb-1.5 flex flex-col items-center">
-                <div className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md bg-slate-800/90 border border-slate-700 text-[9px] font-black text-slate-300 mb-0.5">
+                <div className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-[9px] font-black text-slate-700 dark:text-slate-300 mb-0.5">
                   <span>{getCountryMeta(top3[1].country).flag}</span>
                   <span className="truncate max-w-[50px] sm:max-w-none">{getCountryMeta(top3[1].country).name}</span>
                 </div>
-                <h3 className="text-[11px] sm:text-xs font-black text-white truncate max-w-[90px] sm:max-w-[130px]">
+                <h3 className="text-[11px] sm:text-xs font-black text-slate-900 dark:text-white truncate max-w-[90px] sm:max-w-[130px]">
                   {top3[1].full_name}
                 </h3>
-                <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 truncate max-w-[85px] sm:max-w-[120px]">
+                <p className="text-[9px] sm:text-[10px] font-bold text-slate-500 dark:text-slate-400 truncate max-w-[85px] sm:max-w-[120px]">
                   @{top3[1].username}
                 </p>
 
                 <div className="mt-1 flex items-center justify-center gap-1 flex-wrap">
-                  <span className="px-1.5 py-0.2 rounded-md bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-[9px] font-black">
+                  <span className="px-1.5 py-0.2 rounded-md bg-slate-100 dark:bg-cyan-950/80 border border-slate-200 dark:border-cyan-500/40 text-slate-700 dark:text-cyan-300 text-[9px] font-black">
                     Lv. {top3[1].level}
                   </span>
-                  <span className="text-amber-400 font-black text-[10px] sm:text-xs">
+                  <span className="text-amber-600 dark:text-amber-400 font-black text-[10px] sm:text-xs">
                     {top3[1].xp} XP
                   </span>
                 </div>
-                <div className="text-[9px] text-orange-400 font-bold mt-0.5">
+                <div className="text-[9px] text-orange-600 dark:text-orange-400 font-bold mt-0.5">
                   🔥 {top3[1].streak}d
                 </div>
               </div>
 
               {/* Pedestal Base */}
-              <div className="w-full h-16 sm:h-24 rounded-t-xl sm:rounded-t-2xl bg-gradient-to-b from-cyan-950/70 via-slate-900 to-[#050811] border-t-2 border-x border-cyan-400/60 flex flex-col items-center justify-center shadow-inner">
-                <span className="text-xl sm:text-3xl font-black text-cyan-300/70">2</span>
-                <span className="text-[8px] sm:text-[9px] font-black text-cyan-400 uppercase tracking-widest">
+              <div className="w-full h-16 sm:h-24 rounded-t-xl sm:rounded-t-2xl bg-gradient-to-b from-slate-200 via-slate-100 to-white dark:from-cyan-950/70 dark:via-slate-900 dark:to-[#050811] border-t-2 border-x border-slate-300 dark:border-cyan-400/60 flex flex-col items-center justify-center shadow-xs">
+                <span className="text-xl sm:text-3xl font-black text-slate-500 dark:text-cyan-300/70">2</span>
+                <span className="text-[8px] sm:text-[9px] font-black text-slate-700 dark:text-cyan-400 uppercase tracking-widest">
                   SILVER
                 </span>
               </div>
@@ -304,13 +411,13 @@ export default function GameZoneRanksPage() {
               {/* Crown & Avatar */}
               <div className="mb-1.5 flex flex-col items-center">
                 <div className="animate-bounce">
-                  <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 fill-amber-400 drop-shadow-[0_0_12px_rgba(251,191,36,0.9)]" />
+                  <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 fill-amber-500 drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]" />
                 </div>
-                <span className="text-[11px] sm:text-xs font-black text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.9)] mb-1">
+                <span className="text-[11px] sm:text-xs font-black text-amber-600 dark:text-amber-300 drop-shadow-xs mb-1">
                   CHAMPION
                 </span>
-                <div className="w-15 h-15 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-amber-300 via-yellow-400 to-amber-500 p-0.5 shadow-xl shadow-amber-500/40 flex items-center justify-center">
-                  <div className="w-full h-full rounded-[14px] sm:rounded-[22px] bg-[#0c1429] flex items-center justify-center text-xl sm:text-2xl font-black relative overflow-hidden">
+                <div className="w-15 h-15 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-amber-300 via-yellow-400 to-amber-500 p-0.5 shadow-lg shadow-amber-500/30 flex items-center justify-center">
+                  <div className="w-full h-full rounded-[14px] sm:rounded-[22px] bg-amber-50 dark:bg-[#0c1429] flex items-center justify-center text-xl sm:text-2xl font-black relative overflow-hidden">
                     <div className="absolute inset-0 bg-amber-400/15 pointer-events-none"></div>
                     🥇
                   </div>
@@ -319,14 +426,14 @@ export default function GameZoneRanksPage() {
 
               {/* Player Info Card */}
               <div className="w-full px-0.5 mb-1.5 flex flex-col items-center">
-                <div className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md bg-amber-950/90 border border-amber-500/60 text-[9px] font-black text-amber-300 mb-0.5">
+                <div className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md bg-amber-50 dark:bg-amber-950/90 border border-amber-200 dark:border-amber-500/60 text-[9px] font-black text-amber-800 dark:text-amber-300 mb-0.5">
                   <span>{getCountryMeta(top3[0].country).flag}</span>
                   <span className="truncate max-w-[60px] sm:max-w-none">{getCountryMeta(top3[0].country).name}</span>
                 </div>
-                <h3 className="text-xs sm:text-sm font-black text-amber-300 truncate max-w-[100px] sm:max-w-[140px] drop-shadow-xs">
+                <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-amber-300 truncate max-w-[100px] sm:max-w-[140px] drop-shadow-xs">
                   {top3[0].full_name}
                 </h3>
-                <p className="text-[9px] sm:text-[10px] font-bold text-slate-300 truncate max-w-[95px] sm:max-w-[130px]">
+                <p className="text-[9px] sm:text-[10px] font-bold text-slate-500 dark:text-slate-300 truncate max-w-[95px] sm:max-w-[130px]">
                   @{top3[0].username}
                 </p>
 
@@ -334,11 +441,11 @@ export default function GameZoneRanksPage() {
                   <span className="px-1.5 py-0.2 rounded-md bg-japan-red text-white text-[9px] font-black shadow-xs">
                     Lv. {top3[0].level}
                   </span>
-                  <span className="text-amber-400 font-black text-[11px] sm:text-sm drop-shadow-xs">
+                  <span className="text-amber-600 dark:text-amber-400 font-black text-[11px] sm:text-sm">
                     ⚡ {top3[0].xp} XP
                   </span>
                 </div>
-                <div className="text-[9px] text-orange-400 font-black mt-0.5 flex items-center justify-center gap-1">
+                <div className="text-[9px] text-orange-600 dark:text-orange-400 font-black mt-0.5 flex items-center justify-center gap-1">
                   <span>🔥 {top3[0].streak}d</span>
                   <span>•</span>
                   <span>✅ {top3[0].mastered}w</span>
@@ -346,9 +453,9 @@ export default function GameZoneRanksPage() {
               </div>
 
               {/* Pedestal Base */}
-              <div className="w-full h-24 sm:h-32 rounded-t-xl sm:rounded-t-2xl bg-gradient-to-b from-amber-600/35 via-amber-950/80 to-[#050811] border-t-2 border-x border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.3)] flex flex-col items-center justify-center">
-                <span className="text-2xl sm:text-4xl font-black text-amber-400/90 drop-shadow-md">1</span>
-                <span className="text-[8px] sm:text-[10px] font-black text-amber-300 uppercase tracking-widest drop-shadow-xs">
+              <div className="w-full h-24 sm:h-32 rounded-t-xl sm:rounded-t-2xl bg-gradient-to-b from-amber-200/90 via-amber-100 to-amber-50 dark:from-amber-600/35 dark:via-amber-950/80 dark:to-[#050811] border-t-2 border-x border-amber-400 shadow-sm dark:shadow-[0_0_20px_rgba(245,158,11,0.3)] flex flex-col items-center justify-center">
+                <span className="text-2xl sm:text-4xl font-black text-amber-700/80 dark:text-amber-400/90 drop-shadow-xs">1</span>
+                <span className="text-[8px] sm:text-[10px] font-black text-amber-900 dark:text-amber-300 uppercase tracking-widest">
                   GOLD
                 </span>
               </div>
@@ -360,11 +467,11 @@ export default function GameZoneRanksPage() {
             <div className="flex flex-col items-center text-center">
               {/* Badge & Avatar */}
               <div className="mb-1.5 flex flex-col items-center">
-                <span className="text-[11px] sm:text-xs font-black text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.8)] mb-1">
+                <span className="text-[11px] sm:text-xs font-black text-orange-600 dark:text-orange-400 mb-1">
                   #3
                 </span>
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-amber-600 via-orange-500 to-amber-700 p-0.5 shadow-lg shadow-orange-500/20 flex items-center justify-center">
-                  <div className="w-full h-full rounded-[14px] bg-[#0c1429] flex items-center justify-center text-base sm:text-xl font-black">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-400 to-amber-600 dark:from-amber-600 dark:via-orange-500 dark:to-amber-700 p-0.5 shadow-md shadow-orange-300/30 dark:shadow-orange-500/20 flex items-center justify-center">
+                  <div className="w-full h-full rounded-[14px] bg-orange-50 dark:bg-[#0c1429] flex items-center justify-center text-base sm:text-xl font-black">
                     🥉
                   </div>
                 </div>
@@ -372,34 +479,34 @@ export default function GameZoneRanksPage() {
 
               {/* Player Info Card */}
               <div className="w-full px-0.5 mb-1.5 flex flex-col items-center">
-                <div className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md bg-slate-800/90 border border-slate-700 text-[9px] font-black text-slate-300 mb-0.5">
+                <div className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-[9px] font-black text-slate-700 dark:text-slate-300 mb-0.5">
                   <span>{getCountryMeta(top3[2].country).flag}</span>
                   <span className="truncate max-w-[50px] sm:max-w-none">{getCountryMeta(top3[2].country).name}</span>
                 </div>
-                <h3 className="text-[11px] sm:text-xs font-black text-white truncate max-w-[90px] sm:max-w-[130px]">
+                <h3 className="text-[11px] sm:text-xs font-black text-slate-900 dark:text-white truncate max-w-[90px] sm:max-w-[130px]">
                   {top3[2].full_name}
                 </h3>
-                <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 truncate max-w-[85px] sm:max-w-[120px]">
+                <p className="text-[9px] sm:text-[10px] font-bold text-slate-500 dark:text-slate-400 truncate max-w-[85px] sm:max-w-[120px]">
                   @{top3[2].username}
                 </p>
 
                 <div className="mt-1 flex items-center justify-center gap-1 flex-wrap">
-                  <span className="px-1.5 py-0.2 rounded-md bg-orange-950/80 border border-orange-500/40 text-orange-300 text-[9px] font-black">
+                  <span className="px-1.5 py-0.2 rounded-md bg-orange-50 dark:bg-orange-950/80 border border-orange-200 dark:border-orange-500/40 text-orange-700 dark:text-orange-300 text-[9px] font-black">
                     Lv. {top3[2].level}
                   </span>
-                  <span className="text-amber-400 font-black text-[10px] sm:text-xs">
+                  <span className="text-amber-600 dark:text-amber-400 font-black text-[10px] sm:text-xs">
                     {top3[2].xp} XP
                   </span>
                 </div>
-                <div className="text-[9px] text-orange-400 font-bold mt-0.5">
+                <div className="text-[9px] text-orange-600 dark:text-orange-400 font-bold mt-0.5">
                   🔥 {top3[2].streak}d
                 </div>
               </div>
 
               {/* Pedestal Base */}
-              <div className="w-full h-12 sm:h-20 rounded-t-xl sm:rounded-t-2xl bg-gradient-to-b from-orange-950/70 via-slate-900 to-[#050811] border-t-2 border-x border-orange-500/60 flex flex-col items-center justify-center shadow-inner">
-                <span className="text-xl sm:text-3xl font-black text-orange-400/70">3</span>
-                <span className="text-[8px] sm:text-[9px] font-black text-orange-400 uppercase tracking-widest">
+              <div className="w-full h-12 sm:h-20 rounded-t-xl sm:rounded-t-2xl bg-gradient-to-b from-orange-200/90 via-orange-100 to-orange-50 dark:from-orange-950/70 dark:via-slate-900 dark:to-[#050811] border-t-2 border-x border-orange-300 dark:border-orange-500/60 flex flex-col items-center justify-center shadow-xs">
+                <span className="text-xl sm:text-3xl font-black text-orange-600 dark:text-orange-400/70">3</span>
+                <span className="text-[8px] sm:text-[9px] font-black text-orange-800 dark:text-orange-400 uppercase tracking-widest">
                   BRONZE
                 </span>
               </div>
@@ -408,26 +515,26 @@ export default function GameZoneRanksPage() {
         </div>
       </div>
 
-      {/* ── 3. Candidate Arena Status Bar (Integrated, Never Covers Navigation) ── */}
-      <div className="rounded-2xl bg-gradient-to-r from-[#0d162e] via-[#091024] to-[#0c1630] border-2 border-cyan-500/35 p-3 sm:p-4 shadow-xl flex items-center justify-between gap-2.5">
+      {/* ── 3. Candidate Arena Status Bar (Integrated Theme) ── */}
+      <div className="rounded-2xl bg-white dark:bg-gradient-to-r dark:from-[#0d162e] dark:via-[#091024] dark:to-[#0c1630] border border-slate-200/90 dark:border-cyan-500/35 p-3 sm:p-4 shadow-xs dark:shadow-xl flex items-center justify-between gap-2.5 transition-colors">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-amber-400 to-yellow-500 text-slate-950 font-black text-sm sm:text-base flex items-center justify-center shadow-md shadow-amber-500/20 shrink-0">
             🎮
           </div>
           <div className="min-w-0">
-            <div className="text-xs sm:text-sm font-black text-white flex items-center gap-1.5 truncate">
+            <div className="text-xs sm:text-sm font-black text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
               <span>{isAuthenticated ? `@${user?.username}` : 'Guest Arena Pilot'}</span>
               {myRank ? (
                 <span className="text-[10px] font-black px-1.5 py-0.2 rounded-md bg-amber-400 text-slate-950">
                   Rank #{myRank.displayRank}
                 </span>
               ) : (
-                <span className="text-[10px] font-black px-1.5 py-0.2 rounded-md bg-slate-800 text-slate-300">
+                <span className="text-[10px] font-black px-1.5 py-0.2 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                   Unranked
                 </span>
               )}
             </div>
-            <p className="text-[10px] sm:text-xs font-bold text-slate-300 truncate mt-0.5">
+            <p className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-300 truncate mt-0.5">
               Level {userProgress.level} • {userProgress.xp} XP • {userProgress.streak}d Streak
             </p>
           </div>
@@ -435,7 +542,7 @@ export default function GameZoneRanksPage() {
 
         <Link
           href="/game-zone/word-match"
-          className="px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-gradient-to-r from-japan-red via-rose-600 to-red-600 hover:from-red-600 hover:to-rose-700 text-white font-black text-xs sm:text-sm shadow-md shadow-red-500/30 flex items-center gap-1.5 shrink-0 hover:scale-103 transition-all cursor-pointer"
+          className="px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-japan-red hover:bg-rose-700 text-white font-black text-xs sm:text-sm shadow-md shadow-red-500/25 flex items-center gap-1.5 shrink-0 hover:scale-102 transition-all cursor-pointer"
         >
           <Zap className="w-3.5 h-3.5 fill-white" />
           <span className="hidden min-[360px]:inline">Play Word Match</span>
@@ -446,13 +553,13 @@ export default function GameZoneRanksPage() {
       {/* ── 4. League Filters & Instant Search ── */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
         {/* League Mode Tabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-[#0b1124] rounded-2xl border border-cyan-500/20 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-[#0b1124] rounded-2xl border border-slate-200/80 dark:border-cyan-500/20 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab('all')}
             className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
               activeTab === 'all'
-                ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-md shadow-amber-500/20'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-amber-500 text-slate-950 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Trophy className="w-3.5 h-3.5" />
@@ -462,8 +569,8 @@ export default function GameZoneRanksPage() {
             onClick={() => setActiveTab('streak')}
             className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
               activeTab === 'streak'
-                ? 'bg-gradient-to-r from-orange-500 to-rose-600 text-white shadow-md shadow-orange-500/20'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-orange-500 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Flame className="w-3.5 h-3.5 fill-current" />
@@ -473,8 +580,8 @@ export default function GameZoneRanksPage() {
             onClick={() => setActiveTab('words')}
             className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
               activeTab === 'words'
-                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/20'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
@@ -490,24 +597,24 @@ export default function GameZoneRanksPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search candidate or country..."
-            className="w-full pl-8.5 pr-3 py-1.5 sm:py-2 rounded-xl bg-[#0b1124] border border-cyan-500/20 text-xs text-white placeholder-slate-500 focus:outline-hidden focus:border-cyan-400 transition-colors"
+            className="w-full pl-8.5 pr-3 py-1.5 sm:py-2 rounded-xl bg-white dark:bg-[#0b1124] border border-slate-200 dark:border-cyan-500/20 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:border-japan-red dark:focus:border-cyan-400 transition-colors"
           />
         </div>
       </div>
 
-      {/* ── 5. Ranking Contenders (Mobile-First Gaming Card Rows) ── */}
+      {/* ── 5. Ranking Contenders (Dual Theme Compatible) ── */}
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between px-1 text-xs font-black text-slate-400 uppercase tracking-wider">
+        <div className="flex items-center justify-between px-1 text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">
           <span className="flex items-center gap-1.5">
-            <Medal className="w-4 h-4 text-amber-400" />
+            <Medal className="w-4 h-4 text-amber-500" />
             <span>Leaderboard Standings ({processedList.length})</span>
           </span>
-          <span className="text-[11px] text-cyan-400 font-bold">Auto-Ranked</span>
+          <span className="text-[11px] text-japan-red dark:text-cyan-400 font-bold">Auto-Ranked</span>
         </div>
 
         {/* Player Gaming Cards */}
         {processedList.length === 0 ? (
-          <div className="p-8 text-center rounded-2xl bg-[#0b1124] border border-slate-800 text-slate-400 text-sm font-bold">
+          <div className="p-8 text-center rounded-2xl bg-white dark:bg-[#0b1124] border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-sm font-bold">
             No candidate found matching &quot;{searchQuery}&quot;
           </div>
         ) : (
@@ -518,14 +625,14 @@ export default function GameZoneRanksPage() {
 
             const rankBorder =
               player.displayRank === 1
-                ? 'border-amber-400/60 bg-gradient-to-r from-amber-500/15 via-[#0d162e] to-[#070b14] shadow-md shadow-amber-500/10'
+                ? 'border-amber-300 bg-gradient-to-r from-amber-50/80 via-white to-white dark:border-amber-400/60 dark:bg-gradient-to-r dark:from-amber-500/15 dark:via-[#0d162e] dark:to-[#070b14] shadow-xs'
                 : player.displayRank === 2
-                ? 'border-cyan-400/50 bg-gradient-to-r from-cyan-500/15 via-[#0d162e] to-[#070b14] shadow-sm shadow-cyan-500/10'
+                ? 'border-slate-300 bg-gradient-to-r from-slate-50 via-white to-white dark:border-cyan-400/50 dark:bg-gradient-to-r dark:from-cyan-500/15 dark:via-[#0d162e] dark:to-[#070b14] shadow-xs'
                 : player.displayRank === 3
-                ? 'border-orange-500/50 bg-gradient-to-r from-orange-500/15 via-[#0d162e] to-[#070b14] shadow-sm shadow-orange-500/10'
+                ? 'border-orange-200 bg-gradient-to-r from-orange-50/60 via-white to-white dark:border-orange-500/50 dark:bg-gradient-to-r dark:from-orange-500/15 dark:via-[#0d162e] dark:to-[#070b14] shadow-xs'
                 : isMe
-                ? 'border-cyan-400/70 bg-[#0d1836]'
-                : 'border-slate-800/80 bg-[#0a0f20] hover:border-cyan-500/40 hover:bg-[#0d142c]';
+                ? 'border-rose-400 bg-rose-50/40 dark:border-cyan-400/70 dark:bg-[#0d1836]'
+                : 'border-slate-200/90 bg-white hover:border-slate-300 dark:border-slate-800/80 dark:bg-[#0a0f20] dark:hover:border-cyan-500/40 dark:hover:bg-[#0d142c] shadow-xs';
 
             return (
               <div
@@ -536,7 +643,7 @@ export default function GameZoneRanksPage() {
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                     {/* Rank Badge */}
-                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-900 border border-slate-700/80 flex items-center justify-center shrink-0 font-black text-xs sm:text-sm">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 flex items-center justify-center shrink-0 font-black text-xs sm:text-sm">
                       {player.displayRank === 1 ? (
                         <span className="text-base sm:text-lg">🥇</span>
                       ) : player.displayRank === 2 ? (
@@ -544,13 +651,13 @@ export default function GameZoneRanksPage() {
                       ) : player.displayRank === 3 ? (
                         <span className="text-base sm:text-lg">🥉</span>
                       ) : (
-                        <span className="text-slate-300 font-extrabold">#{player.displayRank}</span>
+                        <span className="text-slate-700 dark:text-slate-300 font-extrabold">#{player.displayRank}</span>
                       )}
                     </div>
 
                     {/* Avatar */}
                     <div className="relative shrink-0">
-                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-japan-red via-rose-500 to-amber-500 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-md">
+                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-japan-red via-rose-500 to-amber-500 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-xs">
                         {player.username.charAt(0).toUpperCase()}
                       </div>
                       <span className="absolute -bottom-1 -right-1 text-[10px] leading-none">
@@ -561,16 +668,16 @@ export default function GameZoneRanksPage() {
                     {/* Name & Handle */}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 truncate">
-                        <span className="font-black text-white text-xs sm:text-sm truncate">
+                        <span className="font-black text-slate-900 dark:text-white text-xs sm:text-sm truncate">
                           {player.full_name}
                         </span>
                         {isMe && (
-                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-cyan-400 text-slate-950 shrink-0">
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-japan-red text-white dark:bg-cyan-400 dark:text-slate-950 shrink-0 shadow-xs">
                             YOU
                           </span>
                         )}
                       </div>
-                      <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 truncate">
+                      <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 truncate">
                         @{player.username}
                       </div>
                     </div>
@@ -578,15 +685,15 @@ export default function GameZoneRanksPage() {
 
                   {/* Primary XP Score */}
                   <div className="text-right shrink-0">
-                    <div className="text-xs sm:text-sm font-black text-amber-400 flex items-center justify-end gap-1">
-                      <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <div className="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-400 flex items-center justify-end gap-1">
+                      <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                       <span>{player.xp.toLocaleString()} XP</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Bottom Row: Tier Tag, Level, Streak, Mastered, Country */}
-                <div className="flex items-center justify-between gap-1.5 pt-1.5 border-t border-slate-800/80 text-[10px] font-black flex-wrap">
+                <div className="flex items-center justify-between gap-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-800/80 text-[10px] font-black flex-wrap">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     {/* Country Badge */}
                     <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-[9px] font-black ${country.accent}`}>
@@ -602,19 +709,19 @@ export default function GameZoneRanksPage() {
 
                   <div className="flex items-center gap-1.5 shrink-0">
                     {/* Level Pill */}
-                    <span className="px-1.5 py-0.5 rounded-md bg-rose-950/70 border border-rose-500/40 text-japan-red text-[10px] font-black">
+                    <span className="px-1.5 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/70 border border-rose-200 dark:border-rose-500/40 text-japan-red text-[10px] font-black">
                       Lv. {player.level}
                     </span>
 
                     {/* Daily Streak */}
-                    <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-orange-950/60 border border-orange-500/40 text-orange-400 text-[10px] font-black">
-                      <Flame className="w-3 h-3 fill-orange-400" />
+                    <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-orange-50 dark:bg-orange-950/60 border border-orange-200 dark:border-orange-500/40 text-orange-600 dark:text-orange-400 text-[10px] font-black">
+                      <Flame className="w-3 h-3 fill-orange-500 text-orange-500" />
                       <span>{player.streak}d</span>
                     </span>
 
                     {/* Words Mastered */}
-                    <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 text-[10px] font-black">
-                      <CheckCircle2 className="w-3 h-3" />
+                    <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400 text-[10px] font-black">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                       <span>{player.mastered}w</span>
                     </span>
                   </div>
