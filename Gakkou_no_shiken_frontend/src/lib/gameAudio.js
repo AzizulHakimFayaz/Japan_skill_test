@@ -136,5 +136,17 @@ export const playSound = {
       utterance.rate = 0.85;
       window.speechSynthesis.speak(utterance);
     }
-  }
+  },
+
+  // Aliases for game hooks
+  cardMatch() {
+    this.match();
+  },
+  cardMismatch() {
+    this.error();
+  },
+  gameWon() {
+    this.fanfare();
+  },
 };
+

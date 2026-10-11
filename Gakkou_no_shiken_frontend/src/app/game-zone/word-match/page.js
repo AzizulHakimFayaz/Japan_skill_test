@@ -37,10 +37,12 @@ const INITIAL_TIME_SECONDS = 45;
 export default function WordMatchPage() {
   const { user, isAuthenticated } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [questionIndex, setQuestionIndex] = useState(4); // default question 4/10 as in demo
-  const [timeLeft, setTimeLeft] = useState(28); // 00:28 as in demo
+  const [questionIndex, setQuestionIndex] = useState(1);
+  const [timeLeft, setTimeLeft] = useState(INITIAL_TIME_SECONDS);
   const [lives, setLives] = useState(3);
   const [hintsRemaining, setHintsRemaining] = useState(3);
+  const [showFurigana, setShowFurigana] = useState(true);
+  const [combo, setCombo] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isRoundWon, setIsRoundWon] = useState(false);
   const [showGuestModal, setShowGuestModal] = useState(false);
@@ -51,9 +53,9 @@ export default function WordMatchPage() {
   ]);
 
   // Card selections & matches
-  const [selectedWordId, setSelectedWordId] = useState('w2'); // 'ねこ' active as in demo
-  const [selectedMeaningId, setSelectedMeaningId] = useState('w2'); // 'Cat' active as in demo
-  const [matchedPairs, setMatchedPairs] = useState(['w1']); // 'りんご' <-> 'Apple' already matched
+  const [selectedWordId, setSelectedWordId] = useState(null);
+  const [selectedMeaningId, setSelectedMeaningId] = useState(null);
+  const [matchedPairs, setMatchedPairs] = useState([]);
   const [shakingCard, setShakingCard] = useState(null);
 
   // Fetch real top 3 leaderboard from backend API
@@ -102,6 +104,7 @@ export default function WordMatchPage() {
     setMatchedPairs([]);
     setSelectedWordId(null);
     setSelectedMeaningId(null);
+    setCombo(0);
     setTimeLeft(INITIAL_TIME_SECONDS);
     setIsGameOver(false);
     setIsRoundWon(false);
@@ -109,23 +112,8 @@ export default function WordMatchPage() {
 
   // Initial load
   useEffect(() => {
-    // Specifically arrange the items initially to resemble the user's mockup:
-    // w1: りんご / Apple, w2: ねこ / Cat, w3: 学校 / School, w4: 水 / Water, w5: 駅 / Station, w6: 電話 / Phone
-    const initialWords = GAME_VOCABULARY.slice(0, 6);
-    setBoardItems(initialWords);
-    // Right side slightly shuffled but predictable for demo initial state
-    setMeaningItems([
-      initialWords[0], // Apple
-      initialWords[1], // Cat
-      initialWords[2], // School
-      initialWords[3], // Water
-      initialWords[4], // Station
-      initialWords[5], // Phone
-    ]);
-    setMatchedPairs(['w1']); // Apple already matched as in demo
-    setSelectedWordId('w2'); // 'ねこ' connected to 'Cat' as in demo
-    setSelectedMeaningId('w2');
-  }, []);
+    loadRound();
+  }, [loadRound]);
 
   // Update line positions dynamically
   const updateConnectionLines = useCallback(() => {
@@ -230,6 +218,7 @@ export default function WordMatchPage() {
     if (wordId === meaningId) {
       // Correct Match!
       playSound.match();
+      setCombo((prev) => prev + 1);
       const updatedMatches = [...matchedPairs, wordId];
       setMatchedPairs(updatedMatches);
       setSelectedWordId(null);
@@ -242,6 +231,7 @@ export default function WordMatchPage() {
     } else {
       // Wrong Match!
       playSound.error();
+      setCombo(0);
       setShakingCard(meaningId);
       setTimeout(() => setShakingCard(null), 500);
 
@@ -430,47 +420,62 @@ export default function WordMatchPage() {
           })}
         </svg>
 
-        {/* Top HUD Bar (Question 4/10, Timer 00:28, Hearts 3) */}
+        {/* Top HUD Bar (Question, Furigana Toggle, Combo, Timer, Hearts) */}
         <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800/80 flex-wrap">
           {/* Question Counter + Progress Bar */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black text-slate-800 dark:text-slate-200">
               <Sparkles className="w-4 h-4 text-japan-red" />
-              <span>Question {questionIndex} / {TOTAL_QUESTIONS}</span>
+              <span>Round {questionIndex} / {TOTAL_QUESTIONS}</span>
             </div>
-            <div className="w-24 sm:w-36 h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div className="w-16 sm:w-28 h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
               <div
                 className="h-full bg-emerald-500 rounded-full transition-all duration-300"
                 style={{ width: `${(questionIndex / TOTAL_QUESTIONS) * 100}%` }}
               ></div>
             </div>
+            {combo > 1 && (
+              <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 text-[10px] sm:text-xs font-black animate-pulse shadow-xs">
+                🔥 {combo}x Combo!
+              </span>
+            )}
           </div>
 
-          {/* Center Timer */}
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200/80 dark:border-amber-900/40 font-mono font-black text-xs sm:text-sm">
-            <Clock className="w-4 h-4 text-amber-500" />
-            <span>00:{String(timeLeft).padStart(2, '0')}</span>
-          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Furigana Toggle */}
+            <button
+              onClick={() => setShowFurigana(!showFurigana)}
+              className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-japan-red text-[10px] sm:text-[11px] font-black transition-colors cursor-pointer"
+            >
+              Furigana: {showFurigana ? 'ON' : 'OFF'}
+            </button>
 
-          {/* Right Lives (Hearts) */}
-          <div className="flex items-center gap-1">
-            {[1, 2, 3].map((heartIndex) => {
-              const isFilled = heartIndex <= lives;
-              return (
-                <Heart
-                  key={heartIndex}
-                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform ${
-                    isFilled
-                      ? 'text-rose-500 fill-rose-500 scale-100'
-                      : 'text-slate-300 dark:text-slate-700 fill-slate-200 dark:fill-slate-800 scale-90'
-                  }`}
-                />
-              );
-            })}
+            {/* Center Timer */}
+            <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200/80 dark:border-amber-900/40 font-mono font-black text-xs sm:text-sm">
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
+              <span>00:{String(timeLeft).padStart(2, '0')}</span>
+            </div>
+
+            {/* Right Lives (Hearts) */}
+            <div className="flex items-center gap-1">
+              {[1, 2, 3].map((heartIndex) => {
+                const isFilled = heartIndex <= lives;
+                return (
+                  <Heart
+                    key={heartIndex}
+                    className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${
+                      isFilled
+                        ? 'text-rose-500 fill-rose-500 scale-100'
+                        : 'text-slate-300 dark:text-slate-700 fill-slate-200 dark:fill-slate-800 scale-90'
+                    }`}
+                  />
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* 2-Columns Matching Board (Side-by-side on all screens for optimal pair-matching UX) */}
+        {/* 2-Columns Matching Board (Side-by-side on all screens without spoiler emojis) */}
         <div className="grid grid-cols-2 gap-2 sm:gap-4 md:gap-6 relative z-20">
           {/* Column 1: Japanese Words */}
           <div className="flex flex-col gap-2 sm:gap-3">
@@ -509,17 +514,16 @@ export default function WordMatchPage() {
                       <div className="text-sm sm:text-base md:text-lg font-black text-slate-900 dark:text-white font-japanese leading-tight truncate">
                         {item.kanji}
                       </div>
-                      {item.kana !== item.kanji && (
+                      {showFurigana && item.kana !== item.kanji && (
                         <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 font-japanese mt-0.5 truncate">
                           {item.kana}
                         </div>
                       )}
                     </div>
 
-                    {/* Emoji Icon & Audio trigger */}
-                    <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-                      <span className="text-xl sm:text-2xl filter drop-shadow-xs">{item.icon}</span>
-                      <Volume2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+                    {/* Pronunciation Audio icon */}
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Volume2 className="w-3.5 h-3.5 text-japan-red opacity-70 group-hover:opacity-100 transition-opacity" />
                     </div>
 
                     {/* Connecting anchor node for SVG line */}
@@ -586,9 +590,8 @@ export default function WordMatchPage() {
                       }`}
                     ></div>
 
-                    {/* Emoji Icon & Meaning */}
-                    <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
-                      <span className="text-xl sm:text-2xl filter drop-shadow-xs shrink-0">{item.icon}</span>
+                    {/* Meaning (English & Bangla - No spoilers!) */}
+                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 pr-1">
                       <div className="min-w-0">
                         <div className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white leading-tight truncate">
                           {item.en}
@@ -600,7 +603,7 @@ export default function WordMatchPage() {
                     </div>
 
                     {isMatched && (
-                      <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400 shrink-0 stroke-[3]" />
                     )}
                   </button>
                 );
