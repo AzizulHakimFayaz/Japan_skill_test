@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { formatTimeLimit } from '@/lib/utils';
 import { useAuth } from './AuthContext';
@@ -40,6 +41,7 @@ export default function PracticeTestGrid({
   showViewToggle = true,
   seeAllHref = null,
 }) {
+  const router = useRouter();
   const { user, isAuthenticated } = useAuth();
   const { t } = useLanguage();
   const [tests, setTests] = useState(practiceTests || []);
@@ -148,21 +150,33 @@ export default function PracticeTestGrid({
 
   const handleStartExamClick = (e, test) => {
     e.preventDefault();
-    // Requirement 1: Open official Facebook page in a separate tab simultaneously
+    // 1. Open official Facebook page in a separate tab ONCE
     try {
       window.open('https://www.facebook.com/Gakkou.No.Shiken', '_blank', 'noopener,noreferrer');
     } catch (err) {
       console.error('Failed to open Facebook tab:', err);
     }
 
-    // Requirement 2: Mandatory video ad modal before starting the exam
     const isSkill = test.category === 'skill' || catKey === 'skill';
     const targetUrl = isSkill ? `/ssw-test/${test.id}` : `/test/${test.id}`;
-    setPendingExam({
-      url: targetUrl,
-      title: test.title || (isSkill ? 'SSW Skill Test' : 'JFT-Basic Mock Test'),
-    });
-    setVideoAdModal(true);
+
+    // 2. Only show the ad popup IF Google Ads is available & loaded to serve an ad
+    const isGoogleAdsAvailable = Boolean(
+      typeof window !== 'undefined' &&
+      window.adsbygoogle &&
+      window.adsbygoogle.loaded === true
+    );
+
+    if (isGoogleAdsAvailable) {
+      setPendingExam({
+        url: targetUrl,
+        title: test.title || (isSkill ? 'SSW Skill Test' : 'JFT-Basic Mock Test'),
+      });
+      setVideoAdModal(true);
+    } else {
+      // Direct smooth navigation when Google Ads is not available
+      router.push(targetUrl);
+    }
   };
 
   const getDifficultyBadge = (test, idx) => {

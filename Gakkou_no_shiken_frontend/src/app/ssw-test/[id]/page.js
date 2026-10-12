@@ -29,7 +29,6 @@ import { useAuth } from '@/components/AuthContext';
 import GlobalLoader from '@/components/GlobalLoader';
 import dynamic from 'next/dynamic';
 
-const ExamVideoAdModal = dynamic(() => import('@/components/ExamVideoAdModal'), { ssr: false });
 import {
   Clock,
   Settings,
@@ -131,21 +130,6 @@ function SswCbtExamContent({ params: paramsPromise }) {
   const [showFinishConfirmModal, setShowFinishConfirmModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
-  const [showPreExamAd, setShowPreExamAd] = useState(false);
-
-  // Check if mandatory video ad was already watched this session
-  useEffect(() => {
-    if (typeof window !== 'undefined' && testId) {
-      try {
-        const watched = sessionStorage.getItem('ad_watched_' + testId);
-        if (!watched) {
-          setShowPreExamAd(true);
-        }
-      } catch (e) {
-        setShowPreExamAd(true);
-      }
-    }
-  }, [testId]);
 
   // ─── Settings & Timer State ────────────────────────────────────────────────
   const [fontSize, setFontSize] = useState('standard'); // 'standard' | 'large' | 'xlarge'
@@ -977,18 +961,6 @@ function SswCbtExamContent({ params: paramsPromise }) {
         </div>
       )}
 
-      {/* Mandatory Pre-Exam Video Ad Interstitial Modal */}
-      <ExamVideoAdModal
-        isOpen={showPreExamAd}
-        onClose={() => {
-          try {
-            sessionStorage.setItem('ad_watched_' + testId, 'true');
-          } catch (e) {}
-          setShowPreExamAd(false);
-        }}
-        examTitle={quizData?.test?.title || 'Prometric SSW Skill Test'}
-        adDurationSeconds={10}
-      />
     </div>
   );
 }
