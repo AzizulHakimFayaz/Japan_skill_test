@@ -188,8 +188,13 @@ export default function LearningHubShowcase() {
             <div className="space-y-1.5 sm:space-y-2.5">
               {/* Icon & Badge */}
               <div className="flex items-center justify-between">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-cyan-600 text-white flex items-center justify-center shadow-md shadow-cyan-600/30 group-hover:scale-105 transition-transform">
-                  <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-cyan-600/30 group-hover:scale-110 transition-transform shrink-0 border border-cyan-300/60 dark:border-cyan-800 bg-cyan-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/img/lessons_hub_icon.png"
+                    alt="Lessons Hub"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-cyan-200/80 dark:border-cyan-800">
                   <CheckCircle2 className="w-2.5 h-2.5 text-emerald-500" />
@@ -228,8 +233,13 @@ export default function LearningHubShowcase() {
             <div className="space-y-1.5 sm:space-y-2.5">
               {/* Icon & Badge */}
               <div className="flex items-center justify-between">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/30 group-hover:scale-105 transition-transform">
-                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-indigo-600/30 group-hover:scale-110 transition-transform shrink-0 border border-indigo-300/60 dark:border-indigo-800 bg-indigo-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/img/study_tools_icon.png"
+                    alt="Study Tools"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-indigo-200/80 dark:border-indigo-800">
                   <Compass className="w-2.5 h-2.5 text-indigo-500" />
@@ -268,8 +278,13 @@ export default function LearningHubShowcase() {
             <div className="space-y-1.5 sm:space-y-2.5">
               {/* Icon & Shuffle + Audio */}
               <div className="flex items-center justify-between">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-japan-red text-white flex items-center justify-center shadow-md shadow-red-600/30 group-hover:scale-105 transition-transform">
-                  <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-rose-600/30 group-hover:scale-110 transition-transform shrink-0 border border-rose-300/60 dark:border-rose-800 bg-rose-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/img/daily_vocab_icon.png"
+                    alt="Daily Vocabulary"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="flex items-center gap-1">
                   {/* Shuffle Button */}

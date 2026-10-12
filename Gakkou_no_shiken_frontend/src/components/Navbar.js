@@ -314,8 +314,13 @@ export default function Navbar() {
                           : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0 mt-0.5">
-                        <GraduationCap className="w-4 h-4" />
+                      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 mt-0.5 shadow-xs border border-cyan-200 dark:border-cyan-800 bg-cyan-50">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/img/lessons_hub_icon.png"
+                          alt="Structured Lessons"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between">
@@ -339,8 +344,13 @@ export default function Navbar() {
                           : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-rose-500/10 text-japan-red dark:text-rose-400 flex items-center justify-center shrink-0 mt-0.5">
-                        <BookOpen className="w-4 h-4" />
+                      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 mt-0.5 shadow-xs border border-rose-200 dark:border-rose-800 bg-rose-50">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/img/daily_vocab_icon.png"
+                          alt="Books & Audio"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between">
@@ -395,8 +405,13 @@ export default function Navbar() {
                           : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
-                        <Sparkles className="w-4 h-4" />
+                      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 mt-0.5 shadow-xs border border-indigo-200 dark:border-indigo-800 bg-indigo-50">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/img/study_tools_icon.png"
+                          alt="Candidate Tools"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between">
