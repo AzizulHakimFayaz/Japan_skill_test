@@ -29,6 +29,7 @@ import {
 import ScheduledCountdownBadge from './ScheduledCountdownBadge';
 
 const LeadCaptureModal = dynamic(() => import('./LeadCaptureModal'), { ssr: false });
+const ExamVideoAdModal = dynamic(() => import('./ExamVideoAdModal'), { ssr: false });
 
 export default function PracticeTestGrid({
   practiceTests = [],
@@ -55,6 +56,8 @@ export default function PracticeTestGrid({
   // Modals & Real-time State
   const [leadModal, setLeadModal] = useState(false);
   const [unlockedMap, setUnlockedMap] = useState({});
+  const [videoAdModal, setVideoAdModal] = useState(false);
+  const [pendingExam, setPendingExam] = useState(null);
 
   const defaultSeeAllHref = seeAllHref || (catKey === 'skill' ? '/ssw-skill-test' : '/jft-basic');
 
@@ -141,6 +144,25 @@ export default function PracticeTestGrid({
     const cardWidth = 380; // approximate card width with gap
     const scrollAmount = direction === 'left' ? -cardWidth : cardWidth;
     scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  };
+
+  const handleStartExamClick = (e, test) => {
+    e.preventDefault();
+    // Requirement 1: Open official Facebook page in a separate tab simultaneously
+    try {
+      window.open('https://www.facebook.com/Gakkou.No.Shiken', '_blank', 'noopener,noreferrer');
+    } catch (err) {
+      console.error('Failed to open Facebook tab:', err);
+    }
+
+    // Requirement 2: Mandatory video ad modal before starting the exam
+    const isSkill = test.category === 'skill' || catKey === 'skill';
+    const targetUrl = isSkill ? `/ssw-test/${test.id}` : `/test/${test.id}`;
+    setPendingExam({
+      url: targetUrl,
+      title: test.title || (isSkill ? 'SSW Skill Test' : 'JFT-Basic Mock Test'),
+    });
+    setVideoAdModal(true);
   };
 
   const getDifficultyBadge = (test, idx) => {
@@ -487,13 +509,14 @@ export default function PracticeTestGrid({
                               )}
                             </div>
                           ) : (
-                            <Link
-                              href={(test.category === 'skill' || catKey === 'skill') ? `/ssw-test/${test.id}` : `/test/${test.id}`}
+                            <button
+                              type="button"
+                              onClick={(e) => handleStartExamClick(e, test)}
                               className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl font-black text-xs sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${cardTheme.button}`}
                             >
                               <span>{t('start_exam')}</span>
                               <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-1 transition-transform" />
-                            </Link>
+                            </button>
                           )}
                         </div>
 
@@ -569,6 +592,15 @@ export default function PracticeTestGrid({
         isOpen={leadModal}
         onClose={() => setLeadModal(false)}
         sectorName={catKey === 'skill' ? 'SSW Skill Tests' : 'JFT-Basic Tests'}
+      />
+
+      {/* Mandatory Pre-Exam Video Ad Interstitial Modal */}
+      <ExamVideoAdModal
+        isOpen={videoAdModal}
+        onClose={() => setVideoAdModal(false)}
+        examUrl={pendingExam?.url}
+        examTitle={pendingExam?.title}
+        adDurationSeconds={10}
       />
     </div>
   );

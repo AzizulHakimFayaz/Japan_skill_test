@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { getCountryFlag } from '@/lib/utils';
 import CountryFlag from '@/components/CountryFlag';
+import AdBanner from '@/components/AdBanner';
 
 
 export default function LeaderboardPage() {
@@ -524,6 +525,9 @@ export default function LeaderboardPage() {
           </div>
         </div>
       )}
+
+      {/* Prominent High-Impact Leaderboard Ad Placement */}
+      <AdBanner className="my-6" slot="8435487820" format="auto" />
 
       {/* 4. Full Standings Section */}
       <div className="space-y-4">

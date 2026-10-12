@@ -3,15 +3,13 @@
 import { usePathname } from 'next/navigation';
 import Script from 'next/script';
 
-// Routes where Google AdSense must NEVER be served to prevent policy violations
-// (Screens without publisher content: active exam runners, score attempts, auth forms, tools)
+// Routes where Google AdSense must not be served during active examination execution
+// (Active interactive test runners, auth forms, reset password, error screens)
 const EXCLUDED_PREFIXES = [
-  '/test',
-  '/ssw-test',
-  '/attempt',
-  '/accounts',
+  '/test/',
+  '/ssw-test/',
+  '/accounts/',
   '/reset-password',
-  '/tools',
   '/_not-found',
 ];
 

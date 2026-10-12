@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/components/AuthContext';
 import { getInitialGameProgress } from '@/lib/gameStore';
+import AdBanner from '@/components/AdBanner';
 
 const ARCADE_GAMES = [
   {
@@ -251,6 +252,9 @@ export default function GameZoneHomePage() {
         </Link>
       </div>
 
+      {/* Top Arcade Ad Banner */}
+      <AdBanner className="my-4" slot="8435487820" format="auto" />
+
       {/* 3. Game Arcade Section Header with Grid/List Toggle & Filter Chips */}
       <div>
         <div className="flex items-center justify-between mb-3 px-1 flex-wrap gap-2">
@@ -421,6 +425,46 @@ export default function GameZoneHomePage() {
           </div>
         )}
       </div>
+
+      {/* Gamified Educational Science Section for AdSense Crawlers */}
+      <div className="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-10 shadow-lg space-y-6">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400 text-xs font-black uppercase">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Gamified Language Acquisition</span>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            How Japanese Mini-Games Build Rapid Prometric CBT Reflexes
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            Fast-paced micro-games simulate the cognitive pressure of the real Prometric Computer-Based Test (CBT), where candidates have fewer than 60 seconds per question:
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-1.5">
+            <strong className="text-sm font-bold text-slate-900 dark:text-white block">Subconscious Speed Processing</strong>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Word Rush trains your brain to recognize Kanji shapes instantly without slow phonetic decoding.
+            </p>
+          </div>
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-1.5">
+            <strong className="text-sm font-bold text-slate-900 dark:text-white block">Grammar Pattern Automaticity</strong>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Sentence Builder teaches natural Japanese SOV word order and correct particle attachments through spatial puzzles.
+            </p>
+          </div>
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-1.5">
+            <strong className="text-sm font-bold text-slate-900 dark:text-white block">Multi-Sensory Retention</strong>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Synchronized Tokyo native audio combined with visual feedback activates auditory and visual memory centers simultaneously.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Arcade Ad Unit */}
+      <AdBanner className="my-6" slot="8435487820" format="auto" />
     </div>
   );
 }

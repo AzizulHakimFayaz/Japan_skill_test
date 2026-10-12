@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { getJftInfo } from '@/lib/api';
 import PracticeTestGrid from '@/components/PracticeTestGrid';
+import AdBanner from '@/components/AdBanner';
 
 const JftCenterMap = dynamic(() => import('@/components/JftCenterMap'), { ssr: false });
 import {
@@ -413,6 +414,9 @@ export default function JftBasicPage() {
           </div>
         </div>
       </div>
+
+      {/* Strategic In-Feed Ad Banner */}
+      <AdBanner className="my-8" slot="8435487820" format="auto" />
 
       {/* FAQ Accordion */}
       <div className="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)]">

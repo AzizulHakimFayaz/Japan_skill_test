@@ -37,6 +37,18 @@ export default function Footer() {
             <Link href="/ssw-skill-test" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors">
               SSW Skill Tests
             </Link>
+            <Link href="/books" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors font-bold">
+              JAC Books (26)
+            </Link>
+            <Link href="/guides/jft-basic-exam-guide" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors font-semibold">
+              JFT Exam Guide
+            </Link>
+            <Link href="/guides/ssw-skill-test-guide" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors font-semibold">
+              SSW Blueprint
+            </Link>
+            <Link href="/guides/jac-textbooks-guide" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors font-semibold">
+              Textbooks Audio Guide
+            </Link>
             <Link href="/leaderboard" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
               Leaderboard
             </Link>

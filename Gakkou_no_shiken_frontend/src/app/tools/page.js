@@ -17,6 +17,7 @@ import {
   GraduationCap,
 } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
+import AdBanner from '@/components/AdBanner';
 
 const TOOLS = [
   {
@@ -86,6 +87,9 @@ export default function ToolsHubPage() {
         </p>
       </div>
 
+      {/* Top Ad Unit */}
+      <AdBanner className="my-4" slot="8435487820" format="auto" />
+
       {/* Tools Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {TOOLS.map((tool, idx) => {
@@ -140,6 +144,46 @@ export default function ToolsHubPage() {
           );
         })}
       </div>
+
+      {/* In-Depth Educational Guide Section for High-Value Content Indexability */}
+      <div className="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-10 shadow-lg space-y-6">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-japan-red/10 text-japan-red dark:text-rose-400 text-xs font-black uppercase">
+            <Award className="w-3.5 h-3.5" />
+            <span>Educational Methodology &amp; CBT Readiness</span>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            How Interactive Practice Tools Accelerate Japanese Exam Performance
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            Unlike static paper flashcards or memorization lists, interactive computer-based practice tools reinforce neuromuscular recall and response agility under timed Prometric CBT conditions:
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-1.5">
+            <strong className="text-sm font-bold text-slate-900 dark:text-white block">Active Recall &amp; Spaced Repetition</strong>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Instant answer feedback with Furigana aids strengthens long-term memory for high-frequency Kanji and vocabulary.
+            </p>
+          </div>
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-1.5">
+            <strong className="text-sm font-bold text-slate-900 dark:text-white block">Particle Drill Precision</strong>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Japanese particles (に, で, を, が, は) represent 30% of grammatical errors. Rapid drill rooms eliminate hesitation.
+            </p>
+          </div>
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-1.5">
+            <strong className="text-sm font-bold text-slate-900 dark:text-white block">Prometric Interface Familiarity</strong>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Familiarizing with digital timers, keyboard inputs, and audio controls prevents test-day anxiety at Dhaka and Tokyo CBT venues.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Ad Unit */}
+      <AdBanner className="my-6" slot="8435487820" format="auto" />
     </div>
   );
 }

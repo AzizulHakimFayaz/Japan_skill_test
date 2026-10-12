@@ -25,6 +25,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import { getBooks } from '@/lib/api';
+import AdBanner from '@/components/AdBanner';
 
 export default function BooksLibraryPage() {
   const [activeCategory, setActiveCategory] = useState('all');
@@ -184,6 +185,9 @@ export default function BooksLibraryPage() {
           />
         </div>
       </div>
+
+      {/* High-Impact Leaderboard Ad Unit on Books Catalog */}
+      <AdBanner className="my-2" slot="8435487820" format="auto" />
 
       {/* Books Grid */}
       {loading ? (

@@ -7,8 +7,6 @@ export default function robots() {
         disallow: [
           '/admin/',
           '/api/',
-          '/attempt/',
-          '/accounts/my-results/',
           '/*?*preview=',
           '/*?*token=',
         ],
@@ -19,8 +17,6 @@ export default function robots() {
         disallow: [
           '/admin/',
           '/api/',
-          '/attempt/',
-          '/accounts/my-results/',
           '/*?*preview=',
           '/*?*token=',
         ],
@@ -31,12 +27,6 @@ export default function robots() {
         disallow: [
           '/admin/',
           '/api/',
-          '/test/',
-          '/ssw-test/',
-          '/attempt/',
-          '/accounts/',
-          '/reset-password/',
-          '/tools/',
         ],
       },
     ],

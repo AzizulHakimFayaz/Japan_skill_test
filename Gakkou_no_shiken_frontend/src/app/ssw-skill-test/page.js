@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { getSswInfo } from '@/lib/api';
 import PracticeTestGrid from '@/components/PracticeTestGrid';
 import SswSectorExplorer from '@/components/SswSectorExplorer';
+import AdBanner from '@/components/AdBanner';
 
 const JftCenterMap = dynamic(() => import('@/components/JftCenterMap'), { ssr: false });
 import {
@@ -237,6 +238,9 @@ export default function SswSkillTestPage() {
           </ul>
         </div>
       </div>
+
+      {/* Strategic In-Feed Ad Banner */}
+      <AdBanner className="my-8" slot="8435487820" format="auto" />
 
       {/* SSW Sector Explorer Component */}
       <div id="ssw-sectors">

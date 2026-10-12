@@ -55,7 +55,16 @@ const SECTIONS = [
 • JWT Authentication Tokens: Secure tokens stored in HTTP cookies or local storage to keep you signed in between study sessions.
 • Theme Preferences: Local storage saves your preferred Light or Dark mode setting.
 • Dismissed Banners: Session storage remembers if you dismissed the Country Confirmation dialog so you are not interrupted repeatedly.
-• We do NOT employ third-party behavioral tracking cookies or sell your browsing history to advertising networks.`,
+• Cookies are used to maintain your authenticated candidate session and optimize test loading performance.`,
+  },
+  {
+    id: 'advertising_adsense',
+    title: '6. Third-Party Advertising & Google AdSense Disclosures',
+    content: `To keep Gakkou No Shiken 100% free with unlimited CBT mock exam attempts and open access to 26 JAC study textbooks for all candidates, we partner with third-party advertising networks, including Google AdSense:
+• Third-party vendors, including Google, use cookies to serve ads based on a user's prior visits to this website or other websites on the Internet.
+• Google's use of advertising cookies enables it and its partners to serve relevant ads to our users based on their visits to our site and/or other sites across the web.
+• Personalized Advertising Opt-Out: Users may opt out of personalized advertising by visiting Google Ads Settings (https://adssettings.google.com) or by visiting www.aboutads.info.
+• We do not collect or sell sensitive personal financial information to advertising networks. All advertisements served adhere strictly to Google AdSense Program Policies and Family/Educational Safe standards.`,
   },
   {
     id: 'security',

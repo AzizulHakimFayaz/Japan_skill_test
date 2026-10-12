@@ -25,9 +25,45 @@ export default async function sitemap() {
       priority: 0.95,
     },
     {
+      url: `${baseUrl}/books`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/guides/jft-basic-exam-guide`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/guides/ssw-skill-test-guide`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/guides/jac-textbooks-guide`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/lessons`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/leaderboard`,
       lastModified: new Date(),
       changeFrequency: 'hourly',
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/how-it-works`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
       priority: 0.85,
     },
     {
@@ -35,6 +71,30 @@ export default async function sitemap() {
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/tools`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/tools/flashcards`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/tools/particle-quiz`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/game-zone`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.85,
     },
     {
       url: `${baseUrl}/contact`,
@@ -46,13 +106,13 @@ export default async function sitemap() {
       url: `${baseUrl}/privacy`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.5,
+      priority: 0.6,
     },
     {
       url: `${baseUrl}/terms`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.5,
+      priority: 0.6,
     },
     {
       url: `${baseUrl}/disclaimer`,
@@ -74,6 +134,14 @@ export default async function sitemap() {
     },
   ];
 
+  // 26 JAC Official Textbooks Routes
+  const bookRoutes = Array.from({ length: 26 }, (_, i) => ({
+    url: `${baseUrl}/books/${i + 1}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly',
+    priority: 0.9,
+  }));
+
   let testRoutes = [];
   try {
     const data = await getTests();
@@ -89,18 +157,17 @@ export default async function sitemap() {
       url: `${baseUrl}/test/${t.id}`,
       lastModified: t.updated_at ? new Date(t.updated_at) : new Date(),
       changeFrequency: 'weekly',
-      priority: 0.9,
+      priority: 0.85,
     }));
   } catch (err) {
     console.error('Sitemap dynamic test fetch fallback:', err);
-    // Fallback routes if backend is not reached during static generation
     testRoutes = [1, 2, 3, 4].map((id) => ({
       url: `${baseUrl}/test/${id}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
-      priority: 0.85,
+      priority: 0.8,
     }));
   }
 
-  return [...staticRoutes, ...testRoutes];
+  return [...staticRoutes, ...bookRoutes, ...testRoutes];
 }

@@ -28,6 +28,7 @@ import {
   Keyboard,
 } from 'lucide-react';
 import ZoomableImage from '@/components/ZoomableImage';
+import AdBanner from '@/components/AdBanner';
 
 export default function AttemptResultsPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
@@ -588,19 +589,22 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
         </div>
       </div>
 
+      {/* Prominent High-Viewability Ad Placement Below Official Result Scorecard */}
+      <AdBanner className="no-print my-6" slot="8435487820" format="auto" />
+
       {/* Detailed Question Review */}
       <div className="space-y-6 pt-4">
         <h2 className="text-xl font-bold text-japan-navy dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2">Detailed Question Review</h2>
 
         {questions.map((question, qIdx) => (
-          <div
-            key={question.id}
-            className={`border rounded-3xl p-6 shadow-xs space-y-4 ${
-              question.is_answered_correctly
-                ? 'border-green-200 dark:border-green-800/70 bg-white dark:bg-slate-900/90'
-                : 'border-red-200 dark:border-red-800/70 bg-white dark:bg-slate-900/90'
-            }`}
-          >
+          <React.Fragment key={question.id}>
+            <div
+              className={`border rounded-3xl p-6 shadow-xs space-y-4 ${
+                question.is_answered_correctly
+                  ? 'border-green-200 dark:border-green-800/70 bg-white dark:bg-slate-900/90'
+                  : 'border-red-200 dark:border-red-800/70 bg-white dark:bg-slate-900/90'
+              }`}
+            >
             <div className="flex items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-3">
               <span
                 className={`inline-flex items-center gap-1.5 py-0.5 px-2.5 rounded-full text-xs font-semibold ${
@@ -753,6 +757,10 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
               </div>
             )}
           </div>
+          {qIdx === 2 && (
+            <AdBanner className="no-print my-6" slot="8435487820" format="auto" />
+          )}
+        </React.Fragment>
         ))}
       </div>
     </div>

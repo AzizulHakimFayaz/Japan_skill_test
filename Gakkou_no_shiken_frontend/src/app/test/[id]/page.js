@@ -11,7 +11,10 @@ import ExamSecurityGuard from '@/components/ExamSecurityGuard';
 import ScheduledCountdownBadge from '@/components/ScheduledCountdownBadge';
 import { useLanguage } from '@/components/LanguageContext';
 import { Globe, ExternalLink, Flag, Lock, ShieldCheck, Clock, ArrowLeft, Hourglass, Sparkles, AlertTriangle, Keyboard } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import ZoomableImage from '@/components/ZoomableImage';
+
+const ExamVideoAdModal = dynamic(() => import('@/components/ExamVideoAdModal'), { ssr: false });
 
 
 
@@ -72,6 +75,21 @@ function QuizContent({ params: paramsPromise }) {
   // Modals
   const [showUnansweredModal, setShowUnansweredModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [showPreExamAd, setShowPreExamAd] = useState(false);
+
+  // Check if mandatory video ad was already watched this session
+  useEffect(() => {
+    if (typeof window !== 'undefined' && params?.id) {
+      try {
+        const watched = sessionStorage.getItem('ad_watched_' + params.id);
+        if (!watched) {
+          setShowPreExamAd(true);
+        }
+      } catch (e) {
+        setShowPreExamAd(true);
+      }
+    }
+  }, [params?.id]);
 
   const timerRef = useRef(null);
 
@@ -1381,6 +1399,18 @@ function QuizContent({ params: paramsPromise }) {
         visible={Boolean(loadingOverlayText)}
         title={loadingOverlayText || 'Evaluating Exam Results...'}
         subtitle="Submitting your answers, calculating official scale scores and performance breakdown..."
+      />
+      {/* Mandatory Pre-Exam Video Ad Interstitial Modal */}
+      <ExamVideoAdModal
+        isOpen={showPreExamAd}
+        onClose={() => {
+          try {
+            sessionStorage.setItem('ad_watched_' + params.id, 'true');
+          } catch (e) {}
+          setShowPreExamAd(false);
+        }}
+        examTitle={test?.title || 'JFT-Basic Mock Exam'}
+        adDurationSeconds={10}
       />
       </div>
     </ExamSecurityGuard>
