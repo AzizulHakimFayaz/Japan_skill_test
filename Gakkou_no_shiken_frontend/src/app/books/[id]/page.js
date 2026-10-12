@@ -47,6 +47,7 @@ export default function InteractiveBookReaderPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchTopicQuery, setSearchTopicQuery] = useState('');
   const [revealedAnswers, setRevealedAnswers] = useState({});
+  const [viewerEngine, setViewerEngine] = useState('cloud'); // 'cloud' | 'native'
 
   // Audio Player State
   const [activeAudioItem, setActiveAudioItem] = useState(null);
@@ -236,7 +237,11 @@ export default function InteractiveBookReaderPage() {
     );
   }
 
-  const pdfUrlWithPage = `${book.pdf_download_url}#page=${currentPage}&view=FitH`;
+  const cloudPdfUrl = book.pdf_download_url
+    ? `https://docs.google.com/viewer?url=${encodeURIComponent(book.pdf_download_url)}&embedded=true`
+    : '';
+  const nativePdfUrl = `${book.pdf_download_url}#page=${currentPage}&view=FitH`;
+  const activeIframeSrc = viewerEngine === 'cloud' ? cloudPdfUrl : nativePdfUrl;
 
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] overflow-hidden bg-slate-100 dark:bg-[#070b14]">
@@ -654,6 +659,53 @@ export default function InteractiveBookReaderPage() {
 
         {/* RIGHT MAIN PDF VIEWER AREA */}
         <main className="flex-1 flex flex-col bg-slate-200 dark:bg-slate-950 overflow-hidden relative">
+          {/* Viewer Mode Bar */}
+          <div className="h-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xs border-b border-slate-200 dark:border-slate-800 px-3 sm:px-4 flex items-center justify-between text-xs shrink-0 z-10">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="text-[11px] font-bold text-slate-500 hidden sm:inline">Engine:</span>
+              <div className="flex items-center p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-[11px] font-bold">
+                <button
+                  onClick={() => setViewerEngine('cloud')}
+                  className={`px-2 sm:px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+                    viewerEngine === 'cloud'
+                      ? 'bg-white dark:bg-slate-700 text-japan-red shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  }`}
+                  title="Google Cloud PDF Reader (bypasses browser plugin blocks)"
+                >
+                  ⚡ Cloud Viewer
+                </button>
+                <button
+                  onClick={() => setViewerEngine('native')}
+                  className={`px-2 sm:px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+                    viewerEngine === 'native'
+                      ? 'bg-white dark:bg-slate-700 text-japan-red shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  }`}
+                  title="Direct browser PDF stream"
+                >
+                  📄 Direct PDF
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {book.pdf_download_url && (
+                <a
+                  href={book.pdf_download_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-slate-50 border border-slate-200 dark:border-slate-700 rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-200 shadow-2xs transition-all"
+                  title="Open the official PDF document full-screen in a new tab"
+                >
+                  <ExternalLink className="w-3 h-3 text-japan-red" />
+                  <span className="hidden sm:inline">Open in New Tab</span>
+                  <span className="sm:hidden">Full PDF</span>
+                </a>
+              )}
+            </div>
+          </div>
+
           {/* PDF Viewer Frame */}
           <div className="flex-1 w-full h-full relative overflow-auto flex items-center justify-center p-2 sm:p-4">
             <div
@@ -663,17 +715,18 @@ export default function InteractiveBookReaderPage() {
                 transformOrigin: 'top center',
               }}
             >
-              {book.pdf_download_url ? (
+              {activeIframeSrc ? (
                 <iframe
-                  key={currentPage}
-                  src={pdfUrlWithPage}
+                  key={`${viewerEngine}-${currentPage}`}
+                  src={activeIframeSrc}
                   title={`${book.title} - Page ${currentPage}`}
                   className="w-full h-full border-none"
                   loading="lazy"
+                  allow="autoplay"
                 />
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-                  <FileText className="w-16 h-16 text-slate-400" />
+                  <BookOpen className="w-16 h-16 text-slate-400" />
                   <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
                     PDF document stream is loading.
                   </p>
