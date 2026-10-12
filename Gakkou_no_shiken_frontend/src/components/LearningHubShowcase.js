@@ -143,8 +143,13 @@ export default function LearningHubShowcase() {
             <div className="space-y-1.5 sm:space-y-2.5">
               {/* Icon & Badge */}
               <div className="flex items-center justify-between">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-md shadow-purple-600/30 group-hover:scale-105 transition-transform">
-                  <Gamepad2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-purple-600/30 group-hover:scale-110 transition-transform shrink-0 border border-purple-300/60 dark:border-purple-800 bg-purple-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/img/game_zone_icon.png"
+                    alt="Japanese Game Zone"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-purple-200/80 dark:border-purple-800">
                   <Flame className="w-2.5 h-2.5 text-amber-500" />

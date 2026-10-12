@@ -284,8 +284,13 @@ export default function Navbar() {
                           : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 mt-0.5">
-                        <Gamepad2 className="w-4 h-4" />
+                      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 mt-0.5 shadow-xs border border-purple-200 dark:border-purple-800 bg-purple-50">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/img/game_zone_icon.png"
+                          alt="Japanese Game Zone"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between">
