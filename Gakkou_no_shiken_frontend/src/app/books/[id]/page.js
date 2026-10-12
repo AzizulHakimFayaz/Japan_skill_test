@@ -29,9 +29,11 @@ import {
   Menu,
   X,
   Languages,
+  Repeat,
+  FastForward,
 } from 'lucide-react';
 import { getBookDetail } from '@/lib/api';
-import { FALLBACK_BOOKS } from '@/lib/booksData';
+import { FALLBACK_BOOKS, FALLBACK_TOPICS, getTopicsForBook } from '@/lib/booksData';
 
 export default function InteractiveBookReaderPage() {
   const routeParams = useParams();
@@ -48,6 +50,8 @@ export default function InteractiveBookReaderPage() {
   const [searchTopicQuery, setSearchTopicQuery] = useState('');
   const [revealedAnswers, setRevealedAnswers] = useState({});
   const [viewerEngine, setViewerEngine] = useState('cloud'); // 'cloud' | 'native'
+  const [voiceMode, setVoiceMode] = useState('native'); // 'native' | 'japanese'
+  const [continuousMode, setContinuousMode] = useState(false);
 
   // Audio Player State
   const [activeAudioItem, setActiveAudioItem] = useState(null);
@@ -56,6 +60,49 @@ export default function InteractiveBookReaderPage() {
   const [audioDuration, setAudioDuration] = useState(0);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const audioRef = useRef(null);
+  const continuousModeRef = useRef(continuousMode);
+  continuousModeRef.current = continuousMode;
+  const activeAudioItemRef = useRef(activeAudioItem);
+  activeAudioItemRef.current = activeAudioItem;
+
+  // Language mapping for Web Speech API locale
+  const getLanguageLocale = (lang) => {
+    switch (lang) {
+      case 'bn': return 'bn-BD';
+      case 'id': return 'id-ID';
+      case 'en': return 'en-US';
+      case 'vi': return 'vi-VN';
+      case 'tl': return 'fil-PH';
+      case 'ne': return 'ne-NP';
+      case 'km': return 'km-KH';
+      case 'th': return 'th-TH';
+      case 'my': return 'my-MM';
+      case 'mn': return 'mn-MN';
+      case 'uz': return 'uz-UZ';
+      case 'zh-CN': return 'zh-CN';
+      case 'ja': default: return 'ja-JP';
+    }
+  };
+
+  // Build full, comprehensive text for speech synthesis
+  const buildSpeechContent = (item, mode) => {
+    if (mode === 'japanese') {
+      if (item.topic_type === 'question') {
+        const opts = item.question_options?.join('。') || '';
+        return `${item.title_ja || item.title}。問題です。${item.japanese_script || item.summary_text || ''}。選択肢。${opts}。正解は、${item.correct_answer || ''}です。`;
+      }
+      return `${item.title_ja || item.title}。${item.japanese_script || item.summary_text || ''}`;
+    }
+
+    // Native language reading (Bengali, Indonesian, English, etc.)
+    if (item.topic_type === 'question') {
+      const opts = item.question_options?.join('. ') || '';
+      return `${item.title}. ${item.summary_text || ''}. Options: ${opts}. Correct answer: ${item.correct_answer || ''}.`;
+    }
+
+    const jaPronounce = item.title_ja ? ` Japanese term: ${item.title_ja}. ` : '';
+    return `${item.title}. ${jaPronounce}${item.summary_text || ''}`;
+  };
 
   // Fetch book and its topics/questions
   useEffect(() => {
@@ -69,7 +116,7 @@ export default function InteractiveBookReaderPage() {
           if (!activeBook.topics || !Array.isArray(activeBook.topics) || activeBook.topics.length === 0) {
             activeBook = {
               ...activeBook,
-              topics: FALLBACK_TOPICS,
+              topics: getTopicsForBook(activeBook),
             };
           }
           setBook(activeBook);
@@ -84,7 +131,7 @@ export default function InteractiveBookReaderPage() {
           const fallback = FALLBACK_BOOKS.find((b) => String(b.id) === String(bookId)) || FALLBACK_BOOKS[0];
           setBook({
             ...fallback,
-            topics: fallback.topics || FALLBACK_TOPICS,
+            topics: fallback.topics || getTopicsForBook(fallback),
           });
         }
       } finally {
@@ -95,9 +142,10 @@ export default function InteractiveBookReaderPage() {
     return () => { isMounted = false; };
   }, [bookId]);
 
-  // Audio helper: play pre-recorded MP3 or fallback to Web Speech API
-  const handlePlayAudio = (item) => {
-    if (activeAudioItem?.id === item.id && isPlaying) {
+  // Audio helper: play pre-recorded MP3 or multilingual Web Speech API
+  const handlePlayAudio = (item, forceMode = null) => {
+    const selectedMode = forceMode || voiceMode;
+    if (activeAudioItem?.id === item.id && isPlaying && (!forceMode || forceMode === voiceMode)) {
       if (audioRef.current) audioRef.current.pause();
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -106,15 +154,14 @@ export default function InteractiveBookReaderPage() {
       return;
     }
 
-    // Also auto-jump PDF to this topic's page
     if (item.page_number) {
       jumpToPage(item.page_number);
     }
 
     setActiveAudioItem(item);
 
-    if (item.audio_file_url) {
-      // Pre-recorded / generated Edge-TTS neural audio
+    // If pre-recorded audio file exists and user requested Japanese mode
+    if (item.audio_file_url && selectedMode === 'japanese') {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
@@ -123,37 +170,78 @@ export default function InteractiveBookReaderPage() {
         audioRef.current.playbackRate = playbackSpeed;
         audioRef.current.play().then(() => {
           setIsPlaying(true);
-        }).catch((err) => {
-          console.warn('Audio play error, falling back to Web Speech:', err);
-          speakWithWebSpeech(item.japanese_script || item.title_ja || item.title);
+        }).catch(() => {
+          speakWithWebSpeech(item, selectedMode);
         });
       }
     } else {
-      // Client-side Web Speech fallback
-      speakWithWebSpeech(item.japanese_script || item.title_ja || item.title);
+      speakWithWebSpeech(item, selectedMode);
     }
   };
 
-  const speakWithWebSpeech = (text) => {
+  const speakWithWebSpeech = (item, mode) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ja-JP';
-    utterance.rate = playbackSpeed === 0.8 ? 0.8 : 0.95;
-    utterance.onstart = () => setIsPlaying(true);
-    utterance.onend = () => setIsPlaying(false);
+
+    const targetLang = mode === 'japanese' ? 'ja-JP' : getLanguageLocale(book?.language);
+    const speechText = buildSpeechContent(item, mode);
+
+    const utterance = new SpeechSynthesisUtterance(speechText);
+    utterance.lang = targetLang;
+    utterance.rate = playbackSpeed === 0.8 ? 0.8 : playbackSpeed === 1.2 ? 1.15 : 0.95;
+
+    // Pick best native voice matching target locale
+    const voices = window.speechSynthesis.getVoices();
+    if (voices && voices.length > 0) {
+      const prefix = targetLang.split('-')[0];
+      const matched = voices.find((v) => v.lang === targetLang) || voices.find((v) => v.lang.startsWith(prefix));
+      if (matched) {
+        utterance.voice = matched;
+      }
+    }
+
+    utterance.onstart = () => {
+      setIsPlaying(true);
+      setAudioDuration(Math.max(15, Math.ceil(speechText.length / 8)));
+    };
+    utterance.onend = () => {
+      setIsPlaying(false);
+      setAudioProgress(0);
+      if (continuousModeRef.current) {
+        playNextTopic(item);
+      }
+    };
     utterance.onerror = () => setIsPlaying(false);
     window.speechSynthesis.speak(utterance);
   };
 
+  const playNextTopic = (currentItem) => {
+    if (!book?.topics) return;
+    const currentList = book.topics;
+    const currentIndex = currentList.findIndex((t) => t.id === currentItem.id);
+    if (currentIndex >= 0 && currentIndex < currentList.length - 1) {
+      const nextItem = currentList[currentIndex + 1];
+      setTimeout(() => {
+        handlePlayAudio(nextItem);
+      }, 600);
+    }
+  };
+
   const togglePlayPause = () => {
-    if (!audioRef.current || !activeAudioItem) return;
+    if (!activeAudioItem) return;
     if (isPlaying) {
-      audioRef.current.pause();
+      if (audioRef.current) audioRef.current.pause();
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.pause();
+      }
       setIsPlaying(false);
     } else {
-      audioRef.current.play();
-      setIsPlaying(true);
+      if (audioRef.current && audioRef.current.src) {
+        audioRef.current.play();
+        setIsPlaying(true);
+      } else {
+        speakWithWebSpeech(activeAudioItem, voiceMode);
+      }
     }
   };
 
@@ -165,7 +253,7 @@ export default function InteractiveBookReaderPage() {
   };
 
   const jumpToPage = (pageNum) => {
-    const total = book?.total_pages || 120;
+    const total = book?.total_pages || 160;
     const clamped = Math.max(1, Math.min(pageNum, total));
     setCurrentPage(clamped);
     setPageInput(String(clamped));
@@ -619,7 +707,7 @@ export default function InteractiveBookReaderPage() {
               <div className="flex items-center justify-between gap-2">
                 <div className="min-w-0">
                   <p className="text-xs font-bold truncate text-rose-300">
-                    🔊 {activeAudioItem.title_ja || activeAudioItem.title}
+                    🔊 {voiceMode === 'japanese' ? (activeAudioItem.title_ja || activeAudioItem.title) : activeAudioItem.title}
                   </p>
                   <p className="text-[10px] text-slate-400 font-mono">
                     {formatTime(audioProgress)} / {formatTime(audioDuration || 30)} (Page {activeAudioItem.page_number})
@@ -627,21 +715,87 @@ export default function InteractiveBookReaderPage() {
                 </div>
 
                 <div className="flex items-center gap-1.5 shrink-0">
+                  {/* Next track button */}
+                  <button
+                    onClick={() => playNextTopic(activeAudioItem)}
+                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors cursor-pointer"
+                    title="Next Chapter / Question"
+                  >
+                    <FastForward className="w-3.5 h-3.5" />
+                  </button>
+
+                  {/* Playback speed toggle */}
                   <button
                     onClick={() => handleSpeedChange(playbackSpeed === 1.0 ? 0.8 : playbackSpeed === 0.8 ? 1.2 : 1.0)}
                     className="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-bold text-amber-300 hover:bg-slate-700 transition-colors"
-                    title="Toggle Speed (0.8x for slow Japanese listening)"
+                    title="Toggle Speed (0.8x for slow speech, 1.0x normal, 1.2x fast)"
                   >
                     {playbackSpeed}x
                   </button>
 
+                  {/* Main Play/Pause */}
                   <button
                     onClick={togglePlayPause}
-                    className="p-2 rounded-xl bg-japan-red hover:bg-rose-700 text-white transition-all cursor-pointer"
+                    className="p-2 rounded-xl bg-japan-red hover:bg-rose-700 text-white transition-all cursor-pointer shadow-xs"
+                    title={isPlaying ? 'Pause Audio' : 'Play Audio'}
                   >
                     {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
                   </button>
                 </div>
+              </div>
+
+              {/* Multilingual Voice Mode & Continuous Controls */}
+              <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-800/80">
+                {/* Voice Selection Toggle */}
+                <div className="flex items-center gap-1 bg-slate-950 p-0.5 rounded-lg text-[10px] font-bold">
+                  <button
+                    onClick={() => {
+                      setVoiceMode('native');
+                      if (isPlaying) {
+                        speakWithWebSpeech(activeAudioItem, 'native');
+                      }
+                    }}
+                    className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
+                      voiceMode === 'native'
+                        ? 'bg-rose-600 text-white shadow-xs'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                    title={`Listen in ${book.language_name || 'Native language'}`}
+                  >
+                    {book.language_flag || '🌐'} {book.language_name ? book.language_name.split(' ')[0] : 'Native'} Voice
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setVoiceMode('japanese');
+                      if (isPlaying) {
+                        handlePlayAudio(activeAudioItem, 'japanese');
+                      }
+                    }}
+                    className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
+                      voiceMode === 'japanese'
+                        ? 'bg-rose-600 text-white shadow-xs'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                    title="Listen in authentic Japanese pronunciation (日本語)"
+                  >
+                    🇯🇵 日本語
+                  </button>
+                </div>
+
+                {/* Continuous Playback Toggle */}
+                <button
+                  onClick={() => setContinuousMode(!continuousMode)}
+                  className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                    continuousMode
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                      : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                  }`}
+                  title="Auto-advance to the next chapter topic when finished"
+                >
+                  <Repeat className="w-3 h-3" />
+                  <span>{continuousMode ? 'Auto-Play: ON' : 'Auto: OFF'}</span>
+                </button>
               </div>
 
               {/* Progress Bar */}

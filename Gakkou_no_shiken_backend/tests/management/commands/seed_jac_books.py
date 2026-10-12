@@ -101,7 +101,7 @@ JAC_BOOKS_DATA = [
         "book_type": ExamBook.BookType.STUDY_GUIDE,
         "pdf_url": "https://jac-skill.or.jp/exam/files/ctextk_en.pdf",
         "description": "Comprehensive English translation reference for Specified Skills Architecture Exam candidates.",
-        "total_pages": 52,
+        "total_pages": 147,
         "order": 10,
     },
     {
@@ -114,7 +114,7 @@ JAC_BOOKS_DATA = [
         "book_type": ExamBook.BookType.STUDY_GUIDE,
         "pdf_url": "https://jac-skill.or.jp/exam/files/ctextd_en.pdf",
         "description": "Official English study textbook covering Civil Engineering fundamentals and Japanese site practices.",
-        "total_pages": 48,
+        "total_pages": 147,
         "order": 11,
     },
     {
@@ -142,7 +142,7 @@ JAC_BOOKS_DATA = [
         "book_type": ExamBook.BookType.STUDY_GUIDE,
         "pdf_url": "https://jac-skill.or.jp/exam/files/ctextk_bn.pdf",
         "description": "জাপান কনস্ট্রাকশন স্কিল টেস্ট (JAC) আর্কিটেকচার পরীক্ষার সম্পূর্ণ বাংলা অনুবাদ সহায়িকা।",
-        "total_pages": 50,
+        "total_pages": 150,
         "order": 20,
     },
     {
@@ -183,7 +183,7 @@ JAC_BOOKS_DATA = [
         "book_type": ExamBook.BookType.STUDY_GUIDE,
         "pdf_url": "https://jac-skill.or.jp/exam/files/ctextk_vn.pdf",
         "description": "Tài liệu học tập kỳ thi đánh giá kỹ năng đặc định số 1 ngành Xây dựng kiến trúc bản tiếng Việt.",
-        "total_pages": 50,
+        "total_pages": 138,
         "order": 30,
     },
     {
@@ -196,7 +196,7 @@ JAC_BOOKS_DATA = [
         "book_type": ExamBook.BookType.STUDY_GUIDE,
         "pdf_url": "https://jac-skill.or.jp/exam/files/ctextd_vn.pdf",
         "description": "Tài liệu ôn thi ngành cầu đường (Doboku) kèm từ vựng kỹ thuật và an toàn lao động.",
-        "total_pages": 46,
+        "total_pages": 136,
         "order": 31,
     },
     {
@@ -224,7 +224,7 @@ JAC_BOOKS_DATA = [
         "book_type": ExamBook.BookType.STUDY_GUIDE,
         "pdf_url": "https://jac-skill.or.jp/exam/files/ctextk_id.pdf",
         "description": "Materi panduan belajar resmi ujian Tokutei Ginou bidang arsitektur konstruksi JAC Jepang.",
-        "total_pages": 50,
+        "total_pages": 152,
         "order": 40,
     },
     {
@@ -265,7 +265,7 @@ JAC_BOOKS_DATA = [
         "book_type": ExamBook.BookType.STUDY_GUIDE,
         "pdf_url": "https://jac-skill.or.jp/exam/files/ctextk_tl.pdf",
         "description": "Gabay sa pag-aaral ng Specified Skilled Worker Exam para sa construction sa wikang Tagalog.",
-        "total_pages": 50,
+        "total_pages": 164,
         "order": 50,
     },
     {
@@ -278,7 +278,7 @@ JAC_BOOKS_DATA = [
         "book_type": ExamBook.BookType.STUDY_GUIDE,
         "pdf_url": "https://jac-skill.or.jp/exam/files/ctextd_tl.pdf",
         "description": "Mga pangunahing kaalaman sa civil engineering at mga patakaran sa kaligtasan sa lugar ng trabaho.",
-        "total_pages": 46,
+        "total_pages": 162,
         "order": 51,
     },
 
@@ -321,7 +321,7 @@ JAC_BOOKS_DATA = [
         "book_type": ExamBook.BookType.STUDY_GUIDE,
         "pdf_url": "https://jac-skill.or.jp/exam/files/ctextk_ne.pdf",
         "description": "जापानको निर्दिष्ट सीप परीक्षा वास्तुकला क्षेत्रको लागि नेपाली अनुवादित अध्ययन सामग्री।",
-        "total_pages": 50,
+        "total_pages": 138,
         "order": 70,
     },
     {

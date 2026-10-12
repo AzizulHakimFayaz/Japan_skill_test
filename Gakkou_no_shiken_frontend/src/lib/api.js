@@ -334,7 +334,7 @@ export async function searchCurriculum(q) {
   return apiRequest(`/api/curriculum/search/?q=${encodeURIComponent(q)}`);
 }
 // ─── Exam Books & Interactive PDF Reader API ───
-import { FALLBACK_BOOKS, FALLBACK_TOPICS } from './booksData';
+import { FALLBACK_BOOKS, FALLBACK_TOPICS, getTopicsForBook } from './booksData';
 
 export async function getBooks(params = {}) {
   try {
@@ -384,7 +384,7 @@ export async function getBookDetail(id) {
     const data = await apiRequest(`/api/books/${id}/`);
     if (data && data.id) {
       if (!data.topics || !Array.isArray(data.topics) || data.topics.length === 0) {
-        data.topics = FALLBACK_TOPICS;
+        data.topics = getTopicsForBook(data);
       }
       return data;
     }
@@ -396,7 +396,7 @@ export async function getBookDetail(id) {
   const matched = FALLBACK_BOOKS.find((b) => b.id === numId) || FALLBACK_BOOKS[0];
   return {
     ...matched,
-    topics: (matched.topics && matched.topics.length > 0) ? matched.topics : FALLBACK_TOPICS,
+    topics: (matched.topics && matched.topics.length > 0) ? matched.topics : getTopicsForBook(matched),
   };
 }
 
