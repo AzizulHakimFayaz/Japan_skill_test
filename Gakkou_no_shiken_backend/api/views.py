@@ -1682,6 +1682,19 @@ class RunMigrationAPIView(APIView):
         except Exception as e:
             logs.append(f"⚠️ JAC Books Seed Note: {e}")
 
+        # 6. Hero Banners Auto-Seed
+        try:
+            from tests.models import HeroBanner
+            if HeroBanner.objects.count() == 0:
+                out = io.StringIO()
+                with redirect_stdout(out), redirect_stderr(out):
+                    call_command('seed_hero_banners')
+                logs.append(f"✅ Hero Banners Seed Output:\n{out.getvalue().strip()}")
+            else:
+                logs.append(f"✅ Hero Banners Database: {HeroBanner.objects.count()} banners active.")
+        except Exception as e:
+            logs.append(f"⚠️ Hero Banners Seed Note: {e}")
+
 
         # 5. Superuser verification (does not overwrite custom passwords unless ?admin_pwd= is passed)
         try:

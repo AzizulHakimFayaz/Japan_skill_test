@@ -54,7 +54,7 @@ def run():
         print("Backfill exception:", e)
 
     # 3. Check migration status
-    print("\n[Step 3/3] Checking Country Migration Status...")
+    print("\n[Step 3/4] Checking Country Migration Status...")
     try:
         proc = subprocess.run(
             [sys.executable, "manage.py", "check_country_migration"],
@@ -64,6 +64,18 @@ def run():
         print(proc.stdout)
     except Exception as e:
         print("Status check exception:", e)
+
+    # 4. Seed Dynamic Hero Banners for Game Zone, Lessons, CBT & SSW
+    print("\n[Step 4/4] Seeding/Updating Dynamic Hero Banners...")
+    try:
+        proc = subprocess.run(
+            [sys.executable, "manage.py", "seed_hero_banners"],
+            capture_output=True,
+            text=True
+        )
+        print(proc.stdout)
+    except Exception as e:
+        print("Hero banner seed exception:", e)
 
     # 4. Trigger Passenger application restart
     print("\n[Restart] Triggering LiteSpeed / Passenger Application Reload...")
