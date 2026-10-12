@@ -635,15 +635,8 @@ class Command(BaseCommand):
         self.stdout.write(self.style.NOTICE("\n2. Linking Topics, Chapters & Important Questions..."))
         all_topics_to_audio = []
 
-        # Specifically attach the full 120-page curriculum to the primary Japanese Architecture and English books
-        target_books = ExamBook.objects.filter(
-            title__in=[
-                "建築分野 特定技能1号 評価試験テキスト (建築学科)",
-                "Architecture (Construction) Study Textbook - English",
-                "নির্মাণ ক্ষেত্র (Architecture) পরীক্ষার স্টাडी টেক্সটবুক - বাংলা",
-                "土木分野 特定技能1号 評価試験テキスト (土木学科)"
-            ]
-        )
+        # Attach the full curriculum and exam questions to all books in the catalog
+        target_books = ExamBook.objects.all()
 
         for target_book in target_books:
             for t_data in CORE_TOPICS:

@@ -383,6 +383,9 @@ export async function getBookDetail(id) {
   try {
     const data = await apiRequest(`/api/books/${id}/`);
     if (data && data.id) {
+      if (!data.topics || !Array.isArray(data.topics) || data.topics.length === 0) {
+        data.topics = FALLBACK_TOPICS;
+      }
       return data;
     }
   } catch (err) {
@@ -393,7 +396,7 @@ export async function getBookDetail(id) {
   const matched = FALLBACK_BOOKS.find((b) => b.id === numId) || FALLBACK_BOOKS[0];
   return {
     ...matched,
-    topics: matched.topics || FALLBACK_TOPICS,
+    topics: (matched.topics && matched.topics.length > 0) ? matched.topics : FALLBACK_TOPICS,
   };
 }
 

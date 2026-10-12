@@ -64,7 +64,13 @@ export default function InteractiveBookReaderPage() {
       try {
         const data = await getBookDetail(bookId);
         if (isMounted) {
-          const activeBook = data || FALLBACK_BOOKS.find((b) => String(b.id) === String(bookId)) || FALLBACK_BOOKS[0];
+          let activeBook = data || FALLBACK_BOOKS.find((b) => String(b.id) === String(bookId)) || FALLBACK_BOOKS[0];
+          if (!activeBook.topics || !Array.isArray(activeBook.topics) || activeBook.topics.length === 0) {
+            activeBook = {
+              ...activeBook,
+              topics: FALLBACK_TOPICS,
+            };
+          }
           setBook(activeBook);
           if (activeBook.topics && activeBook.topics.length > 0) {
             setCurrentPage(activeBook.topics[0].page_number || 1);
@@ -74,7 +80,11 @@ export default function InteractiveBookReaderPage() {
       } catch (err) {
         console.error('Failed to load book:', err);
         if (isMounted) {
-          setBook(FALLBACK_BOOKS[0]);
+          const fallback = FALLBACK_BOOKS.find((b) => String(b.id) === String(bookId)) || FALLBACK_BOOKS[0];
+          setBook({
+            ...fallback,
+            topics: fallback.topics || FALLBACK_TOPICS,
+          });
         }
       } finally {
         if (isMounted) setLoading(false);
@@ -188,12 +198,12 @@ export default function InteractiveBookReaderPage() {
 
   const filteredTopics = useMemo(() => {
     if (!searchTopicQuery.trim()) return topicsList;
-    const q = searchTopicQuery.toLowerCase();
+    const q = searchTopicQuery.trim().toLowerCase();
     return topicsList.filter(
       (t) =>
-        t.title.toLowerCase().includes(q) ||
-        (t.title_ja && t.title_ja.toLowerCase().includes(q)) ||
-        (t.summary_text && t.summary_text.toLowerCase().includes(q))
+        ((t.title || '').toLowerCase().includes(q)) ||
+        ((t.title_ja || '').toLowerCase().includes(q)) ||
+        ((t.summary_text || '').toLowerCase().includes(q))
     );
   }, [topicsList, searchTopicQuery]);
 
@@ -410,8 +420,30 @@ export default function InteractiveBookReaderPage() {
           <div className="flex-1 overflow-y-auto p-3 space-y-2.5 divide-y divide-slate-100 dark:divide-slate-800/50">
             {activeTab === 'topics' ? (
               filteredTopics.length === 0 ? (
-                <div className="text-center py-12 text-slate-400 text-xs">
-                  No matching topics found.
+                <div className="text-center py-10 px-4 text-slate-400 text-xs space-y-3">
+                  <p className="font-semibold text-slate-600 dark:text-slate-300">
+                    {searchTopicQuery ? `No topics match "${searchTopicQuery}".` : 'No curriculum topics loaded for this book.'}
+                  </p>
+                  {searchTopicQuery ? (
+                    <button
+                      onClick={() => setSearchTopicQuery('')}
+                      className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold transition-all"
+                    >
+                      Clear Search Filter
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setBook((prev) => ({
+                          ...(prev || {}),
+                          topics: FALLBACK_TOPICS,
+                        }));
+                      }}
+                      className="px-4 py-2 bg-japan-red text-white rounded-xl text-xs font-bold shadow-xs hover:opacity-95 transition-all"
+                    >
+                      Load Full Curriculum Topics
+                    </button>
+                  )}
                 </div>
               ) : (
                 filteredTopics.map((item) => {
