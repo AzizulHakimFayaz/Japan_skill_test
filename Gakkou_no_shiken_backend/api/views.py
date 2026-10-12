@@ -17,7 +17,7 @@ from django.core.management import call_command
 from django.db.models import Count, Q, Case, When, Value, IntegerField
 from django.utils import timezone
 
-from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic
+from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic, HeroBanner
 from accounts.models import UserProfile, EmailVerificationOTP, PasswordResetToken
 from accounts.geolocation import get_client_ip, lookup_ip_country, resolve_user_country_and_flag, get_country_flag
 from accounts.emails import send_password_reset_email
@@ -47,6 +47,7 @@ from .serializers import (
     ExamBookListSerializer,
     ExamBookDetailSerializer,
     BookTopicSerializer,
+    HeroBannerSerializer,
 )
 
 
@@ -2366,6 +2367,16 @@ class ExamBookLanguagesAPIView(APIView):
                 }
             langs[b.language]['books_count'] += 1
         return Response(list(langs.values()))
+
+
+class HeroBannerListAPIView(APIView):
+    """Returns active hero banner slides for homepage carousel."""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        banners = HeroBanner.objects.filter(is_active=True).order_by('order', 'id')
+        serializer = HeroBannerSerializer(banners, many=True, context={'request': request})
+        return Response(serializer.data)
 
 
 

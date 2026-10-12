@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from tests.models import Test, QuestionGroup, Question, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic
+from tests.models import Test, QuestionGroup, Question, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic, HeroBanner
 
 
 
@@ -637,5 +637,46 @@ class ExamBookDetailSerializer(ExamBookListSerializer):
     def get_topics(self, obj):
         topics_qs = obj.topics.all().order_by('order', 'page_number', 'id')
         return BookTopicSerializer(topics_qs, many=True, context=self.context).data
+
+
+class HeroBannerSerializer(serializers.ModelSerializer):
+    image_display = serializers.SerializerMethodField()
+    mobile_image_display = serializers.SerializerMethodField()
+
+    class Meta:
+        model = HeroBanner
+        fields = [
+            'id',
+            'title',
+            'title_highlight',
+            'subtitle',
+            'badge_text',
+            'badge_icon',
+            'image',
+            'image_url',
+            'image_display',
+            'mobile_image',
+            'mobile_image_url',
+            'mobile_image_display',
+            'primary_btn_text',
+            'primary_btn_url',
+            'secondary_btn_text',
+            'secondary_btn_url',
+            'theme_color',
+            'order',
+            'is_active',
+        ]
+
+    def get_image_display(self, obj):
+        if obj.image:
+            return get_absolute_media_url(obj.image, self.context.get('request'))
+        return obj.image_url if obj.image_url else None
+
+    def get_mobile_image_display(self, obj):
+        if obj.mobile_image:
+            return get_absolute_media_url(obj.mobile_image, self.context.get('request'))
+        if obj.mobile_image_url:
+            return obj.mobile_image_url
+        return self.get_image_display(obj)
 
 

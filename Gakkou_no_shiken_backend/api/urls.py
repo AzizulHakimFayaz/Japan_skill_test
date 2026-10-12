@@ -62,6 +62,9 @@ urlpatterns = [
     path('books/languages/', views.ExamBookLanguagesAPIView.as_view(), name='api_books_languages'),
     path('books/<int:pk>/', views.ExamBookDetailAPIView.as_view(), name='api_book_detail'),
 
+    # Hero Banner Moving Slides
+    path('banners/', views.HeroBannerListAPIView.as_view(), name='api_banners_list'),
+
     # One-Click Setup Trigger & Admin Helpers
     path('setup-database/', views.SetupDatabaseAPIView.as_view(), name='api_setup_database'),
     path('run-migration/', views.RunMigrationAPIView.as_view(), name='api_run_migration'),

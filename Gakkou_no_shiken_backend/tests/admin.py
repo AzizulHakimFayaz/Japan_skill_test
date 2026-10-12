@@ -5,7 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.views.decorators.csrf import csrf_exempt
-from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic
+from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic, HeroBanner
 from .utils import import_questions_from_csv, generate_sample_csv_string, generate_sample_ssw_csv_string, export_test_questions_to_csv, generate_test_missing_audio_worker
 from .audio_logger import get_audio_logs, clear_audio_logs, append_audio_log
 from .audio_generator import test_edge_tts_connection, generate_and_save_question_audio_with_details
@@ -1281,6 +1281,25 @@ class BookTopicAdmin(admin.ModelAdmin):
     list_filter = ('topic_type', 'book__category', 'book__language')
     search_fields = ('title', 'title_ja', 'summary_text', 'japanese_script')
     ordering = ('book', 'order', 'page_number')
+
+
+@admin.register(HeroBanner)
+class HeroBannerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'order', 'title', 'badge_text', 'theme_color', 'primary_btn_url', 'image_preview_thumb', 'is_active')
+    list_editable = ('order', 'is_active')
+    list_filter = ('theme_color', 'is_active')
+    search_fields = ('title', 'title_highlight', 'subtitle', 'badge_text')
+    ordering = ('order', 'id')
+
+    def image_preview_thumb(self, obj):
+        img_url = obj.image.url if obj.image else (obj.image_url or obj.mobile_image_url or None)
+        if img_url:
+            return format_html(
+                '<img src="{}" style="max-height:40px; max-width:80px; border-radius:6px; object-fit:cover;" />',
+                img_url
+            )
+        return format_html('<span style="color:#94a3b8; font-size:11px;">No image</span>')
+    image_preview_thumb.short_description = "Image Preview"
 
 
 # ─── Admin site branding ──────────────────────────────────────────────

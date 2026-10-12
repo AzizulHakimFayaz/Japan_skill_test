@@ -651,4 +651,47 @@ class BookTopic(models.Model):
         return f"[P.{self.page_number}] {self.title}"
 
 
+class HeroBanner(models.Model):
+    class ThemeColor(models.TextChoices):
+        PURPLE = "purple", "Purple / Indigo (Arcade & Games)"
+        ROSE = "rose", "Rose / Japan Red (JFT-Basic)"
+        EMERALD = "emerald", "Emerald / Green (SSW Career)"
+        AMBER = "amber", "Amber / Gold (Leaderboard / Exam)"
+        CYAN = "cyan", "Cyan / Blue (Interactive Lessons)"
+
+    title = models.CharField(max_length=255, help_text="Main heading, e.g. 'Play & Master Japanese in Game Zone'")
+    title_highlight = models.CharField(max_length=255, blank=True, help_text="Gradient highlighted text phrase")
+    subtitle = models.TextField(blank=True, help_text="Supporting tagline / description")
+    badge_text = models.CharField(max_length=150, blank=True, default="NEW FEATURE", help_text="Top badge pill text, e.g. '🎮 GAME ZONE'")
+    badge_icon = models.CharField(max_length=50, blank=True, default="gamepad", help_text="gamepad, book, trophy, spark, zap, etc.")
+    
+    # Desktop picture
+    image = models.ImageField(upload_to="hero_banners/", blank=True, null=True, help_text="Desktop banner artwork / image")
+    image_url = models.URLField(max_length=500, blank=True, help_text="Optional external/static image URL (e.g. /img/game_banner.jpg)")
+    
+    # Dedicated Mobile picture
+    mobile_image = models.ImageField(upload_to="hero_banners/mobile/", blank=True, null=True, help_text="Dedicated mobile banner image")
+    mobile_image_url = models.URLField(max_length=500, blank=True, help_text="Optional external/static mobile image URL")
+    
+    # Action buttons
+    primary_btn_text = models.CharField(max_length=80, default="Explore Now")
+    primary_btn_url = models.CharField(max_length=255, default="/game-zone", help_text="Target URL for primary button")
+    secondary_btn_text = models.CharField(max_length=80, blank=True, default="View More")
+    secondary_btn_url = models.CharField(max_length=255, blank=True, default="/lessons")
+    
+    theme_color = models.CharField(max_length=30, choices=ThemeColor.choices, default=ThemeColor.PURPLE)
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = "Hero Banner Slide"
+        verbose_name_plural = "Hero Banner Slides"
+
+    def __str__(self):
+        return f"[{self.order}] {self.title} ({self.badge_text})"
+
+
 

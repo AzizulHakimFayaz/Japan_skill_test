@@ -412,3 +412,15 @@ export async function getBookLanguages() {
   }
 }
 
+export async function getHeroBanners() {
+  try {
+    const data = await apiRequest('/api/banners/');
+    if (Array.isArray(data) && data.length > 0) {
+      return data;
+    }
+  } catch (err) {
+    console.warn('API getHeroBanners failed:', err);
+  }
+  return null;
+}
+
