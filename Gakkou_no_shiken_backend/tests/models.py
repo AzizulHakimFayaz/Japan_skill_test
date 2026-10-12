@@ -581,3 +581,74 @@ class CurriculumKanji(models.Model):
         return f"{self.character} ({self.meaning_en})"
 
 
+class ExamBook(models.Model):
+    class Category(models.TextChoices):
+        CIVIL = "civil", "Civil Engineering (土木)"
+        ARCHITECTURE = "architecture", "Architecture (建築)"
+        LIFELINE = "lifeline", "Lifeline & Facilities (ライフライン・設備)"
+        GENERAL = "general", "General / All Fields (共通)"
+
+    class BookType(models.TextChoices):
+        TEXTBOOK = "textbook", "Official Textbook (学科・実技テキスト)"
+        STUDY_GUIDE = "study_guide", "Condensed Study Guide (学習用・勉強資料)"
+        SAMPLE_QUESTIONS = "sample_questions", "Sample Exam Questions (サンプル問題)"
+
+    title = models.CharField(max_length=255)
+    title_ja = models.CharField(max_length=255, blank=True)
+    category = models.CharField(max_length=30, choices=Category.choices, default=Category.ARCHITECTURE)
+    language = models.CharField(max_length=15, default="ja", help_text="e.g. ja, en, bn, vi, id, tl, my, ne, uz, km, si, ta, th, zh-CN, mn")
+    language_name = models.CharField(max_length=60, default="日本語", help_text="Display language name like English, বাংলা, 日本語")
+    language_flag = models.CharField(max_length=10, default="🇯🇵", blank=True)
+    book_type = models.CharField(max_length=30, choices=BookType.choices, default=BookType.TEXTBOOK)
+    pdf_url = models.URLField(max_length=500, blank=True, help_text="Direct link to official PDF (e.g. JAC official)")
+    local_pdf = models.FileField(upload_to="books_pdf/", blank=True, null=True)
+    cover_image = models.ImageField(upload_to="book_covers/", blank=True, null=True)
+    cover_image_url = models.URLField(max_length=500, blank=True)
+    description = models.TextField(blank=True)
+    total_pages = models.PositiveIntegerField(default=120)
+    order = models.PositiveIntegerField(default=0)
+    is_published = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = "Exam Book"
+        verbose_name_plural = "Exam Books"
+
+    def __str__(self):
+        return f"[{self.language_flag} {self.language_name}] {self.title} ({self.get_category_display()})"
+
+
+class BookTopic(models.Model):
+    class TopicType(models.TextChoices):
+        CHAPTER = "chapter", "Chapter (章)"
+        SECTION = "section", "Key Topic (重要項目)"
+        QUESTION = "question", "Important Exam Question (重要問題)"
+        SAFETY = "safety", "Safety & Rules (安全・心得)"
+        TERMINOLOGY = "terminology", "Key Terminology (専門用語)"
+
+    book = models.ForeignKey(ExamBook, on_delete=models.CASCADE, related_name="topics")
+    title = models.CharField(max_length=255)
+    title_ja = models.CharField(max_length=255, blank=True)
+    page_number = models.PositiveIntegerField(default=1, help_text="Exact page in PDF to jump to")
+    topic_type = models.CharField(max_length=20, choices=TopicType.choices, default=TopicType.SECTION)
+    summary_text = models.TextField(blank=True, help_text="Key notes, points, question explanation")
+    question_options = models.JSONField(blank=True, null=True, help_text="Optional multiple choice options for practice questions")
+    correct_answer = models.CharField(max_length=255, blank=True)
+    japanese_script = models.TextField(blank=True, help_text="Text to be spoken by Japanese TTS")
+    audio_file = models.FileField(upload_to="book_audios/", blank=True, null=True)
+    audio_url = models.URLField(max_length=500, blank=True)
+    audio_duration = models.CharField(max_length=20, blank=True, default="00:30")
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'page_number', 'id']
+        verbose_name = "Book Topic / Question"
+        verbose_name_plural = "Book Topics & Questions"
+
+    def __str__(self):
+        return f"[P.{self.page_number}] {self.title}"
+
+
+

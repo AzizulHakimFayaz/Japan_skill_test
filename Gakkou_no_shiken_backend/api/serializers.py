@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from tests.models import Test, QuestionGroup, Question, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji
+from tests.models import Test, QuestionGroup, Question, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic
 
 
 
@@ -546,4 +546,96 @@ class CurriculumLessonDetailSerializer(serializers.ModelSerializer):
             lesson_number__gt=obj.lesson_number
         ).order_by('lesson_number').first()
         return nxt.id if nxt else None
+
+
+# ─── Exam Books & Topics Serializers ──────────────────────────────────
+class BookTopicSerializer(serializers.ModelSerializer):
+    audio_file_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = BookTopic
+        fields = [
+            'id',
+            'book',
+            'title',
+            'title_ja',
+            'page_number',
+            'topic_type',
+            'summary_text',
+            'question_options',
+            'correct_answer',
+            'japanese_script',
+            'audio_file_url',
+            'audio_duration',
+            'order',
+        ]
+
+    def get_audio_file_url(self, obj):
+        if obj.audio_file:
+            request = self.context.get('request')
+            return get_absolute_media_url(obj.audio_file, request)
+        if obj.audio_url:
+            return obj.audio_url
+        return None
+
+
+class ExamBookListSerializer(serializers.ModelSerializer):
+    category_display = serializers.CharField(source='get_category_display', read_only=True)
+    book_type_display = serializers.CharField(source='get_book_type_display', read_only=True)
+    pdf_download_url = serializers.SerializerMethodField()
+    cover_image_display = serializers.SerializerMethodField()
+    topics_count = serializers.SerializerMethodField()
+    questions_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ExamBook
+        fields = [
+            'id',
+            'title',
+            'title_ja',
+            'category',
+            'category_display',
+            'language',
+            'language_name',
+            'language_flag',
+            'book_type',
+            'book_type_display',
+            'pdf_download_url',
+            'cover_image_display',
+            'description',
+            'total_pages',
+            'topics_count',
+            'questions_count',
+            'order',
+        ]
+
+    def get_pdf_download_url(self, obj):
+        if obj.local_pdf:
+            request = self.context.get('request')
+            return get_absolute_media_url(obj.local_pdf, request)
+        return obj.pdf_url
+
+    def get_cover_image_display(self, obj):
+        if obj.cover_image:
+            request = self.context.get('request')
+            return get_absolute_media_url(obj.cover_image, request)
+        return obj.cover_image_url if obj.cover_image_url else None
+
+    def get_topics_count(self, obj):
+        return obj.topics.filter(topic_type__in=['chapter', 'section', 'safety', 'terminology']).count()
+
+    def get_questions_count(self, obj):
+        return obj.topics.filter(topic_type='question').count()
+
+
+class ExamBookDetailSerializer(ExamBookListSerializer):
+    topics = serializers.SerializerMethodField()
+
+    class Meta(ExamBookListSerializer.Meta):
+        fields = ExamBookListSerializer.Meta.fields + ['topics']
+
+    def get_topics(self, obj):
+        topics_qs = obj.topics.all().order_by('order', 'page_number', 'id')
+        return BookTopicSerializer(topics_qs, many=True, context=self.context).data
+
 

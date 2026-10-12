@@ -127,6 +127,17 @@ export default function Navbar() {
               <span>Lessons</span>
             </Link>
             <Link
+              href="/books"
+              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                isActive('/books') || pathname.startsWith('/books')
+                  ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
+                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <BookOpen className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-japan-red shrink-0" />
+              <span>Books &amp; Audio</span>
+            </Link>
+            <Link
               href="/tools"
               className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                 isActive('/tools') || pathname.startsWith('/tools')
@@ -378,6 +389,20 @@ export default function Navbar() {
                 </span>
                 <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-rose-50 text-japan-red dark:bg-rose-950/60 dark:text-rose-300">
                   80 Lessons
+                </span>
+              </Link>
+
+              <Link
+                href="/books"
+                onClick={() => setOpen(false)}
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+              >
+                <span className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-japan-red shrink-0" />
+                  <span>PDF Books &amp; Audio</span>
+                </span>
+                <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">
+                  New
                 </span>
               </Link>
 

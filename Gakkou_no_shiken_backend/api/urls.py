@@ -57,6 +57,11 @@ urlpatterns = [
     path('curriculum/lessons/<int:pk>/', views.CurriculumLessonDetailAPIView.as_view(), name='api_curriculum_lesson_detail'),
     path('curriculum/search/', views.CurriculumSearchAPIView.as_view(), name='api_curriculum_search'),
 
+    # Books & Interactive PDF Study Reader
+    path('books/', views.ExamBookListAPIView.as_view(), name='api_books_list'),
+    path('books/languages/', views.ExamBookLanguagesAPIView.as_view(), name='api_books_languages'),
+    path('books/<int:pk>/', views.ExamBookDetailAPIView.as_view(), name='api_book_detail'),
+
     # One-Click Setup Trigger & Admin Helpers
     path('setup-database/', views.SetupDatabaseAPIView.as_view(), name='api_setup_database'),
     path('run-migration/', views.RunMigrationAPIView.as_view(), name='api_run_migration'),

@@ -17,7 +17,7 @@ from django.core.management import call_command
 from django.db.models import Count, Q, Case, When, Value, IntegerField
 from django.utils import timezone
 
-from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji
+from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic
 from accounts.models import UserProfile, EmailVerificationOTP, PasswordResetToken
 from accounts.geolocation import get_client_ip, lookup_ip_country, resolve_user_country_and_flag, get_country_flag
 from accounts.emails import send_password_reset_email
@@ -44,6 +44,9 @@ from .serializers import (
     CurriculumLessonDetailSerializer,
     CurriculumVocabularySerializer,
     CurriculumKanjiSerializer,
+    ExamBookListSerializer,
+    ExamBookDetailSerializer,
+    BookTopicSerializer,
 )
 
 
@@ -1665,6 +1668,20 @@ class RunMigrationAPIView(APIView):
         except Exception as e:
             logs.append(f"⚠️ Curriculum Seed Note: {e}")
 
+        # 5. JAC Exam Books & Audio Topics Auto-Seed
+        try:
+            from tests.models import ExamBook
+            if ExamBook.objects.count() == 0:
+                out = io.StringIO()
+                with redirect_stdout(out), redirect_stderr(out):
+                    call_command('seed_jac_books', skip_audio=True)
+                logs.append(f"✅ JAC Books Seed Output:\n{out.getvalue().strip()}")
+            else:
+                logs.append(f"✅ JAC Books Database: {ExamBook.objects.count()} books present.")
+        except Exception as e:
+            logs.append(f"⚠️ JAC Books Seed Note: {e}")
+
+
         # 5. Superuser verification (does not overwrite custom passwords unless ?admin_pwd= is passed)
         try:
             custom_pwd = None
@@ -2248,6 +2265,108 @@ class CurriculumSearchAPIView(APIView):
             'vocabularies': vocab_data,
             'kanjis': kanji_data
         })
+
+
+# ─── Exam Books & Interactive Reader API Views ────────────────────────
+class ExamBookListAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        qs = ExamBook.objects.filter(is_published=True)
+
+        category = request.query_params.get('category')
+        if category and category.lower() != 'all':
+            qs = qs.filter(category=category.lower())
+
+        language = request.query_params.get('language')
+        if language and language.lower() != 'all':
+            qs = qs.filter(language=language.lower())
+
+        book_type = request.query_params.get('book_type')
+        if book_type and book_type.lower() != 'all':
+            qs = qs.filter(book_type=book_type.lower())
+
+        q = request.query_params.get('q', '').strip()
+        if q:
+            qs = qs.filter(
+                Q(title__icontains=q) |
+                Q(title_ja__icontains=q) |
+                Q(description__icontains=q)
+            )
+
+        serializer = ExamBookListSerializer(qs, many=True, context={'request': request})
+
+        # Aggregated language options
+        all_published = ExamBook.objects.filter(is_published=True)
+        languages_dict = OrderedDict()
+        for b in all_published.order_by('order', 'id'):
+            if b.language not in languages_dict:
+                languages_dict[b.language] = {
+                    'code': b.language,
+                    'name': b.language_name,
+                    'flag': b.language_flag,
+                    'count': 0
+                }
+            languages_dict[b.language]['count'] += 1
+
+        categories_list = [
+            {'code': 'all', 'label': 'All Categories', 'label_ja': 'すべて'},
+            {'code': 'civil', 'label': 'Civil Engineering', 'label_ja': '土木'},
+            {'code': 'architecture', 'label': 'Architecture', 'label_ja': '建築'},
+            {'code': 'lifeline', 'label': 'Infrastructure & Lifeline', 'label_ja': 'ライフライン・設備'},
+        ]
+
+        return Response({
+            'books': serializer.data,
+            'total_count': len(serializer.data),
+            'languages': list(languages_dict.values()),
+            'categories': categories_list,
+        })
+
+
+class ExamBookDetailAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, pk):
+        book = get_object_or_404(ExamBook, pk=pk, is_published=True)
+        serializer = ExamBookDetailSerializer(book, context={'request': request})
+
+        # Navigation: previous and next books in the same language or category
+        prev_book = ExamBook.objects.filter(
+            is_published=True,
+            language=book.language,
+            order__lt=book.order
+        ).order_by('-order').first()
+
+        next_book = ExamBook.objects.filter(
+            is_published=True,
+            language=book.language,
+            order__gt=book.order
+        ).order_by('order').first()
+
+        data = serializer.data
+        data['prev_book_id'] = prev_book.id if prev_book else None
+        data['next_book_id'] = next_book.id if next_book else None
+        return Response(data)
+
+
+class ExamBookLanguagesAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        books = ExamBook.objects.filter(is_published=True).order_by('order')
+        langs = OrderedDict()
+        for b in books:
+            if b.language not in langs:
+                langs[b.language] = {
+                    'code': b.language,
+                    'name': b.language_name,
+                    'flag': b.language_flag,
+                    'books_count': 0
+                }
+            langs[b.language]['books_count'] += 1
+        return Response(list(langs.values()))
+
 
 
 

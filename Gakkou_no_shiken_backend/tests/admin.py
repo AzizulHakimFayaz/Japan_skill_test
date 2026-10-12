@@ -5,7 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.views.decorators.csrf import csrf_exempt
-from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji
+from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic
 from .utils import import_questions_from_csv, generate_sample_csv_string, generate_sample_ssw_csv_string, export_test_questions_to_csv, generate_test_missing_audio_worker
 from .audio_logger import get_audio_logs, clear_audio_logs, append_audio_log
 from .audio_generator import test_edge_tts_connection, generate_and_save_question_audio_with_details
@@ -1258,8 +1258,34 @@ class CurriculumKanjiAdmin(admin.ModelAdmin):
     ordering = ('lesson', 'order_index')
 
 
+# ─── Exam Books & Topics Admin ───────────────────────────────────────
+class BookTopicInline(admin.TabularInline):
+    model = BookTopic
+    extra = 1
+    fields = ('order', 'page_number', 'topic_type', 'title', 'title_ja', 'audio_file')
+    ordering = ('order', 'page_number')
+
+
+@admin.register(ExamBook)
+class ExamBookAdmin(admin.ModelAdmin):
+    list_display = ('id', 'language_flag', 'language_name', 'title', 'category', 'book_type', 'total_pages', 'is_published')
+    list_filter = ('category', 'language', 'book_type', 'is_published')
+    search_fields = ('title', 'title_ja', 'description')
+    ordering = ('order', 'category', 'language')
+    inlines = [BookTopicInline]
+
+
+@admin.register(BookTopic)
+class BookTopicAdmin(admin.ModelAdmin):
+    list_display = ('id', 'book', 'page_number', 'topic_type', 'title', 'title_ja', 'audio_duration')
+    list_filter = ('topic_type', 'book__category', 'book__language')
+    search_fields = ('title', 'title_ja', 'summary_text', 'japanese_script')
+    ordering = ('book', 'order', 'page_number')
+
+
 # ─── Admin site branding ──────────────────────────────────────────────
 admin.site.site_header = 'Gakkou No Shiken — Admin'
 admin.site.site_title = 'Gakkou No Shiken Admin'
 admin.site.index_title = 'Dashboard'
+
 

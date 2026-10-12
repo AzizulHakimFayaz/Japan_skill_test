@@ -333,6 +333,22 @@ export async function searchCurriculum(q) {
   if (!q) return { vocabularies: [], kanjis: [] };
   return apiRequest(`/api/curriculum/search/?q=${encodeURIComponent(q)}`);
 }
+// ─── Exam Books & Interactive PDF Reader API ───
+export async function getBooks(params = {}) {
+  const query = new URLSearchParams();
+  if (params.category && params.category !== 'all') query.set('category', params.category);
+  if (params.language && params.language !== 'all') query.set('language', params.language);
+  if (params.book_type && params.book_type !== 'all') query.set('book_type', params.book_type);
+  if (params.q) query.set('q', params.q);
 
+  const qs = query.toString();
+  return apiRequest(`/api/books/${qs ? `?${qs}` : ''}`);
+}
 
+export async function getBookDetail(id) {
+  return apiRequest(`/api/books/${id}/`);
+}
 
+export async function getBookLanguages() {
+  return apiRequest('/api/books/languages/');
+}
