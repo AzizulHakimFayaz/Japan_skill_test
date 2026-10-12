@@ -5,6 +5,7 @@ import HeroBannerCarousel from '@/components/HeroBannerCarousel';
 import InteractiveFeatureShowcase from '@/components/InteractiveFeatureShowcase';
 import StudentExamGuide from '@/components/StudentExamGuide';
 import LiveActivityTicker from '@/components/LiveActivityTicker';
+import LearningHubShowcase from '@/components/LearningHubShowcase';
 
 export const revalidate = 60; // Incremental Static Regeneration (revalidate at most every 60 seconds)
 
@@ -108,7 +109,10 @@ export default async function HomePage() {
         <LiveActivityTicker />
       </div>
 
-      {/* 2. Practice Test Categories & Cards Grid (Placed Immediately After Banner) */}
+      {/* 2. Interactive Learning & Game Hub Showcase (Game Zone, Lessons, Tools, Daily Vocab) */}
+      <LearningHubShowcase />
+
+      {/* 3. Practice Test Categories & Cards Grid */}
       <div id="practice-grid" className="space-y-6 sm:space-y-10">
         <section className="bg-transparent sm:bg-white/85 sm:dark:bg-slate-950/70 sm:backdrop-blur-xl sm:rounded-3xl sm:border sm:border-slate-200/90 sm:dark:border-slate-800/90 sm:p-8 lg:p-10 sm:shadow-lg sm:shadow-slate-200/40 sm:dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] transition-all duration-300">
           <PracticeTestGrid
