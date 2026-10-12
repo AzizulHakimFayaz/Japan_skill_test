@@ -334,21 +334,74 @@ export async function searchCurriculum(q) {
   return apiRequest(`/api/curriculum/search/?q=${encodeURIComponent(q)}`);
 }
 // ─── Exam Books & Interactive PDF Reader API ───
-export async function getBooks(params = {}) {
-  const query = new URLSearchParams();
-  if (params.category && params.category !== 'all') query.set('category', params.category);
-  if (params.language && params.language !== 'all') query.set('language', params.language);
-  if (params.book_type && params.book_type !== 'all') query.set('book_type', params.book_type);
-  if (params.q) query.set('q', params.q);
+import { FALLBACK_BOOKS, FALLBACK_TOPICS } from './booksData';
 
-  const qs = query.toString();
-  return apiRequest(`/api/books/${qs ? `?${qs}` : ''}`);
+export async function getBooks(params = {}) {
+  try {
+    const query = new URLSearchParams();
+    if (params.category && params.category !== 'all') query.set('category', params.category);
+    if (params.language && params.language !== 'all') query.set('language', params.language);
+    if (params.book_type && params.book_type !== 'all') query.set('book_type', params.book_type);
+    if (params.q) query.set('q', params.q);
+
+    const qs = query.toString();
+    const data = await apiRequest(`/api/books/${qs ? `?${qs}` : ''}`);
+    if (data && data.books && data.books.length > 0) {
+      return data;
+    }
+  } catch (err) {
+    console.warn('API getBooks failed, utilizing fallback catalog:', err);
+  }
+
+  // Filter fallback books locally
+  let filtered = [...FALLBACK_BOOKS];
+  if (params.category && params.category !== 'all') {
+    filtered = filtered.filter((b) => b.category === params.category);
+  }
+  if (params.language && params.language !== 'all') {
+    filtered = filtered.filter((b) => b.language === params.language);
+  }
+  if (params.q) {
+    const q = params.q.toLowerCase();
+    filtered = filtered.filter(
+      (b) =>
+        b.title.toLowerCase().includes(q) ||
+        (b.title_ja && b.title_ja.toLowerCase().includes(q)) ||
+        (b.description && b.description.toLowerCase().includes(q))
+    );
+  }
+
+  return {
+    books: filtered,
+    total_count: filtered.length,
+    languages: [],
+    categories: [],
+  };
 }
 
 export async function getBookDetail(id) {
-  return apiRequest(`/api/books/${id}/`);
+  try {
+    const data = await apiRequest(`/api/books/${id}/`);
+    if (data && data.id) {
+      return data;
+    }
+  } catch (err) {
+    console.warn(`API getBookDetail(${id}) failed, utilizing fallback book:`, err);
+  }
+
+  const numId = parseInt(id, 10);
+  const matched = FALLBACK_BOOKS.find((b) => b.id === numId) || FALLBACK_BOOKS[0];
+  return {
+    ...matched,
+    topics: matched.topics || FALLBACK_TOPICS,
+  };
 }
 
 export async function getBookLanguages() {
-  return apiRequest('/api/books/languages/');
+  try {
+    return await apiRequest('/api/books/languages/');
+  } catch {
+    return [];
+  }
 }
+

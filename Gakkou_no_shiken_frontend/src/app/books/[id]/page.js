@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useRef, use } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import {
   ChevronLeft,
   ChevronRight,
@@ -30,10 +31,12 @@ import {
   Languages,
 } from 'lucide-react';
 import { getBookDetail } from '@/lib/api';
+import { FALLBACK_BOOKS } from '@/lib/booksData';
 
-export default function InteractiveBookReaderPage({ params }) {
-  const unwrappedParams = use(params);
-  const bookId = unwrappedParams.id;
+export default function InteractiveBookReaderPage() {
+  const routeParams = useParams();
+  const bookId = routeParams?.id || '1';
+
 
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -61,15 +64,18 @@ export default function InteractiveBookReaderPage({ params }) {
       try {
         const data = await getBookDetail(bookId);
         if (isMounted) {
-          setBook(data);
-          // Default to first topic page if available
-          if (data.topics && data.topics.length > 0) {
-            setCurrentPage(data.topics[0].page_number || 1);
-            setPageInput(String(data.topics[0].page_number || 1));
+          const activeBook = data || FALLBACK_BOOKS.find((b) => String(b.id) === String(bookId)) || FALLBACK_BOOKS[0];
+          setBook(activeBook);
+          if (activeBook.topics && activeBook.topics.length > 0) {
+            setCurrentPage(activeBook.topics[0].page_number || 1);
+            setPageInput(String(activeBook.topics[0].page_number || 1));
           }
         }
       } catch (err) {
         console.error('Failed to load book:', err);
+        if (isMounted) {
+          setBook(FALLBACK_BOOKS[0]);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
