@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from './AuthContext';
@@ -20,6 +20,7 @@ import {
   LogOut,
   Sparkles,
   ChevronRight,
+  ChevronDown,
   Menu,
   X,
   HelpCircle,
@@ -34,11 +35,57 @@ import {
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const dropdownRef = useRef(null);
   const { user, isAuthenticated, logout } = useAuth();
   const { t } = useLanguage();
   const pathname = usePathname();
 
   const isActive = (path) => pathname === path;
+
+  // Active state helpers for grouped pillars
+  const isExamsActive =
+    isActive('/jft-basic') ||
+    isActive('/ssw-skill-test') ||
+    isActive('/leaderboard') ||
+    pathname.startsWith('/ssw-test') ||
+    pathname.startsWith('/test') ||
+    pathname.startsWith('/attempt');
+
+  const isLearningActive =
+    pathname.startsWith('/lessons') ||
+    pathname.startsWith('/game-zone') ||
+    pathname.startsWith('/books');
+
+  const isToolsActive =
+    pathname.startsWith('/tools') ||
+    pathname.startsWith('/guides') ||
+    pathname.startsWith('/notices');
+
+  const isMoreActive =
+    isActive('/how-it-works') ||
+    isActive('/about') ||
+    isActive('/contact');
+
+  // Auto-close dropdowns on navigation or outside click
+  useEffect(() => {
+    setActiveDropdown(null);
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
@@ -78,13 +125,14 @@ export default function Navbar() {
             </div>
           </Link>
         </div>
-        {/* Desktop Menu Navigation */}
-        <div className="hidden lg:flex lg:items-center lg:gap-1.5 xl:gap-2.5 2xl:gap-3.5 shrink-0">
-          {/* Main Links */}
-          <div className="flex items-center gap-0.5 lg:gap-1 xl:gap-1.5 2xl:gap-2 shrink-0">
+
+        {/* Desktop Menu Navigation - Grouped Dropdown Pillars */}
+        <div ref={dropdownRef} className="hidden lg:flex lg:items-center lg:gap-1.5 xl:gap-2.5 shrink-0">
+          <div className="flex items-center gap-1 xl:gap-1.5 shrink-0">
+            {/* 1. HOME DIRECT LINK */}
             <Link
               href="/"
-              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2.5 xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                 isActive('/')
                   ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
                   : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
@@ -93,128 +141,393 @@ export default function Navbar() {
               <Home className="w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0" />
               <span>{t('home')}</span>
             </Link>
-            <Link
-              href="/jft-basic"
-              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                isActive('/jft-basic')
-                  ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
-              }`}
+
+            {/* 2. EXAMS & TESTS DROPDOWN */}
+            <div
+              className="relative"
+              onMouseEnter={() => setActiveDropdown('exams')}
+              onMouseLeave={() => setActiveDropdown(null)}
             >
-              <BookOpen className="w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0" />
-              <span>{t('jft_basic')}</span>
-            </Link>
-            <Link
-              href="/ssw-skill-test"
-              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                isActive('/ssw-skill-test')
-                  ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
-              }`}
+              <button
+                type="button"
+                onClick={() => setActiveDropdown(activeDropdown === 'exams' ? null : 'exams')}
+                className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2.5 xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                  isExamsActive
+                    ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0" />
+                <span>Exams &amp; Tests</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                    activeDropdown === 'exams' ? 'rotate-180 text-japan-red' : 'text-slate-400'
+                  }`}
+                />
+              </button>
+
+              {activeDropdown === 'exams' && (
+                <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="w-[300px] rounded-2xl bg-white/95 dark:bg-[#0c1222]/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 p-2 shadow-xl shadow-slate-900/10 dark:shadow-[0_12px_40px_rgba(0,0,0,0.6)] space-y-1">
+                    <Link
+                      href="/jft-basic"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
+                        isActive('/jft-basic')
+                          ? 'bg-rose-50/80 dark:bg-rose-950/40 text-japan-red'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <BookOpen className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black leading-tight">JFT-Basic Mock Tests</span>
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                            A1•A2
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                          Official Prometric CBT format with listening audio
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/ssw-skill-test"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
+                        isActive('/ssw-skill-test')
+                          ? 'bg-rose-50/80 dark:bg-rose-950/40 text-japan-red'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <Layers className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black leading-tight">SSW Sector Skills</span>
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
+                            CBT
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                          Caregiving, Food Service, Agriculture &amp; more
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/leaderboard"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
+                        isActive('/leaderboard')
+                          ? 'bg-amber-50/80 dark:bg-amber-950/40 text-amber-600'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <Trophy className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black leading-tight">Global Leaderboard</span>
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300">
+                            Top Rank
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                          Live candidate scoreboards &amp; achievements
+                        </p>
+                      </div>
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 3. LEARNING SUITE DROPDOWN */}
+            <div
+              className="relative"
+              onMouseEnter={() => setActiveDropdown('learning')}
+              onMouseLeave={() => setActiveDropdown(null)}
             >
-              <Layers className="w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0" />
-              <span>{t('ssw_skills')}</span>
-            </Link>
-            <Link
-              href="/lessons"
-              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                isActive('/lessons') || pathname.startsWith('/lessons')
-                  ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
-              }`}
+              <button
+                type="button"
+                onClick={() => setActiveDropdown(activeDropdown === 'learning' ? null : 'learning')}
+                className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2.5 xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                  isLearningActive
+                    ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
+                }`}
+              >
+                <GraduationCap className="w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0" />
+                <span>Learning Suite</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                    activeDropdown === 'learning' ? 'rotate-180 text-japan-red' : 'text-slate-400'
+                  }`}
+                />
+              </button>
+
+              {activeDropdown === 'learning' && (
+                <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="w-[315px] rounded-2xl bg-white/95 dark:bg-[#0c1222]/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 p-2 shadow-xl shadow-slate-900/10 dark:shadow-[0_12px_40px_rgba(0,0,0,0.6)] space-y-1">
+                    <Link
+                      href="/game-zone"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
+                        isActive('/game-zone')
+                          ? 'bg-purple-50 dark:bg-purple-950/40 text-purple-600'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <Gamepad2 className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black leading-tight">Japanese Game Zone</span>
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300">
+                            8 Games
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                          Kanji Hunter, Word Match, 3 Lives arcade
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/lessons"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
+                        isActive('/lessons')
+                          ? 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <GraduationCap className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black leading-tight">Structured Lessons</span>
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300">
+                            N5 • N4
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                          50 Vocab &amp; 30 Kanji units with audio
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/books"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
+                        isActive('/books')
+                          ? 'bg-rose-50 dark:bg-rose-950/40 text-japan-red'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-rose-500/10 text-japan-red dark:text-rose-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <BookOpen className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black leading-tight">Books &amp; Audio Reader</span>
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-rose-100 dark:bg-rose-950 text-japan-red dark:text-rose-300">
+                            26 JAC Books
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                          Online PDF viewer with multi-language audio
+                        </p>
+                      </div>
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 4. TOOLS & RESOURCES DROPDOWN */}
+            <div
+              className="relative"
+              onMouseEnter={() => setActiveDropdown('tools')}
+              onMouseLeave={() => setActiveDropdown(null)}
             >
-              <GraduationCap className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-japan-red shrink-0" />
-              <span>Lessons</span>
-            </Link>
-            <Link
-              href="/books"
-              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                isActive('/books') || pathname.startsWith('/books')
-                  ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
-              }`}
+              <button
+                type="button"
+                onClick={() => setActiveDropdown(activeDropdown === 'tools' ? null : 'tools')}
+                className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2.5 xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                  isToolsActive
+                    ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0" />
+                <span>Tools &amp; Guides</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                    activeDropdown === 'tools' ? 'rotate-180 text-japan-red' : 'text-slate-400'
+                  }`}
+                />
+              </button>
+
+              {activeDropdown === 'tools' && (
+                <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="w-[305px] rounded-2xl bg-white/95 dark:bg-[#0c1222]/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 p-2 shadow-xl shadow-slate-900/10 dark:shadow-[0_12px_40px_rgba(0,0,0,0.6)] space-y-1">
+                    <Link
+                      href="/tools"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
+                        isActive('/tools')
+                          ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black leading-tight">Candidate Tools</span>
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                            Free
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                          3D Flashcards, Particle quiz &amp; Salary calc
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/guides/jft-basic-exam-guide"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
+                        pathname.startsWith('/guides')
+                          ? 'bg-rose-50/80 dark:bg-rose-950/40 text-japan-red'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-slate-500/10 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0 mt-0.5">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black leading-tight">CBT Exam Guides</span>
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-slate-100 dark:bg-slate-850 text-slate-700 dark:text-slate-300">
+                            3 Guides
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                          Prometric registration, pass marks &amp; rules
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/notices"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
+                        isActive('/notices')
+                          ? 'bg-rose-50/80 dark:bg-rose-950/40 text-japan-red'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-rose-500/10 text-japan-red dark:text-rose-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <Bell className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black leading-tight">Notices &amp; Materials</span>
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-rose-100 dark:bg-rose-950 text-japan-red dark:text-rose-300">
+                            Live
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                          Dhaka Prometric seat alerts &amp; downloads
+                        </p>
+                      </div>
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 5. MORE DROPDOWN */}
+            <div
+              className="relative"
+              onMouseEnter={() => setActiveDropdown('more')}
+              onMouseLeave={() => setActiveDropdown(null)}
             >
-              <BookOpen className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-japan-red shrink-0" />
-              <span>Books &amp; Audio</span>
-            </Link>
-            <Link
-              href="/tools"
-              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                isActive('/tools') || pathname.startsWith('/tools')
-                  ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-japan-red shrink-0" />
-              <span>Tools</span>
-            </Link>
-            <Link
-              href="/guides/jft-basic-exam-guide"
-              className={`hidden 2xl:flex text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                pathname.startsWith('/guides')
-                  ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <FileText className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-japan-red shrink-0" />
-              <span>Guides</span>
-            </Link>
-            <Link
-              href="/game-zone"
-              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                isActive('/game-zone') || pathname.startsWith('/game-zone')
-                  ? 'text-japan-red bg-rose-50 dark:bg-rose-950/60 border border-rose-200/80 dark:border-rose-900/40 shadow-2xs'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <Gamepad2 className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-japan-red shrink-0" />
-              <span>{t('game_zone')}</span>
-            </Link>
-            <Link
-              href="/leaderboard"
-              className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                isActive('/leaderboard')
-                  ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 shadow-2xs'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50/50 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <Trophy className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-amber-500 shrink-0" />
-              <span>{t('leaderboard')}</span>
-            </Link>
-            <Link
-              href="/notices"
-              className={`hidden xl:flex text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                isActive('/notices') || pathname.startsWith('/notices')
-                  ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <FileText className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-japan-red shrink-0" />
-              <span className="hidden 2xl:inline">Notices &amp; Materials</span>
-              <span className="2xl:hidden">Notices</span>
-            </Link>
-            <Link
-              href="/how-it-works"
-              className={`hidden 2xl:flex text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                isActive('/how-it-works')
-                  ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <HelpCircle className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-slate-500 dark:text-slate-400 shrink-0" />
-              <span>Guide</span>
-            </Link>
-            <Link
-              href="/about"
-              className={`hidden xl:flex text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 2xl:px-3 rounded-xl items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                isActive('/about')
-                  ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <Info className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-slate-500 dark:text-slate-400 shrink-0" />
-              <span>About Us</span>
-            </Link>
+              <button
+                type="button"
+                onClick={() => setActiveDropdown(activeDropdown === 'more' ? null : 'more')}
+                className={`text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all duration-200 py-1.5 px-2 xl:px-2.5 rounded-xl flex items-center gap-1 whitespace-nowrap cursor-pointer ${
+                  isMoreActive
+                    ? 'text-japan-red bg-red-50/90 dark:bg-red-950/40 shadow-2xs'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-japan-red dark:hover:text-rose-400 hover:bg-red-50/50 dark:hover:bg-slate-800/60'
+                }`}
+              >
+                <span>More</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                    activeDropdown === 'more' ? 'rotate-180 text-japan-red' : 'text-slate-400'
+                  }`}
+                />
+              </button>
+
+              {activeDropdown === 'more' && (
+                <div className="absolute top-full right-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="w-[230px] rounded-2xl bg-white/95 dark:bg-[#0c1222]/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 p-2 shadow-xl shadow-slate-900/10 dark:shadow-[0_12px_40px_rgba(0,0,0,0.6)] space-y-1">
+                    <Link
+                      href="/how-it-works"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-center gap-2.5 p-2 rounded-xl transition-all ${
+                        isActive('/how-it-works')
+                          ? 'bg-rose-50/80 dark:bg-rose-950/40 text-japan-red font-bold'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <HelpCircle className="w-4 h-4 text-slate-400" />
+                      <span className="text-xs font-bold">How It Works</span>
+                    </Link>
+
+                    <Link
+                      href="/about"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-center gap-2.5 p-2 rounded-xl transition-all ${
+                        isActive('/about')
+                          ? 'bg-rose-50/80 dark:bg-rose-950/40 text-japan-red font-bold'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <Info className="w-4 h-4 text-slate-400" />
+                      <span className="text-xs font-bold">About Us</span>
+                    </Link>
+
+                    <Link
+                      href="/contact"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-center gap-2.5 p-2 rounded-xl transition-all ${
+                        isActive('/contact')
+                          ? 'bg-rose-50/80 dark:bg-rose-950/40 text-japan-red font-bold'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <Mail className="w-4 h-4 text-slate-400" />
+                      <span className="text-xs font-bold">Contact &amp; Support</span>
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Right Action Utilities Group */}
