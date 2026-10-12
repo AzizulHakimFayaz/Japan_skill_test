@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   X,
 } from 'lucide-react';
-import AdBanner from './AdBanner';
 
 /**
  * Pre-Exam Sponsor / Ad Interstitial Modal
@@ -104,14 +103,21 @@ export default function ExamVideoAdModal({
             </p>
           </div>
 
-          {/* AdSense Unit */}
-          <div className="min-h-[140px] flex items-center justify-center">
-            <AdBanner
-              slot="8435487820"
-              format="auto"
-              className="w-full my-0"
-              title="Official Study Partner"
-            />
+          {/* Platform Sponsor / Educational Resource Card (AdSense Policy Compliant: No ads in pop-up modals) */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-50/90 via-amber-50/60 to-purple-50/90 dark:from-slate-800 dark:via-slate-800/80 dark:to-purple-950/40 border border-slate-200/90 dark:border-slate-700/80 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-japan-red/10 dark:bg-rose-950/80 text-japan-red dark:text-rose-400 text-[10px] font-black uppercase tracking-wider">
+                <Sparkles className="w-3 h-3 text-amber-500" />
+                <span>Recommended Study Material</span>
+              </span>
+              <span className="text-[10px] font-bold text-slate-400">100% Free Access</span>
+            </div>
+            <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white">
+              Study with 26 Official JAC Textbooks &amp; 80 JLPT Lessons
+            </h4>
+            <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+              Master Japanese vocabulary, Kanji stroke orders, and native listening audio before taking your mock exam. Free for all candidates.
+            </p>
           </div>
         </div>
 
