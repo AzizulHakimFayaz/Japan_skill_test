@@ -113,6 +113,10 @@ export default function InteractiveBookReaderPage() {
         const data = await getBookDetail(bookId);
         if (isMounted) {
           let activeBook = data || FALLBACK_BOOKS.find((b) => String(b.id) === String(bookId)) || FALLBACK_BOOKS[0];
+          const verifiedMatch = FALLBACK_BOOKS.find((b) => String(b.id) === String(bookId)) || FALLBACK_BOOKS.find((b) => b.pdf_download_url === activeBook.pdf_download_url);
+          if (verifiedMatch?.total_pages && (!activeBook.total_pages || activeBook.total_pages < verifiedMatch.total_pages)) {
+            activeBook.total_pages = verifiedMatch.total_pages;
+          }
           if (!activeBook.topics || !Array.isArray(activeBook.topics) || activeBook.topics.length === 0) {
             activeBook = {
               ...activeBook,

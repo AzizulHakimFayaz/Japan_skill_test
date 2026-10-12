@@ -383,6 +383,10 @@ export async function getBookDetail(id) {
   try {
     const data = await apiRequest(`/api/books/${id}/`);
     if (data && data.id) {
+      const verified = FALLBACK_BOOKS.find((b) => String(b.id) === String(id)) || FALLBACK_BOOKS.find((b) => b.pdf_download_url === data.pdf_download_url);
+      if (verified?.total_pages && (!data.total_pages || data.total_pages < verified.total_pages)) {
+        data.total_pages = verified.total_pages;
+      }
       if (!data.topics || !Array.isArray(data.topics) || data.topics.length === 0) {
         data.topics = getTopicsForBook(data);
       }
