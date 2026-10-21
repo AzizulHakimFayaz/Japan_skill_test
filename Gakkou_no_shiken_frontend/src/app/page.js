@@ -7,7 +7,7 @@ import StudentExamGuide from '@/components/StudentExamGuide';
 import LiveActivityTicker from '@/components/LiveActivityTicker';
 import LearningHubShowcase from '@/components/LearningHubShowcase';
 
-export const revalidate = 60; // Incremental Static Regeneration (revalidate at most every 60 seconds)
+export const revalidate = 86400; // Cache for 24 hours to stay well within free limits
 
 export default async function HomePage() {
   let data = { tests: [], tests_by_category: { basic: [], skill: [] }, section_specs: [] };

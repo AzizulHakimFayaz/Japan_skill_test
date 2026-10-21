@@ -102,11 +102,11 @@ async function apiRequest(endpoint, options = {}) {
 // ─── Tests & Quiz APIs ───
 export async function getTests(category = '') {
   const query = category ? `?category=${encodeURIComponent(category)}` : '';
-  return apiRequest(`/api/tests/${query}`, { next: { revalidate: 60 } });
+  return apiRequest(`/api/tests/${query}`, { next: { revalidate: 86400 } });
 }
 
 export async function getTestDetail(id) {
-  return apiRequest(`/api/tests/${id}/`, { next: { revalidate: 300 } });
+  return apiRequest(`/api/tests/${id}/`, { next: { revalidate: 86400 } });
 }
 
 export async function getQuizData(id, preview = null) {
@@ -132,11 +132,11 @@ export async function getAttemptResults(id, preview = null) {
 
 // ─── Static / Overview Data ───
 export async function getJftInfo() {
-  return apiRequest('/api/info/jft/', { next: { revalidate: 3600 } });
+  return apiRequest('/api/info/jft/', { next: { revalidate: 86400 } });
 }
 
 export async function getSswInfo() {
-  return apiRequest('/api/info/ssw/', { next: { revalidate: 3600 } });
+  return apiRequest('/api/info/ssw/', { next: { revalidate: 86400 } });
 }
 
 export async function loginUser(username, password) {

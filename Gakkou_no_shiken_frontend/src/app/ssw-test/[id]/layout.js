@@ -1,7 +1,7 @@
 import { getTestDetail, getTests } from '@/lib/api';
 import { cache } from 'react';
 
-export const revalidate = 300; // Cache test metadata and layout for 5 minutes
+export const revalidate = 86400; // Cache test metadata and layout for 24 hours
 
 export async function generateStaticParams() {
   try {

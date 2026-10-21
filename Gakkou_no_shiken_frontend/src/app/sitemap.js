@@ -1,6 +1,6 @@
 import { getTests } from '@/lib/api';
 
-export const revalidate = 3600; // Refresh sitemap hourly
+export const revalidate = 86400; // Refresh sitemap daily
 
 export default async function sitemap() {
   const baseUrl = 'https://www.gakkounoshiken.site';
