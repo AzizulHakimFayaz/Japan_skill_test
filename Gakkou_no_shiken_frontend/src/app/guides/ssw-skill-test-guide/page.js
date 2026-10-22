@@ -17,21 +17,11 @@ import {
   Sparkles,
   ExternalLink,
 } from 'lucide-react';
-import AdBanner from '@/components/AdBanner';
 
 export const metadata = {
   title: 'SSW Skill Test Blueprint & Prometric CBT Guide (2026) | Gakkou No Shiken',
   description:
     'Complete guide to Japan Specified Skilled Worker (SSW 1 & 2) skill evaluation tests. Covers Food Service, Food Manufacturing, Caregiving, Agriculture, Construction CBT format, hygiene rules, and sample questions.',
-  keywords: [
-    'SSW skill test guide',
-    'Specified Skilled Worker exam syllabus',
-    'OTAFF food service exam',
-    'Food manufacturing test Japan',
-    'SSW nursing caregiving test',
-    'SSW Bangladesh test centers',
-    'Prometric SSW CBT',
-  ],
   alternates: {
     canonical: 'https://www.gakkounoshiken.site/guides/ssw-skill-test-guide',
   },
@@ -123,10 +113,20 @@ export default function SswSkillTestGuidePage() {
         <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
           To obtain a <strong>Specified Skilled Worker (i)</strong> visa for employment in Japan, candidates must pass both a Japanese language test (JFT-Basic or JLPT N4) and a designated sector-specific <strong>Skill Evaluation Examination</strong>. This guide breaks down the exam format, major industrial sectors, scoring criteria, and Prometric CBT procedures.
         </p>
+
+        {/* Editorial Trust Byline */}
+        <div className="flex flex-wrap items-center gap-4 pt-3 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-300">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span>Author: Gakkou No Shiken Technical Examination Panel</span>
+          </div>
+          <span>•</span>
+          <span>Aligned with Prometric SSW Blueprint</span>
+          <span>•</span>
+          <span>Last Updated: October 2026</span>
+        </div>
       </header>
 
-      {/* Ad Placement 1 */}
-      <AdBanner slot="8435487820" format="auto" />
 
       {/* Section 1: Major SSW Sectors */}
       <section className="space-y-4">
@@ -181,8 +181,6 @@ export default function SswSkillTestGuidePage() {
         </div>
       </section>
 
-      {/* Ad Placement 2 */}
-      <AdBanner slot="8435487820" format="auto" />
 
       {/* Section 2: Prometric Exam Two-Phase Structure */}
       <section className="space-y-4">
@@ -253,9 +251,6 @@ export default function SswSkillTestGuidePage() {
           </Link>
         </div>
       </section>
-
-      {/* Ad Placement 3 */}
-      <AdBanner slot="8435487820" format="auto" />
     </article>
   );
 }

@@ -500,7 +500,60 @@ export default function CurriculumHubPage() {
             })}
           </div>
         )}
+
+        {/* In-Depth Educational Guide to Minna no Nihongo & CEFR A2 Curriculum */}
+        <div className="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-10 shadow-lg space-y-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 dark:bg-rose-950/70 text-japan-red dark:text-rose-400 text-xs font-black uppercase">
+              <GraduationCap className="w-3.5 h-3.5" />
+              <span>Pedagogy &amp; Examination Blueprint</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              Mastering the 80-Lesson Minna no Nihongo &amp; Kanji Curriculum
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              The Minna no Nihongo (みんなの日本語) syllabus is universally recognized across language academies in Japan, Bangladesh, Nepal, and Vietnam as the gold standard for foundational Japanese mastery.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-2">
+              <strong className="text-sm font-bold text-slate-900 dark:text-white block">
+                Beginner N5 Tier (Lessons 1–25)
+              </strong>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Covers foundational grammar patterns, core verbs, particles (は, が, を, に, で, へ), and basic workplace courtesy (Te-form, Nai-form, Dictionary-form).
+              </p>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-2">
+              <strong className="text-sm font-bold text-slate-900 dark:text-white block">
+                Pre-Intermediate N4 / JFT Tier (Lessons 26–50)
+              </strong>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Elevates candidate ability to CEFR A2 level. Introduces conditional expressions (Tara, Ba, To), passive/causative verbs, giving/receiving (Yaru, Kureru, Morau), and polite Keigo.
+              </p>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-2">
+              <strong className="text-sm font-bold text-slate-900 dark:text-white block">
+                Essential Kanji Tier (30 Lessons, 888 Characters)
+              </strong>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Organized stroke-by-stroke with Onyomi, Kunyomi, and real-life compound words frequently appearing in Prometric CBT computer screens and train station signage.
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            <h3 className="text-base font-black text-slate-900 dark:text-white">
+              Recommended Study Strategy for JFT-Basic 200+ Score
+            </h3>
+            <p>
+              Candidates preparing for overseas employment under Japan&apos;s Specified Skilled Worker (SSW) program must achieve at least 200 out of 250 points on the JFT-Basic examination. We advise completing one vocabulary lesson and one kanji drill per day, testing your instant recall in the <Link href="/tools/flashcards" className="text-japan-red hover:underline font-bold">Flashcard Room</Link> and verifying grammar comprehension in the <Link href="/tools/particle-quiz" className="text-japan-red hover:underline font-bold">Particle Drill Room</Link>.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+

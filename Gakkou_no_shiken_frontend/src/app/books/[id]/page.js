@@ -34,7 +34,6 @@ import {
 } from 'lucide-react';
 import { getBookDetail } from '@/lib/api';
 import { FALLBACK_BOOKS, FALLBACK_TOPICS, getTopicsForBook } from '@/lib/booksData';
-import AdBanner from '@/components/AdBanner';
 
 export default function InteractiveBookReaderPage() {
   const routeParams = useParams();
@@ -706,10 +705,6 @@ export default function InteractiveBookReaderPage() {
             )}
           </div>
 
-          {/* Dedicated Reader Sidebar Ad Banner */}
-          <div className="px-3 py-1 border-t border-slate-100 dark:border-slate-800 shrink-0">
-            <AdBanner className="my-1" slot="8435487820" format="auto" />
-          </div>
 
           {/* Sticky Bottom Audio Dock */}
           {activeAudioItem && (

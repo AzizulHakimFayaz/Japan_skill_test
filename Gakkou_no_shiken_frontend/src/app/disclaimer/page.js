@@ -1,7 +1,14 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
+
+export const metadata = {
+  title: 'Official Disclaimer & Non-Affiliation Notice | Gakkou No Shiken',
+  description:
+    'Legal disclaimer, educational fair use statement, and non-affiliation notice regarding The Japan Foundation, Prometric Inc., and Japanese Government ministries.',
+  alternates: {
+    canonical: 'https://www.gakkounoshiken.site/disclaimer',
+  },
+};
 import {
   ShieldAlert,
   ShieldCheck,

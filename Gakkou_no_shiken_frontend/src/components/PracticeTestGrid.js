@@ -150,33 +150,10 @@ export default function PracticeTestGrid({
 
   const handleStartExamClick = (e, test) => {
     e.preventDefault();
-    // 1. Open official Facebook page in a separate tab ONCE
-    try {
-      window.open('https://www.facebook.com/Gakkou.No.Shiken', '_blank', 'noopener,noreferrer');
-    } catch (err) {
-      console.error('Failed to open Facebook tab:', err);
-    }
-
     const isSkill = test.category === 'skill' || catKey === 'skill';
     const targetUrl = isSkill ? `/ssw-test/${test.id}` : `/test/${test.id}`;
-
-    // 2. Only show the ad popup IF Google Ads is available & loaded to serve an ad
-    const isGoogleAdsAvailable = Boolean(
-      typeof window !== 'undefined' &&
-      window.adsbygoogle &&
-      window.adsbygoogle.loaded === true
-    );
-
-    if (isGoogleAdsAvailable) {
-      setPendingExam({
-        url: targetUrl,
-        title: test.title || (isSkill ? 'SSW Skill Test' : 'JFT-Basic Mock Test'),
-      });
-      setVideoAdModal(true);
-    } else {
-      // Direct smooth navigation when Google Ads is not available
-      router.push(targetUrl);
-    }
+    // Direct smooth navigation to the authentic CBT simulator
+    router.push(targetUrl);
   };
 
   const getDifficultyBadge = (test, idx) => {

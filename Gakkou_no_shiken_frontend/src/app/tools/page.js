@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
 import {
@@ -9,15 +7,25 @@ import {
   Home,
   ChevronRight,
   Zap,
-  Calculator,
   BookOpen,
   CheckCircle2,
-  Headphones,
   Award,
   GraduationCap,
+  Clock,
+  HelpCircle,
+  ShieldCheck,
+  BrainCircuit,
 } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
-import AdBanner from '@/components/AdBanner';
+
+export const metadata = {
+  title: 'Japanese CBT Practice Tools & Particle Drills | Gakkou No Shiken',
+  description:
+    'Free interactive study tools for JFT-Basic and SSW skill test preparation. Practice active recall with Kanji flashcards, Japanese particle drills, and vocabulary curriculum tools.',
+  alternates: {
+    canonical: 'https://www.gakkounoshiken.site/tools',
+  },
+};
 
 const TOOLS = [
   {
@@ -83,15 +91,12 @@ export default function ToolsHubPage() {
         </h1>
 
         <p className="text-slate-300 text-xs sm:text-base max-w-2xl leading-relaxed">
-          Interactive tools designed specifically for Bangladeshi candidates preparing for JFT-Basic exams and Specified Skilled Worker evaluation tests.
+          Interactive digital study tools engineered specifically for South Asian and international candidates preparing for JFT-Basic A2 examinations and Specified Skilled Worker (SSW) technical evaluations.
         </p>
       </div>
 
-      {/* Top Ad Unit */}
-      <AdBanner className="my-4" slot="8435487820" format="auto" />
-
       {/* Tools Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {TOOLS.map((tool, idx) => {
           const Icon = tool.icon;
           return (
@@ -111,7 +116,7 @@ export default function ToolsHubPage() {
                     <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
                       {tool.title_ja}
                     </span>
-                    <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
+                    <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white leading-tight">
                       {tool.title}
                     </h2>
                   </div>
@@ -152,9 +157,9 @@ export default function ToolsHubPage() {
             <Award className="w-3.5 h-3.5" />
             <span>Educational Methodology &amp; CBT Readiness</span>
           </div>
-          <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             How Interactive Practice Tools Accelerate Japanese Exam Performance
-          </h3>
+          </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
             Unlike static paper flashcards or memorization lists, interactive computer-based practice tools reinforce neuromuscular recall and response agility under timed Prometric CBT conditions:
           </p>
@@ -164,27 +169,44 @@ export default function ToolsHubPage() {
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-1.5">
             <strong className="text-sm font-bold text-slate-900 dark:text-white block">Active Recall &amp; Spaced Repetition</strong>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Instant answer feedback with Furigana aids strengthens long-term memory for high-frequency Kanji and vocabulary.
+              Instant answer feedback with Furigana aids strengthens long-term memory for high-frequency Kanji and vocabulary, ensuring retention through testing cycles.
             </p>
           </div>
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-1.5">
             <strong className="text-sm font-bold text-slate-900 dark:text-white block">Particle Drill Precision</strong>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Japanese particles (に, で, を, が, は) represent 30% of grammatical errors. Rapid drill rooms eliminate hesitation.
+              Japanese postpositional particles (に, で, を, が, は, へ, と) account for over 30% of grammatical points lost on exam day. Rapid drills build muscle memory.
             </p>
           </div>
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-1.5">
             <strong className="text-sm font-bold text-slate-900 dark:text-white block">Prometric Interface Familiarity</strong>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Familiarizing with digital timers, keyboard inputs, and audio controls prevents test-day anxiety at Dhaka and Tokyo CBT venues.
+              Familiarizing with digital timers, keyboard inputs, and audio controls prevents test-day anxiety at Dhaka, Chittagong, and Tokyo CBT test venues.
             </p>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Ad Unit */}
-      <AdBanner className="my-6" slot="8435487820" format="auto" />
+        {/* Detailed Study Guide Integration */}
+        <div className="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          <h3 className="text-base font-black text-slate-900 dark:text-white">
+            Recommended Daily Tool Routine for JFT-Basic (CEFR A2)
+          </h3>
+          <p>
+            To reach the 200-point passing threshold on the JFT-Basic exam, we advise dedicating 45 minutes daily across our interactive tools:
+          </p>
+          <ul className="space-y-2 list-disc pl-5">
+            <li>
+              <strong>15 Minutes Vocabulary Flashcards:</strong> Review 25 new vocabulary cards using native audio playback to train auditory identification before visual reading.
+            </li>
+            <li>
+              <strong>15 Minutes Particle Drills:</strong> Complete three 10-question particle drill sessions to achieve an 80%+ accuracy rate on situational grammar.
+            </li>
+            <li>
+              <strong>15 Minutes Textbook Listening:</strong> Listen to one chapter dialogue from the official JAC textbooks with synchronized Japanese and Bengali transcriptions.
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }
-

@@ -24,7 +24,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/components/AuthContext';
 import { getInitialGameProgress } from '@/lib/gameStore';
-import AdBanner from '@/components/AdBanner';
 
 const ARCADE_GAMES = [
   {
@@ -252,8 +251,6 @@ export default function GameZoneHomePage() {
         </Link>
       </div>
 
-      {/* Top Arcade Ad Banner */}
-      <AdBanner className="my-4" slot="8435487820" format="auto" />
 
       {/* 3. Game Arcade Section Header with Grid/List Toggle & Filter Chips */}
       <div>
@@ -461,10 +458,20 @@ export default function GameZoneHomePage() {
             </p>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Arcade Ad Unit */}
-      <AdBanner className="my-6" slot="8435487820" format="auto" />
+        {/* Detailed Pedagogical Guide */}
+        <div className="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          <h3 className="text-base font-black text-slate-900 dark:text-white">
+            Cognitive Science Behind Arcade-Style Japanese Drills
+          </h3>
+          <p>
+            Traditional language study often leads to passive recognition where a student recognizes a word only when given unlimited time to deliberate. In contrast, Computer-Based Tests like JFT-Basic require candidate comprehension within fractions of a second during listening dialogues and reading passages.
+          </p>
+          <p>
+            By imposing micro-timed recall constraints (such as the 60-second timer in Word Rush and the dynamic matching mechanics in Word Match), candidates transition from hesitant translation to automated recognition. Our arcade game suite is mapped directly against the Japan Foundation CEFR A1/A2 Can-Do curriculum descriptors.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

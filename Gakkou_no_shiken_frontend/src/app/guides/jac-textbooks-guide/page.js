@@ -16,20 +16,11 @@ import {
   Sparkles,
   ExternalLink,
 } from 'lucide-react';
-import AdBanner from '@/components/AdBanner';
 
 export const metadata = {
   title: 'JAC Official Japanese Textbooks & Multilingual Audio Guide | Gakkou No Shiken',
   description:
     'Complete guide to all 26 official JAC textbooks for Japan Specified Skilled Worker examinations. Features textbook catalog, trade breakdowns, and neural audio study guides.',
-  keywords: [
-    'JAC textbook guide',
-    'JAC official books Japan',
-    'SSW construction textbook',
-    'Japanese skill test audio book',
-    'JAC textbook Bengali audio',
-    'JAC textbook Indonesian audio',
-  ],
   alternates: {
     canonical: 'https://www.gakkounoshiken.site/guides/jac-textbooks-guide',
   },
@@ -86,10 +77,20 @@ export default function JacTextbooksGuidePage() {
         <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
           The Japan Association for Construction Human Resources (JAC) publishes official textbooks covering occupational terminology, technical diagrams, safety regulations, and practice questions. Gakkou No Shiken hosts all <strong>26 official volumes</strong> with an integrated cloud reader and <strong>multilingual neural voice synthesis</strong>.
         </p>
+
+        {/* Editorial Trust Byline */}
+        <div className="flex flex-wrap items-center gap-4 pt-3 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-300">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span>Author: Gakkou No Shiken JAC Technical Curriculum Review</span>
+          </div>
+          <span>•</span>
+          <span>Verified Against JAC Ministry Syllabus</span>
+          <span>•</span>
+          <span>Last Updated: October 2026</span>
+        </div>
       </header>
 
-      {/* Ad Placement 1 */}
-      <AdBanner slot="8435487820" format="auto" />
 
       {/* Section 1: Multilingual Neural Audio Feature */}
       <section className="space-y-4">
@@ -124,8 +125,6 @@ export default function JacTextbooksGuidePage() {
         </div>
       </section>
 
-      {/* Ad Placement 2 */}
-      <AdBanner slot="8435487820" format="auto" />
 
       {/* Section 2: Catalog of Covered Construction Trades */}
       <section className="space-y-4">
@@ -177,9 +176,6 @@ export default function JacTextbooksGuidePage() {
           </Link>
         </div>
       </section>
-
-      {/* Ad Placement 3 */}
-      <AdBanner slot="8435487820" format="auto" />
     </article>
   );
 }

@@ -25,7 +25,6 @@ import {
   Wrench,
 } from 'lucide-react';
 import { getBooks } from '@/lib/api';
-import AdBanner from '@/components/AdBanner';
 
 export default function BooksLibraryPage() {
   const [activeCategory, setActiveCategory] = useState('all');
@@ -186,8 +185,48 @@ export default function BooksLibraryPage() {
         </div>
       </div>
 
-      {/* High-Impact Leaderboard Ad Unit on Books Catalog */}
-      <AdBanner className="my-2" slot="8435487820" format="auto" />
+      {/* Educational Guide Section on JAC Textbooks & Examination Curriculum */}
+      <div className="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-8 space-y-4 shadow-sm">
+        <div className="flex items-center gap-2 text-xs font-black uppercase text-japan-red dark:text-rose-400 tracking-wider">
+          <GraduationCap className="w-4 h-4" />
+          <span>Curriculum Guide &amp; Study Methodology</span>
+        </div>
+        <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+          About the Official JAC Construction &amp; Skill Textbooks
+        </h2>
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          The Japan Association for Construction Human Resources (一般社団法人 建設技能人材機構 - JAC) publishes authoritative textbooks approved by Japan&apos;s Ministry of Land, Infrastructure, Transport and Tourism (MLIT). These manuals form the exact statutory curriculum for the Specified Skilled Worker (SSW No. 1 - 特定技能1号) skill evaluation examinations administered via Prometric testing centers globally.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-1.5">
+            <h3 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Full Trade Coverage</span>
+            </h3>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              Covers all major construction trades: Formwork, Rebar, Scaffolding, Concrete Pumping, Plastering, Interior Finishing, and Earthwork with standard terminology.
+            </p>
+          </div>
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-1.5">
+            <h3 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Multilingual Translations</span>
+            </h3>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              Read in Japanese alongside verified Bengali (বাংলা), English, Vietnamese, Indonesian, and Nepali editions to build accurate cross-language vocabulary.
+            </p>
+          </div>
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-1.5">
+            <h3 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Interactive Neural Audio</span>
+            </h3>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              Listen to native Japanese pronunciations of hazardous workplace commands, tool names, and safety guidelines to train your listening comprehension for Phase 1 CBT.
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Books Grid */}
       {loading ? (

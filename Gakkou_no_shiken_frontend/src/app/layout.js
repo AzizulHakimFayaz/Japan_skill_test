@@ -8,27 +8,12 @@ export const metadata = {
     canonical: 'https://www.gakkounoshiken.site',
   },
   title: {
-    default: "JFT Mock Test & SSW CBT Practice Platform | Bangladesh's #1 - Gakkou No Shiken",
-    template: '%s | JFT Mock Test Platform',
+    default: 'Gakkou No Shiken | Japanese CBT Mock Exam Simulator for JFT-Basic & SSW',
+    template: '%s | Gakkou No Shiken',
   },
   description:
-    "Take free JFT Mock Tests online with authentic Prometric CBT interface, native listening audio, 10 language aids, and instant CEFR score report. Bangladesh's #1 Japanese CBT exam platform.",
-  keywords: [
-    'JFT-Basic practice exam',
-    'JFT mock test online',
-    'JFT mock test Bangladesh',
-    'SSW skill mock test',
-    'SSW exam Bangladesh',
-    'Specified Skilled Worker Japanese test',
-    'Prometric CBT practice Bangladesh',
-    'JFT listening practice online',
-    'Gakkou No Shiken',
-    '学校の試験',
-    'Japanese CBT test Bangladesh',
-    'JFT BDJ01 BDJ02 mock exam',
-    'SSW nursing food agriculture CBT test',
-  ],
-  authors: [{ name: 'Gakkou No Shiken' }],
+    'Authentic Prometric CBT mock examination simulator for JFT-Basic and Specified Skilled Worker (SSW) tests with native Japanese audio dialogues, JAC textbook readers, and instant CEFR score reports.',
+  authors: [{ name: 'Gakkou No Shiken Academic Team' }],
   creator: 'Gakkou No Shiken',
   publisher: 'Gakkou No Shiken',
   robots: {
@@ -46,24 +31,24 @@ export const metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://www.gakkounoshiken.site',
-    siteName: "JFT-Basic & SSW CBT Mock Test Platform | Bangladesh's #1",
-    title: "JFT-Basic & SSW Skill CBT Mock Test | Bangladesh's #1 Japanese Exam Platform",
+    siteName: 'Gakkou No Shiken',
+    title: 'Gakkou No Shiken | Japanese CBT Mock Exam Simulator',
     description:
-      "Bangladesh's 1st authentic Prometric CBT examination simulator for JFT-Basic & SSW skills with native listening audio and instant CEFR score reports.",
+      'Practice JFT-Basic and Specified Skilled Worker (SSW) examinations with authentic Prometric CBT software, native listening audio, and instant CEFR score reports.',
     images: [
       {
         url: '/img/logo.png',
         width: 512,
         height: 512,
-        alt: 'JFT-Basic & SSW Skill CBT Mock Test Logo',
+        alt: 'Gakkou No Shiken CBT Simulator Logo',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "JFT-Basic & SSW Skill CBT Mock Test | Bangladesh's #1 Japanese Exam Platform",
+    title: 'Gakkou No Shiken | Japanese CBT Mock Exam Simulator',
     description:
-      "Bangladesh's 1st authentic Prometric CBT examination simulator for JFT-Basic & SSW skills with native listening audio and instant CEFR score reports.",
+      'Practice JFT-Basic and Specified Skilled Worker (SSW) examinations with authentic Prometric CBT software, native listening audio, and instant CEFR score reports.',
     images: ['/img/logo.png'],
   },
   verification: {

@@ -1,7 +1,14 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
+
+export const metadata = {
+  title: 'Terms of Service | Gakkou No Shiken',
+  description:
+    'Terms of Service and Candidate Fair Use Guidelines for Gakkou No Shiken Japanese CBT examination platform.',
+  alternates: {
+    canonical: 'https://www.gakkounoshiken.site/terms',
+  },
+};
 import {
   FileText,
   ShieldCheck,

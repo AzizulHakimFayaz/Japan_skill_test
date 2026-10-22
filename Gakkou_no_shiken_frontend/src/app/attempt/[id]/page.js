@@ -28,7 +28,6 @@ import {
   Keyboard,
 } from 'lucide-react';
 import ZoomableImage from '@/components/ZoomableImage';
-import AdBanner from '@/components/AdBanner';
 
 export default function AttemptResultsPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
@@ -589,8 +588,6 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
         </div>
       </div>
 
-      {/* Prominent High-Viewability Ad Placement Below Official Result Scorecard */}
-      <AdBanner className="no-print my-6" slot="8435487820" format="auto" />
 
       {/* Detailed Question Review */}
       <div className="space-y-6 pt-4">
@@ -757,9 +754,6 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
               </div>
             )}
           </div>
-          {qIdx === 2 && (
-            <AdBanner className="no-print my-6" slot="8435487820" format="auto" />
-          )}
         </React.Fragment>
         ))}
       </div>

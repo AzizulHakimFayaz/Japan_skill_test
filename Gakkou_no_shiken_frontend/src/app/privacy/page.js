@@ -1,7 +1,14 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
+
+export const metadata = {
+  title: 'Privacy Policy | Gakkou No Shiken',
+  description:
+    'Official Privacy Policy and Data Protection standards for Gakkou No Shiken Japanese CBT examination platform. Learn how candidate accounts, scores, and cookies are managed.',
+  alternates: {
+    canonical: 'https://www.gakkounoshiken.site/privacy',
+  },
+};
 import {
   ShieldCheck,
   Lock,

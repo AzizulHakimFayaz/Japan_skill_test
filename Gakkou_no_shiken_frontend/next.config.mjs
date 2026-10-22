@@ -13,6 +13,16 @@ const nextConfig = {
         permanent: false,
       },
       {
+        source: '/privacy-policy',
+        destination: '/privacy',
+        permanent: true,
+      },
+      {
+        source: '/terms-of-service',
+        destination: '/terms',
+        permanent: true,
+      },
+      {
         source: '/admin',
         destination: 'https://gakkounoshiken.site/admin/',
         permanent: false,

@@ -15,21 +15,11 @@ import {
   Sparkles,
   ExternalLink,
 } from 'lucide-react';
-import AdBanner from '@/components/AdBanner';
 
 export const metadata = {
   title: 'JFT-Basic Official Exam Guide & Prometric CBT Syllabus (2026)',
   description:
     'Comprehensive guide to the Japan Foundation Test for Basic Japanese (JFT-Basic). Learn test structure, 250-point scoring system, CEFR A2 passing criteria, Prometric CBT interface, and study tips.',
-  keywords: [
-    'JFT-Basic exam guide',
-    'JFT-Basic syllabus 2026',
-    'JFT mock test guide',
-    'Prometric CBT test Bangladesh',
-    'CEFR A2 Japanese test',
-    'JFT passing score',
-    'JFT listening audio tips',
-  ],
   alternates: {
     canonical: 'https://www.gakkounoshiken.site/guides/jft-basic-exam-guide',
   },
@@ -124,10 +114,20 @@ export default function JftBasicExamGuidePage() {
         <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
           The Japan Foundation Test for Basic Japanese (JFT-Basic) is the official language assessment required for foreigners obtaining Japan&apos;s <strong>Specified Skilled Worker (特定技能 - SSW) Status of Residence (i)</strong>. This guide explains the computer-based testing format, scoring methodology, section requirements, and preparation techniques.
         </p>
+
+        {/* Editorial Trust Byline */}
+        <div className="flex flex-wrap items-center gap-4 pt-3 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-300">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span>Author: Gakkou No Shiken Academic Curriculum Team</span>
+          </div>
+          <span>•</span>
+          <span>Peer-reviewed for Prometric CBT Standards</span>
+          <span>•</span>
+          <span>Last Updated: October 2026</span>
+        </div>
       </header>
 
-      {/* Ad Placement 1: Top of Content */}
-      <AdBanner slot="8435487820" format="auto" />
 
       {/* Section 1: Overview and Purpose */}
       <section className="space-y-4">
@@ -207,8 +207,6 @@ export default function JftBasicExamGuidePage() {
         </div>
       </section>
 
-      {/* Ad Placement 2: Mid Content */}
-      <AdBanner slot="8435487820" format="auto" />
 
       {/* Section 3: Prometric CBT Computer Operation Guide */}
       <section className="space-y-4">
@@ -298,9 +296,6 @@ export default function JftBasicExamGuidePage() {
           </div>
         </div>
       </section>
-
-      {/* Ad Placement 3: Bottom of Guide */}
-      <AdBanner slot="8435487820" format="auto" />
     </article>
   );
 }

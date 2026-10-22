@@ -77,13 +77,6 @@ export default async function HomePage() {
       price: '0',
       priceCurrency: 'BDT',
     },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      ratingCount: '1240',
-      bestRating: '5',
-      worstRating: '1',
-    },
   };
 
   return (

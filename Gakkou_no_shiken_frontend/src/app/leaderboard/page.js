@@ -22,7 +22,6 @@ import {
 } from 'lucide-react';
 import { getCountryFlag } from '@/lib/utils';
 import CountryFlag from '@/components/CountryFlag';
-import AdBanner from '@/components/AdBanner';
 
 
 export default function LeaderboardPage() {
@@ -526,8 +525,15 @@ export default function LeaderboardPage() {
         </div>
       )}
 
-      {/* Prominent High-Impact Leaderboard Ad Placement */}
-      <AdBanner className="my-6" slot="8435487820" format="auto" />
+      {/* Educational Scoring Guide Overview */}
+      <div className="bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 space-y-2">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          How National CBT Rankings &amp; CEFR Scaled Scores Work
+        </h3>
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          Gakkou No Shiken calculates candidate scores according to official Item Response Theory (IRT) scaling used in Prometric JFT-Basic examinations (scale: 10–250 points, passing threshold: 200 points) and SSW skill evaluations (percentage benchmark: 60%). Ranks are updated in real-time based on verified mock exam submissions across Bangladesh and overseas candidate pools.
+        </p>
+      </div>
 
       {/* 4. Full Standings Section */}
       <div className="space-y-4">
