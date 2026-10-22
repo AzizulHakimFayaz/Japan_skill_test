@@ -1,194 +1,79 @@
-# Architecture
+# System Architecture — Gakkou No Shiken
 
-This document explains the high-level architecture of the JFT-Basic Practice Portal: the data model, the request flow, the responsibilities of each app, and a few important design decisions.
+This document details the software architecture of **Gakkou No Shiken (学校の試験)**: the decoupled client-server model, Next.js 16 App Router frontend, Django REST Framework backend API, database schema, and deployment topology.
 
 ---
 
-## 1. Bird's-eye View
+## 1. High-Level System Architecture
 
-The project is a classic server-rendered Django monolith:
+Gakkou No Shiken is structured as a **Decoupled Jamstack Web Application**:
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         Browser (CDN assets)                    │
-│                                                                 │
-│   Tailwind CSS + Alpine.js + Google Fonts (Noto Sans JP, Inter) │
-└───────────────────────────────┬─────────────────────────────────┘
-                                │ HTML / POST forms
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     Django (config.settings)                   │
-│                                                                 │
-│   ┌───────────────┐    ┌──────────────────┐    ┌─────────────┐   │
-│   │   accounts    │    │      tests       │    │   admin     │   │
-│   │  auth + my    │    │  quiz engine +   │    │  (jazzmin)  │   │
-│   │   results     │    │     scoring      │    │             │   │
-│   └──────┬────────┘    └────────┬─────────┘    └──────┬──────┘   │
-│          │                     │                    │          │
-│          └──────────┬──────────┴────────────────────┘          │
-│                     │                                           │
-│                     ▼                                           │
-│             ┌──────────────────────┐                            │
-│             │     ORM (Django)     │                            │
-│             └──────────┬───────────┘                            │
-│                        │                                        │
-│                  ┌─────▼──────┐    ┌────────────────────────┐  │
-│                  │  SQLite /  │    │  FileSystem or S3      │  │
-│                  │ PostgreSQL │    │  (media + staticfiles) │  │
-│                  └────────────┘    └────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│                        EDGE / CLIENT LAYER                             │
+│                                                                        │
+│   Next.js 16.3.2 (App Router, Turbopack, React 19)                     │
+│   • Server-Side Rendered (SSR) Policy, Guide & Syllabus Pages         │
+│   • Static Site Generation (SSG) for Textbook Catalogs & Landing Pages │
+│   • Client-Side CBT Simulator (Prometric Timer, Audio & Answers)       │
+│   • Tailwind CSS + Lucide Icons + Leaflet Maps                         │
+│   • Hosted on Vercel Edge Network (https://www.gakkounoshiken.site)    │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ HTTPS / REST (JSON + JWT)
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                        API & BACKEND LAYER                             │
+│                                                                        │
+│   Django 5.x REST Framework (Gunicorn / cPanel Linux VPS)              │
+│   • Endpoints: /api/tests/, /api/books/, /api/accounts/, /api/notices/ │
+│   • Jazzmin Admin Portal (/admin/) for Exam & Audio Management         │
+│   • JWT & Session Token Authentication                                 │
+│   • Automatic Psychometric IRT Scaled Scoring (10–250 pts)             │
+│   • SQLite / PostgreSQL Database Engine                                │
+│   • Static/Media Storage: Local / Cloudflare R2 / AWS S3               │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
-Two custom apps (`accounts`, `tests`) plus Django's built-in `admin`, `auth`, `sessions`, `messages`, `contenttypes`, `staticfiles`. The admin UI is restyled by `django-jazzmin`.
+---
+
+## 2. Frontend Architecture (Next.js 16 App Router)
+
+### Key Architectural Pillars:
+1. **Server Components by Default:**
+   - Critical SEO and policy pages (`/about`, `/contact`, `/privacy`, `/terms`, `/disclaimer`, `/tools`, and all 12 `/guides/*`) are 100% Server Components without `'use client'`.
+   - Crawlers (Googlebot, Mediapartners-Google) receive complete static semantic HTML containing rich editorial prose.
+2. **Interactive Client Islands:**
+   - Components requiring browser interactivity (audio players, particle quizzes, the full-screen Prometric CBT engine `/test/[id]`) are isolated into dedicated client components (`PracticeTestGrid.js`, `StudentExamGuide.js`, `InteractiveFeatureShowcase.js`).
+3. **Structured Data (Schema.org):**
+   - Injected dynamically in `<head>` via `next/script` or JSON-LD tags:
+     - `WebSite` & `EducationalOrganization` in `src/app/layout.js`.
+     - `WebApplication` & `FAQPage` in `src/app/page.js`.
+     - `Article` & `FAQPage` across all 12 `/guides/*` pages.
+4. **Permanent 301 Redirects:**
+   - Managed in `next.config.mjs` to eliminate duplicate content (`/privacy-policy` $\rightarrow$ `/privacy`, `/terms-of-service` $\rightarrow$ `/terms`).
 
 ---
 
-## 2. Apps and Responsibilities
+## 3. Backend Architecture (Django REST Framework)
 
-### `config/`
-
-The Django project itself. Contains only wiring:
-
-- `settings.py` — environment-driven configuration, app registry, middleware, template config, storage backends, and Jazzmin theme tweaks.
-- `urls.py` — Root URL routing. Mounts `accounts/` and `tests/` and serves media/static in DEBUG.
-- `asgi.py` / `wsgi.py` — Server entry points.
-
-### `accounts/`
-
-Authentication and per-user dashboards.
-
-**Models:** none (uses Django's `auth.User`).
-
-**Views (FBVs):**
-
-| URL                  | View                  | Notes                                                             |
-| -------------------- | --------------------- | ----------------------------------------------------------------- |
-| `/accounts/signup/`  | `signup_view`         | Uses `UserCreationForm`; auto-logs in on success.                 |
-| `/accounts/login/`   | `login_view`          | Accepts **username or email** — transparently resolves emails.    |
-| `/accounts/logout/`  | `logout_view`         | Posts/logs out and redirects to landing.                          |
-| `/accounts/my-results/` | `my_results_view` | `login_required` — renders the user's attempt history.           |
-
-**Templates:** `login.html`, `signup.html`, `my_results.html` (all extend `base.html`).
-
-### `tests/`
-
-Domain logic — the quiz engine, scoring, and result rendering.
-
-**Models:**
-
-| Model          | Purpose                                                                              |
-| -------------- | ------------------------------------------------------------------------------------ |
-| `Test`         | A practice exam. Has metadata, a `requires_account` flag, a publication flag, and an optional `time_limit_seconds`. |
-| `Question`     | Belongs to a `Test`. Has a `QuestionType` (text / image / audio), an optional image, an optional audio clip, an `order_index`, and a text prompt. |
-| `AnswerOption` | Belongs to a `Question`. Stores `label`, `is_correct`, and `order_index`.            |
-| `Attempt`      | A user's submission for a `Test`. Stores `score`, `total_questions`, JSON `answers`, completion timestamp, and `user` (nullable to support anonymous attempts on free tests). |
-
-**Views (FBVs):**
-
-| URL                              | View                    | Notes                                                                                              |
-| -------------------------------- | ----------------------- | -------------------------------------------------------------------------------------------------- |
-| `/`                              | `landing_page_view`     | Lists all published tests, with badges for free vs. account-required.                              |
-| `/test/<id>/`                    | `quiz_page_view`        | Enforces `requires_account`. Serves all questions/options in one render; Alpine.js handles the wizard. |
-| `/test/<id>/submit/`             | `submit_quiz_view`      | Validates `POST`, computes the score, creates an `Attempt`, redirects to the results page.          |
-| `/attempt/<id>/`                 | `attempt_results_view`  | Per-question review; ownership enforced when the test `requires_account`.                          |
-
-**Templates:** `landing.html`, `quiz.html`, `results.html` (all extend `base.html`).
-
-**Admin:** `QuestionInline` (under `Test`) provides inline editing of questions with live media previews and a "Edit Answers & Options" link to the dedicated `Question` change form. `AnswerOptionInline` sits inside `QuestionAdmin`.
+### Core Django Apps:
+1. **`tests`:**
+   - `Test` model: Contains exam titles, category (`basic` vs `skill`), sector code, duration in minutes, passing percentage, and active flags.
+   - `Question` model: Questions grouped by test and section (Script & Vocab, Conversation, Listening, Reading). Supports text, illustration image, and audio file URL.
+   - `Option` model: 4 choices per question with correct answer boolean.
+   - `Attempt` & `UserAnswer` models: Records candidate selections, scores, and timestamped submissions.
+2. **`books`:**
+   - `Book` model: Metadata for 26 construction sector textbooks, page counts, language codes, and PDF URLs.
+   - `BookTopic` model: Page-level topics with Japanese script and synchronized neural audio pronunciations.
+   - `BookQuestion` model: Practice Q&As aligned to specific textbook pages.
+3. **`accounts`:**
+   - Candidate authentication, profiles, national leaderboard points, and exam histories.
 
 ---
 
-## 3. Data Model (ER Overview)
+## 4. Security & Compliance Design
 
-```
-┌──────────────┐ 1   N ┌──────────────┐ 1   N ┌──────────────────┐
-│    Test      │──────<│   Question   │──────<│  AnswerOption    │
-└──────┬───────┘       └──────────────┘       └──────────────────┘
-       │ 1
-       │
-       │ N
-┌──────▼───────┐
-│   Attempt    │  N:1 → auth.User (nullable)   JSONField {question_id: option_id}
-└──────────────┘
-```
-
-Key relationships:
-
-- `Test → Question`: cascade delete (`on_delete=CASCADE`). `related_name="questions"`.
-- `Question → AnswerOption`: cascade delete. `related_name="options"`.
-- `Test → Attempt`: cascade delete. `related_name="attempts"`.
-- `Attempt → User`: `on_delete=SET_NULL` so attempts survive user deletion; `null=True, blank=True` so anonymous attempts are allowed for free tests.
-- `Attempt.answers` is `JSONField` mapping question PK (stringified) → selected option PK (or `null`).
-
----
-
-## 4. Request Flows
-
-### 4.1 Taking a free test (anonymous)
-
-1. `GET /` — `landing_page_view`. Lists every published test.
-2. `GET /test/<id>/` — `quiz_page_view` checks `requires_account`; for free tests, renders `quiz.html`.
-3. `quiz.html` ships a single Alpine.js instance (`x-data`) holding `currentStep`, `timeLeft`, and `answers`. Each step is one question card; media players auto-pause on navigation.
-4. `POST /test/<id>/submit/` — `submit_quiz_view`:
-   - Iterates questions, reads `question_<id>` form values.
-   - Computes score by comparing selected option's `is_correct`.
-   - Persists `Attempt(user=None, …)` and redirects to `/attempt/<id>/`.
-5. `GET /attempt/<id>/` — `attempt_results_view` renders the per-question review. Ownership is not enforced for free tests.
-
-### 4.2 Taking an account-required test
-
-1. Anonymous user clicks "Start Practice Exam" on a `requires_account` test.
-2. `quiz_page_view` returns `302` to `/accounts/login/?next=/test/<id>/`.
-3. After login, `login_view` honors the `?next=` parameter and redirects back.
-4. Submission requires `request.user.is_authenticated`; otherwise the view returns `HttpResponseForbidden`.
-5. The results page enforces ownership — only `attempt.user == request.user` may view it.
-
----
-
-## 5. Authentication Design
-
-- Built on Django's default `User` model.
-- `signup_view` uses `UserCreationForm` and explicitly captures an optional email field that's not part of the default form, then logs the user in immediately.
-- `login_view` extends `AuthenticationForm` to transparently resolve an email address into the corresponding username before calling `authenticate()`. The end-user behavior: a single "Username or Email" field.
-- `LOGIN_URL = 'login'`, `LOGIN_REDIRECT_URL = 'landing_page'`, `LOGOUT_REDIRECT_URL = 'landing_page'` provide sensible defaults across the app.
-
----
-
-## 6. Storage Layout
-
-- **Static files** — Collected via `collectstatic` into `staticfiles/`. `whitenoise` serves them with `CompressedManifestStaticFilesStorage` so a hashed-manifest lookup pattern works in production.
-- **Media files** — In development: `FileSystemStorage` under `BASE_DIR/media/`. In production: when both `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are set, the project switches to `storages.backends.s3boto3.S3Boto3Storage` — this works with any S3-compatible API, including Cloudflare R2 (`AWS_S3_ENDPOINT_URL=https://<account>.r2.cloudflarestorage.com`, `AWS_S3_REGION_NAME=auto`).
-
----
-
-## 7. Frontend Architecture
-
-- **Layout** — A single `templates/base.html` provides the navbar (responsive, with Alpine.js controlled mobile menu), message alerts, main content block, and footer.
-- **Quiz wizard** — `quiz.html` renders every question card into the same DOM and uses Alpine.js to show only the current one. This keeps server logic simple while giving a snappy SPA-like experience.
-- **Styling** — Tailwind via the play CDN with a custom config that defines `japan-red`, `japan-navy`, etc. For production you'd swap to a built CSS pipeline.
-- **JavaScript** — Alpine.js (lightweight declarative bindings) covers timers, modal dialogs, step navigation, and audio play/pause.
-
----
-
-## 8. Scoring
-
-- One point per correctly answered question. No negative marking.
-- `Attempt.score`, `Attempt.total_questions`, and the JSON `answers` map are persisted; percentage is derived at render time.
-- The **passing threshold is hard-coded at 80%** (the JFT-Basic standard). Defined in `tests/views.py` (`passed = percentage >= 80.0`) and mirrored in `my_results.html` for the dashboard pass/fail badges.
-
----
-
-## 9. Admin Customization (Jazzmin)
-
-- Site title / brand / search models are configured in `JAZZMIN_SETTINGS`.
-- `icons` maps each model to a FontAwesome class so the sidebar feels curated.
-- `JAZZMIN_UI_TWEAKS` applies a navy + red theme to the chrome (navbar, sidebar, action cards), uses the `flatly` Bootswatch theme for the body, and enables `changeform_format="horizontal_tabs"` for cleaner pages.
-
----
-
-## 10. Things to Watch Out For
-
-- The Django app is named `tests/` — that shadows the standard test runner module. Run tests with `python manage.py test tests` so that resolution targets our package and not the runner.
-- `SECRET_KEY` in `.env` is the insecure dev key shipped with Django; **override it in any non-local environment.**
-- The `Attempt.user` field is nullable by design (to allow anonymous free-test attempts); don't enforce non-null on it.
-- A `Test` with `is_published=False` is invisible everywhere (landing page, quiz access). Use the admin to toggle publication safely.
+- **AdSense Verification:** `<meta name="google-adsense-account" content="ca-pub-8435487820435842" />` active in `layout.js` `<head>`.
+- **Zero Premature Ad Slots:** All `<AdBanner />` slots return `null` until site receives formal AdSense approval.
+- **No Unsolicited Popups:** No `window.open` calls on test buttons.
+- **Non-Affiliation Transparency:** Prominent legal disclosures affirming independent educational status relative to The Japan Foundation, Prometric Inc., and JAC.

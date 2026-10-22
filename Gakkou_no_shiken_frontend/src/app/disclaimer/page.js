@@ -61,6 +61,13 @@ const DISCLAIMER_SECTIONS = [
 • While we make every reasonable effort to keep venue addresses, fee schedules, and registration timelines current, official test dates and policies may change without notice.
 • Candidates are strongly advised to verify final test dates, venue addresses, and ID requirements on the official Prometric candidate portal.`,
   },
+  {
+    title: '8. Educational Attribution & Non-Affiliation with JAC (建設技能人材機構)',
+    content: `Construction sector study guides and textbooks referenced on Gakkou No Shiken are official training materials authored and published by the Japan Association for Construction Human Resources (一般社団法人 建設技能人材機構 - JAC) and the Ministry of Land, Infrastructure, Transport and Tourism (MLIT).
+• Gakkou No Shiken is NOT affiliated with, sponsored by, or endorsed by JAC.
+• Textbooks are indexed and enhanced with synchronized audio and page-level vocabulary study aids strictly under educational fair use principles to assist candidates preparing for Specified Skilled Worker (SSW No. 1) exams.
+• All original copyrights remain the property of JAC. Candidates should visit the official JAC portal at jac-skill.or.jp for statutory guidelines.`,
+  },
 ];
 
 export default function DisclaimerPage() {

@@ -543,8 +543,9 @@ export default function InteractiveBookReaderPage() {
                   )}
                 </div>
               ) : (
-                filteredTopics.map((item) => {
-                  const isCurrent = currentPage === item.page_number;
+                <>
+                  {filteredTopics.map((item) => {
+                    const isCurrent = currentPage === item.page_number;
                   const isThisAudioPlaying = activeAudioItem?.id === item.id && isPlaying;
 
                   return (
@@ -616,9 +617,12 @@ export default function InteractiveBookReaderPage() {
                       )}
                     </div>
                   );
-                })
-              )
-            ) : questionsList.length === 0 ? (
+                })}
+                <div className="pt-4 pb-2 px-1 text-[10px] text-slate-400 dark:text-slate-500 leading-relaxed text-center border-t border-slate-100 dark:border-slate-800">
+                  <p>Curriculum reference: JAC (一般社団法人 建設技能人材機構). Study aids provided under educational fair use.</p>
+                </div>
+              </>
+            )) : questionsList.length === 0 ? (
               <div className="text-center py-12 text-slate-400 text-xs">
                 No exam questions available for this book.
               </div>

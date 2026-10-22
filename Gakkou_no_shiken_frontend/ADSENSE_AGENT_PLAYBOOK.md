@@ -36,19 +36,32 @@ If the user asks: *"What is going on with Google AdSense?"* or *"Can we enable a
 | **Admin Panel** | `https://gakkounoshiken.site/admin/` | Staff portal for uploading CBT tests and audio |
 | **Primary Mission** | **Educational / CBT Exam Simulator** | Authentic Prometric CBT test simulator for Bangladeshi candidates preparing for JFT-Basic (A2) and SSW (Specified Skilled Worker) exams in Japan |
 
-### Route Breakdown (51 Production Routes)
+### Route Breakdown (61+ Production Routes)
 - **High-Value Exam Simulators:** `/test/[id]`, `/ssw-test/[id]`, `/tests`, `/jft-basic`, `/ssw-skill-test`
-- **Curriculum & Study Guides (SSR):** `/guides/jft-basic-exam-guide`, `/guides/ssw-skill-test-guide`, `/guides/jac-textbooks-guide`
-- **Textbook Library:** `/books`, `/books/[id]` (26 official Japanese textbooks with PDF readers)
+- **Master Guide Hub & 12 In-Depth Guides (100% SSR):**
+  - `/guides` (Central Guide Hub)
+  - `/guides/prometric-cbt-registration-guide-dhaka` (Registration in Dhaka & IDB venue)
+  - `/guides/jft-basic-scoring-and-passing-criteria` (250-Scale IRT calculation & passing benchmark)
+  - `/guides/jft-basic-exam-guide` (Syllabus & section overview)
+  - `/guides/ssw-nursing-care-kaigo-exam-guide` (Nursing Care skill & Japanese test)
+  - `/guides/ssw-food-service-restaurant-exam-guide` (OTAFF Food Service test & HACCP)
+  - `/guides/ssw-agriculture-farming-exam-guide` (Crop Cultivation & Livestock farming)
+  - `/guides/ssw-skill-test-guide` (SSW 12 sectors blueprint)
+  - `/guides/jft-basic-30-day-study-plan` (30-day intensive timetable)
+  - `/guides/essential-japanese-particles-guide-a2` (WA vs GA, NI vs DE particle masterclass)
+  - `/guides/jft-basic-listening-comprehension-strategy` (Section 3 single-play listening tactics)
+  - `/guides/prometric-cbt-exam-day-checklist` (Check-in, passport, locker & terminal rules)
+  - `/guides/jac-textbooks-guide` (JAC construction textbook audio guide)
+- **Textbook Study Library:** `/books`, `/books/[id]` (26 JAC construction textbooks with synchronized audio & fair use attribution)
 - **Interactive Tools (SSR + Client Widgets):** `/tools`, `/tools/flashcards`, `/tools/particle-quiz`, `/tools/salary-calculator`, `/game-zone`
 - **Mandatory Policy & Compliance Pages (100% Server Rendered):**
   - `/about`
   - `/contact`
   - `/privacy` (with 301 redirect from `/privacy-policy`)
   - `/terms` (with 301 redirect from `/terms-of-service`)
-  - `/disclaimer`
+  - `/disclaimer` (includes full non-affiliation and JAC copyright attribution)
   - `/how-it-works`
-- **SEO & Crawlers:** `/robots.txt` (explicitly permits `Mediapartners-Google`), `/sitemap.xml` (dynamic, 51+ routes)
+- **SEO & Crawlers:** `/robots.txt` (explicitly permits `Mediapartners-Google`), `/sitemap.xml` (dynamic, 61+ routes)
 
 ---
 

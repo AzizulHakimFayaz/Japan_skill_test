@@ -98,7 +98,7 @@ export default function BooksLibraryPage() {
         <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
             <BookOpen className="w-3.5 h-3.5" />
-            <span>Official JAC Examination Textbooks (特定技能評価試験)</span>
+            <span>JAC Curriculum Textbooks &amp; Study Guides (特定技能評価試験)</span>
           </div>
 
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
@@ -106,7 +106,7 @@ export default function BooksLibraryPage() {
           </h1>
 
           <p className="text-sm sm:text-base text-slate-300 font-medium leading-relaxed">
-            Read official construction textbooks directly in your browser. Jump directly to important topics on each page, listen to native Japanese audio explanations, and master high-frequency exam questions.
+            Study official JAC construction textbooks directly in your browser. Jump directly to important safety and technical topics, listen to native Japanese audio explanations, and master high-frequency exam questions.
           </p>
 
           <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-300">
@@ -120,6 +120,27 @@ export default function BooksLibraryPage() {
               <Languages className="w-4 h-4 text-sky-400" /> 15+ Languages Available
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* Prominent Copyright Attribution & Educational Fair Use Notice */}
+      <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 text-xs text-amber-900 dark:text-amber-200/90 leading-relaxed">
+        <ShieldAlert className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <p className="font-bold text-amber-950 dark:text-amber-100">
+            Educational Fair Use &amp; Source Attribution Notice:
+          </p>
+          <p>
+            The construction textbooks featured below are official curriculum materials authored and published by the <strong>Japan Association for Construction Human Resources (一般社団法人 建設技能人材機構 - JAC)</strong> and the Ministry of Land, Infrastructure, Transport and Tourism (MLIT). Gakkou No Shiken is an independent educational platform and does not claim ownership or official affiliation with JAC. These public training materials are provided with synchronized audio and page-level vocabulary breakdowns strictly for educational preparation. Candidates may access the official JAC portal directly at{' '}
+            <a
+              href="https://jac-skill.or.jp"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold underline hover:text-amber-700 dark:hover:text-amber-300 inline-flex items-center gap-0.5"
+            >
+              jac-skill.or.jp <ExternalLink className="w-3 h-3 inline" />
+            </a>.
+          </p>
         </div>
       </div>
 
