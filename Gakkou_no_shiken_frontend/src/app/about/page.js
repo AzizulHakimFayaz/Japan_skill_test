@@ -1,15 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import AboutShowcaseTabs from '@/components/AboutShowcaseTabs';
-
-export const metadata = {
-  title: 'About Us & CBT Simulator Mission | Gakkou No Shiken',
-  description:
-    'Learn about Gakkou No Shiken, South Asia\'s premier Japanese computer-based test (CBT) examination simulator for JFT-Basic and Specified Skilled Worker (SSW) tests.',
-  alternates: {
-    canonical: 'https://www.gakkounoshiken.site/about',
-  },
-};
+import AboutDynamicStats from '@/components/AboutDynamicStats';
+import { getPlatformStats } from '@/lib/api';
 import {
   ShieldCheck,
   Award,
@@ -31,7 +24,22 @@ import {
   MonitorCheck,
   Building2,
   CheckCheck,
+  BookOpen,
+  BellRing,
+  Gamepad2,
+  GraduationCap,
+  Headphones,
+  CheckSquare,
 } from 'lucide-react';
+
+export const metadata = {
+  title: 'About Us & CBT Simulator Mission | Gakkou No Shiken',
+  description:
+    'Learn about Gakkou No Shiken, South Asia\'s premier Japanese computer-based test (CBT) examination simulator for JFT-Basic and Specified Skilled Worker (SSW) tests.',
+  alternates: {
+    canonical: 'https://www.gakkounoshiken.site/about',
+  },
+};
 
 const SHOWCASE_TABS = [
   {
@@ -68,13 +76,6 @@ const SHOWCASE_TABS = [
       'Prometric color palette with olive green controls and amber finish buttons',
     ],
   },
-];
-
-const STATS = [
-  { value: '100%', label: 'Prometric CBT Fidelity', sub: 'Exact visual & behavioral match' },
-  { value: '460+', label: 'Registered Candidates', sub: 'Across BD, Nepal, Vietnam & Japan' },
-  { value: '10+', label: 'Supported Native Languages', sub: 'Instant translation assistance' },
-  { value: '250', label: 'Official Scaled Scoring', sub: 'Instant CEFR-J A1/A2 results' },
 ];
 
 const PILLARS = [
@@ -116,7 +117,88 @@ const PILLARS = [
   },
 ];
 
-export default function AboutPage() {
+const ECOSYSTEM_CARDS = [
+  {
+    title: 'Master Exam Guides',
+    subtitle: '30-Day Study Plans & Scoring Rules',
+    description:
+      'In-depth, research-backed guides covering the official 250-point Prometric scoring scale, section auto-locking mechanics, and sector-by-sector SSW strategies for Agriculture and Food Service.',
+    href: '/guides',
+    icon: FileText,
+    badge: '12 Guides Available',
+    color: 'from-amber-500/10 via-amber-500/5 to-transparent border-amber-200 dark:border-amber-900/60 text-amber-600 dark:text-amber-400',
+    btnText: 'Read Guides',
+  },
+  {
+    title: 'Official Study Materials',
+    subtitle: '26 JAC Textbooks & Audio Files',
+    description:
+      'Complete repository of Japanese Agriculture & Food Service textbooks published by the Japan Agricultural Corporation (JAC), equipped with full bilingual vocabulary and audio tracks.',
+    href: '/books',
+    icon: BookOpen,
+    badge: '26 Textbooks & PDFs',
+    color: 'from-emerald-500/10 via-emerald-500/5 to-transparent border-emerald-200 dark:border-emerald-900/60 text-emerald-600 dark:text-emerald-400',
+    btnText: 'Browse Books',
+  },
+  {
+    title: 'Official Exam Notices',
+    subtitle: 'Prometric Circulars & Booking Dates',
+    description:
+      'Stay fully updated on official test voucher sales, Prometric test booking windows in Dhaka and Chittagong, Japan Foundation policy changes, and venue advisories.',
+    href: '/notices',
+    icon: BellRing,
+    badge: 'Real-Time Circulars',
+    color: 'from-blue-500/10 via-blue-500/5 to-transparent border-blue-200 dark:border-blue-900/60 text-blue-600 dark:text-blue-400',
+    btnText: 'View Notices',
+  },
+  {
+    title: 'Interactive Practice Suite',
+    subtitle: 'Game Zone & Structured Lessons',
+    description:
+      'Over 8 interactive arcade games and 80 structured vocabulary and Kanji lessons designed to reinforce memory retention with native Tokyo pronunciation and Bengali translations.',
+    href: '/game-zone',
+    icon: Gamepad2,
+    badge: '8 Games & 80 Units',
+    color: 'from-purple-500/10 via-purple-500/5 to-transparent border-purple-200 dark:border-purple-900/60 text-purple-600 dark:text-purple-400',
+    btnText: 'Explore Practice',
+  },
+];
+
+const EXAM_DAY_RULES = [
+  {
+    step: '01',
+    title: 'Identity Verification & Confirmation Slip',
+    detail:
+      'Bring your valid, non-expired international Passport and the printed Prometric Appointment Confirmation letter. Names must match character-by-character.',
+  },
+  {
+    step: '02',
+    title: 'Biometric Check-In & Strict Locker Policy',
+    detail:
+      'All personal items (phones, watches, wallets, stationery) are securely locked in personal lockers. You will pass an electronic metal-detector wand and biometric photo check-in.',
+  },
+  {
+    step: '03',
+    title: 'Prometric Audio Headset & Sound Test',
+    detail:
+      'Before Section 1 starts, you must complete the hardware sound test. Practice adjusting the volume on our simulator so you know the exact slider placement.',
+  },
+  {
+    step: '04',
+    title: 'Auto-Locking Sections & Non-Reversible Flow',
+    detail:
+      'Once a section’s 15 or 20 minutes expire or you click Next Section, that section permanently locks. You can never return to previous questions.',
+  },
+];
+
+export default async function AboutPage() {
+  let initialStats = null;
+  try {
+    initialStats = await getPlatformStats();
+  } catch {
+    initialStats = null;
+  }
+
   return (
     <div className="space-y-12 sm:space-y-16 animate-fade-in pb-16 font-sans">
       {/* ──────────────────────────────────────────────────────────────────
@@ -151,8 +233,16 @@ export default function AboutPage() {
             </Link>
 
             <Link
-              href="/how-it-works"
+              href="/guides"
               className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/15 text-slate-200 border border-white/15 text-xs sm:text-sm font-bold transition-all cursor-pointer backdrop-blur-xs"
+            >
+              <BookOpen className="w-4 h-4 text-amber-400" />
+              <span>Explore Exam Guides</span>
+            </Link>
+
+            <Link
+              href="/how-it-works"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs sm:text-sm font-bold transition-all cursor-pointer backdrop-blur-xs"
             >
               <span>How The Simulator Works</span>
               <ExternalLink className="w-4 h-4 opacity-70" />
@@ -160,18 +250,9 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Floating Stat Badges */}
-        <div className="mt-10 sm:mt-14 pt-8 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-          {STATS.map((stat, idx) => (
-            <div key={idx} className="space-y-1">
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-1">
-                <span>{stat.value}</span>
-                {idx === 0 && <CheckCheck className="w-5 h-5 text-emerald-400 inline" />}
-              </div>
-              <strong className="text-xs sm:text-sm font-bold text-slate-200 block">{stat.label}</strong>
-              <span className="text-[11px] text-slate-400 block">{stat.sub}</span>
-            </div>
-          ))}
+        {/* Dynamic Registered Candidates & Core Platform Stats (Live from backend) */}
+        <div className="mt-10 sm:mt-14 pt-8 border-t border-slate-800/80">
+          <AboutDynamicStats initialStats={initialStats} />
         </div>
       </section>
 
@@ -197,7 +278,72 @@ export default function AboutPage() {
       </section>
 
       {/* ──────────────────────────────────────────────────────────────────
-          3. OUR CORE PILLARS & PROMETRIC FIDELITY STANDARDS
+          3. COMPLETE LEARNING & RESOURCE ECOSYSTEM (Guides, Books, Notices, Practice)
+          ────────────────────────────────────────────────────────────────── */}
+      <section className="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-10 lg:p-12 shadow-xl space-y-8">
+        <div className="max-w-3xl space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-japan-red/10 text-japan-red dark:text-rose-400 border border-japan-red/20 text-xs font-black uppercase tracking-wider">
+            <Layers className="w-3.5 h-3.5" />
+            <span>All-In-One Japanese CBT Ecosystem</span>
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+            More Than Just Tests: A Complete Study System
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            From the first day of Japanese study to the final Prometric CBT test session, our integrated platform equips candidates with verified study guides, official JAC textbooks, real-time circulars, and gamified practice tools.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+          {ECOSYSTEM_CARDS.map((card, cIdx) => {
+            const Icon = card.icon;
+            return (
+              <div
+                key={cIdx}
+                className={`group relative rounded-2xl sm:rounded-3xl bg-gradient-to-br ${card.color} border p-6 sm:p-7 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between`}
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <span className="text-[10px] sm:text-xs font-black px-2.5 py-1 rounded-full bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                      {card.badge}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1">
+                    <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                      {card.title}
+                    </h3>
+                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                      {card.subtitle}
+                    </p>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {card.description}
+                  </p>
+                </div>
+
+                <div className="pt-5 mt-4 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between">
+                  <Link
+                    href={card.href}
+                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-black text-japan-red dark:text-rose-400 hover:text-japan-redhover group-hover:translate-x-0.5 transition-all"
+                  >
+                    <span>{card.btnText}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <span className="text-[11px] font-bold text-slate-400">Gakkou No Shiken</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ──────────────────────────────────────────────────────────────────
+          4. OUR CORE PILLARS & PROMETRIC FIDELITY STANDARDS
           ────────────────────────────────────────────────────────────────── */}
       <section className="space-y-8">
         <div className="text-center max-w-2xl mx-auto space-y-2">
@@ -237,7 +383,44 @@ export default function AboutPage() {
       </section>
 
       {/* ──────────────────────────────────────────────────────────────────
-          4. THE MISSION & CANDIDATE SUCCESS STORY
+          5. PROMETRIC TEST CENTER EXAM DAY PROTOCOL CHECKLIST
+          ────────────────────────────────────────────────────────────────── */}
+      <section className="bg-slate-50 dark:bg-slate-900/60 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 sm:p-10 lg:p-12 shadow-sm space-y-8">
+        <div className="max-w-2xl space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-black uppercase tracking-wider">
+            <CheckSquare className="w-3.5 h-3.5" />
+            <span>Test Day Readiness</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+            Official Prometric Exam Day Protocol
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            Familiarize yourself with what happens from the moment you arrive at the Prometric test center in Dhaka, Chittagong, Tokyo, or Manila.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {EXAM_DAY_RULES.map((rule, rIdx) => (
+            <div
+              key={rIdx}
+              className="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/80 shadow-xs space-y-3"
+            >
+              <div className="w-8 h-8 rounded-xl bg-japan-red/10 text-japan-red font-black text-xs flex items-center justify-center border border-japan-red/20">
+                {rule.step}
+              </div>
+              <h4 className="text-sm font-black text-slate-900 dark:text-white leading-snug">
+                {rule.title}
+              </h4>
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                {rule.detail}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ──────────────────────────────────────────────────────────────────
+          6. THE MISSION & CALL TO ACTION
           ────────────────────────────────────────────────────────────────── */}
       <section className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white rounded-3xl border border-slate-800 p-6 sm:p-12 shadow-2xl relative overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -262,7 +445,11 @@ export default function AboutPage() {
               </span>
               <span className="flex items-center gap-1.5 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span>No Software Installation Required</span>
+                <span>12 Comprehensive Study Guides</span>
+              </span>
+              <span className="flex items-center gap-1.5 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span>26 Official JAC Textbooks</span>
               </span>
               <span className="flex items-center gap-1.5 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
@@ -283,13 +470,21 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <Link
-                href="/#mock-tests"
-                className="w-full inline-flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-black text-xs rounded-xl shadow-lg shadow-red-500/30 transition-all active:scale-95"
-              >
-                <span>Browse Mock Tests</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+              <div className="space-y-2 pt-1">
+                <Link
+                  href="/#mock-tests"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-black text-xs rounded-xl shadow-lg shadow-red-500/30 transition-all active:scale-95"
+                >
+                  <span>Browse Mock Tests</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+                <Link
+                  href="/guides"
+                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 bg-white/10 hover:bg-white/15 text-slate-200 font-bold text-xs rounded-xl border border-white/10 transition-all"
+                >
+                  <span>View All 12 Guides</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

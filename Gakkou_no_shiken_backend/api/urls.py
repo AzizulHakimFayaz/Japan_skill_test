@@ -14,9 +14,10 @@ urlpatterns = [
     path('tests/<int:pk>/import-csv/', views.TestImportQuestionsCsvAPIView.as_view(), name='api_test_import_csv'),
     path('attempts/<int:pk>/', views.AttemptResultsAPIView.as_view(), name='api_attempt_results'),
 
-    # Static / Overview Info
+    # Static / Overview Info & Platform Stats
     path('info/jft/', views.JftInfoAPIView.as_view(), name='api_jft_info'),
     path('info/ssw/', views.SswInfoAPIView.as_view(), name='api_ssw_info'),
+    path('stats/', views.PlatformStatsAPIView.as_view(), name='api_platform_stats'),
 
     # Authentication & User Profile
     path('auth/send-otp/', views.SendRegistrationOTPAPIView.as_view(), name='api_send_otp'),
