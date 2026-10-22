@@ -30,7 +30,6 @@ import {
 import ScheduledCountdownBadge from './ScheduledCountdownBadge';
 
 const LeadCaptureModal = dynamic(() => import('./LeadCaptureModal'), { ssr: false });
-const ExamVideoAdModal = dynamic(() => import('./ExamVideoAdModal'), { ssr: false });
 
 export default function PracticeTestGrid({
   practiceTests = [],
@@ -58,8 +57,6 @@ export default function PracticeTestGrid({
   // Modals & Real-time State
   const [leadModal, setLeadModal] = useState(false);
   const [unlockedMap, setUnlockedMap] = useState({});
-  const [videoAdModal, setVideoAdModal] = useState(false);
-  const [pendingExam, setPendingExam] = useState(null);
 
   const defaultSeeAllHref = seeAllHref || (catKey === 'skill' ? '/ssw-skill-test' : '/jft-basic');
 
@@ -583,15 +580,6 @@ export default function PracticeTestGrid({
         isOpen={leadModal}
         onClose={() => setLeadModal(false)}
         sectorName={catKey === 'skill' ? 'SSW Skill Tests' : 'JFT-Basic Tests'}
-      />
-
-      {/* Mandatory Pre-Exam Video Ad Interstitial Modal */}
-      <ExamVideoAdModal
-        isOpen={videoAdModal}
-        onClose={() => setVideoAdModal(false)}
-        examUrl={pendingExam?.url}
-        examTitle={pendingExam?.title}
-        adDurationSeconds={10}
       />
     </div>
   );

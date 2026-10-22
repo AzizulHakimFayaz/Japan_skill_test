@@ -424,11 +424,6 @@ function AllTestsContent() {
                       ) : (
                         <Link
                           href={`/test/${test.id}`}
-                          onClick={() => {
-                            try {
-                              window.open('https://www.facebook.com/Gakkou.No.Shiken', '_blank', 'noopener,noreferrer');
-                            } catch (e) {}
-                          }}
                           className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl font-black text-xs sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${cardTheme.button}`}
                         >
                           <span>{t('start_exam')}</span>

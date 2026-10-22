@@ -45,9 +45,9 @@ Our comprehensive audit revealed **5 primary policy triggers**:
    - **Action:** Deactivated component (returns `null`).
    - **Result:** No 10-second countdown timers or interstitial barriers before candidates start practice exams.
 
-5. **Direct Exam Launch Navigation (`src/components/PracticeTestGrid.js`)**
-   - **Action:** Removed `window.open('https://www.facebook.com/Gakkou.No.Shiken', ...)` popup trigger.
-   - **Result:** Candidates clicking "Start Exam" navigate immediately and smoothly to `/test/[id]` or `/ssw-test/[id]` without popups or new tabs.
+5. **Direct Exam Launch Navigation (`src/components/PracticeTestGrid.js` & `src/app/tests/page.js`)**
+   - **Action:** Completely removed `window.open('https://www.facebook.com/Gakkou.No.Shiken', ...)` popup triggers from both `PracticeTestGrid.js` and `src/app/tests/page.js`. Also cleaned up unused modal state, props, and imports from `PracticeTestGrid.js`.
+   - **Result:** Candidates clicking "Start Exam" navigate immediately and smoothly to the CBT test without unsolicited popups, new tabs, or interstitial delays. Zero unexpected popups exist on the platform.
 
 6. **Transparent Lead Capture & Community Modal (`src/components/LeadCaptureModal.js`)**
    - **Action:** Replaced simulated form submission with direct, honest links to the official WhatsApp Channel and Facebook Community.
