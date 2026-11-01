@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { getSswInfo } from '@/lib/api';
 import PracticeTestGrid from '@/components/PracticeTestGrid';
+import AdsterraNativeBanner from '@/components/AdsterraNativeBanner';
 import SswSectorExplorer from '@/components/SswSectorExplorer';
 
 const JftCenterMap = dynamic(() => import('@/components/JftCenterMap'), { ssr: false });
@@ -148,6 +149,9 @@ export default function SswSkillTestPage() {
           catKey="skill"
         />
       </div>
+
+      {/* Adsterra Native Sponsored Banner (Pre-Exam Discovery) */}
+      <AdsterraNativeBanner />
 
       {/* Official SSW Examination Blueprint & Question Authoring Templates */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

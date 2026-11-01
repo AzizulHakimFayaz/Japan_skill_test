@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/components/AuthContext';
 import { getInitialGameProgress } from '@/lib/gameStore';
+import AdsterraNativeBanner from '@/components/AdsterraNativeBanner';
 
 const ARCADE_GAMES = [
   {
@@ -422,6 +423,9 @@ export default function GameZoneHomePage() {
           </div>
         )}
       </div>
+
+      {/* Adsterra Native Sponsored Banner (Game Zone) */}
+      <AdsterraNativeBanner />
 
       {/* Gamified Educational Science Section for AdSense Crawlers */}
       <div className="bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-10 shadow-lg space-y-6">

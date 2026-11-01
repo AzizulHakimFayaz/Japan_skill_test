@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import AdsterraNativeBanner from '@/components/AdsterraNativeBanner';
 import {
   BookOpen,
   Languages,
@@ -350,6 +351,9 @@ export default function BooksLibraryPage() {
           })}
         </div>
       )}
+
+      {/* Adsterra Native Sponsored Banner (Textbooks & Study Hub) */}
+      <AdsterraNativeBanner />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import AdsterraNativeBanner from '@/components/AdsterraNativeBanner';
 import {
   Award,
   BookOpen,
@@ -267,6 +268,9 @@ export default function GuidesHubPage() {
           })}
         </div>
       </section>
+
+      {/* Adsterra Native Sponsored Banner (Guides Hub) */}
+      <AdsterraNativeBanner />
 
       {/* Institutional Non-Affiliation Box */}
       <section className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 leading-relaxed space-y-1">

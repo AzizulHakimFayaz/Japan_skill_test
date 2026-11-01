@@ -6,6 +6,7 @@ import InteractiveFeatureShowcase from '@/components/InteractiveFeatureShowcase'
 import StudentExamGuide from '@/components/StudentExamGuide';
 import LiveActivityTicker from '@/components/LiveActivityTicker';
 import LearningHubShowcase from '@/components/LearningHubShowcase';
+import AdsterraNativeBanner from '@/components/AdsterraNativeBanner';
 
 export const revalidate = 86400; // Cache for 24 hours to stay well within free limits
 
@@ -129,6 +130,7 @@ export default async function HomePage() {
       </div>
 
       {/* 3. Animated Interactive Feature Showcase (Audio Equalizer, Language Lens, IRT Scoring Gauge, Hubs) */}
+      <AdsterraNativeBanner />
       <InteractiveFeatureShowcase />
 
       {/* 4. Professional Student Exam Guide & Syllabus Blueprint */}

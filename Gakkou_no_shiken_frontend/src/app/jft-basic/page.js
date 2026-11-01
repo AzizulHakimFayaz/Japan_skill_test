@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { getJftInfo } from '@/lib/api';
 import PracticeTestGrid from '@/components/PracticeTestGrid';
+import AdsterraNativeBanner from '@/components/AdsterraNativeBanner';
 
 const JftCenterMap = dynamic(() => import('@/components/JftCenterMap'), { ssr: false });
 import {
@@ -157,6 +158,9 @@ export default function JftBasicPage() {
           catKey="basic"
         />
       </div>
+
+      {/* Adsterra Native Sponsored Banner (Pre-Exam Discovery) */}
+      <AdsterraNativeBanner />
 
 
 

@@ -28,6 +28,7 @@ import {
   Keyboard,
 } from 'lucide-react';
 import ZoomableImage from '@/components/ZoomableImage';
+import AdsterraNativeBanner from '@/components/AdsterraNativeBanner';
 
 export default function AttemptResultsPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
@@ -588,6 +589,8 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
         </div>
       </div>
 
+      {/* Adsterra Native Sponsored Banner (Result Section) */}
+      <AdsterraNativeBanner />
 
       {/* Detailed Question Review */}
       <div className="space-y-6 pt-4">
