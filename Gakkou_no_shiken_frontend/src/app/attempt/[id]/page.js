@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import ZoomableImage from '@/components/ZoomableImage';
 import AdsterraNativeBanner from '@/components/AdsterraNativeBanner';
+import AdsterraBanner300x250 from '@/components/AdsterraBanner300x250';
 
 export default function AttemptResultsPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
@@ -760,6 +761,9 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
         </React.Fragment>
         ))}
       </div>
+
+      {/* Adsterra 300x250 Box Display Banner (Bottom Result Review) */}
+      <AdsterraBanner300x250 />
     </div>
   );
 }

@@ -25,6 +25,7 @@ import {
 import { useAuth } from '@/components/AuthContext';
 import { getInitialGameProgress } from '@/lib/gameStore';
 import AdsterraNativeBanner from '@/components/AdsterraNativeBanner';
+import AdsterraBanner300x250 from '@/components/AdsterraBanner300x250';
 
 const ARCADE_GAMES = [
   {
@@ -476,6 +477,9 @@ export default function GameZoneHomePage() {
           </p>
         </div>
       </div>
+
+      {/* Adsterra 300x250 Box Display Banner (Game Zone Bottom) */}
+      <AdsterraBanner300x250 />
     </div>
   );
 }

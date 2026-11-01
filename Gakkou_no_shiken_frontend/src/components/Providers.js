@@ -7,6 +7,7 @@ import { AuthProvider } from './AuthContext';
 import AnimatedThemeBackground from './AnimatedThemeBackground';
 import AppLayout from './AppLayout';
 import CountryConfirmationBanner from './CountryConfirmationBanner';
+import AdsterraSocialBar from './AdsterraSocialBar';
 
 export default function Providers({ children }) {
   return (
@@ -14,6 +15,7 @@ export default function Providers({ children }) {
       <LanguageProvider>
         <AnimatedThemeBackground />
         <AuthProvider>
+          <AdsterraSocialBar />
           <CountryConfirmationBanner />
           <AppLayout>{children}</AppLayout>
         </AuthProvider>
