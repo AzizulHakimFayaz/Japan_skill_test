@@ -150,6 +150,9 @@ export default function RootLayout({ children }) {
 
         {/* Google AdSense Account Verification Meta Tag */}
         <meta name="google-adsense-account" content="ca-pub-8435487820435842" />
+
+        {/* Monetag Publisher Verification Meta Tag */}
+        <meta name="monetag" content="d222edcb601db2c6a4d73756ca82af43" />
       </head>
 
       <body className="flex flex-col min-h-full text-slate-800 dark:text-slate-100 bg-transparent antialiased font-sans selection:bg-red-500 selection:text-white relative overflow-x-hidden transition-colors duration-500">
