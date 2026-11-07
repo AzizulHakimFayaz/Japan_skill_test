@@ -19,8 +19,21 @@ except ImportError:
         pass
 
 from django.core.files.base import ContentFile
-import edge_tts
 from pydub import AudioSegment
+
+# Ensure bundled edge_tts >= 7.3.1 (Sec-MS-GEC v2) takes priority over any older cPanel site-packages version
+_BACKEND_ROOT = str(Path(__file__).resolve().parent.parent)
+if not sys.path or sys.path[0] != _BACKEND_ROOT:
+    if _BACKEND_ROOT in sys.path:
+        sys.path.remove(_BACKEND_ROOT)
+    sys.path.insert(0, _BACKEND_ROOT)
+
+import edge_tts
+if getattr(edge_tts, "__version_info__", (0, 0, 0)) < (7, 3, 1):
+    import importlib
+    for _mod_name in [k for k in list(sys.modules.keys()) if k == "edge_tts" or k.startswith("edge_tts.")]:
+        del sys.modules[_mod_name]
+    edge_tts = importlib.import_module("edge_tts")
 
 
 
@@ -308,10 +321,103 @@ def parse_dialogue_script(script_text: str) -> List[Dict[str, str]]:
 # Audio Generation Engine
 # ============================================================
 
-async def generate_single_line_tts(text: str, voice: str, output_path: str, max_retries: int = 2) -> bool:
+def _split_text_for_https_tts(text: str, max_chars: int = 160) -> List[str]:
     """
-    Uses edge_tts to generate a single speech clip and writes it to output_path.
-    Includes automated retries and voice fallback for network resilience.
+    Splits Japanese/multilingual text into <= max_chars chunks along natural punctuation boundaries.
+    """
+    clean = re.sub(r'\s+', ' ', text.strip())
+    if not clean:
+        return []
+    if len(clean) <= max_chars:
+        return [clean]
+
+    tokens = re.split(r'(?<=[。！？!?、,\n ])', clean)
+    chunks: List[str] = []
+    current = ""
+    for tok in tokens:
+        if not tok:
+            continue
+        if len(current) + len(tok) <= max_chars:
+            current += tok
+        else:
+            if current.strip():
+                chunks.append(current.strip())
+            if len(tok) <= max_chars:
+                current = tok
+            else:
+                for idx in range(0, len(tok), max_chars):
+                    sub = tok[idx:idx + max_chars].strip()
+                    if sub:
+                        chunks.append(sub)
+                current = ""
+    if current.strip():
+        chunks.append(current.strip())
+    return chunks
+
+
+def _generate_https_fallback_tts_sync(text: str, output_path: str) -> Tuple[bool, Optional[str]]:
+    """
+    Standard HTTPS TTS fallback (port 443 REST, zero WebSocket/DRM handshake) in case a shared
+    hosting datacenter IP is rate-limited or blocked by Microsoft's Speech WebSocket endpoint.
+    """
+    import ssl
+    import urllib.parse
+    import urllib.request
+
+    chunks = _split_text_for_https_tts(text, max_chars=160)
+    if not chunks:
+        return False, "Empty text for fallback TTS"
+
+    try:
+        try:
+            import certifi
+            ssl_ctx = ssl.create_default_context(cafile=certifi.where())
+        except Exception:
+            ssl_ctx = ssl.create_default_context()
+
+        audio_buf = bytearray()
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+            ),
+            "Referer": "https://translate.google.com/",
+        }
+
+        for chunk in chunks:
+            encoded_q = urllib.parse.quote(chunk)
+            url = (
+                f"https://translate.googleapis.com/translate_tts"
+                f"?ie=UTF-8&client=gtx&tl=ja&ttsspeed=1&q={encoded_q}"
+            )
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=15, context=ssl_ctx) as resp:
+                part = resp.read()
+                if not part or len(part) < 64:
+                    return False, f"HTTPS fallback returned empty payload ({len(part) if part else 0} bytes)"
+                audio_buf.extend(part)
+
+        if len(audio_buf) < 100:
+            return False, f"HTTPS fallback output too small ({len(audio_buf)} bytes)"
+
+        with open(output_path, "wb") as f:
+            f.write(audio_buf)
+        return os.path.exists(output_path) and os.path.getsize(output_path) > 100, None
+    except Exception as exc:
+        return False, f"{type(exc).__name__}: {exc}"
+
+
+async def generate_single_line_tts(
+    text: str,
+    voice: str,
+    output_path: str,
+    max_retries: int = 2,
+    error_collector: Optional[List[str]] = None,
+) -> bool:
+    """
+    Uses edge_tts (>=7.3.1) to generate a single speech clip and writes it to output_path.
+    Includes automated retries, voice fallback, and an automatic HTTPS TTS fallback if
+    Microsoft Speech WebSocket blocks or throttles the hosting server IP.
     """
     clean_text = text.strip()
     if not clean_text:
@@ -321,23 +427,44 @@ async def generate_single_line_tts(text: str, voice: str, output_path: str, max_
     if voice != DEFAULT_FEMALE_VOICE:
         voices_to_try.append(DEFAULT_FEMALE_VOICE)
 
+    last_edge_err = "unknown error"
     for current_voice in voices_to_try:
         for attempt in range(max_retries + 1):
             try:
+                if os.path.exists(output_path):
+                    try:
+                        os.remove(output_path)
+                    except OSError:
+                        pass
                 communicate = edge_tts.Communicate(text=clean_text, voice=current_voice)
-                await asyncio.wait_for(communicate.save(output_path), timeout=15.0)
-                if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+                await asyncio.wait_for(communicate.save(output_path), timeout=20.0)
+                if os.path.exists(output_path) and os.path.getsize(output_path) > 100:
                     return True
+                last_edge_err = "0 bytes written by Communicate.save"
             except Exception as err:
+                last_edge_err = f"{type(err).__name__}: {err}"
                 if attempt < max_retries:
-                    await asyncio.sleep(0.4 * (attempt + 1))
+                    await asyncio.sleep(0.5 * (attempt + 1))
                 else:
                     continue
 
-    return os.path.exists(output_path) and os.path.getsize(output_path) > 0
+    # Automatic HTTPS fallback so audio generation still succeeds if Microsoft rate-limits datacenter IPs
+    fb_ok, fb_err = await asyncio.to_thread(_generate_https_fallback_tts_sync, clean_text, output_path)
+    if fb_ok and os.path.exists(output_path) and os.path.getsize(output_path) > 100:
+        return True
+
+    if error_collector is not None:
+        edge_ver = getattr(edge_tts, "__version__", "?")
+        error_collector.append(f"Edge-TTS v{edge_ver} ({last_edge_err}); HTTPS fallback ({fb_err})")
+
+    return os.path.exists(output_path) and os.path.getsize(output_path) > 100
 
 
-async def generate_dialogue_audio_bytes(dialogue_turns: List[Dict[str, str]], pause_ms: int = 600) -> bytes:
+async def generate_dialogue_audio_bytes(
+    dialogue_turns: List[Dict[str, str]],
+    pause_ms: int = 600,
+    error_collector: Optional[List[str]] = None,
+) -> bytes:
     """
     Generates audio clips for each dialogue turn concurrently using asyncio.gather,
     stitches them with pause_ms silence gaps, and returns the combined MP3 bytes.
@@ -356,22 +483,38 @@ async def generate_dialogue_audio_bytes(dialogue_turns: List[Dict[str, str]], pa
             temp_files.append(temp_file)
             turn = dialogue_turns[0]
             voice = turn.get("voice") or resolve_voice_for_speaker(turn.get("speaker", ""), 0)
-            if await generate_single_line_tts(text=turn["text"].strip(), voice=voice, output_path=temp_file):
+            if await generate_single_line_tts(
+                text=turn["text"].strip(),
+                voice=voice,
+                output_path=temp_file,
+                error_collector=error_collector,
+            ):
                 with open(temp_file, "rb") as f:
                     return f.read()
             return b""
 
-        # Multiple turns: generate all speech clips in PARALLEL via asyncio.gather (5x to 8x faster)
+        # Multiple turns: generate speech clips in controlled parallel (max 4 concurrent sockets)
+        sem = asyncio.Semaphore(4)
+
         async def _produce_turn(i: int, turn_data: Dict[str, str]) -> Optional[str]:
-            t_text = turn_data["text"].strip()
-            t_voice = turn_data.get("voice") or resolve_voice_for_speaker(turn_data.get("speaker", ""), i)
-            t_path = os.path.join(temp_dir, f"turn_{i}.mp3")
-            ok = await generate_single_line_tts(text=t_text, voice=t_voice, output_path=t_path)
-            return t_path if ok else None
+            async with sem:
+                t_text = turn_data["text"].strip()
+                t_voice = turn_data.get("voice") or resolve_voice_for_speaker(turn_data.get("speaker", ""), i)
+                t_path = os.path.join(temp_dir, f"turn_{i}.mp3")
+                ok = await generate_single_line_tts(
+                    text=t_text,
+                    voice=t_voice,
+                    output_path=t_path,
+                    error_collector=error_collector,
+                )
+                return t_path if ok else None
 
         tasks = [_produce_turn(i, turn) for i, turn in enumerate(dialogue_turns)]
         turn_paths = await asyncio.gather(*tasks, return_exceptions=False)
         temp_files.extend([p for p in turn_paths if p and os.path.exists(p)])
+
+        if not temp_files:
+            return b""
 
         # Try pydub stitch with silence gaps (needs FFmpeg)
         try:
@@ -416,28 +559,45 @@ async def generate_dialogue_audio_bytes(dialogue_turns: List[Dict[str, str]], pa
             pass
 
 
+def generate_audio_from_script_with_diagnostics(script_text: str, pause_ms: int = 600) -> Tuple[bytes, str]:
+    """
+    Synchronous wrapper returning (mp3_bytes, diagnostic_error_summary).
+    100% thread-safe under Django WSGI, Passenger, Celery, and background daemon threads.
+    """
+    dialogue_turns = parse_dialogue_script(script_text)
+    if not dialogue_turns:
+        return b"", "No dialogue turns parsed from script."
+
+    errors: List[str] = []
+    audio_bytes = b""
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            audio_bytes = loop.run_until_complete(
+                generate_dialogue_audio_bytes(dialogue_turns, pause_ms, error_collector=errors)
+            )
+        finally:
+            loop.close()
+    except Exception as loop_err:
+        try:
+            audio_bytes = asyncio.run(
+                generate_dialogue_audio_bytes(dialogue_turns, pause_ms, error_collector=errors)
+            )
+        except Exception as run_err:
+            errors.append(f"Async loop error: {loop_err} / {run_err}")
+
+    diag = "; ".join(dict.fromkeys(errors)) if errors else ""
+    return audio_bytes, diag
+
+
 def generate_audio_from_script(script_text: str, pause_ms: int = 600) -> bytes:
     """
     Synchronous wrapper to parse a script and generate stitched MP3 bytes.
     100% thread-safe under Django WSGI, Celery, and background daemon threads.
     """
-    dialogue_turns = parse_dialogue_script(script_text)
-    if not dialogue_turns:
-        return b""
-
-    # Isolated clean event loop per call prevents WSGI thread collisions
-    try:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            return loop.run_until_complete(generate_dialogue_audio_bytes(dialogue_turns, pause_ms))
-        finally:
-            loop.close()
-    except Exception:
-        try:
-            return asyncio.run(generate_dialogue_audio_bytes(dialogue_turns, pause_ms))
-        except Exception:
-            return b""
+    audio_bytes, _ = generate_audio_from_script_with_diagnostics(script_text, pause_ms=pause_ms)
+    return audio_bytes
 
 
 # ============================================================
@@ -468,15 +628,15 @@ def generate_and_save_question_audio_with_details(question, script_text: Optiona
         return False, f"Could not parse dialogue turns from script: '{script[:60]}...'"
 
     try:
-        audio_bytes = generate_audio_from_script(script)
+        audio_bytes, diag_err = generate_audio_from_script_with_diagnostics(script)
         if not audio_bytes or len(audio_bytes) < 100:
-            return False, "Edge-TTS returned 0 bytes. Check server internet connectivity to Microsoft speech servers."
+            detail = diag_err or "Check server outbound HTTPS connectivity."
+            return False, f"TTS synthesis returned 0 bytes. Details: {detail}"
 
         filename = f"q_{question.id or question.order_index or 'tts'}_audio.mp3"
         question.audio.save(filename, ContentFile(audio_bytes), save=True)
         return True, f"Successfully synthesized {len(turns)} dialogue turn(s) ({len(audio_bytes):,} bytes)."
     except Exception as e:
-        import traceback
         return False, f"TTS Synthesis Error: {str(e)}"
 
 
@@ -507,9 +667,10 @@ def generate_and_save_group_audio_with_details(group, script_text: Optional[str]
         return False, f"Could not parse dialogue turns from group script: '{script[:60]}...'"
 
     try:
-        audio_bytes = generate_audio_from_script(script)
+        audio_bytes, diag_err = generate_audio_from_script_with_diagnostics(script)
         if not audio_bytes or len(audio_bytes) < 100:
-            return False, "Edge-TTS returned 0 audio bytes for group."
+            detail = diag_err or "Check server outbound HTTPS connectivity."
+            return False, f"TTS synthesis returned 0 bytes for group. Details: {detail}"
 
         filename = f"group_{group.id or group.order_index or 'tts'}_audio.mp3"
         group.audio.save(filename, ContentFile(audio_bytes), save=True)
@@ -528,20 +689,21 @@ def generate_and_save_group_audio(group, script_text: Optional[str] = None, over
 
 def test_edge_tts_connection() -> Tuple[bool, str, float]:
     """
-    Tests live connection to Microsoft Edge-TTS service from the current server.
+    Tests live connection to Microsoft Edge-TTS service (and fallback engine) from the current server.
     Returns (success: bool, message: str, latency_seconds: float).
     """
     import time
     start = time.time()
+    edge_ver = getattr(edge_tts, "__version__", "unknown")
     test_script = "[Nanami], [こんにちは。音声テストです。]"
     try:
-        audio_bytes = generate_audio_from_script(test_script)
+        audio_bytes, diag_err = generate_audio_from_script_with_diagnostics(test_script)
         latency = round(time.time() - start, 2)
         if audio_bytes and len(audio_bytes) > 500:
-            return True, f"Edge-TTS connected successfully! Synthesized {len(audio_bytes):,} bytes in {latency}s.", latency
+            return True, f"TTS Engine (edge-tts v{edge_ver}) connected! Synthesized {len(audio_bytes):,} bytes in {latency}s.", latency
         else:
-            return False, f"Connected but received empty audio output ({len(audio_bytes)} bytes) in {latency}s.", latency
+            return False, f"Received empty audio output ({len(audio_bytes)} bytes) in {latency}s. {diag_err}", latency
     except Exception as e:
         latency = round(time.time() - start, 2)
-        return False, f"Connection Failed ({latency}s): {str(e)}", latency
+        return False, f"Connection Failed ({latency}s, edge-tts v{edge_ver}): {str(e)}", latency
 

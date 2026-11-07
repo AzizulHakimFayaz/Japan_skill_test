@@ -9,7 +9,7 @@ def get_frontend_base_url(request=None) -> str:
     defaulting to https://www.gakkounoshiken.site.
     """
     configured = getattr(settings, 'FRONTEND_URL', None) or os.environ.get('FRONTEND_URL') or os.environ.get('NEXT_PUBLIC_APP_URL')
-    if configured:
+    if configured and 'japan-skill-test.vercel.app' not in configured:
         return configured.rstrip('/')
     return 'https://www.gakkounoshiken.site'
 

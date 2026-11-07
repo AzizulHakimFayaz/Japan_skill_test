@@ -57,6 +57,13 @@ def package():
 
         # Ensure our crucial fixed files are present
         required_fixes = [
+            'passenger_wsgi.py',
+            'config/settings.py',
+            'requirements.txt',
+            'edge_tts/__init__.py',
+            'edge_tts/communicate.py',
+            'edge_tts/drm.py',
+            'edge_tts/version.py',
             'tests/admin.py',
             'tests/audio_generator.py',
             'tests/audio_logger.py',
@@ -65,6 +72,7 @@ def package():
             'tests/templates/admin/audio_hub.html',
             'tests/management/commands/generate_test_audio.py',
             'accounts/geolocation.py',
+            'accounts/emails.py',
             'accounts/admin.py',
             'accounts/admin_views.py',
             'api/views.py',

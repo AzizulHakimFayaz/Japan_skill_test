@@ -293,7 +293,7 @@ class TestAdmin(admin.ModelAdmin):
                     'order_index': question.order_index
                 })
             else:
-                append_audio_log(test_id, f"Question #{question.order_index} (ID {question.id}) FAILED: {msg}", level="error", details=msg)
+                append_audio_log(test_id, f"Question #{question.order_index} (ID {question.id}) FAILED: {msg}", level="error")
                 return JsonResponse({
                     'success': False,
                     'message': msg,
@@ -570,15 +570,19 @@ class TestAdmin(admin.ModelAdmin):
 
     def preview_action(self, obj):
         if obj and obj.id:
+            import os
             status_text = "Live Preview" if obj.is_published else "Draft Preview"
             status_color = "#0284C7" if obj.is_published else "#D97706"
             route_name = "ssw-test" if getattr(obj, 'category', '') == Test.Category.SKILL else "test"
+            frontend_base = (os.environ.get('FRONTEND_URL') or '').strip().rstrip('/')
+            if not frontend_base or 'japan-skill-test.vercel.app' in frontend_base:
+                frontend_base = 'https://www.gakkounoshiken.site'
             return format_html(
-                '<a href="https://japan-skill-test.vercel.app/{}/{}?preview=admin" target="_blank" '
+                '<a href="{}/{}/{}?preview=admin" target="_blank" rel="noopener noreferrer" '
                 'style="display:inline-flex; align-items:center; gap:4px; background:{}; color:#fff; padding:4px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; text-decoration:none; box-shadow:0 2px 6px rgba(0,0,0,0.2);">'
                 '👁️ {}'
                 '</a>',
-                route_name, obj.id, status_color, status_text
+                frontend_base, route_name, obj.id, status_color, status_text
             )
         return format_html('<span class="text-muted">Save first</span>')
     preview_action.short_description = 'CBT Preview'

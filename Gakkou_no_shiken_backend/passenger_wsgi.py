@@ -2,15 +2,16 @@ import os
 import sys
 import traceback
 
-# Ensure backend directory is in sys.path
+# Ensure backend directory is first in sys.path (so project & vendored packages override outdated site-packages)
 backend_dir = os.path.dirname(os.path.abspath(__file__))
-if backend_dir not in sys.path:
-    sys.path.insert(0, backend_dir)
+if backend_dir in sys.path:
+    sys.path.remove(backend_dir)
+sys.path.insert(0, backend_dir)
 
-# Explicitly ensure virtualenv site-packages is available
+# Explicitly ensure virtualenv site-packages is available right after backend_dir
 venv_site_packages = '/home/gakkouno/virtualenv/backend/3.11/lib/python3.11/site-packages'
 if os.path.exists(venv_site_packages) and venv_site_packages not in sys.path:
-    sys.path.insert(0, venv_site_packages)
+    sys.path.insert(1, venv_site_packages)
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 

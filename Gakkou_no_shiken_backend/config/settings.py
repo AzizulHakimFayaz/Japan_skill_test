@@ -66,7 +66,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://www.gakkounoshiken.site',
     'http://gakkounoshiken.site',
     'http://www.gakkounoshiken.site',
-    'https://japan-skill-test.vercel.app',
+    'https://gakkou-no-shiken-frontend.vercel.app',
     'https://gakkou-no-shiken.vercel.app',
     'https://*.vercel.app',
     'https://*.onrender.com',
@@ -451,9 +451,13 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://japan-skill-test.vercel.app',
     'https://gakkounoshiken.site',
     'https://www.gakkounoshiken.site',
+    'http://gakkounoshiken.site',
+    'http://www.gakkounoshiken.site',
+    'https://gakkou-no-shiken-frontend.vercel.app',
+    'https://gakkou-no-shiken.vercel.app',
+    'https://*.vercel.app',
     'https://japanskilltest-production.up.railway.app',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
