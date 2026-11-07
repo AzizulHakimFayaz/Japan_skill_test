@@ -13,6 +13,11 @@ import { useLanguage } from '@/components/LanguageContext';
 import { Globe, ExternalLink, Flag, Lock, ShieldCheck, Clock, ArrowLeft, Hourglass, Sparkles, AlertTriangle, Keyboard } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import ZoomableImage from '@/components/ZoomableImage';
+import ExamAdGateModal, {
+  markPreExamAdCleared,
+  hasRecentPreExamAdClearance,
+  clearPreExamAdToken,
+} from '@/components/ExamAdGateModal';
 
 
 
@@ -74,6 +79,23 @@ function QuizContent({ params: paramsPromise }) {
   // Modals
   const [showUnansweredModal, setShowUnansweredModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
+
+  // Pre-Exam & Post-Exam Ad Gate States
+  const [showPreExamAdGate] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const sp = new URLSearchParams(window.location.search);
+    if (sp.get('preview')) return false;
+    return !hasRecentPreExamAdClearance();
+  });
+  const [showPostExamAdGate, setShowPostExamAdGate] = useState(false);
+  const [pendingResultUrl, setPendingResultUrl] = useState(null);
+
+  useEffect(() => {
+    if (!showPreExamAdGate) {
+      const tokenTimer = setTimeout(() => clearPreExamAdToken(), 3000);
+      return () => clearTimeout(tokenTimer);
+    }
+  }, [showPreExamAdGate]);
 
   const timerRef = useRef(null);
 
@@ -404,6 +426,7 @@ function QuizContent({ params: paramsPromise }) {
     if (isSubmitting) return;
     setIsSubmitting(true);
     setLoadingOverlayText(loadingMessage || 'Evaluating Exam Results...');
+    setShowPostExamAdGate(true);
 
     // Convert answers format from { q12: 45 } to { '12': 45 }
     const cleanedAnswers = {};
@@ -418,9 +441,20 @@ function QuizContent({ params: paramsPromise }) {
       const res = await submitQuiz(params.id, cleanedAnswers, previewToken);
       if (res?.attempt_id) {
         const previewQuery = previewToken ? `?preview=${encodeURIComponent(previewToken)}` : '';
-        router.push(`/attempt/${res.attempt_id}${previewQuery}`);
+        const resultDest = `/attempt/${res.attempt_id}${previewQuery}`;
+        setPendingResultUrl(resultDest);
+        if (typeof window !== 'undefined') {
+          try {
+            window.history.replaceState(null, '', resultDest);
+          } catch {
+            // ignore
+          }
+        }
+      } else {
+        setPendingResultUrl('/');
       }
     } catch (err) {
+      setShowPostExamAdGate(false);
       alert(err.message || 'Submission failed. Please try again.');
       setIsSubmitting(false);
       setLoadingOverlayText(null);
@@ -440,7 +474,7 @@ function QuizContent({ params: paramsPromise }) {
 
   // Countdown timer effect (placed after handleAutoSubmit declaration)
   useEffect(() => {
-    if (timeLeft === null || timeLeft <= 0 || isSubmitting) return;
+    if (timeLeft === null || timeLeft <= 0 || isSubmitting || showPreExamAdGate) return;
 
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
@@ -455,7 +489,7 @@ function QuizContent({ params: paramsPromise }) {
 
     return () => clearInterval(timerRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, isSubmitting]);
+  }, [timeLeft, isSubmitting, showPreExamAdGate]);
 
   const formatTimer = (seconds) => {
     if (seconds === null) return '00:00:00';
@@ -550,8 +584,25 @@ function QuizContent({ params: paramsPromise }) {
     : 1;
   const totalStepsInSection = activeSectionSteps.length;
 
+  if (showPreExamAdGate) {
+    return (
+      <ExamAdGateModal
+        isOpen={true}
+        phase="pre"
+        testTitle={test?.title || ''}
+        durationSeconds={10}
+        onCancel={() => router.push('/tests')}
+        onComplete={() => {
+          markPreExamAdCleared();
+          window.location.reload();
+        }}
+      />
+    );
+  }
+
   return (
-    <ExamSecurityGuard user={user} testTitle={test?.title} enableWatermark={true} enableBlurOnBlur={true} strictMode={true}>
+    <>
+    <ExamSecurityGuard user={user} testTitle={test?.title} enableWatermark={!isSubmitting} enableBlurOnBlur={!isSubmitting} strictMode={!isSubmitting}>
       <div className="fixed inset-0 z-50 h-[100dvh] h-screen w-screen max-h-[100dvh] m-0 p-0 overflow-hidden font-sans text-slate-900 bg-white flex flex-col select-none">
         {/* ==========================================
              TOP HEADER 1: BLACK BAR (Section & Timer)
@@ -1380,12 +1431,28 @@ function QuizContent({ params: paramsPromise }) {
 
       {/* Global Animated Evaluation Loading Overlay */}
       <GlobalLoader
-        visible={Boolean(loadingOverlayText)}
+        visible={Boolean(loadingOverlayText) && !showPostExamAdGate}
         title={loadingOverlayText || 'Evaluating Exam Results...'}
         subtitle="Submitting your answers, calculating official scale scores and performance breakdown..."
       />
       </div>
     </ExamSecurityGuard>
+
+    {/* Post-Exam Video / Sponsor Gate Modal */}
+    <ExamAdGateModal
+      isOpen={showPostExamAdGate}
+      phase="post"
+      testTitle={test?.title || ''}
+      durationSeconds={10}
+      isReadyToProceed={Boolean(pendingResultUrl)}
+      statusMessage={loadingOverlayText || 'Evaluating Exam Results...'}
+      onComplete={() => {
+        if (pendingResultUrl) {
+          window.location.href = pendingResultUrl;
+        }
+      }}
+    />
+    </>
   );
 }
 

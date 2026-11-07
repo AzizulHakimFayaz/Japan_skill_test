@@ -28,6 +28,7 @@ import {
   Hourglass,
 } from 'lucide-react';
 import ScheduledCountdownBadge from './ScheduledCountdownBadge';
+import ExamAdGateModal, { markPreExamAdCleared } from './ExamAdGateModal';
 
 const LeadCaptureModal = dynamic(() => import('./LeadCaptureModal'), { ssr: false });
 
@@ -57,6 +58,7 @@ export default function PracticeTestGrid({
   // Modals & Real-time State
   const [leadModal, setLeadModal] = useState(false);
   const [unlockedMap, setUnlockedMap] = useState({});
+  const [adGateTarget, setAdGateTarget] = useState(null);
 
   const defaultSeeAllHref = seeAllHref || (catKey === 'skill' ? '/ssw-skill-test' : '/jft-basic');
 
@@ -149,8 +151,11 @@ export default function PracticeTestGrid({
     e.preventDefault();
     const isSkill = test.category === 'skill' || catKey === 'skill';
     const targetUrl = isSkill ? `/ssw-test/${test.id}` : `/test/${test.id}`;
-    // Direct smooth navigation to the authentic CBT simulator
-    router.push(targetUrl);
+    if (test.requires_account && !isAuthenticated) {
+      router.push(`/accounts/login?next=${encodeURIComponent(targetUrl)}`);
+      return;
+    }
+    setAdGateTarget({ url: targetUrl, title: test.title || '' });
   };
 
   const getDifficultyBadge = (test, idx) => {
@@ -580,6 +585,23 @@ export default function PracticeTestGrid({
         isOpen={leadModal}
         onClose={() => setLeadModal(false)}
         sectorName={catKey === 'skill' ? 'SSW Skill Tests' : 'JFT-Basic Tests'}
+      />
+
+      {/* Pre-Exam Video / Sponsor Gate Modal */}
+      <ExamAdGateModal
+        isOpen={Boolean(adGateTarget)}
+        phase="pre"
+        testTitle={adGateTarget?.title || ''}
+        durationSeconds={10}
+        onCancel={() => setAdGateTarget(null)}
+        onComplete={() => {
+          const dest = adGateTarget?.url;
+          setAdGateTarget(null);
+          if (dest) {
+            markPreExamAdCleared();
+            window.location.href = dest;
+          }
+        }}
       />
     </div>
   );

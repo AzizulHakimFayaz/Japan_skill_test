@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { getTests, getMyResults } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
 import { useLanguage } from '@/components/LanguageContext';
@@ -26,10 +26,12 @@ import {
   Bell,
 } from 'lucide-react';
 import ScheduledCountdownBadge from '@/components/ScheduledCountdownBadge';
+import ExamAdGateModal, { markPreExamAdCleared } from '@/components/ExamAdGateModal';
 
 const LeadCaptureModal = dynamic(() => import('@/components/LeadCaptureModal'), { ssr: false });
 
 function AllTestsContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialCategory = searchParams?.get('category') || 'all';
 
@@ -44,6 +46,17 @@ function AllTestsContent() {
   const [unlockedMap, setUnlockedMap] = useState({});
   const [leadModal, setLeadModal] = useState(false);
   const [selectedSector, setSelectedSector] = useState('');
+  const [adGateTarget, setAdGateTarget] = useState(null);
+
+  const handleStartExamClick = (e, test) => {
+    e.preventDefault();
+    const targetUrl = test.category === 'skill' ? `/ssw-test/${test.id}` : `/test/${test.id}`;
+    if (test.requires_account && !isAuthenticated) {
+      router.push(`/accounts/login?next=${encodeURIComponent(targetUrl)}`);
+      return;
+    }
+    setAdGateTarget({ url: targetUrl, title: test.title || '' });
+  };
 
   useEffect(() => {
     getTests()
@@ -414,7 +427,7 @@ function AllTestsContent() {
 
                           {user?.is_staff && (
                             <Link
-                              href={`/test/${test.id}?preview=admin`}
+                              href={test.category === 'skill' ? `/ssw-test/${test.id}?preview=admin` : `/test/${test.id}?preview=admin`}
                               className="w-full flex items-center justify-center gap-1 py-1 px-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold text-slate-500 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
                             >
                               <span>Admin CBT Preview ↗</span>
@@ -422,13 +435,14 @@ function AllTestsContent() {
                           )}
                         </div>
                       ) : (
-                        <Link
-                          href={`/test/${test.id}`}
+                        <button
+                          type="button"
+                          onClick={(e) => handleStartExamClick(e, test)}
                           className={`w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl font-black text-xs sm:text-sm transition-all duration-300 active:scale-95 cursor-pointer shadow-md ${cardTheme.button}`}
                         >
                           <span>{t('start_exam')}</span>
                           <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-1 transition-transform" />
-                        </Link>
+                        </button>
                       )}
                     </div>
 
@@ -464,6 +478,23 @@ function AllTestsContent() {
         isOpen={leadModal}
         onClose={() => setLeadModal(false)}
         sectorName={selectedSector || 'JFT & SSW Mock Tests'}
+      />
+
+      {/* Pre-Exam Video / Sponsor Gate Modal */}
+      <ExamAdGateModal
+        isOpen={Boolean(adGateTarget)}
+        phase="pre"
+        testTitle={adGateTarget?.title || ''}
+        durationSeconds={10}
+        onCancel={() => setAdGateTarget(null)}
+        onComplete={() => {
+          const dest = adGateTarget?.url;
+          setAdGateTarget(null);
+          if (dest) {
+            markPreExamAdCleared();
+            window.location.href = dest;
+          }
+        }}
       />
     </div>
   );
