@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import { useLanguage } from './LanguageContext';
-import { Sparkles, Trophy, CheckCircle2, Calendar, X } from 'lucide-react';
+import { Sparkles, Trophy, CheckCircle2, Calendar, X, ArrowRight } from 'lucide-react';
 
 export default function LiveActivityTicker() {
   const { t } = useLanguage();
@@ -19,6 +20,14 @@ export default function LiveActivityTicker() {
         tag: 'Test Dates',
         title: 'Prometric BDJ01 & BDJ02 Seat Alert',
         desc: 'Upcoming JFT-Basic & SSW seat booking window is open for Dhaka test centers.',
+        time: 'Live',
+      },
+      {
+        icon: Trophy,
+        color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/80 border-amber-200 dark:border-amber-800',
+        tag: 'Leaderboard',
+        title: 'Check the Leaderboard!',
+        desc: 'Explore top candidate scores, CEFR rankings & national percentile benchmarks.',
         time: 'Live',
       },
       {
@@ -106,9 +115,18 @@ export default function LiveActivityTicker() {
         </div>
       </div>
 
-      {/* Right Controls: Time indicator + Close Button */}
+      {/* Right Controls: Check Leaderboard Button + Time indicator + Close Button */}
       <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-        <span className="text-[10px] text-slate-400 font-mono hidden sm:inline-block">
+        <Link
+          href="/leaderboard"
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black text-[10px] sm:text-xs shadow-xs hover:shadow-md transition-all active:scale-95 cursor-pointer whitespace-nowrap"
+        >
+          <Trophy className="w-3 h-3 text-slate-950" />
+          <span>Check Leaderboard!</span>
+          <ArrowRight className="w-2.5 h-2.5 hidden xs:inline" />
+        </Link>
+
+        <span className="text-[10px] text-slate-400 font-mono hidden md:inline-block">
           {current.time}
         </span>
 

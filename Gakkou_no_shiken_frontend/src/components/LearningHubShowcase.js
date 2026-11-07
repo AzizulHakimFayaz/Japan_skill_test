@@ -22,6 +22,7 @@ import {
   Building2,
   Layers,
   Award,
+  Trophy,
 } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
@@ -121,6 +122,13 @@ export default function LearningHubShowcase() {
 
         {/* Quick Navigation Pills with Horizontal Scroll on Mobile */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none shrink-0">
+          <Link
+            href="/leaderboard"
+            className="text-[10px] sm:text-xs font-black text-amber-700 dark:text-amber-300 hover:text-amber-800 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-300 dark:border-amber-700 transition-colors whitespace-nowrap flex items-center gap-1 shadow-2xs hover:scale-105 active:scale-95"
+          >
+            <Trophy className="w-3 h-3 text-amber-500" />
+            <span>Check Leaderboard! ↗</span>
+          </Link>
           <Link
             href="/guides"
             className="text-[10px] sm:text-xs font-black text-amber-600 dark:text-amber-400 hover:text-amber-700 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-800 transition-colors whitespace-nowrap"

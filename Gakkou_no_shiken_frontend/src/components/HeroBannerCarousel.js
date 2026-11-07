@@ -950,10 +950,10 @@ export default function HeroBannerCarousel() {
 
         <Link
           href="/leaderboard"
-          className="flex-shrink-0 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl bg-slate-500/10 hover:bg-slate-500/20 border border-slate-500/30 text-slate-700 dark:text-slate-300 transition-all text-[11px] sm:text-xs font-black shadow-xs active:scale-95"
+          className="flex-shrink-0 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-800 dark:text-amber-200 transition-all text-[11px] sm:text-xs font-black shadow-xs active:scale-95"
         >
           <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
-          <span>Rankings</span>
+          <span>Check Leaderboard!</span>
         </Link>
 
         <Link
