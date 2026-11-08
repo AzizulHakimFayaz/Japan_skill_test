@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { getTests } from '@/lib/api';
 import PracticeTestGrid from '@/components/PracticeTestGrid';
 import HeroBannerCarousel from '@/components/HeroBannerCarousel';
-import InteractiveFeatureShowcase from '@/components/InteractiveFeatureShowcase';
+import LeaderboardPodiumShowcase from '@/components/LeaderboardPodiumShowcase';
 import StudentExamGuide from '@/components/StudentExamGuide';
 import LiveActivityTicker from '@/components/LiveActivityTicker';
 import LearningHubShowcase from '@/components/LearningHubShowcase';
@@ -103,7 +103,10 @@ export default async function HomePage() {
         <LiveActivityTicker />
       </div>
 
-      {/* 2. Interactive Learning & Game Hub Showcase (Game Zone, Lessons, Tools, Daily Vocab) */}
+      {/* 2. Top 3 Champions Podium & "Grind for #1" Promotional Challenge */}
+      <LeaderboardPodiumShowcase />
+
+      {/* 3. Interactive Learning & Game Hub Showcase (Game Zone, Lessons, Tools, Daily Vocab) */}
       <LearningHubShowcase />
 
       {/* 3. Practice Test Categories & Cards Grid */}
@@ -131,7 +134,7 @@ export default async function HomePage() {
 
       {/* 3. Animated Interactive Feature Showcase (Audio Equalizer, Language Lens, IRT Scoring Gauge, Hubs) */}
       <AdsterraNativeBanner />
-      <InteractiveFeatureShowcase />
+
 
       {/* 4. Professional Student Exam Guide & Syllabus Blueprint */}
       <StudentExamGuide />

@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import ScheduledCountdownBadge from '@/components/ScheduledCountdownBadge';
 import ExamAdGateModal, { markPreExamAdCleared } from '@/components/ExamAdGateModal';
+import InteractiveFeatureShowcase from '@/components/InteractiveFeatureShowcase';
 
 const LeadCaptureModal = dynamic(() => import('@/components/LeadCaptureModal'), { ssr: false });
 
@@ -212,6 +213,9 @@ function AllTestsContent() {
           Practice official-format Prometric CBT mock tests with native listening audio, 60-minute timers, and instant CEFR score diagnostic reports.
         </p>
       </div>
+
+      {/* Official CBT Engine Highlights & Prometric Architecture Showcase */}
+      <InteractiveFeatureShowcase />
 
       {/* Filter Tabs & Search Bar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4 bg-white/80 dark:bg-slate-950/70 backdrop-blur-xl p-3 sm:p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800">
