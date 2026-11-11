@@ -18,6 +18,13 @@ def ensure_schema_synced():
     """
     logs = []
     with connection.cursor() as cursor:
+        # 0. Enable SQLite WAL mode for non-blocking concurrent reads & writes on cPanel
+        try:
+            cursor.execute("PRAGMA journal_mode=WAL;")
+            cursor.execute("PRAGMA synchronous=NORMAL;")
+        except Exception:
+            pass
+
         # 1. accounts_emailverificationotp table
         try:
             cursor.execute("""
@@ -149,13 +156,50 @@ def ensure_schema_synced():
         except Exception:
             pass
 
-        # 5. Synchronize django_migrations table
+        # 5. Support Chat tables (accounts_supportthread & accounts_supportmessage)
+        try:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS accounts_supportthread (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    status varchar(20) NOT NULL DEFAULT 'needs_reply',
+                    subject varchar(200) NOT NULL DEFAULT 'Candidate Support Chat',
+                    unread_by_admin integer unsigned NOT NULL DEFAULT 0,
+                    unread_by_user integer unsigned NOT NULL DEFAULT 0,
+                    last_message_preview varchar(255) NOT NULL DEFAULT '',
+                    last_message_at datetime NOT NULL,
+                    created_at datetime NOT NULL,
+                    updated_at datetime NOT NULL,
+                    user_id integer NOT NULL UNIQUE REFERENCES auth_user (id) DEFERRABLE INITIALLY DEFERRED
+                )
+            """)
+            cursor.execute("CREATE INDEX IF NOT EXISTS accounts_supportthread_status_idx ON accounts_supportthread (status)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS accounts_supportthread_last_msg_idx ON accounts_supportthread (last_message_at)")
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS accounts_supportmessage (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    sender_type varchar(16) NOT NULL DEFAULT 'user',
+                    sender_name varchar(150) NOT NULL DEFAULT '',
+                    body text NOT NULL,
+                    is_read bool NOT NULL DEFAULT 0,
+                    created_at datetime NOT NULL,
+                    thread_id bigint NOT NULL REFERENCES accounts_supportthread (id) DEFERRABLE INITIALLY DEFERRED
+                )
+            """)
+            cursor.execute("CREATE INDEX IF NOT EXISTS accounts_supportmessage_thread_idx ON accounts_supportmessage (thread_id, id)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS accounts_supportmessage_created_idx ON accounts_supportmessage (created_at)")
+            logs.append("Verified accounts_supportthread and accounts_supportmessage tables.")
+        except Exception as e:
+            logs.append(f"Note on support chat tables: {e}")
+
+        # 6. Synchronize django_migrations table
         try:
             required_migrations = [
                 ('accounts', '0001_initial'),
                 ('accounts', '0002_emailverificationotp'),
                 ('accounts', '0003_emailverificationotp_country_userprofile_country_and_more'),
                 ('accounts', '0004_userprofile_game_last_played_userprofile_game_level_and_more'),
+                ('accounts', '0005_supportthread_supportmessage'),
                 ('tests', '0014_question_audio_script_questiongroup_audio_script_and_more'),
                 ('tests', '0015_notice'),
                 ('tests', '0016_test_scheduled_release_at'),

@@ -198,4 +198,66 @@ class PasswordResetToken(models.Model):
         return f"PasswordResetToken for {self.user.username} ({status})"
 
 
+class SupportThread(models.Model):
+    """Persistent 1-to-1 candidate support chat thread."""
+
+    class Status(models.TextChoices):
+        NEEDS_REPLY = 'needs_reply', 'Needs Admin Reply'
+        REPLIED = 'replied', 'Replied by Admin'
+        RESOLVED = 'resolved', 'Resolved / Closed'
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='support_thread')
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.NEEDS_REPLY,
+        db_index=True,
+    )
+    subject = models.CharField(max_length=200, blank=True, default='Candidate Support Chat')
+    unread_by_admin = models.PositiveIntegerField(default=0)
+    unread_by_user = models.PositiveIntegerField(default=0)
+    last_message_preview = models.CharField(max_length=255, blank=True, default='')
+    last_message_at = models.DateTimeField(default=timezone.now, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-unread_by_admin', '-last_message_at']
+        verbose_name = 'Support Chat Thread'
+        verbose_name_plural = 'Candidate Support Chats'
+
+    def __str__(self):
+        return f"Support Chat: {self.user.username} ({self.get_status_display()})"
+
+
+class SupportMessage(models.Model):
+    """Individual message inside a SupportThread."""
+
+    class SenderType(models.TextChoices):
+        USER = 'user', 'Candidate'
+        ADMIN = 'admin', 'Support Team'
+        SYSTEM = 'system', 'System Assistant'
+
+    thread = models.ForeignKey(SupportThread, on_delete=models.CASCADE, related_name='messages')
+    sender_type = models.CharField(
+        max_length=16,
+        choices=SenderType.choices,
+        default=SenderType.USER,
+        db_index=True,
+    )
+    sender_name = models.CharField(max_length=150, blank=True, default='')
+    body = models.TextField(max_length=1500)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['created_at', 'id']
+        verbose_name = 'Support Message'
+        verbose_name_plural = 'Support Messages'
+
+    def __str__(self):
+        return f"[{self.sender_type}] {self.sender_name}: {self.body[:40]}"
+
+
+
 

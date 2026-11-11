@@ -1,10 +1,13 @@
-from django.contrib import admin
+from django import forms
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from django.utils.html import format_html
+from django.utils import timezone
+from django.utils.html import format_html, escape
+from django.utils.safestring import mark_safe
 from django.urls import reverse
-from django.db.models import Count, Max
-from .models import UserProfile, PasswordResetToken
+from django.db.models import Count, Max, Case, When, Value, IntegerField
+from .models import UserProfile, PasswordResetToken, SupportThread, SupportMessage
 
 from accounts.geolocation import COUNTRY_FLAG_MAP, get_country_flag as get_flag
 
@@ -261,3 +264,281 @@ class PasswordResetTokenAdmin(admin.ModelAdmin):
             return format_html('<span class="badge bg-danger"><i class="fas fa-clock me-1"></i> Expired</span>')
         return format_html('<span class="badge bg-success"><i class="fas fa-key me-1"></i> Active (Valid)</span>')
     status_badge.short_description = 'Status'
+
+
+class SupportThreadAdminForm(forms.ModelForm):
+    admin_reply_text = forms.CharField(
+        required=False,
+        label='✍️ Write a Reply to Candidate',
+        widget=forms.Textarea(attrs={
+            'rows': 4,
+            'placeholder': 'Type your reply here and click "Save" or "Save and continue editing" to send immediately to the student\'s floating chat widget...',
+            'style': 'width:100%; max-width:850px; border-radius:10px; padding:12px; font-size:14px; border:2px solid #0ea5e9;',
+        }),
+        help_text='When you save this thread with text in this box, a reply message will be sent to the candidate\'s chat widget and the thread status will update to "Replied".'
+    )
+
+    class Meta:
+        model = SupportThread
+        fields = ('user', 'status', 'admin_reply_text')
+
+
+@admin.register(SupportThread)
+class SupportThreadAdmin(admin.ModelAdmin):
+    form = SupportThreadAdminForm
+    list_display = (
+        'candidate_badge',
+        'status_pill',
+        'unread_badge',
+        'last_message_snippet',
+        'message_count_badge',
+        'last_message_at_formatted',
+        'reply_action_btn',
+    )
+    list_filter = ('status', 'last_message_at', 'created_at')
+    search_fields = (
+        'user__username',
+        'user__email',
+        'user__first_name',
+        'user__last_name',
+        'last_message_preview',
+        'messages__body',
+    )
+    readonly_fields = ('conversation_history_panel', 'unread_by_admin', 'unread_by_user', 'last_message_at', 'created_at', 'updated_at')
+    fieldsets = (
+        ('💬 Live Conversation & Quick Reply', {
+            'fields': ('conversation_history_panel', 'admin_reply_text', 'status'),
+            'description': 'Review the candidate\'s message history below and send a reply directly from this console.'
+        }),
+        ('📋 Thread Metadata', {
+            'fields': ('user', 'unread_by_admin', 'unread_by_user', 'last_message_at', 'created_at'),
+            'classes': ('collapse',),
+        }),
+    )
+    actions = ['mark_threads_resolved', 'mark_threads_needs_reply']
+    list_per_page = 25
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related('user', 'user__profile').annotate(
+            total_messages=Count('messages', distinct=True),
+            needs_reply_rank=Case(
+                When(status=SupportThread.Status.NEEDS_REPLY, then=Value(0)),
+                When(status=SupportThread.Status.REPLIED, then=Value(1)),
+                default=Value(2),
+                output_field=IntegerField(),
+            ),
+        ).order_by('needs_reply_rank', '-last_message_at')
+
+    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+        if object_id and request.method == 'GET':
+            SupportThread.objects.filter(pk=object_id, unread_by_admin__gt=0).update(unread_by_admin=0)
+        return super().changeform_view(request, object_id, form_url, extra_context)
+
+    def save_model(self, request, obj, form, change):
+        reply_text = (form.cleaned_data.get('admin_reply_text') or '').strip()
+        if reply_text:
+            sender_label = (
+                f"{request.user.first_name} {request.user.last_name}".strip()
+                or request.user.username
+                or "Gakkou Support Team"
+            )
+            now = timezone.now()
+            obj.status = SupportThread.Status.REPLIED
+            obj.unread_by_admin = 0
+            obj.unread_by_user = (obj.unread_by_user or 0) + 1
+            obj.last_message_preview = f"[Support] {reply_text[:240]}"
+            obj.last_message_at = now
+            super().save_model(request, obj, form, change)
+            SupportMessage.objects.create(
+                thread=obj,
+                sender_type=SupportMessage.SenderType.ADMIN,
+                sender_name=f"{sender_label} (Support)",
+                body=reply_text[:1000],
+            )
+            self.message_user(
+                request,
+                f"✅ Reply sent to @{obj.user.username}! They will see it in their floating chat widget.",
+                level=messages.SUCCESS,
+            )
+        else:
+            obj.unread_by_admin = 0
+            super().save_model(request, obj, form, change)
+
+    def candidate_badge(self, obj):
+        user = obj.user
+        profile = getattr(user, 'profile', None)
+        country = profile.country if profile and profile.country else None
+        flag = get_flag(country) if country else '🌐'
+        full_name = f"{user.first_name} {user.last_name}".strip()
+        url = reverse('admin:accounts_supportthread_change', args=[obj.id])
+        return format_html(
+            '<div style="display:flex; align-items:center; gap:10px;">'
+            '<span style="font-size:1.25rem;">{}</span>'
+            '<div>'
+            '<a href="{}" style="font-weight:700; color:#38bdf8; text-decoration:none; font-size:0.92rem;">@{}</a>'
+            '<div style="font-size:0.75rem; color:#94a3b8;">{}</div>'
+            '</div>'
+            '</div>',
+            flag,
+            url,
+            user.username,
+            full_name or user.email or 'Candidate',
+        )
+    candidate_badge.short_description = 'Candidate'
+    candidate_badge.admin_order_field = 'user__username'
+
+    def status_pill(self, obj):
+        if obj.status == SupportThread.Status.NEEDS_REPLY:
+            return format_html(
+                '<span class="badge bg-danger text-white" style="font-size:11px; padding:5px 10px; border-radius:999px;">'
+                '<i class="fas fa-bell me-1"></i> Needs Reply</span>'
+            )
+        if obj.status == SupportThread.Status.REPLIED:
+            return format_html(
+                '<span class="badge bg-info text-white" style="font-size:11px; padding:5px 10px; border-radius:999px;">'
+                '<i class="fas fa-reply me-1"></i> Replied</span>'
+            )
+        return format_html(
+            '<span class="badge bg-success text-white" style="font-size:11px; padding:5px 10px; border-radius:999px;">'
+            '<i class="fas fa-check-circle me-1"></i> Resolved</span>'
+        )
+    status_pill.short_description = 'Status'
+    status_pill.admin_order_field = 'status'
+
+    def unread_badge(self, obj):
+        if obj.unread_by_admin > 0:
+            return format_html(
+                '<span class="badge bg-warning text-dark font-weight-bold" style="font-size:11px; padding:4px 9px; border-radius:999px;">'
+                '{} new from user</span>',
+                obj.unread_by_admin,
+            )
+        return format_html('<span style="color:#64748b; font-size:12px;">All read</span>')
+    unread_badge.short_description = 'Admin Unread'
+    unread_badge.admin_order_field = 'unread_by_admin'
+
+    def last_message_snippet(self, obj):
+        preview = obj.last_message_preview or '—'
+        short = preview if len(preview) <= 85 else f"{preview[:82]}..."
+        return format_html(
+            '<div style="max-width:360px; font-size:0.84rem; color:#e2e8f0; line-height:1.35;">{}</div>',
+            short,
+        )
+    last_message_snippet.short_description = 'Latest Message'
+
+    def message_count_badge(self, obj):
+        total = getattr(obj, 'total_messages', None)
+        if total is None:
+            total = obj.messages.count()
+        return format_html(
+            '<span class="badge bg-secondary" style="font-size:11px;">{} msgs</span>',
+            total,
+        )
+    message_count_badge.short_description = 'Messages'
+
+    def last_message_at_formatted(self, obj):
+        if not obj.last_message_at:
+            return '—'
+        local_dt = timezone.localtime(obj.last_message_at)
+        return format_html(
+            '<div style="font-size:0.82rem; font-weight:600;">{}</div>'
+            '<div style="font-size:0.72rem; color:#64748b;">{}</div>',
+            local_dt.strftime('%b %d, %Y'),
+            local_dt.strftime('%H:%M'),
+        )
+    last_message_at_formatted.short_description = 'Last Activity'
+    last_message_at_formatted.admin_order_field = 'last_message_at'
+
+    def reply_action_btn(self, obj):
+        url = reverse('admin:accounts_supportthread_change', args=[obj.id])
+        label = 'Reply Now' if obj.status == SupportThread.Status.NEEDS_REPLY else 'Open Chat'
+        btn_style = (
+            'background:#ef4444; color:#fff;'
+            if obj.status == SupportThread.Status.NEEDS_REPLY
+            else 'background:#0284c7; color:#fff;'
+        )
+        return format_html(
+            '<a href="{}" style="{} padding:5px 12px; border-radius:8px; font-size:12px; font-weight:700; text-decoration:none; display:inline-block;">'
+            '<i class="fas fa-comments me-1"></i> {}</a>',
+            url,
+            btn_style,
+            label,
+        )
+    reply_action_btn.short_description = 'Action'
+
+    def conversation_history_panel(self, obj):
+        if not obj or not obj.pk:
+            return "Save the thread first to view messages."
+        msgs = list(obj.messages.order_by('created_at', 'id'))
+        if not msgs:
+            return mark_safe('<div style="padding:16px; color:#94a3b8;">No messages in this thread yet.</div>')
+
+        bubbles = []
+        for m in msgs:
+            local_dt = timezone.localtime(m.created_at).strftime('%b %d, %Y • %H:%M')
+            safe_body = escape(m.body).replace('\n', '<br>')
+            safe_sender = escape(m.sender_name or m.get_sender_type_display())
+
+            if m.sender_type == SupportMessage.SenderType.USER:
+                bubbles.append(
+                    f'<div style="display:flex; flex-direction:column; align-items:flex-start; margin-bottom:12px;">'
+                    f'<div style="font-size:11px; color:#94a3b8; margin-bottom:3px; font-weight:600;">👤 {safe_sender} • {local_dt}</div>'
+                    f'<div style="background:#1e293b; color:#f8fafc; border:1px solid #334155; padding:10px 14px; border-radius:14px 14px 14px 4px; max-width:75%; font-size:13.5px; line-height:1.5;">'
+                    f'{safe_body}</div></div>'
+                )
+            elif m.sender_type == SupportMessage.SenderType.ADMIN:
+                bubbles.append(
+                    f'<div style="display:flex; flex-direction:column; align-items:flex-end; margin-bottom:12px;">'
+                    f'<div style="font-size:11px; color:#38bdf8; margin-bottom:3px; font-weight:600;">🛡️ {safe_sender} • {local_dt}</div>'
+                    f'<div style="background:#0284c7; color:#ffffff; padding:10px 14px; border-radius:14px 14px 4px 14px; max-width:75%; font-size:13.5px; line-height:1.5;">'
+                    f'{safe_body}</div></div>'
+                )
+            else:
+                bubbles.append(
+                    f'<div style="display:flex; flex-direction:column; align-items:center; margin-bottom:12px;">'
+                    f'<div style="background:rgba(245,158,11,0.12); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); padding:7px 14px; border-radius:999px; font-size:12px; max-width:85%; text-align:center;">'
+                    f'🤖 {safe_body}</div></div>'
+                )
+
+        html = (
+            '<div style="background:#0f172a; border:1px solid #1e293b; border-radius:12px; padding:18px; max-width:850px; max-height:460px; overflow-y:auto;">'
+            + "".join(bubbles)
+            + '</div>'
+        )
+        return mark_safe(html)
+    conversation_history_panel.short_description = 'Chat History'
+
+    @admin.action(description='✅ Mark selected threads as Resolved')
+    def mark_threads_resolved(self, request, queryset):
+        updated = queryset.update(status=SupportThread.Status.RESOLVED, unread_by_admin=0)
+        self.message_user(request, f"{updated} thread(s) marked as Resolved.", level=messages.SUCCESS)
+
+    @admin.action(description='🔴 Mark selected threads as Needs Reply')
+    def mark_threads_needs_reply(self, request, queryset):
+        updated = queryset.update(status=SupportThread.Status.NEEDS_REPLY)
+        self.message_user(request, f"{updated} thread(s) marked as Needs Reply.", level=messages.WARNING)
+
+
+@admin.register(SupportMessage)
+class SupportMessageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'thread_user', 'sender_type_badge', 'short_body', 'created_at')
+    list_filter = ('sender_type', 'created_at')
+    search_fields = ('thread__user__username', 'thread__user__email', 'sender_name', 'body')
+    readonly_fields = ('created_at',)
+
+    def thread_user(self, obj):
+        url = reverse('admin:accounts_supportthread_change', args=[obj.thread_id])
+        return format_html('<a href="{}" style="font-weight:700; color:#38bdf8;">@{}</a>', url, obj.thread.user.username)
+    thread_user.short_description = 'Thread (Candidate)'
+
+    def sender_type_badge(self, obj):
+        if obj.sender_type == SupportMessage.SenderType.USER:
+            return format_html('<span class="badge bg-primary">Candidate</span>')
+        if obj.sender_type == SupportMessage.SenderType.ADMIN:
+            return format_html('<span class="badge bg-info">Support Admin</span>')
+        return format_html('<span class="badge bg-secondary">System Auto</span>')
+    sender_type_badge.short_description = 'Sender'
+
+    def short_body(self, obj):
+        return obj.body[:100] + ('...' if len(obj.body) > 100 else '')
+    short_body.short_description = 'Message'

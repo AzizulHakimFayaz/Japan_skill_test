@@ -66,6 +66,11 @@ urlpatterns = [
     # Hero Banner Moving Slides
     path('banners/', views.HeroBannerListAPIView.as_view(), name='api_banners_list'),
 
+    # Candidate Support Chat System
+    path('chat/thread/', views.SupportChatThreadAPIView.as_view(), name='api_support_chat_thread'),
+    path('chat/send/', views.SupportChatSendAPIView.as_view(), name='api_support_chat_send'),
+    path('chat/read/', views.SupportChatMarkReadAPIView.as_view(), name='api_support_chat_read'),
+
     # One-Click Setup Trigger & Admin Helpers
     path('setup-database/', views.SetupDatabaseAPIView.as_view(), name='api_setup_database'),
     path('run-migration/', views.RunMigrationAPIView.as_view(), name='api_run_migration'),

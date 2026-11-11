@@ -18,7 +18,8 @@ from django.db.models import Count, Q, Case, When, Value, IntegerField
 from django.utils import timezone
 
 from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic, HeroBanner
-from accounts.models import UserProfile, EmailVerificationOTP, PasswordResetToken
+from accounts.models import UserProfile, EmailVerificationOTP, PasswordResetToken, SupportThread, SupportMessage
+from accounts.schema_sync import ensure_schema_synced
 from accounts.geolocation import get_client_ip, lookup_ip_country, resolve_user_country_and_flag, get_country_flag
 from accounts.emails import send_password_reset_email
 from accounts.throttling import ForgotPasswordRateThrottle, is_email_rate_limited
@@ -2434,6 +2435,185 @@ class HeroBannerListAPIView(APIView):
         banners = HeroBanner.objects.filter(is_active=True).order_by('order', 'id')
         serializer = HeroBannerSerializer(banners, many=True, context={'request': request})
         return Response(serializer.data)
+
+
+def _serialize_support_message(msg):
+    return {
+        'id': msg.id,
+        'sender_type': msg.sender_type,
+        'sender_name': msg.sender_name or (
+            'Gakkou Support Team' if msg.sender_type == SupportMessage.SenderType.ADMIN
+            else ('Gakkou Support Desk' if msg.sender_type == SupportMessage.SenderType.SYSTEM else 'You')
+        ),
+        'body': msg.body,
+        'created_at': msg.created_at.isoformat() if msg.created_at else None,
+    }
+
+
+class SupportChatThreadAPIView(APIView):
+    """
+    Fetches the logged-in candidate's support chat thread & message history.
+    Supports:
+      - ?summary_only=1 -> lightweight unread badge check
+      - ?after_id=<int> -> delta fetch of only newer messages
+      - ?mark_read=1    -> resets unread_by_user to 0 when popup/fullscreen is open
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        try:
+            thread = SupportThread.objects.filter(user=request.user).first()
+        except Exception:
+            ensure_schema_synced()
+            thread = SupportThread.objects.filter(user=request.user).first()
+
+        if not thread:
+            return Response({
+                'thread_id': None,
+                'status': 'none',
+                'unread_count': 0,
+                'last_message_at': None,
+                'messages': [],
+            })
+
+        summary_only = str(request.query_params.get('summary_only', '')).lower() in ('1', 'true')
+        mark_read = str(request.query_params.get('mark_read', '')).lower() in ('1', 'true')
+        after_id_raw = request.query_params.get('after_id')
+
+        if mark_read and thread.unread_by_user > 0:
+            SupportThread.objects.filter(pk=thread.pk, unread_by_user__gt=0).update(unread_by_user=0)
+            thread.unread_by_user = 0
+
+        if summary_only:
+            return Response({
+                'thread_id': thread.id,
+                'status': thread.status,
+                'unread_count': thread.unread_by_user,
+                'last_message_at': thread.last_message_at.isoformat() if thread.last_message_at else None,
+            })
+
+        msgs_qs = thread.messages.order_by('created_at', 'id')
+        if after_id_raw is not None:
+            try:
+                after_id = int(after_id_raw)
+                if after_id > 0:
+                    msgs_qs = msgs_qs.filter(id__gt=after_id)
+            except (ValueError, TypeError):
+                pass
+        else:
+            # Cap full history payload to most recent 200 messages for fast response
+            total_count = msgs_qs.count()
+            if total_count > 200:
+                msgs_qs = msgs_qs[total_count - 200:]
+
+        messages_data = [_serialize_support_message(m) for m in msgs_qs]
+        return Response({
+            'thread_id': thread.id,
+            'status': thread.status,
+            'unread_count': thread.unread_by_user,
+            'last_message_at': thread.last_message_at.isoformat() if thread.last_message_at else None,
+            'messages': messages_data,
+        })
+
+
+class SupportChatSendAPIView(APIView):
+    """
+    Allows an authenticated candidate to send a message to Gakkou Support.
+    Enforces rate limiting (max 5 messages per 60 seconds) and 1,000-character limit.
+    Automatically posts a welcome/confirmation bubble on the candidate's first message.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        raw_body = request.data.get('message') or request.data.get('body') or ''
+        body = str(raw_body).strip()
+        if not body:
+            return Response({'detail': 'Please enter a message before sending.'}, status=status.HTTP_400_BAD_REQUEST)
+        if len(body) > 1000:
+            return Response(
+                {'detail': 'Message is too long (maximum 1,000 characters). Please shorten your message.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            thread, created = SupportThread.objects.get_or_create(user=request.user)
+        except Exception:
+            ensure_schema_synced()
+            thread, created = SupportThread.objects.get_or_create(user=request.user)
+
+        now = timezone.now()
+        one_min_ago = now - timezone.timedelta(seconds=60)
+        recent_user_msgs = thread.messages.filter(
+            sender_type=SupportMessage.SenderType.USER,
+            created_at__gte=one_min_ago,
+        ).count()
+        if recent_user_msgs >= 5:
+            return Response(
+                {'detail': 'You are sending messages too quickly. Please wait a moment before sending another message.'},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
+        existing_total = thread.messages.count()
+        sender_label = (
+            f"{request.user.first_name} {request.user.last_name}".strip()
+            or request.user.username
+        )
+
+        user_msg = SupportMessage.objects.create(
+            thread=thread,
+            sender_type=SupportMessage.SenderType.USER,
+            sender_name=sender_label,
+            body=body,
+        )
+
+        new_messages = [_serialize_support_message(user_msg)]
+
+        # On first message in thread, send an automated instant confirmation bubble
+        if existing_total == 0:
+            sys_msg = SupportMessage.objects.create(
+                thread=thread,
+                sender_type=SupportMessage.SenderType.SYSTEM,
+                sender_name='Gakkou Support Desk',
+                body=(
+                    "👋 Konnichiwa! Your message has been received by the Gakkou No Shiken Support Team. "
+                    "An instructor or admin will reply right here in your chat widget—your history is saved to your account across all devices."
+                ),
+            )
+            new_messages.append(_serialize_support_message(sys_msg))
+
+        thread.status = SupportThread.Status.NEEDS_REPLY
+        thread.unread_by_admin = (thread.unread_by_admin or 0) + 1
+        thread.unread_by_user = 0
+        thread.last_message_preview = body[:250]
+        thread.last_message_at = timezone.now()
+        thread.save(update_fields=[
+            'status',
+            'unread_by_admin',
+            'unread_by_user',
+            'last_message_preview',
+            'last_message_at',
+            'updated_at',
+        ])
+
+        return Response({
+            'thread_id': thread.id,
+            'status': thread.status,
+            'unread_count': thread.unread_by_user,
+            'last_message_at': thread.last_message_at.isoformat() if thread.last_message_at else None,
+            'new_messages': new_messages,
+        }, status=status.HTTP_201_CREATED)
+
+
+class SupportChatMarkReadAPIView(APIView):
+    """Marks all unread admin replies in the candidate's support thread as read."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            SupportThread.objects.filter(user=request.user, unread_by_user__gt=0).update(unread_by_user=0)
+        except Exception:
+            pass
+        return Response({'unread_count': 0, 'status': 'ok'})
 
 
 

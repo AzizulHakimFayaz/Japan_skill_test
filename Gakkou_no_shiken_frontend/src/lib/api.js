@@ -466,3 +466,42 @@ export async function getHeroBanners() {
   return null;
 }
 
+// ==========================================
+// Candidate Support Chat System
+// ==========================================
+
+export async function getSupportChatThread({ summaryOnly = false, afterId = null, markRead = false } = {}) {
+  try {
+    const params = new URLSearchParams();
+    if (summaryOnly) params.set('summary_only', '1');
+    if (afterId) params.set('after_id', String(afterId));
+    if (markRead) params.set('mark_read', '1');
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return await apiRequest(`/api/chat/thread/${query}`);
+  } catch {
+    return {
+      thread_id: null,
+      status: 'none',
+      unread_count: 0,
+      last_message_at: null,
+      messages: [],
+    };
+  }
+}
+
+export async function sendSupportChatMessage(message) {
+  return apiRequest('/api/chat/send/', {
+    method: 'POST',
+    body: JSON.stringify({ message }),
+  });
+}
+
+export async function markSupportChatRead() {
+  try {
+    return await apiRequest('/api/chat/read/', { method: 'POST' });
+  } catch {
+    return { unread_count: 0 };
+  }
+}
+
+

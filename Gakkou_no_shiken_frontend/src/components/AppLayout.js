@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import MobileDock from './MobileDock';
+import SupportChatWidget from './SupportChatWidget';
 
 export default function AppLayout({ children }) {
   const pathname = usePathname();
@@ -24,6 +25,7 @@ export default function AppLayout({ children }) {
 
       <Footer />
       <MobileDock />
+      <SupportChatWidget />
     </>
   );
 }
