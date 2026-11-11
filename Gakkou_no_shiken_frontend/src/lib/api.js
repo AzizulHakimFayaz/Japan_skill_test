@@ -102,11 +102,13 @@ async function apiRequest(endpoint, options = {}) {
 // ─── Tests & Quiz APIs ───
 export async function getTests(category = '') {
   const query = category ? `?category=${encodeURIComponent(category)}` : '';
-  return apiRequest(`/api/tests/${query}`, { next: { revalidate: 86400 } });
+  const fetchOpts = typeof window !== 'undefined' ? { cache: 'no-store' } : { next: { revalidate: 60 } };
+  return apiRequest(`/api/tests/${query}`, fetchOpts);
 }
 
 export async function getTestDetail(id) {
-  return apiRequest(`/api/tests/${id}/`, { next: { revalidate: 86400 } });
+  const fetchOpts = typeof window !== 'undefined' ? { cache: 'no-store' } : { next: { revalidate: 60 } };
+  return apiRequest(`/api/tests/${id}/`, fetchOpts);
 }
 
 export async function getQuizData(id, preview = null) {
@@ -132,11 +134,13 @@ export async function getAttemptResults(id, preview = null) {
 
 // ─── Static / Overview Data ───
 export async function getJftInfo() {
-  return apiRequest('/api/info/jft/', { next: { revalidate: 86400 } });
+  const fetchOpts = typeof window !== 'undefined' ? { cache: 'no-store' } : { next: { revalidate: 60 } };
+  return apiRequest('/api/info/jft/', fetchOpts);
 }
 
 export async function getSswInfo() {
-  return apiRequest('/api/info/ssw/', { next: { revalidate: 86400 } });
+  const fetchOpts = typeof window !== 'undefined' ? { cache: 'no-store' } : { next: { revalidate: 60 } };
+  return apiRequest('/api/info/ssw/', fetchOpts);
 }
 
 export async function loginUser(username, password) {

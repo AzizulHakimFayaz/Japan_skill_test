@@ -8,7 +8,7 @@ import { formatTimeLimit } from '@/lib/utils';
 import { useAuth } from './AuthContext';
 import { useLanguage } from './LanguageContext';
 import ScrollReveal from './ScrollReveal';
-import { getMyResults } from '@/lib/api';
+import { getTests, getMyResults } from '@/lib/api';
 import {
   Lock,
   Clock,
@@ -59,13 +59,14 @@ export default function PracticeTestGrid({
   const [leadModal, setLeadModal] = useState(false);
   const [unlockedMap, setUnlockedMap] = useState({});
   const [adGateTarget, setAdGateTarget] = useState(null);
+  const hasLiveDataRef = useRef(false);
 
   const defaultSeeAllHref = seeAllHref || (catKey === 'skill' ? '/ssw-skill-test' : '/jft-basic');
 
   const [prevPracticeTests, setPrevPracticeTests] = useState(practiceTests);
   if (practiceTests !== prevPracticeTests) {
     setPrevPracticeTests(practiceTests);
-    if (practiceTests && practiceTests.length > 0) {
+    if (!hasLiveDataRef.current && practiceTests && practiceTests.length > 0) {
       setTests(practiceTests);
       setLoading(false);
     }
@@ -78,7 +79,18 @@ export default function PracticeTestGrid({
         .then((res) => {
           const list = res?.tests || (Array.isArray(res) ? res : []);
           if (list && list.length > 0) {
+            hasLiveDataRef.current = true;
             setTests(list);
+            setUnlockedMap((prev) => {
+              const next = { ...prev };
+              const nowMs = Date.now();
+              list.forEach((item) => {
+                if (item.scheduled_release_at && new Date(item.scheduled_release_at).getTime() > nowMs) {
+                  delete next[item.id];
+                }
+              });
+              return next;
+            });
           }
         })
         .catch(() => {})
@@ -359,7 +371,8 @@ export default function PracticeTestGrid({
             {tests.map((test, idx) => {
               const isScheduled = Boolean(
                 test.scheduled_release_at &&
-                !test.is_released &&
+                (!test.is_released || new Date(test.scheduled_release_at).getTime() > Date.now()) &&
+                (new Date(test.scheduled_release_at).getTime() > Date.now()) &&
                 !unlockedMap[test.id]
               );
 

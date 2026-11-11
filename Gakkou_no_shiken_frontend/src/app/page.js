@@ -8,7 +8,7 @@ import LiveActivityTicker from '@/components/LiveActivityTicker';
 import LearningHubShowcase from '@/components/LearningHubShowcase';
 import AdsterraNativeBanner from '@/components/AdsterraNativeBanner';
 
-export const revalidate = 86400; // Cache for 24 hours to stay well within free limits
+export const revalidate = 60; // Refresh ISR every 60s so scheduled test countdowns stay live
 
 export default async function HomePage() {
   let data = { tests: [], tests_by_category: { basic: [], skill: [] }, section_specs: [] };
