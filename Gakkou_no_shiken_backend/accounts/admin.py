@@ -696,9 +696,36 @@ class PartnerSchoolAdmin(admin.ModelAdmin):
         self.message_user(request, f"Regenerated access tokens for {queryset.count()} school(s).", level=messages.SUCCESS)
 
 
+def _create_partner_school_from_application(app):
+    """Creates an active PartnerSchool from a PartnerApplication if not already created."""
+    existing = PartnerSchool.objects.filter(name__iexact=app.school_name).first()
+    if existing:
+        return existing, False
+    school = PartnerSchool.objects.create(
+        name=app.school_name,
+        country=app.country,
+        city=app.city,
+        contact_person=app.contact_name,
+        contact_whatsapp_or_email=app.whatsapp_or_phone or app.email,
+        is_active=True,
+        is_featured=True,
+    )
+    return school, True
+
+
 @admin.register(PartnerApplication)
 class PartnerApplicationAdmin(admin.ModelAdmin):
-    list_display = ('school_name', 'country', 'city', 'contact_name', 'whatsapp_or_phone', 'estimated_students', 'status_badge', 'created_at')
+    list_display = (
+        'school_name',
+        'country',
+        'city',
+        'contact_name',
+        'whatsapp_or_phone',
+        'estimated_students',
+        'status_badge',
+        'linked_school_badge',
+        'created_at',
+    )
     list_filter = ('status', 'country', 'created_at')
     search_fields = ('school_name', 'contact_name', 'whatsapp_or_phone', 'email', 'city')
     readonly_fields = ('created_at',)
@@ -714,24 +741,39 @@ class PartnerApplicationAdmin(admin.ModelAdmin):
         return format_html('<span class="badge {}">{}</span>', cls, obj.get_status_display())
     status_badge.short_description = 'Status'
 
+    def linked_school_badge(self, obj):
+        school = PartnerSchool.objects.filter(name__iexact=obj.school_name).first()
+        if school:
+            url = reverse('admin:accounts_partnerschool_change', args=[school.id])
+            return format_html(
+                '<a href="{}" class="badge bg-primary" style="text-decoration:none;">🏫 View School ({})</a>',
+                url,
+                school.slug,
+            )
+        return format_html('<span class="badge bg-secondary">Not Created Yet</span>')
+    linked_school_badge.short_description = 'School Record'
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if obj.status == PartnerApplication.Status.APPROVED:
+            school, created = _create_partner_school_from_application(obj)
+            if created:
+                self.message_user(
+                    request,
+                    f"Partner School '{school.name}' was automatically created! Share ?partner={school.slug} or open its Sensei Portal.",
+                    level=messages.SUCCESS,
+                )
+
     @admin.action(description='✅ Approve & Auto-Create Partner School')
     def approve_and_create_school(self, request, queryset):
         created_count = 0
         for app in queryset:
-            existing = PartnerSchool.objects.filter(name__iexact=app.school_name).first()
-            if not existing:
-                PartnerSchool.objects.create(
-                    name=app.school_name,
-                    country=app.country,
-                    city=app.city,
-                    contact_person=app.contact_name,
-                    contact_whatsapp_or_email=app.whatsapp_or_phone or app.email,
-                    is_active=True,
-                    is_featured=True,
-                )
+            _, created = _create_partner_school_from_application(app)
+            if created:
                 created_count += 1
-            app.status = PartnerApplication.Status.APPROVED
-            app.save(update_fields=['status'])
+            if app.status != PartnerApplication.Status.APPROVED:
+                app.status = PartnerApplication.Status.APPROVED
+                app.save(update_fields=['status'])
         self.message_user(
             request,
             f"Approved {queryset.count()} application(s) and created {created_count} new Partner School(s)!",
