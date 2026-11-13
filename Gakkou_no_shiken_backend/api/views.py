@@ -1,4 +1,6 @@
 from collections import OrderedDict, defaultdict
+import csv
+import io
 import json
 import urllib.request
 import re
@@ -18,7 +20,15 @@ from django.db.models import Count, Q, Case, When, Value, IntegerField
 from django.utils import timezone
 
 from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic, HeroBanner
-from accounts.models import UserProfile, EmailVerificationOTP, PasswordResetToken, SupportThread, SupportMessage
+from accounts.models import (
+    UserProfile,
+    EmailVerificationOTP,
+    PasswordResetToken,
+    SupportThread,
+    SupportMessage,
+    PartnerSchool,
+    PartnerApplication,
+)
 from accounts.schema_sync import ensure_schema_synced
 from accounts.geolocation import get_client_ip, lookup_ip_country, resolve_user_country_and_flag, get_country_flag
 from accounts.emails import send_password_reset_email
@@ -49,6 +59,7 @@ from .serializers import (
     ExamBookDetailSerializer,
     BookTopicSerializer,
     HeroBannerSerializer,
+    PartnerSchoolSummarySerializer,
 )
 
 
@@ -62,20 +73,52 @@ def get_tokens_for_user(user):
     }
 
 
+def _get_user_active_partner_school(user):
+    """Returns the user's active PartnerSchool instance, or None."""
+    if not user or not user.is_authenticated:
+        return None
+    profile = UserProfile.objects.select_related('partner_school').filter(
+        user_id=user.pk,
+        partner_school__is_active=True,
+    ).first()
+    if profile and profile.partner_school:
+        return profile.partner_school
+    return None
+
+
+def _user_can_access_test(user, test, is_preview=False):
+    """Enforces Global vs School-Exclusive visibility rules on a Test."""
+    if not getattr(test, 'partner_school_id', None):
+        return True
+    if is_preview or (user and user.is_authenticated and user.is_staff):
+        return True
+    user_school = _get_user_active_partner_school(user)
+    return bool(user_school and user_school.id == test.partner_school_id)
+
+
 class TestListAPIView(APIView):
-    """Returns published tests for public, and all tests (including Drafts) for staff/admin."""
+    """
+    Returns published Global Tests to everyone, plus School-Exclusive Tests
+    to students enrolled in that specific PartnerSchool (or all tests for staff/admin).
+    """
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         category = request.query_params.get('category')
         is_staff = bool(request.user.is_authenticated and request.user.is_staff)
+        user_school = _get_user_active_partner_school(request.user)
 
         if is_staff:
-            queryset = Test.objects.all().annotate(
+            queryset = Test.objects.select_related('partner_school').all().annotate(
                 q_count=Count('questions', distinct=True)
             ).order_by('category', '-is_published', 'created_at')
         else:
-            queryset = Test.objects.filter(is_published=True).annotate(
+            visibility_q = Q(partner_school__isnull=True)
+            if user_school:
+                visibility_q = visibility_q | Q(partner_school_id=user_school.id)
+            queryset = Test.objects.select_related('partner_school').filter(
+                is_published=True
+            ).filter(visibility_q).annotate(
                 q_count=Count('questions', distinct=True)
             ).order_by('category', 'created_at')
 
@@ -84,10 +127,13 @@ class TestListAPIView(APIView):
 
         tests_serialized = TestListSerializer(queryset, many=True, context={'request': request}).data
 
+        school_exclusive_tests = [t for t in tests_serialized if t.get('is_school_exclusive')]
+        global_tests = [t for t in tests_serialized if not t.get('is_school_exclusive')]
+
         # Grouping for landing page
         tests_by_category = {
-            Test.Category.BASIC: [t for t in tests_serialized if t['category'] == Test.Category.BASIC],
-            Test.Category.SKILL: [t for t in tests_serialized if t['category'] == Test.Category.SKILL],
+            Test.Category.BASIC: [t for t in global_tests if t['category'] == Test.Category.BASIC],
+            Test.Category.SKILL: [t for t in global_tests if t['category'] == Test.Category.SKILL],
         }
 
         section_specs = [
@@ -107,17 +153,20 @@ class TestListAPIView(APIView):
 
         return Response({
             'tests': tests_serialized,
+            'global_tests': global_tests,
+            'school_exclusive_tests': school_exclusive_tests,
+            'partner_school': PartnerSchoolSummarySerializer(user_school).data if user_school else None,
             'tests_by_category': tests_by_category,
             'section_specs': section_specs,
         })
 
 
 class TestDetailAPIView(APIView):
-    """Returns single test details (allows draft preview for staff/admin)."""
+    """Returns single test details (allows draft preview for staff/admin, blocks other schools' exclusive tests)."""
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, pk):
-        test = get_object_or_404(Test, pk=pk)
+        test = get_object_or_404(Test.objects.select_related('partner_school'), pk=pk)
 
         if not test.is_published:
             if not (request.user.is_authenticated and request.user.is_staff):
@@ -125,6 +174,13 @@ class TestDetailAPIView(APIView):
                     {"detail": "This practice test is currently in Draft mode. Only staff/admin can preview it."},
                     status=status.HTTP_403_FORBIDDEN
                 )
+
+        if not _user_can_access_test(request.user, test):
+            school_name = test.partner_school.name if test.partner_school else "its Partner School"
+            return Response(
+                {"detail": f"This mock exam is exclusive to students enrolled at {school_name}. Join using your school invite link to access it."},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         serializer = TestDetailSerializer(test, context={'request': request})
         return Response(serializer.data)
@@ -135,10 +191,18 @@ class QuizDataAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, pk):
-        test = get_object_or_404(Test, pk=pk)
+        test = get_object_or_404(Test.objects.select_related('partner_school'), pk=pk)
 
         preview_param = request.query_params.get('preview')
         is_preview = (preview_param in ['admin', 'true', 'staff', 'preview'] or bool(preview_param))
+
+        # School-Exclusive Test Guard
+        if not _user_can_access_test(request.user, test, is_preview=is_preview):
+            school_name = test.partner_school.name if test.partner_school else "its Partner School"
+            return Response(
+                {"detail": f"This mock exam is exclusive to students enrolled at {school_name}. Please sign in with your school link."},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         # Draft Access Check: Allow if published OR if staff OR if preview parameter is provided
         if not test.is_published:
@@ -221,11 +285,17 @@ class SubmitQuizAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, pk):
-        test = get_object_or_404(Test, pk=pk)
+        test = get_object_or_404(Test.objects.select_related('partner_school'), pk=pk)
 
         preview_param = request.query_params.get('preview') or (request.data.get('preview') if isinstance(request.data, dict) else None)
         is_preview = (preview_param in ['admin', 'true', 'staff', 'preview'] or bool(preview_param))
         is_staff = bool(request.user.is_authenticated and request.user.is_staff)
+
+        if not _user_can_access_test(request.user, test, is_preview=is_preview):
+            return Response(
+                {"detail": "You do not have permission to submit answers for this school-exclusive exam."},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         if not test.is_published:
             if not (is_staff or is_preview):
@@ -462,7 +532,11 @@ class JftInfoAPIView(APIView):
         jft_info = get_jft_info()
         test_centers = get_jft_test_centers()
         resources = get_jft_resources()
-        basic_tests = Test.objects.filter(is_published=True, category=Test.Category.BASIC).annotate(
+        basic_tests = Test.objects.filter(
+            is_published=True,
+            category=Test.Category.BASIC,
+            partner_school__isnull=True,
+        ).annotate(
             q_count=Count('questions', distinct=True)
         ).order_by('created_at')
 
@@ -482,7 +556,11 @@ class SswInfoAPIView(APIView):
         ssw_info = get_ssw_info()
         sectors = get_ssw_sectors()
         test_centers = get_ssw_test_centers()
-        skill_tests = Test.objects.filter(is_published=True, category=Test.Category.SKILL).annotate(
+        skill_tests = Test.objects.filter(
+            is_published=True,
+            category=Test.Category.SKILL,
+            partner_school__isnull=True,
+        ).annotate(
             q_count=Count('questions', distinct=True)
         ).order_by('created_at')
 
@@ -2614,6 +2692,444 @@ class SupportChatMarkReadAPIView(APIView):
         except Exception:
             pass
         return Response({'unread_count': 0, 'status': 'ok'})
+
+
+# ==============================================================================
+# B2B2C Partner Schools & LPK Ecosystem APIs
+# ==============================================================================
+
+def _compute_attempt_metrics(attempt):
+    """Computes percentage, 0-250 scaled score, and pass status matching AttemptResultsAPIView."""
+    pct = (attempt.score / attempt.total_questions * 100.0) if attempt.total_questions > 0 else 0.0
+    scaled = int(round(10 + (pct / 100.0) * 240)) if attempt.total_questions > 0 else 10
+    is_skill = attempt.test and attempt.test.category == Test.Category.SKILL
+    passed = (pct >= 60.0) if is_skill else (pct >= 80.0)
+    return round(pct, 1), scaled, passed
+
+
+class PartnerPublicListAPIView(APIView):
+    """Returns featured active Partner Schools & aggregate platform partner stats."""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        try:
+            featured = PartnerSchool.objects.filter(is_active=True, is_featured=True).annotate(
+                student_count=Count('students', distinct=True)
+            ).order_by('-student_count', '-created_at')[:12]
+            total_active = PartnerSchool.objects.filter(is_active=True).count()
+        except Exception:
+            ensure_schema_synced()
+            featured = PartnerSchool.objects.filter(is_active=True, is_featured=True).annotate(
+                student_count=Count('students', distinct=True)
+            ).order_by('-student_count', '-created_at')[:12]
+            total_active = PartnerSchool.objects.filter(is_active=True).count()
+
+        schools_data = [
+            {
+                'id': s.id,
+                'name': s.name,
+                'slug': s.slug,
+                'country': s.country,
+                'flag': get_country_flag(s.country) if s.country else '🏫',
+                'city': s.city,
+                'student_count': getattr(s, 'student_count', 0),
+            }
+            for s in featured
+        ]
+        return Response({
+            'total_partners': total_active,
+            'featured_partners': schools_data,
+        })
+
+
+class PartnerSchoolPublicInfoAPIView(APIView):
+    """Returns safe public banner info for a Partner School invite link (?partner=<slug>)."""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, slug):
+        school = get_object_or_404(PartnerSchool, slug=slug, is_active=True)
+        student_count = school.students.count()
+        return Response({
+            'id': school.id,
+            'name': school.name,
+            'slug': school.slug,
+            'country': school.country,
+            'flag': get_country_flag(school.country) if school.country else '🏫',
+            'city': school.city,
+            'welcome_message': school.welcome_message,
+            'student_count': student_count,
+        })
+
+
+class PartnerSchoolJoinAPIView(APIView):
+    """
+    Links the authenticated student to a PartnerSchool by slug, updating optional
+    Full Name (first_name/last_name), batch cohort, and student roll ID.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        slug = (request.data.get('slug') or request.data.get('partner_slug') or '').strip()
+        if not slug:
+            return Response({'detail': 'Partner school code/slug is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        school = PartnerSchool.objects.filter(slug__iexact=slug, is_active=True).first()
+        if not school:
+            return Response({'detail': 'Partner school code was not found or is inactive.'}, status=status.HTTP_404_NOT_FOUND)
+
+        batch = (request.data.get('batch') or request.data.get('partner_batch') or '').strip()[:64]
+        student_id = (request.data.get('student_id') or request.data.get('student_roll_or_id') or '').strip()[:64]
+        first_name = (request.data.get('first_name') or '').strip()[:150]
+        last_name = (request.data.get('last_name') or '').strip()[:150]
+
+        user = request.user
+        user_updated = False
+        if first_name:
+            user.first_name = first_name
+            user_updated = True
+        if last_name:
+            user.last_name = last_name
+            user_updated = True
+        if user_updated:
+            user.save(update_fields=['first_name', 'last_name'])
+
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        profile.partner_school = school
+        if batch:
+            profile.partner_batch = batch
+        if student_id:
+            profile.student_roll_or_id = student_id
+        if not profile.partner_joined_at:
+            profile.partner_joined_at = timezone.now()
+        profile.save()
+
+        refreshed_user = User.objects.select_related('profile', 'profile__partner_school').get(pk=user.pk)
+
+        return Response({
+            'status': 'success',
+            'message': f"Linked to {school.name} successfully!",
+            'user': UserSerializer(refreshed_user).data,
+            'partner_school': PartnerSchoolSummarySerializer(school).data,
+        })
+
+
+class PartnerSchoolLeaveAPIView(APIView):
+    """Allows a student to unlink their account from a PartnerSchool."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        profile.partner_school = None
+        profile.partner_batch = ''
+        profile.student_roll_or_id = ''
+        profile.save(update_fields=['partner_school', 'partner_batch', 'student_roll_or_id', 'updated_at'])
+        refreshed_user = User.objects.select_related('profile', 'profile__partner_school').get(pk=request.user.pk)
+        return Response({
+            'status': 'success',
+            'message': 'You have left the partner school batch.',
+            'user': UserSerializer(refreshed_user).data,
+        })
+
+
+class PartnerApplicationCreateAPIView(APIView):
+    """Receives partnership inquiries from LPKs / Japanese Language Schools (/partners)."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        school_name = (request.data.get('school_name') or '').strip()
+        contact_name = (request.data.get('contact_name') or '').strip()
+        whatsapp_or_phone = (request.data.get('whatsapp_or_phone') or '').strip()
+        email = (request.data.get('email') or '').strip()
+        country = (request.data.get('country') or 'Indonesia').strip()
+        city = (request.data.get('city') or '').strip()
+        message = (request.data.get('message') or '').strip()[:1500]
+        try:
+            est = max(1, int(request.data.get('estimated_students') or 30))
+        except (TypeError, ValueError):
+            est = 30
+
+        if not school_name or not contact_name:
+            return Response(
+                {'detail': 'School/LPK name and contact person name are required.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not whatsapp_or_phone and not email:
+            return Response(
+                {'detail': 'Please provide either a WhatsApp number or an Email address.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            app = PartnerApplication.objects.create(
+                school_name=school_name[:200],
+                country=country[:100],
+                city=city[:100],
+                contact_name=contact_name[:150],
+                whatsapp_or_phone=whatsapp_or_phone[:100],
+                email=email[:254],
+                estimated_students=est,
+                message=message,
+            )
+        except Exception:
+            ensure_schema_synced()
+            app = PartnerApplication.objects.create(
+                school_name=school_name[:200],
+                country=country[:100],
+                city=city[:100],
+                contact_name=contact_name[:150],
+                whatsapp_or_phone=whatsapp_or_phone[:100],
+                email=email[:254],
+                estimated_students=est,
+                message=message,
+            )
+
+        return Response({
+            'status': 'success',
+            'application_id': app.id,
+            'message': 'Thank you! Your Partner School application has been received. Our team will reach out shortly with your invite link & Sensei dashboard key.',
+        }, status=status.HTTP_201_CREATED)
+
+
+class PartnerSchoolDashboardAPIView(APIView):
+    """
+    Private Sensei / Instructor Batch Dashboard API (/api/partners/<slug>/dashboard/?key=...).
+    Provides KPI metrics, 4-Section Class Weakness Breakdown, 1st vs Best attempt scores,
+    student roster, and 1-click UTF-8 CSV export without exposing emails or admin credentials.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, slug):
+        school = get_object_or_404(PartnerSchool, slug=slug, is_active=True)
+        provided_key = (request.query_params.get('key') or '').strip()
+        is_staff = bool(request.user.is_authenticated and request.user.is_staff)
+
+        if not is_staff and provided_key != school.access_token:
+            return Response(
+                {'detail': 'Invalid or missing Sensei access key for this school dashboard.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        batch_filter = (request.query_params.get('batch') or '').strip()
+        test_id_filter = request.query_params.get('test_id')
+        days_filter = (request.query_params.get('days') or 'all').strip().lower()
+        export_fmt = (request.query_params.get('export') or '').strip().lower()
+
+        profiles_qs = UserProfile.objects.filter(partner_school=school).select_related('user').order_by('user__first_name', 'user__username')
+        all_batches = sorted({p.partner_batch for p in profiles_qs if p.partner_batch})
+        if batch_filter and batch_filter.lower() != 'all':
+            profiles_qs = profiles_qs.filter(partner_batch=batch_filter)
+
+        profiles_list = list(profiles_qs)
+        user_ids = [p.user_id for p in profiles_list]
+        profile_by_uid = {p.user_id: p for p in profiles_list}
+
+        attempts_qs = Attempt.objects.filter(user_id__in=user_ids).select_related('test', 'user').order_by('completed_at', 'id')
+        if test_id_filter and str(test_id_filter).isdigit():
+            attempts_qs = attempts_qs.filter(test_id=int(test_id_filter))
+        if days_filter in ('7', '30'):
+            cutoff = timezone.now() - timezone.timedelta(days=int(days_filter))
+            attempts_qs = attempts_qs.filter(completed_at__gte=cutoff)
+
+        attempts_list = list(attempts_qs)
+        test_ids_seen = {a.test_id for a in attempts_list if a.test_id}
+
+        # Precompute section analytics in 2 flat queries (safe for cPanel SQLite)
+        questions_meta = defaultdict(list)
+        if test_ids_seen:
+            for q_id, t_id, q_sec, q_type in Question.objects.filter(test_id__in=test_ids_seen).values_list('id', 'test_id', 'section', 'type'):
+                questions_meta[t_id].append((q_id, q_sec, q_type))
+
+        correct_options_by_qid = defaultdict(list)
+        if test_ids_seen:
+            for q_id, opt_id, opt_label in AnswerOption.objects.filter(
+                question__test_id__in=test_ids_seen,
+                is_correct=True,
+            ).values_list('question_id', 'id', 'label'):
+                correct_options_by_qid[q_id].append((opt_id, opt_label))
+
+        section_totals = {
+            'script_vocab': {'label': 'Script & Vocabulary', 'correct': 0, 'total': 0},
+            'conversation': {'label': 'Conversation & Expression', 'correct': 0, 'total': 0},
+            'listening': {'label': 'Listening Comprehension', 'correct': 0, 'total': 0},
+            'reading': {'label': 'Reading Comprehension', 'correct': 0, 'total': 0},
+            'audio': {'label': 'SSW Audio & Typing', 'correct': 0, 'total': 0},
+            'occupational': {'label': 'SSW Practical Knowledge', 'correct': 0, 'total': 0},
+        }
+
+        per_user_attempts = defaultdict(list)
+        recent_attempts_data = []
+        all_scaled_scores = []
+        passed_attempt_count = 0
+
+        for att in attempts_list:
+            pct, scaled, passed = _compute_attempt_metrics(att)
+            all_scaled_scores.append(scaled)
+            if passed:
+                passed_attempt_count += 1
+
+            # Aggregate section stats for this attempt
+            answers_dict = att.answers if isinstance(att.answers, dict) else {}
+            if not answers_dict.get('_is_preview'):
+                for q_id, q_sec, q_type in questions_meta.get(att.test_id, []):
+                    if q_sec not in section_totals:
+                        continue
+                    section_totals[q_sec]['total'] += 1
+                    raw_ans = answers_dict.get(str(q_id))
+                    is_q_correct = False
+                    if q_type in ('typing', 'audio_typing'):
+                        typed = str(raw_ans or '').strip().lower()
+                        if typed:
+                            accepted = []
+                            for _, lbl in correct_options_by_qid.get(q_id, []):
+                                accepted.extend([part.strip().lower() for part in str(lbl).split(',') if part.strip()])
+                            is_q_correct = typed in accepted
+                    elif raw_ans is not None and str(raw_ans).isdigit():
+                        sel_id = int(raw_ans)
+                        correct_ids = [oid for oid, _ in correct_options_by_qid.get(q_id, [])]
+                        is_q_correct = sel_id in correct_ids
+                    if is_q_correct:
+                        section_totals[q_sec]['correct'] += 1
+
+            prof = profile_by_uid.get(att.user_id)
+            u = att.user
+            full_name = f"{u.first_name} {u.last_name}".strip() or u.username
+            entry = {
+                'attempt_id': att.id,
+                'user_id': u.id,
+                'username': u.username,
+                'full_name': full_name,
+                'batch': prof.partner_batch if prof else '',
+                'student_roll_or_id': prof.student_roll_or_id if prof else '',
+                'test_id': att.test_id,
+                'test_title': att.test.title if att.test else 'Mock Test',
+                'is_school_exclusive': bool(att.test and att.test.partner_school_id == school.id),
+                'raw_score': att.score,
+                'total_questions': att.total_questions,
+                'percentage': pct,
+                'scaled_score': scaled,
+                'passed': passed,
+                'completed_at': att.completed_at.isoformat() if att.completed_at else None,
+            }
+            per_user_attempts[u.id].append(entry)
+            recent_attempts_data.append(entry)
+
+        # Build student roster with 1st Attempt vs Best Score
+        students_roster = []
+        for prof in profiles_list:
+            u = prof.user
+            full_name = f"{u.first_name} {u.last_name}".strip() or u.username
+            u_atts = per_user_attempts.get(u.id, [])
+            if u_atts:
+                first_att = u_atts[0]
+                latest_att = u_atts[-1]
+                best_att = max(u_atts, key=lambda x: (x['scaled_score'], x['percentage']))
+                has_passed = any(a['passed'] for a in u_atts)
+            else:
+                first_att = latest_att = best_att = None
+                has_passed = False
+
+            students_roster.append({
+                'user_id': u.id,
+                'username': u.username,
+                'full_name': full_name,
+                'batch': prof.partner_batch or 'General',
+                'student_roll_or_id': prof.student_roll_or_id or '',
+                'attempts_count': len(u_atts),
+                'first_score': first_att['scaled_score'] if first_att else None,
+                'first_pct': first_att['percentage'] if first_att else None,
+                'best_score': best_att['scaled_score'] if best_att else None,
+                'best_pct': best_att['percentage'] if best_att else None,
+                'latest_score': latest_att['scaled_score'] if latest_att else None,
+                'latest_test_title': latest_att['test_title'] if latest_att else None,
+                'last_attempt_at': latest_att['completed_at'] if latest_att else None,
+                'passed': has_passed,
+                'joined_at': prof.partner_joined_at.isoformat() if prof.partner_joined_at else None,
+            })
+
+        students_roster.sort(key=lambda s: (-(s['best_score'] or -1), s['full_name'].lower()))
+
+        # Handle CSV Export
+        if export_fmt == 'csv':
+            buf = io.StringIO()
+            buf.write('\ufeff')  # UTF-8 BOM for clean Excel opening
+            writer = csv.writer(buf)
+            writer.writerow([
+                'Student Name',
+                'Username',
+                'Student ID / Roll',
+                'Batch',
+                'Attempts',
+                '1st Attempt Score (/250)',
+                'Best Score (/250)',
+                'Status',
+                'Latest Test',
+                'Last Exam Date',
+            ])
+            for row in students_roster:
+                writer.writerow([
+                    row['full_name'],
+                    f"@{row['username']}",
+                    row['student_roll_or_id'] or '-',
+                    row['batch'],
+                    row['attempts_count'],
+                    row['first_score'] if row['first_score'] is not None else 'Not Tested',
+                    row['best_score'] if row['best_score'] is not None else 'Not Tested',
+                    'PASSED (CEFR A2)' if row['passed'] else ('NEEDS PRACTICE' if row['attempts_count'] > 0 else 'NO ATTEMPTS'),
+                    row['latest_test_title'] or '-',
+                    row['last_attempt_at'][:10] if row['last_attempt_at'] else '-',
+                ])
+            resp = HttpResponse(buf.getvalue(), content_type='text/csv; charset=utf-8')
+            resp['Content-Disposition'] = f'attachment; filename="{school.slug}_batch_scores.csv"'
+            return resp
+
+        section_analytics = []
+        for sec_key, sec_val in section_totals.items():
+            if sec_val['total'] > 0:
+                acc = round((sec_val['correct'] / sec_val['total']) * 100.0, 1)
+                section_analytics.append({
+                    'key': sec_key,
+                    'label': sec_val['label'],
+                    'accuracy_pct': acc,
+                    'correct': sec_val['correct'],
+                    'total': sec_val['total'],
+                })
+
+        # Available tests list for filter dropdown (school's exclusive tests + all published global tests)
+        available_tests = list(
+            Test.objects.filter(
+                Q(is_published=True, partner_school__isnull=True) | Q(partner_school=school)
+            ).values('id', 'title', 'category', 'partner_school_id').order_by('-partner_school_id', 'id')
+        )
+
+        avg_score = round(sum(all_scaled_scores) / len(all_scaled_scores), 1) if all_scaled_scores else 0
+        pass_rate = round((passed_attempt_count / len(attempts_list)) * 100.0, 1) if attempts_list else 0
+
+        recent_attempts_data.sort(key=lambda x: x['completed_at'] or '', reverse=True)
+
+        return Response({
+            'school': {
+                'id': school.id,
+                'name': school.name,
+                'slug': school.slug,
+                'country': school.country,
+                'flag': get_country_flag(school.country) if school.country else '🏫',
+                'city': school.city,
+                'welcome_message': school.welcome_message,
+                'invite_url': f"https://www.gakkounoshiken.site/?partner={school.slug}",
+            },
+            'kpis': {
+                'total_students': len(profiles_list),
+                'tested_students': sum(1 for s in students_roster if s['attempts_count'] > 0),
+                'total_attempts': len(attempts_list),
+                'pass_rate_pct': pass_rate,
+                'avg_scaled_score': avg_score,
+            },
+            'section_analytics': section_analytics,
+            'batches': all_batches,
+            'available_tests': available_tests,
+            'students': students_roster,
+            'recent_attempts': recent_attempts_data[:100],
+        })
 
 
 

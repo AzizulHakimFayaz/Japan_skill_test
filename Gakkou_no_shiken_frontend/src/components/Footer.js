@@ -28,6 +28,9 @@ export default function Footer() {
             <Link href="/how-it-works" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors font-bold">
               How It Works
             </Link>
+            <Link href="/partners" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-bold text-indigo-600 dark:text-indigo-400">
+              Schools &amp; LPKs
+            </Link>
             <Link href="/tools" className="hover:text-japan-red dark:hover:text-rose-400 transition-colors">
               Study Tools
             </Link>

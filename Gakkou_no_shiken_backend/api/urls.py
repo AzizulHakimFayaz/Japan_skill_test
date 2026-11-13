@@ -71,6 +71,14 @@ urlpatterns = [
     path('chat/send/', views.SupportChatSendAPIView.as_view(), name='api_support_chat_send'),
     path('chat/read/', views.SupportChatMarkReadAPIView.as_view(), name='api_support_chat_read'),
 
+    # B2B2C Partner Schools & LPK Ecosystem
+    path('partners/', views.PartnerPublicListAPIView.as_view(), name='api_partners_list'),
+    path('partners/join/', views.PartnerSchoolJoinAPIView.as_view(), name='api_partner_join'),
+    path('partners/leave/', views.PartnerSchoolLeaveAPIView.as_view(), name='api_partner_leave'),
+    path('partners/apply/', views.PartnerApplicationCreateAPIView.as_view(), name='api_partner_apply'),
+    path('partners/<slug:slug>/info/', views.PartnerSchoolPublicInfoAPIView.as_view(), name='api_partner_info'),
+    path('partners/<slug:slug>/dashboard/', views.PartnerSchoolDashboardAPIView.as_view(), name='api_partner_dashboard'),
+
     # One-Click Setup Trigger & Admin Helpers
     path('setup-database/', views.SetupDatabaseAPIView.as_view(), name='api_setup_database'),
     path('run-migration/', views.RunMigrationAPIView.as_view(), name='api_run_migration'),

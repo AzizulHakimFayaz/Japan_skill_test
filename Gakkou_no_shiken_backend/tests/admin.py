@@ -156,6 +156,7 @@ class TestAdmin(admin.ModelAdmin):
     list_display = (
         'title_display',
         'category',
+        'scope_badge',
         'question_count',
         'is_actual_exam_demo',
         'requires_account',
@@ -168,7 +169,7 @@ class TestAdmin(admin.ModelAdmin):
     )
 
     list_editable = ('category', 'is_actual_exam_demo', 'requires_account', 'is_published')
-    list_filter = ('category', 'is_actual_exam_demo', 'requires_account', 'is_published', 'scheduled_release_at')
+    list_filter = ('category', 'partner_school', 'is_actual_exam_demo', 'requires_account', 'is_published', 'scheduled_release_at')
     search_fields = ('title', 'description')
     inlines = [QuestionGroupInlineForTest, QuestionInline]
     date_hierarchy = 'created_at'
@@ -181,7 +182,7 @@ class TestAdmin(admin.ModelAdmin):
         js = ('js/admin_sticky_save.js',)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).annotate(q_count=models.Count('questions', distinct=True))
+        return super().get_queryset(request).select_related('partner_school').annotate(q_count=models.Count('questions', distinct=True))
 
     readonly_fields = ('manage_questions_link', 'preview_action')
 
@@ -190,9 +191,9 @@ class TestAdmin(admin.ModelAdmin):
             'fields': ('title', 'description', 'category', 'is_actual_exam_demo', 'manage_questions_link', 'preview_action'),
             'description': 'Basic details about this practice test and its examination mode.'
         }),
-        ('Access & Release Schedule', {
-            'fields': ('requires_account', 'is_published', 'scheduled_release_at'),
-            'description': 'Control access, publish status, and optional future release date/time (displays live countdown & blurred preview until release).'
+        ('Access, Partner School & Release Schedule', {
+            'fields': ('partner_school', 'requires_account', 'is_published', 'scheduled_release_at'),
+            'description': 'Leave Exclusive Partner School blank for Global Tests. Select a Partner School to restrict this test ONLY to that school\'s enrolled students.'
         }),
         ('Timer Settings', {
             'fields': ('time_limit_seconds',),
@@ -623,6 +624,16 @@ class TestAdmin(admin.ModelAdmin):
         )
     title_display.short_description = 'Test'
     title_display.admin_order_field = 'title'
+
+    def scope_badge(self, obj):
+        if obj.partner_school:
+            return format_html(
+                '<span class="badge bg-info text-dark" style="font-size:11px;">🏫 {}</span>',
+                obj.partner_school.name,
+            )
+        return format_html('<span class="badge bg-secondary" style="font-size:11px;">🌐 Global</span>')
+    scope_badge.short_description = 'Visibility Scope'
+    scope_badge.admin_order_field = 'partner_school__name'
 
     def release_status_display(self, obj):
         from django.utils import timezone

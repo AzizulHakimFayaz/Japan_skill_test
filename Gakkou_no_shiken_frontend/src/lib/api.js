@@ -508,4 +508,61 @@ export async function markSupportChatRead() {
   }
 }
 
+// --- Partner Schools & LPK Ecosystem ---
+
+export async function getPublicPartners() {
+  try {
+    return await apiRequest('/api/partners/', { cache: 'no-store' });
+  } catch (err) {
+    console.warn('API getPublicPartners failed:', err);
+    return { total_partners: 0, featured_partners: [] };
+  }
+}
+
+export async function getPartnerSchoolInfo(slug) {
+  return apiRequest(`/api/partners/${encodeURIComponent(slug)}/info/`, { cache: 'no-store' });
+}
+
+export async function joinPartnerSchool(payload) {
+  return apiRequest('/api/partners/join/', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function leavePartnerSchool() {
+  return apiRequest('/api/partners/leave/', {
+    method: 'POST',
+  });
+}
+
+export async function submitPartnerApplication(payload) {
+  return apiRequest('/api/partners/apply/', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getPartnerDashboard(slug, { key, batch = '', testId = '', days = '' } = {}) {
+  const params = new URLSearchParams();
+  if (key) params.set('key', key);
+  if (batch) params.set('batch', batch);
+  if (testId) params.set('test_id', testId);
+  if (days) params.set('days', String(days));
+  return apiRequest(`/api/partners/${encodeURIComponent(slug)}/dashboard/?${params.toString()}`, {
+    cache: 'no-store',
+  });
+}
+
+export function getPartnerDashboardCsvUrl(slug, { key, batch = '', testId = '', days = '' } = {}) {
+  const params = new URLSearchParams();
+  if (key) params.set('key', key);
+  if (batch) params.set('batch', batch);
+  if (testId) params.set('test_id', testId);
+  if (days) params.set('days', String(days));
+  params.set('export', 'csv');
+  return `${getApiBase()}/api/partners/${encodeURIComponent(slug)}/dashboard/?${params.toString()}`;
+}
+
+
 

@@ -20,7 +20,19 @@ def get_absolute_media_url(file_field, request=None):
         return None
 
 
-from accounts.models import UserProfile, PasswordResetToken
+from accounts.models import UserProfile, PasswordResetToken, PartnerSchool
+from accounts.geolocation import get_country_flag
+
+
+class PartnerSchoolSummarySerializer(serializers.ModelSerializer):
+    flag = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PartnerSchool
+        fields = ['id', 'name', 'slug', 'country', 'flag', 'city', 'welcome_message']
+
+    def get_flag(self, obj):
+        return get_country_flag(obj.country) if obj.country else '🏫'
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -28,6 +40,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     japanese_level_display = serializers.CharField(source='get_japanese_level_display', read_only=True)
     country_source_display = serializers.CharField(source='get_country_source_display', read_only=True)
     needs_country_confirmation = serializers.BooleanField(read_only=True)
+    partner_school = PartnerSchoolSummarySerializer(read_only=True)
 
     class Meta:
         model = UserProfile
@@ -42,6 +55,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'country_source',
             'country_source_display',
             'needs_country_confirmation',
+            'partner_school',
+            'partner_batch',
+            'student_roll_or_id',
+            'partner_joined_at',
             'updated_at',
         ]
 
@@ -297,6 +314,9 @@ class TestListSerializer(serializers.ModelSerializer):
     question_count = serializers.SerializerMethodField()
     is_released = serializers.SerializerMethodField()
     time_until_release_seconds = serializers.SerializerMethodField()
+    is_school_exclusive = serializers.SerializerMethodField()
+    partner_school_name = serializers.SerializerMethodField()
+    partner_school_slug = serializers.SerializerMethodField()
 
     class Meta:
         model = Test
@@ -304,7 +324,8 @@ class TestListSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'category',
             'requires_account', 'is_published', 'is_actual_exam_demo',
             'time_limit_seconds', 'scheduled_release_at', 'is_released',
-            'time_until_release_seconds', 'created_at', 'question_count'
+            'time_until_release_seconds', 'created_at', 'question_count',
+            'is_school_exclusive', 'partner_school_id', 'partner_school_name', 'partner_school_slug',
         ]
 
     def get_question_count(self, obj):
@@ -322,11 +343,23 @@ class TestListSerializer(serializers.ModelSerializer):
             return max(0, int(diff))
         return 0
 
+    def get_is_school_exclusive(self, obj):
+        return bool(obj.partner_school_id)
+
+    def get_partner_school_name(self, obj):
+        return obj.partner_school.name if obj.partner_school else None
+
+    def get_partner_school_slug(self, obj):
+        return obj.partner_school.slug if obj.partner_school else None
+
 
 class TestDetailSerializer(serializers.ModelSerializer):
     question_count = serializers.SerializerMethodField()
     is_released = serializers.SerializerMethodField()
     time_until_release_seconds = serializers.SerializerMethodField()
+    is_school_exclusive = serializers.SerializerMethodField()
+    partner_school_name = serializers.SerializerMethodField()
+    partner_school_slug = serializers.SerializerMethodField()
 
     class Meta:
         model = Test
@@ -334,7 +367,8 @@ class TestDetailSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'category',
             'requires_account', 'is_published', 'is_actual_exam_demo',
             'time_limit_seconds', 'scheduled_release_at', 'is_released',
-            'time_until_release_seconds', 'created_at', 'question_count'
+            'time_until_release_seconds', 'created_at', 'question_count',
+            'is_school_exclusive', 'partner_school_id', 'partner_school_name', 'partner_school_slug',
         ]
 
     def get_question_count(self, obj):
@@ -349,6 +383,15 @@ class TestDetailSerializer(serializers.ModelSerializer):
             diff = (obj.scheduled_release_at - timezone.now()).total_seconds()
             return max(0, int(diff))
         return 0
+
+    def get_is_school_exclusive(self, obj):
+        return bool(obj.partner_school_id)
+
+    def get_partner_school_name(self, obj):
+        return obj.partner_school.name if obj.partner_school else None
+
+    def get_partner_school_slug(self, obj):
+        return obj.partner_school.slug if obj.partner_school else None
 
 
 class AttemptSummarySerializer(serializers.ModelSerializer):

@@ -7,7 +7,96 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.text import slugify
 from django.contrib.auth.hashers import make_password
+
+
+class PartnerSchool(models.Model):
+    """Partner Japanese Language School / LPK / Review Center for B2B2C batch tracking."""
+
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(
+        max_length=120,
+        unique=True,
+        db_index=True,
+        blank=True,
+        help_text="URL invite slug (e.g. lpk-sakura). Auto-generated if left blank.",
+    )
+    country = models.CharField(max_length=100, default='Indonesia')
+    city = models.CharField(max_length=100, blank=True, default='')
+    contact_person = models.CharField(max_length=150, blank=True, default='')
+    contact_whatsapp_or_email = models.CharField(max_length=200, blank=True, default='')
+    website_url = models.URLField(max_length=500, blank=True, default='')
+    welcome_message = models.CharField(
+        max_length=300,
+        blank=True,
+        default='',
+        help_text="Optional custom message shown to your students when they open the invite link.",
+    )
+    access_token = models.CharField(
+        max_length=64,
+        unique=True,
+        db_index=True,
+        blank=True,
+        help_text="Secret Sensei Dashboard key (?key=...). Auto-generated on save.",
+    )
+    is_active = models.BooleanField(default=True, db_index=True)
+    is_featured = models.BooleanField(
+        default=False,
+        help_text="Show this school on the public Partner Training Centers showcase.",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Partner School / LPK'
+        verbose_name_plural = 'Partner Schools & LPKs'
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base = slugify(self.name)[:90] or 'partner-school'
+            candidate = base
+            counter = 1
+            while PartnerSchool.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
+                candidate = f"{base}-{counter}"
+                counter += 1
+            self.slug = candidate
+        if not self.access_token:
+            self.access_token = secrets.token_urlsafe(18)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        loc = f" ({self.city}, {self.country})" if self.city else f" ({self.country})"
+        return f"{self.name}{loc}"
+
+
+class PartnerApplication(models.Model):
+    """Inbound partnership inquiry submitted by a Language School / LPK / Review Center."""
+
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Pending Review'
+        CONTACTED = 'contacted', 'Contacted'
+        APPROVED = 'approved', 'Approved & Onboarded'
+
+    school_name = models.CharField(max_length=200)
+    country = models.CharField(max_length=100, default='Indonesia')
+    city = models.CharField(max_length=100, blank=True, default='')
+    contact_name = models.CharField(max_length=150)
+    whatsapp_or_phone = models.CharField(max_length=100, blank=True, default='')
+    email = models.EmailField(blank=True, default='')
+    estimated_students = models.PositiveIntegerField(default=30)
+    message = models.TextField(max_length=1500, blank=True, default='')
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Partner School Application'
+        verbose_name_plural = 'Partner School Applications'
+
+    def __str__(self):
+        return f"{self.school_name} ({self.country}) - {self.get_status_display()}"
 
 
 class UserProfile(models.Model):
@@ -78,6 +167,30 @@ class UserProfile(models.Model):
     game_streak = models.PositiveIntegerField(default=0, help_text="Consecutive days played in Game Zone.")
     game_words_mastered = models.PositiveIntegerField(default=0, help_text="Total vocabulary items matched/mastered.")
     game_last_played = models.DateField(null=True, blank=True, help_text="Last date game was played.")
+
+    # Partner School / LPK Enrollment Tracking
+    partner_school = models.ForeignKey(
+        PartnerSchool,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='students',
+        help_text="Partner language school / LPK this student belongs to.",
+    )
+    partner_batch = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        db_index=True,
+        help_text="Batch or cohort label (e.g. Batch-12, Morning-Class).",
+    )
+    student_roll_or_id = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        help_text="Optional roll number or student ID assigned by their school.",
+    )
+    partner_joined_at = models.DateTimeField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

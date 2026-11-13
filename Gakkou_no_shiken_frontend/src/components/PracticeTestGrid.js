@@ -415,6 +415,10 @@ export default function PracticeTestGrid({
                                 <Hourglass className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-600 dark:text-amber-400 animate-pulse" />
                                 <span>{t('scheduled_badge')}</span>
                               </span>
+                            ) : test.is_school_exclusive ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700">
+                                <span>🏫 Exclusive: {test.partner_school_name || 'Partner School'}</span>
+                              </span>
                             ) : (
                               <span
                                 className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black border ${diff.color}`}

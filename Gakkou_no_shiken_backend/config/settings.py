@@ -343,6 +343,7 @@ JAZZMIN_SETTINGS = {
     "topmenu_links": [
         {"name": "Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
         {"name": "💬 Support Chat", "url": "admin:accounts_supportthread_changelist", "permissions": ["auth.view_user"]},
+        {"name": "🏫 Partner Schools", "url": "admin:accounts_partnerschool_changelist", "permissions": ["auth.view_user"]},
         {"name": "📊 Live Statistics", "url": "/admin/statistics/", "permissions": ["auth.view_user"]},
         {"name": "View Site ↗", "url": "/", "new_window": True},
     ],
@@ -383,6 +384,8 @@ JAZZMIN_SETTINGS = {
         "tests.Attempt": "fas fa-chart-line",
         "accounts.SupportThread": "fas fa-comments",
         "accounts.SupportMessage": "fas fa-comment-dots",
+        "accounts.PartnerSchool": "fas fa-school",
+        "accounts.PartnerApplication": "fas fa-handshake",
         "accounts.UserProfile": "fas fa-id-card",
     },
     "default_icon_parents": "fas fa-folder-open",

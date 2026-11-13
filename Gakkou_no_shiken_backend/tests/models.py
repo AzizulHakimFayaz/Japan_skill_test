@@ -28,6 +28,15 @@ class Test(models.Model):
         verbose_name="Scheduled Release Date & Time",
         help_text="Optional future date and time when this test will be unlocked for candidates. If set in the future, the test card displays a live countdown timer and a blurred lock preview."
     )
+    partner_school = models.ForeignKey(
+        'accounts.PartnerSchool',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='exclusive_tests',
+        verbose_name="Exclusive Partner School (Optional)",
+        help_text="Leave blank for Global Platform Mock Tests visible to everyone. Select a Partner School to make this test exclusive to that school's enrolled students only."
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     @property

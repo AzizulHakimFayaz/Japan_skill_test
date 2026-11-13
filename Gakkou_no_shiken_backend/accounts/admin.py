@@ -1,3 +1,4 @@
+import secrets
 from django import forms
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -7,7 +8,14 @@ from django.utils.html import format_html, escape
 from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.db.models import Count, Max, Case, When, Value, IntegerField
-from .models import UserProfile, PasswordResetToken, SupportThread, SupportMessage
+from .models import (
+    UserProfile,
+    PasswordResetToken,
+    SupportThread,
+    SupportMessage,
+    PartnerSchool,
+    PartnerApplication,
+)
 
 from accounts.geolocation import COUNTRY_FLAG_MAP, get_country_flag as get_flag
 
@@ -30,8 +38,12 @@ class UserProfileInline(admin.StackedInline):
         'game_streak',
         'game_words_mastered',
         'game_last_played',
+        'partner_school',
+        'partner_batch',
+        'student_roll_or_id',
+        'partner_joined_at',
     )
-    readonly_fields = ('country_source', 'country_confirmation_status', 'last_known_ip')
+    readonly_fields = ('country_source', 'country_confirmation_status', 'last_known_ip', 'partner_joined_at')
 
     @admin.display(description='Country Confirmation Needed', boolean=True)
     def country_confirmation_status(self, obj):
@@ -46,6 +58,7 @@ class CustomUserAdmin(BaseUserAdmin):
     list_display = (
         'candidate_card',
         'country_badge',
+        'partner_school_badge',
         'exam_activity',
         'game_stats_badge',
         'target_exam_badge',
@@ -57,6 +70,8 @@ class CustomUserAdmin(BaseUserAdmin):
         'is_staff',
         'is_superuser',
         'is_active',
+        'profile__partner_school',
+        'profile__partner_batch',
         'profile__country',
         'profile__country_source',
         'profile__target_exam',
@@ -70,13 +85,16 @@ class CustomUserAdmin(BaseUserAdmin):
         'email',
         'profile__country',
         'profile__location',
+        'profile__partner_school__name',
+        'profile__partner_batch',
+        'profile__student_roll_or_id',
     )
     ordering = ('-date_joined',)
     list_per_page = 25
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.select_related('profile').annotate(
+        return qs.select_related('profile', 'profile__partner_school').annotate(
             total_attempts_count=Count('attempt', distinct=True),
             max_exam_score=Max('attempt__score'),
         )
@@ -128,6 +146,20 @@ class CustomUserAdmin(BaseUserAdmin):
         )
     country_badge.short_description = 'Country'
     country_badge.admin_order_field = 'profile__country'
+
+    def partner_school_badge(self, obj):
+        profile = getattr(obj, 'profile', None)
+        school = getattr(profile, 'partner_school', None) if profile else None
+        if not school:
+            return format_html('<span class="text-muted" style="font-size:0.75rem;">Public / Independent</span>')
+        batch = profile.partner_batch or 'Default'
+        return format_html(
+            '<span class="badge bg-info text-dark" style="font-size:11px;">🏫 {} <span style="opacity:0.75;">({})</span></span>',
+            school.name,
+            batch,
+        )
+    partner_school_badge.short_description = 'School / LPK'
+    partner_school_badge.admin_order_field = 'profile__partner_school__name'
 
     def exam_activity(self, obj):
         attempts = getattr(obj, 'total_attempts_count', 0)
@@ -542,3 +574,166 @@ class SupportMessageAdmin(admin.ModelAdmin):
     def short_body(self, obj):
         return obj.body[:100] + ('...' if len(obj.body) > 100 else '')
     short_body.short_description = 'Message'
+
+
+@admin.register(PartnerSchool)
+class PartnerSchoolAdmin(admin.ModelAdmin):
+    list_display = (
+        'school_card',
+        'location_badge',
+        'student_count_badge',
+        'exclusive_tests_badge',
+        'invite_link_action',
+        'sensei_dashboard_action',
+        'is_active',
+        'is_featured',
+    )
+    list_filter = ('is_active', 'is_featured', 'country', 'created_at')
+    search_fields = ('name', 'slug', 'country', 'city', 'contact_person', 'contact_whatsapp_or_email')
+    list_editable = ('is_active', 'is_featured')
+    readonly_fields = ('access_token', 'student_invite_url_box', 'sensei_dashboard_url_box', 'created_at', 'updated_at')
+    fieldsets = (
+        ('🏫 Partner School / LPK Profile', {
+            'fields': ('name', 'slug', 'country', 'city', 'contact_person', 'contact_whatsapp_or_email', 'website_url', 'welcome_message'),
+        }),
+        ('🔗 Invite & Sensei Dashboard Links', {
+            'fields': ('student_invite_url_box', 'sensei_dashboard_url_box', 'access_token'),
+            'description': 'Share the Student Invite URL with the school\'s batches, and give the private Sensei Dashboard URL to their teacher/owner.',
+        }),
+        ('⚙️ Visibility & Status', {
+            'fields': ('is_active', 'is_featured', 'created_at', 'updated_at'),
+        }),
+    )
+    actions = ['regenerate_access_tokens']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(
+            total_students=Count('students', distinct=True),
+            total_tests=Count('exclusive_tests', distinct=True),
+        )
+
+    def school_card(self, obj):
+        return format_html(
+            '<div><strong style="color:#38bdf8; font-size:0.95rem;">🏫 {}</strong>'
+            '<div style="font-size:0.75rem; color:#94a3b8;">Slug: <code>{}</code> • {}</div></div>',
+            obj.name,
+            obj.slug,
+            obj.contact_person or obj.contact_whatsapp_or_email or 'Partner Center',
+        )
+    school_card.short_description = 'School / LPK'
+    school_card.admin_order_field = 'name'
+
+    def location_badge(self, obj):
+        flag = get_flag(obj.country) if obj.country else '🌐'
+        loc = f"{obj.city}, {obj.country}" if obj.city else (obj.country or '—')
+        return format_html('<span style="font-weight:600;">{} {}</span>', flag, loc)
+    location_badge.short_description = 'Location'
+    location_badge.admin_order_field = 'country'
+
+    def student_count_badge(self, obj):
+        count = getattr(obj, 'total_students', 0)
+        url = reverse('admin:auth_user_changelist') + f"?profile__partner_school__id__exact={obj.id}"
+        return format_html(
+            '<a href="{}" class="badge bg-primary" style="font-size:11px; text-decoration:none;">👥 {} students</a>',
+            url, count,
+        )
+    student_count_badge.short_description = 'Enrolled Students'
+
+    def exclusive_tests_badge(self, obj):
+        count = getattr(obj, 'total_tests', 0)
+        url = reverse('admin:tests_test_changelist') + f"?partner_school__id__exact={obj.id}"
+        return format_html(
+            '<a href="{}" class="badge bg-dark border border-secondary text-info" style="font-size:11px; text-decoration:none;">📝 {} private tests</a>',
+            url, count,
+        )
+    exclusive_tests_badge.short_description = 'School Tests'
+
+    def invite_link_action(self, obj):
+        invite_url = f"https://www.gakkounoshiken.site/?partner={obj.slug}"
+        return format_html(
+            '<a href="{}" target="_blank" style="background:#0f172a; color:#38bdf8; border:1px solid #334155; padding:4px 9px; border-radius:6px; font-size:11px; font-weight:700; text-decoration:none;">'
+            '🔗 ?partner={}</a>',
+            invite_url, obj.slug,
+        )
+    invite_link_action.short_description = 'Student Invite Link'
+
+    def sensei_dashboard_action(self, obj):
+        dash_url = f"https://www.gakkounoshiken.site/partner/{obj.slug}?key={obj.access_token}"
+        return format_html(
+            '<a href="{}" target="_blank" style="background:#059669; color:#ffffff; padding:5px 10px; border-radius:6px; font-size:11px; font-weight:700; text-decoration:none;">'
+            '📊 Open Sensei Portal ↗</a>',
+            dash_url,
+        )
+    sensei_dashboard_action.short_description = 'Sensei Scoreboard'
+
+    def student_invite_url_box(self, obj):
+        if not obj or not obj.slug:
+            return "Save this school first to generate the student invite URL."
+        url = f"https://www.gakkounoshiken.site/?partner={obj.slug}"
+        return format_html(
+            '<code style="padding:8px 12px; background:#0f172a; color:#38bdf8; border-radius:8px; display:inline-block; user-select:all;">{}</code>'
+            '<div style="font-size:11px; color:#94a3b8; margin-top:4px;">Tip: Append <code>&amp;batch=Batch-12</code> for cohort tracking!</div>',
+            url,
+        )
+    student_invite_url_box.short_description = 'Student Invite URL'
+
+    def sensei_dashboard_url_box(self, obj):
+        if not obj or not obj.slug:
+            return "Save this school first to generate the private Sensei Dashboard URL."
+        url = f"https://www.gakkounoshiken.site/partner/{obj.slug}?key={obj.access_token}"
+        return format_html(
+            '<code style="padding:8px 12px; background:#0f172a; color:#34d399; border-radius:8px; display:inline-block; user-select:all;">{}</code>'
+            '<div style="font-size:11px; color:#94a3b8; margin-top:4px;">Share ONLY with this school\'s Sensei/Owner.</div>',
+            url,
+        )
+    sensei_dashboard_url_box.short_description = 'Private Sensei Dashboard URL'
+
+    @admin.action(description='🔄 Regenerate Sensei Access Token')
+    def regenerate_access_tokens(self, request, queryset):
+        for school in queryset:
+            school.access_token = secrets.token_urlsafe(18)
+            school.save(update_fields=['access_token', 'updated_at'])
+        self.message_user(request, f"Regenerated access tokens for {queryset.count()} school(s).", level=messages.SUCCESS)
+
+
+@admin.register(PartnerApplication)
+class PartnerApplicationAdmin(admin.ModelAdmin):
+    list_display = ('school_name', 'country', 'city', 'contact_name', 'whatsapp_or_phone', 'estimated_students', 'status_badge', 'created_at')
+    list_filter = ('status', 'country', 'created_at')
+    search_fields = ('school_name', 'contact_name', 'whatsapp_or_phone', 'email', 'city')
+    readonly_fields = ('created_at',)
+    actions = ['approve_and_create_school']
+
+    def status_badge(self, obj):
+        colors = {
+            'pending': 'bg-warning text-dark',
+            'contacted': 'bg-info text-dark',
+            'approved': 'bg-success text-white',
+        }
+        cls = colors.get(obj.status, 'bg-secondary')
+        return format_html('<span class="badge {}">{}</span>', cls, obj.get_status_display())
+    status_badge.short_description = 'Status'
+
+    @admin.action(description='✅ Approve & Auto-Create Partner School')
+    def approve_and_create_school(self, request, queryset):
+        created_count = 0
+        for app in queryset:
+            existing = PartnerSchool.objects.filter(name__iexact=app.school_name).first()
+            if not existing:
+                PartnerSchool.objects.create(
+                    name=app.school_name,
+                    country=app.country,
+                    city=app.city,
+                    contact_person=app.contact_name,
+                    contact_whatsapp_or_email=app.whatsapp_or_phone or app.email,
+                    is_active=True,
+                    is_featured=True,
+                )
+                created_count += 1
+            app.status = PartnerApplication.Status.APPROVED
+            app.save(update_fields=['status'])
+        self.message_user(
+            request,
+            f"Approved {queryset.count()} application(s) and created {created_count} new Partner School(s)!",
+            level=messages.SUCCESS,
+        )

@@ -59,22 +59,40 @@ function AllTestsContent() {
     setAdGateTarget({ url: targetUrl, title: test.title || '' });
   };
 
+  const activePartnerId = user?.profile?.partner_school?.id || null;
+
   useEffect(() => {
-    getTests()
-      .then((data) => {
-        const all = data?.tests || [
-          ...(data?.tests_by_category?.basic || []),
-          ...(data?.tests_by_category?.skill || []),
-        ];
-        setTests(all);
-      })
-      .catch((err) => {
-        console.error('Failed to fetch all tests:', err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+    let active = true;
+    const loadTests = () => {
+      getTests()
+        .then((data) => {
+          if (!active) return;
+          const all = data?.tests || [
+            ...(data?.tests_by_category?.basic || []),
+            ...(data?.tests_by_category?.skill || []),
+          ];
+          setTests(all);
+        })
+        .catch((err) => {
+          console.error('Failed to fetch all tests:', err);
+        })
+        .finally(() => {
+          if (active) setLoading(false);
+        });
+    };
+
+    loadTests();
+    const handlePartnerUpdate = () => loadTests();
+    if (typeof window !== 'undefined') {
+      window.addEventListener('gns-partner-updated', handlePartnerUpdate);
+    }
+    return () => {
+      active = false;
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('gns-partner-updated', handlePartnerUpdate);
+      }
+    };
+  }, [isAuthenticated, activePartnerId]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -101,8 +119,30 @@ function AllTestsContent() {
     }
   }, [isAuthenticated]);
 
+  const partnerSchool = user?.profile?.partner_school || null;
+  const partnerBatch = user?.profile?.partner_batch || '';
+
+  const schoolExclusiveTests = useMemo(() => {
+    return tests.filter((test) => {
+      if (!test.is_school_exclusive) return false;
+      if (selectedTab === 'basic' && test.category !== 'basic') return false;
+      if (selectedTab === 'skill' && test.category !== 'skill') return false;
+      if (selectedTab === 'free' && test.requires_account) return false;
+
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const titleMatch = (test.title || '').toLowerCase().includes(query);
+        const descMatch = (test.description || '').toLowerCase().includes(query);
+        if (!titleMatch && !descMatch) return false;
+      }
+
+      return true;
+    });
+  }, [tests, selectedTab, searchQuery]);
+
   const filteredTests = useMemo(() => {
     return tests.filter((test) => {
+      if (test.is_school_exclusive) return false;
       // Category filter
       if (selectedTab === 'basic' && test.category !== 'basic') return false;
       if (selectedTab === 'skill' && test.category !== 'skill') return false;
@@ -212,7 +252,117 @@ function AllTestsContent() {
         <p className="text-slate-300 text-xs sm:text-base max-w-2xl leading-relaxed">
           Practice official-format Prometric CBT mock tests with native listening audio, 60-minute timers, and instant CEFR score diagnostic reports.
         </p>
+
+        {partnerSchool && (
+          <div className="pt-2 flex flex-wrap items-center gap-2.5">
+            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 text-indigo-100 text-xs sm:text-sm font-bold shadow-sm">
+              <span>🏫</span>
+              <span>
+                Enrolled: <strong className="text-white">{partnerSchool.flag} {partnerSchool.name}</strong>
+              </span>
+              {partnerBatch && (
+                <span className="px-2 py-0.5 rounded-full bg-white/15 text-[11px] font-black text-amber-200">
+                  Batch: {partnerBatch}
+                </span>
+              )}
+            </div>
+            {user?.profile?.student_roll_or_id && (
+              <span className="px-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-[11px] font-bold text-slate-200">
+                ID: {user.profile.student_roll_or_id}
+              </span>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* School-Exclusive Mock Tests Section */}
+      {schoolExclusiveTests.length > 0 && (
+        <section className="rounded-3xl bg-gradient-to-br from-indigo-50 via-white to-rose-50/60 dark:from-indigo-950/35 dark:via-slate-900 dark:to-slate-950 border-2 border-indigo-200/90 dark:border-indigo-800/70 p-4 sm:p-6 shadow-lg space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider mb-1.5">
+                <Sparkles className="w-3 h-3" />
+                <span>📌 Exclusive Exams Assigned by Your School</span>
+              </div>
+              <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                {partnerSchool?.flag || '🏫'} {partnerSchool?.name || 'Partner School'} Batch Exams
+              </h2>
+            </div>
+            <span className="text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-950/80 border border-indigo-200 dark:border-indigo-800 px-3 py-1 rounded-full self-start sm:self-center">
+              {schoolExclusiveTests.length} School {schoolExclusiveTests.length === 1 ? 'Exam' : 'Exams'} Unlocked
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {schoolExclusiveTests.map((test) => {
+              const isFuture =
+                test.scheduled_release_at &&
+                new Date(test.scheduled_release_at).getTime() > Date.now();
+              return (
+                <div
+                  key={`exclusive-${test.id}`}
+                  className="group relative flex flex-col justify-between bg-white dark:bg-slate-900 rounded-2xl border border-indigo-200 dark:border-indigo-800/80 shadow-sm hover:shadow-xl hover:border-indigo-400 dark:hover:border-indigo-500 transition-all duration-300 overflow-hidden"
+                >
+                  <div className="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-rose-500" />
+                  <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700">
+                          🏫 Exclusive: {test.partner_school_name || partnerSchool?.name}
+                        </span>
+                        {test.category === 'skill' && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                            SSW Skill
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug">
+                        {test.title}
+                      </h3>
+
+                      <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold flex-wrap">
+                        <span className="inline-flex items-center gap-1 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-100 dark:border-slate-700">
+                          <Clock className="w-3 h-3 text-amber-500" />
+                          <span>{formatTimeLimit(test.time_limit_seconds)}</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-100 dark:border-slate-700">
+                          <Layers className="w-3 h-3 text-indigo-500" />
+                          <span>4 {t('sections')}</span>
+                        </span>
+                      </div>
+
+                      {test.description && (
+                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                          {test.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="pt-2.5 border-t border-slate-100 dark:border-slate-800">
+                      {isFuture ? (
+                        <ScheduledCountdownBadge
+                          targetDate={test.scheduled_release_at}
+                          size="card"
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => handleStartExamClick(e, test)}
+                          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-indigo-600 to-rose-600 hover:from-indigo-700 hover:to-rose-700 text-white shadow-md shadow-indigo-500/20 active:scale-95 transition-all cursor-pointer"
+                        >
+                          <span>{t('start_exam')}</span>
+                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Official CBT Engine Highlights & Prometric Architecture Showcase */}
       <InteractiveFeatureShowcase />
@@ -456,7 +606,7 @@ function AllTestsContent() {
             );
           })}
         </div>
-      ) : (
+      ) : schoolExclusiveTests.length > 0 ? null : (
         <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-3">
           <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 mx-auto flex items-center justify-center">
             <Search className="w-6 h-6" />

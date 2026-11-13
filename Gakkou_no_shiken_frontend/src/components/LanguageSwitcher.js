@@ -6,6 +6,8 @@ import { Globe, ChevronDown, Check } from 'lucide-react';
 
 const LANGUAGES = [
   { code: 'en', label: 'English', short: 'EN', flag: '🇺🇸' },
+  { code: 'id', label: 'Indonesia', short: 'ID', flag: '🇮🇩' },
+  { code: 'tl', label: 'Filipino', short: 'TL', flag: '🇵🇭' },
   { code: 'bn', label: 'বাংলা', short: 'বাং', flag: '🇧🇩' },
   { code: 'ja', label: '日本語', short: 'JP', flag: '🇯🇵' },
 ];
@@ -45,9 +47,9 @@ export default function LanguageSwitcher({ compact = false }) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-1.5 w-36 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1.5 z-50 animate-fade-in">
+        <div className="absolute right-0 mt-1.5 w-44 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1.5 z-50 animate-fade-in">
           <div className="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 mb-1">
-            Language / ভাষা
+            Language
           </div>
           {LANGUAGES.map((lang) => (
             <button

@@ -22,8 +22,8 @@ const TRANSLATIONS = {
     live_stream: 'Live Activity',
     
     // Hero & Headers
-    hero_title: "Bangladesh's #1 JFT-Basic & SSW Skills CBT Exam Platform",
-    hero_subtitle: "Bangladesh's 1st authentic Prometric CBT examination simulator with native listening audio, 10 language aids, and immediate CEFR scoring.",
+    hero_title: "Asia's #1 JFT-Basic & SSW Skills CBT Exam Platform",
+    hero_subtitle: "Asia's authentic Prometric CBT examination simulator with native listening audio, 10 language aids, and immediate CEFR scoring.",
     start_mock_exam: 'Start Mock Exam',
     explore_test_centers: 'Test Venues (BDJ01 & BDJ02)',
     
@@ -179,6 +179,182 @@ const TRANSLATIONS = {
     waiting_room_desc: 'এই অফিশিয়াল CBT মক টেস্টটি নিচের নির্দিষ্ট সময়ে উন্মুক্ত হবে। কাউন্টডাউন শেষ হওয়া মাত্র পরীক্ষার কক্ষ স্বয়ংক্রিয়ভাবে খুলে যাবে।',
     back_to_tests: 'মক টেস্ট তালিকায় ফিরে যান',
   },
+  id: {
+    // Navigation
+    home: 'Beranda',
+    jft_basic: 'JFT-Basic',
+    ssw_skills: 'Ujian SSW (Tokutei Ginou)',
+    leaderboard: 'Peringkat',
+    sign_in: 'Masuk',
+    register: 'Daftar Gratis',
+    my_results: 'Hasil Saya',
+    sign_out: 'Keluar',
+    game_zone: 'Zona Game',
+    admin_panel: 'Admin',
+    cbt_portal: 'Portal CBT',
+
+    // Ticker & Notices
+    latest_notices: 'Pengumuman Terbaru',
+    live_stream: 'Aktivitas Langsung',
+
+    // Hero & Headers
+    hero_title: 'Platform Simulasi CBT JFT-Basic & SSW #1 di Asia',
+    hero_subtitle: 'Simulator ujian CBT Prometric resmi dengan audio penutur asli Jepang, dukungan multi-bahasa, dan skor CEFR instan.',
+    start_mock_exam: 'Mulai Try Out CBT',
+    explore_test_centers: 'Lokasi Tes Prometric',
+
+    // Test Cards
+    practice_tests: 'Latihan Try Out Resmi',
+    available_tests: 'Tes Tersedia',
+    start_exam: 'Mulai Ujian',
+    practice_section: 'Latihan Per Bagian',
+    requires_login: 'Perlu Login',
+    free_open: 'Gratis & Terbuka',
+    time_limit: 'Batas Waktu',
+    questions: 'Soal',
+    sections: 'Bagian',
+    difficulty: 'Tingkat',
+    diff_introductory: 'Dasar',
+    diff_standard: 'Standar A2',
+    diff_diagnostic: 'Simulasi Penuh Prometric',
+    not_attempted: 'Belum Dikerjakan',
+    best_score: 'Skor Terbaik',
+    passed_badge: 'LULUS (CEFR A2)',
+
+    // Coming Soon
+    coming_soon: 'Segera Hadir',
+    coming_soon_title: 'Paket Soal SSW Sektor Baru Sedang Disiapkan',
+    coming_soon_desc: 'Set latihan terbaru untuk Kaigo (Perawat Lansia), Pengolahan Makanan, dan Pertanian segera diterbitkan.',
+    get_notified: 'Dapatkan Notifikasi (Email/WhatsApp)',
+
+    // Test Centers & Checklist
+    test_centers_title: 'Pusat Ujian Prometric Resmi',
+    test_centers_desc: 'Informasi lokasi ujian resmi JFT-Basic dan SSW (Specified Skilled Worker).',
+    checklist_title: 'Checklist Hari Ujian',
+    checklist_passport: 'Paspor asli yang masih berlaku wajib dibawa ke lokasi tes.',
+    checklist_voucher: 'Bukti konfirmasi Prometric tercetak dengan Registration ID.',
+    checklist_arrive: 'Hadir 30 menit lebih awal untuk registrasi biometrik & loker.',
+    search_centers: 'Cari kode lokasi atau alamat...',
+
+    // Voucher & Payment
+    voucher_guide_title: 'Panduan Pembayaran & Voucher Prometric',
+    voucher_guide_desc: 'Panduan praktis memesan jadwal ujian JFT-Basic dan SSW melalui mitra resmi atau agen terdaftar.',
+
+    // Pre-Exam Audio Check
+    audio_check_title: 'Cek Audio & Headphone Sebelum Ujian',
+    audio_check_subtitle: 'Pastikan audio terdengar jelas sebelum timer ujian 60 menit dimulai.',
+    audio_check_prompt: 'Klik "Putar Contoh Audio" untuk mendengarkan tes percakapan bahasa Jepang.',
+    play_sample: 'Putar Contoh Audio',
+    pause_sample: 'Jeda Audio',
+    audio_confirmed: 'Suara Jelas • Mulai Ujian',
+    audio_trouble: 'Ada masalah audio? Periksa volume perangkat atau colokkan headset.',
+
+    // Section Practice
+    select_section_title: 'Pilih Bagian Latihan',
+    select_section_subtitle: 'Latih bagian tertentu selama 10-20 menit tanpa harus mengerjakan ujian penuh 60 menit.',
+    sec_script_vocab: 'Huruf & Kosakata (Script & Vocab)',
+    sec_conversation: 'Percakapan & Ekspresi (Conversation)',
+    sec_listening: 'Pemahaman Mendengar (Listening)',
+    sec_reading: 'Pemahaman Membaca (Reading)',
+    start_section_drill: 'Mulai Latihan Bagian',
+
+    // Scheduled Exam Releases & Countdown
+    scheduled_badge: 'Rilis Terjadwal',
+    unlocks_in: 'Dibuka Dalam',
+    released_now: 'Sedang Berlangsung',
+    remind_me_btn: 'Ingatkan via WhatsApp',
+    exam_waiting_room: 'Ruang Tunggu Ujian',
+    waiting_room_desc: 'Ujian CBT ini dijadwalkan dibuka sesuai waktu berikut. Ruang ujian terbuka otomatis saat hitung mundur selesai.',
+    back_to_tests: 'Kembali ke Daftar Tes',
+  },
+  tl: {
+    // Navigation
+    home: 'Home',
+    jft_basic: 'JFT-Basic',
+    ssw_skills: 'SSW Skills Exam',
+    leaderboard: 'Leaderboard',
+    sign_in: 'Mag-sign In',
+    register: 'Mag-register Libre',
+    my_results: 'Mga Resulta Ko',
+    sign_out: 'Mag-sign Out',
+    game_zone: 'Game Zone',
+    admin_panel: 'Admin',
+    cbt_portal: 'CBT Portal',
+
+    // Ticker & Notices
+    latest_notices: 'Mga Abiso',
+    live_stream: 'Live Activity',
+
+    // Hero & Headers
+    hero_title: '#1 JFT-Basic & SSW Skills CBT Exam Platform sa Asya',
+    hero_subtitle: 'Totoong format ng Prometric CBT exam simulator na may native Japanese listening audio at agarang CEFR 250-point scoring.',
+    start_mock_exam: 'Simulan ang Mock Exam',
+    explore_test_centers: 'Mga Testing Center',
+
+    // Test Cards
+    practice_tests: 'Practice Mock Exams',
+    available_tests: 'Mga Available na Exam',
+    start_exam: 'Simulan ang Exam',
+    practice_section: 'Mag-practice per Section',
+    requires_login: 'Kailangan Mag-login',
+    free_open: 'Libre at Bukas',
+    time_limit: 'Oras',
+    questions: 'Mga Tanong',
+    sections: 'Bahagi',
+    difficulty: 'Antas',
+    diff_introductory: 'Panimula',
+    diff_standard: 'Standard A2',
+    diff_diagnostic: 'Buong Prometric Sim',
+    not_attempted: 'Hindi Pa Nasusubukan',
+    best_score: 'Pinakamataas na Score',
+    passed_badge: 'PASADO (CEFR A2)',
+
+    // Coming Soon
+    coming_soon: 'Malapit Na',
+    coming_soon_title: 'Mga Bagong SSW Sector Practice Exam',
+    coming_soon_desc: 'Bagong opisyal na mock test sets para sa Caregiving, Food Service, at Agriculture ang inihahanda.',
+    get_notified: 'Ma-notify sa Email/WhatsApp',
+
+    // Test Centers & Checklist
+    test_centers_title: 'Opisyal na Prometric Exam Centers',
+    test_centers_desc: 'Gabay sa testing venues para sa JFT-Basic at SSW Skills Evaluation Exams.',
+    checklist_title: 'Exam Day Checklist',
+    checklist_passport: 'Dalhin ang orihinal na Machine-Readable Passport sa test venue.',
+    checklist_voucher: 'Naka-print na Prometric confirmation voucher na may Registration ID.',
+    checklist_arrive: 'Dumating 30 minuto bago ang schedule para sa biometric check at locker.',
+    search_centers: 'Maghanap ng center o address...',
+
+    // Voucher & Payment
+    voucher_guide_title: 'Paano Bumili ng Prometric Vouchers',
+    voucher_guide_desc: 'Gabay sa pag-book ng JFT-Basic at SSW CBT exam slots gamit ang opisyal na voucher partners.',
+
+    // Pre-Exam Audio Check
+    audio_check_title: 'Audio & Headphone Check Bago Magsimula',
+    audio_check_subtitle: 'Siguraduhing malinaw ang audio bago magsimula ang 60-minute exam timer.',
+    audio_check_prompt: 'I-click ang "Play Sample" para marinig ang halimbawa ng Japanese listening audio.',
+    play_sample: 'I-play ang Sample Audio',
+    pause_sample: 'I-pause ang Audio',
+    audio_confirmed: 'Malinaw ang Audio • Simulan',
+    audio_trouble: 'May problema sa tunog? I-check ang volume o ikabit ang headphones.',
+
+    // Section Practice
+    select_section_title: 'Pumili ng Section na I-practice',
+    select_section_subtitle: 'Mag-drill ng piling bahagi sa loob ng 10-20 minuto imbes na buong 60-minute exam.',
+    sec_script_vocab: 'Script & Vocabulary (文字・語彙)',
+    sec_conversation: 'Conversation & Expression (会話・表現)',
+    sec_listening: 'Listening Comprehension (聴解)',
+    sec_reading: 'Reading Comprehension (読解)',
+    start_section_drill: 'Simulan ang Section Drill',
+
+    // Scheduled Exam Releases & Countdown
+    scheduled_badge: 'Naka-schedule na Exam',
+    unlocks_in: 'Magbubukas sa',
+    released_now: 'Live Ngayon',
+    remind_me_btn: 'Paalalahanan sa WhatsApp',
+    exam_waiting_room: 'Exam Waiting Room',
+    waiting_room_desc: 'Magbubukas ang CBT exam na ito sa itinakdang oras sa ibaba. Kusang mag-u-unlock kapag zero na ang timer.',
+    back_to_tests: 'Bumalik sa Mock Tests',
+  },
   ja: {
     // Navigation
     home: 'ホーム',
@@ -281,7 +457,7 @@ export function LanguageProvider({ children }) {
   useEffect(() => {
     try {
       const savedLang = localStorage.getItem('gns_language');
-      if (savedLang && (savedLang === 'en' || savedLang === 'bn' || savedLang === 'ja')) {
+      if (savedLang && ['en', 'bn', 'ja', 'id', 'tl'].includes(savedLang)) {
         setLanguageState(savedLang);
       }
     } catch {
@@ -291,7 +467,7 @@ export function LanguageProvider({ children }) {
   }, []);
 
   const setLanguage = (lang) => {
-    if (lang === 'en' || lang === 'bn' || lang === 'ja') {
+    if (['en', 'bn', 'ja', 'id', 'tl'].includes(lang)) {
       setLanguageState(lang);
       try {
         localStorage.setItem('gns_language', lang);

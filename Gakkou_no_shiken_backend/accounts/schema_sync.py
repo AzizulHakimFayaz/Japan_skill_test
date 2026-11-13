@@ -78,6 +78,18 @@ def ensure_schema_synced():
             if 'game_last_played' not in profile_cols:
                 cursor.execute("ALTER TABLE accounts_userprofile ADD COLUMN game_last_played date NULL")
                 logs.append("Added 'game_last_played' column to accounts_userprofile.")
+            if 'partner_school_id' not in profile_cols:
+                cursor.execute("ALTER TABLE accounts_userprofile ADD COLUMN partner_school_id bigint NULL REFERENCES accounts_partnerschool (id)")
+                logs.append("Added 'partner_school_id' column to accounts_userprofile.")
+            if 'partner_batch' not in profile_cols:
+                cursor.execute("ALTER TABLE accounts_userprofile ADD COLUMN partner_batch varchar(64) NOT NULL DEFAULT ''")
+                logs.append("Added 'partner_batch' column to accounts_userprofile.")
+            if 'student_roll_or_id' not in profile_cols:
+                cursor.execute("ALTER TABLE accounts_userprofile ADD COLUMN student_roll_or_id varchar(64) NOT NULL DEFAULT ''")
+                logs.append("Added 'student_roll_or_id' column to accounts_userprofile.")
+            if 'partner_joined_at' not in profile_cols:
+                cursor.execute("ALTER TABLE accounts_userprofile ADD COLUMN partner_joined_at datetime NULL")
+                logs.append("Added 'partner_joined_at' column to accounts_userprofile.")
         except Exception as e:
             logs.append(f"Note on accounts_userprofile columns: {e}")
 
@@ -124,6 +136,8 @@ def ensure_schema_synced():
             t_cols = [c[1] for c in cursor.fetchall()]
             if 'scheduled_release_at' not in t_cols:
                 cursor.execute("ALTER TABLE tests_test ADD COLUMN scheduled_release_at datetime")
+            if 'partner_school_id' not in t_cols:
+                cursor.execute("ALTER TABLE tests_test ADD COLUMN partner_school_id bigint NULL REFERENCES accounts_partnerschool (id)")
         except Exception:
             pass
 
@@ -192,6 +206,48 @@ def ensure_schema_synced():
         except Exception as e:
             logs.append(f"Note on support chat tables: {e}")
 
+        # 5b. Partner Schools & Applications (accounts_partnerschool & accounts_partnerapplication)
+        try:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS accounts_partnerschool (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    name varchar(200) NOT NULL,
+                    slug varchar(120) NOT NULL UNIQUE,
+                    country varchar(100) NOT NULL DEFAULT 'Indonesia',
+                    city varchar(100) NOT NULL DEFAULT '',
+                    contact_person varchar(150) NOT NULL DEFAULT '',
+                    contact_whatsapp_or_email varchar(200) NOT NULL DEFAULT '',
+                    website_url varchar(500) NOT NULL DEFAULT '',
+                    welcome_message varchar(300) NOT NULL DEFAULT '',
+                    access_token varchar(64) NOT NULL UNIQUE,
+                    is_active bool NOT NULL DEFAULT 1,
+                    is_featured bool NOT NULL DEFAULT 0,
+                    created_at datetime NOT NULL,
+                    updated_at datetime NOT NULL
+                )
+            """)
+            cursor.execute("CREATE INDEX IF NOT EXISTS accounts_partnerschool_slug_idx ON accounts_partnerschool (slug)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS accounts_partnerschool_active_idx ON accounts_partnerschool (is_active)")
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS accounts_partnerapplication (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    school_name varchar(200) NOT NULL,
+                    country varchar(100) NOT NULL DEFAULT 'Indonesia',
+                    city varchar(100) NOT NULL DEFAULT '',
+                    contact_name varchar(150) NOT NULL,
+                    whatsapp_or_phone varchar(100) NOT NULL DEFAULT '',
+                    email varchar(254) NOT NULL DEFAULT '',
+                    estimated_students integer unsigned NOT NULL DEFAULT 30,
+                    message text NOT NULL DEFAULT '',
+                    status varchar(20) NOT NULL DEFAULT 'pending',
+                    created_at datetime NOT NULL
+                )
+            """)
+            logs.append("Verified accounts_partnerschool and accounts_partnerapplication tables.")
+        except Exception as e:
+            logs.append(f"Note on partner school tables: {e}")
+
         # 6. Synchronize django_migrations table
         try:
             required_migrations = [
@@ -200,9 +256,11 @@ def ensure_schema_synced():
                 ('accounts', '0003_emailverificationotp_country_userprofile_country_and_more'),
                 ('accounts', '0004_userprofile_game_last_played_userprofile_game_level_and_more'),
                 ('accounts', '0005_supportthread_supportmessage'),
+                ('accounts', '0006_partnerapplication_partnerschool_and_more'),
                 ('tests', '0014_question_audio_script_questiongroup_audio_script_and_more'),
                 ('tests', '0015_notice'),
                 ('tests', '0016_test_scheduled_release_at'),
+                ('tests', '0021_test_partner_school'),
             ]
             for app, name in required_migrations:
                 cursor.execute("SELECT id FROM django_migrations WHERE app = %s AND name = %s", [app, name])

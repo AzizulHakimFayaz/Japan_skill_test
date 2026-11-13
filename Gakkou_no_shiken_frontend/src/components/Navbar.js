@@ -63,6 +63,7 @@ export default function Navbar() {
     pathname.startsWith('/notices');
 
   const isMoreActive =
+    pathname.startsWith('/partners') ||
     isActive('/how-it-works') ||
     isActive('/about') ||
     isActive('/contact');
@@ -507,6 +508,24 @@ export default function Navbar() {
                 <div className="absolute top-full right-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150">
                   <div className="w-[230px] rounded-2xl bg-white/95 dark:bg-[#0c1222]/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 p-2 shadow-xl shadow-slate-900/10 dark:shadow-[0_12px_40px_rgba(0,0,0,0.6)] space-y-1">
                     <Link
+                      href="/partners"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-center justify-between gap-2 p-2 rounded-xl transition-all ${
+                        pathname.startsWith('/partners')
+                          ? 'bg-indigo-50/80 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <GraduationCap className="w-4 h-4 text-indigo-500" />
+                        <span className="text-xs font-bold">Schools &amp; LPKs</span>
+                      </span>
+                      <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                        FREE
+                      </span>
+                    </Link>
+
+                    <Link
                       href="/how-it-works"
                       onClick={() => setActiveDropdown(null)}
                       className={`flex items-center gap-2.5 p-2 rounded-xl transition-all ${
@@ -812,6 +831,18 @@ export default function Navbar() {
                 <span className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-japan-red shrink-0" />
                   <span>Notices &amp; Materials</span>
+                </span>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              </Link>
+
+              <Link
+                href="/partners"
+                onClick={() => setOpen(false)}
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-slate-900 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all flex items-center justify-between"
+              >
+                <span className="flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4 text-indigo-500 shrink-0" />
+                  <span>Schools &amp; LPKs (Partner Free)</span>
                 </span>
                 <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               </Link>
