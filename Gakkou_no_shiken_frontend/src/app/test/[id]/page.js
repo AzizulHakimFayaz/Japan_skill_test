@@ -426,13 +426,6 @@ function QuizContent({ params: paramsPromise }) {
         const previewQuery = previewToken ? `?preview=${encodeURIComponent(previewToken)}` : '';
         const resultDest = `/attempt/${res.attempt_id}${previewQuery}`;
         setPendingResultUrl(resultDest);
-        if (typeof window !== 'undefined') {
-          try {
-            window.history.replaceState(null, '', resultDest);
-          } catch {
-            // ignore
-          }
-        }
       } else {
         setPendingResultUrl('/');
       }

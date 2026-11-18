@@ -217,13 +217,6 @@ function SswCbtExamContent({ params: paramsPromise }) {
         const previewQuery = previewToken ? `?preview=${encodeURIComponent(previewToken)}` : '';
         const resultDest = `/attempt/${attemptId}${previewQuery}`;
         setPendingResultUrl(resultDest);
-        if (typeof window !== 'undefined') {
-          try {
-            window.history.replaceState(null, '', resultDest);
-          } catch {
-            // ignore
-          }
-        }
       } else {
         setPendingResultUrl('/ssw-skill-test');
       }
