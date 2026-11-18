@@ -28,7 +28,6 @@ import { getQuizData, submitQuiz } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
 import GlobalLoader from '@/components/GlobalLoader';
 import dynamic from 'next/dynamic';
-import ExamAdGateModal from '@/components/ExamAdGateModal';
 
 import {
   Clock,
@@ -137,11 +136,6 @@ function SswCbtExamContent({ params: paramsPromise }) {
   const [timeLeft, setTimeLeft] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ─── Post-Exam Result Ad Gate States ─────────────────────────────────────
-  const [showPostExamAdGate, setShowPostExamAdGate] = useState(false);
-  const [pendingResultUrl, setPendingResultUrl] = useState(null);
-  const [submitStatusText, setSubmitStatusText] = useState('Evaluating Exam Results...');
-
   // ─── Audio Player State ────────────────────────────────────────────────────
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -190,7 +184,7 @@ function SswCbtExamContent({ params: paramsPromise }) {
   }, [testId, previewToken, router]);
 
   // ─── Final Exam Submission ─────────────────────────────────────────────────
-  const handleFinalSubmit = async (customStatus) => {
+  const handleFinalSubmit = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
     setShowFinishConfirmModal(false);
@@ -198,12 +192,6 @@ function SswCbtExamContent({ params: paramsPromise }) {
       audioRef.current.pause();
       setIsPlaying(false);
     }
-    setSubmitStatusText(
-      typeof customStatus === 'string' && customStatus
-        ? customStatus
-        : 'Evaluating Exam Results...'
-    );
-    setShowPostExamAdGate(true);
 
     try {
       const payload = {
@@ -215,14 +203,12 @@ function SswCbtExamContent({ params: paramsPromise }) {
 
       if (attemptId) {
         const previewQuery = previewToken ? `?preview=${encodeURIComponent(previewToken)}` : '';
-        const resultDest = `/attempt/${attemptId}${previewQuery}`;
-        setPendingResultUrl(resultDest);
+        router.push(`/attempt/${attemptId}${previewQuery}`);
       } else {
-        setPendingResultUrl('/ssw-skill-test');
+        router.push('/ssw-skill-test');
       }
     } catch (err) {
       console.error('Submission error:', err);
-      setShowPostExamAdGate(false);
       alert(`Submission failed: ${err.message || 'Please try again'}`);
       setIsSubmitting(false);
     }
@@ -983,19 +969,10 @@ function SswCbtExamContent({ params: paramsPromise }) {
         </div>
       )}
 
-      {/* Post-Exam Video / Sponsor Gate Modal */}
-      <ExamAdGateModal
-        isOpen={showPostExamAdGate}
-        phase="post"
-        testTitle={quizData?.test?.title || ''}
-        durationSeconds={10}
-        isReadyToProceed={Boolean(pendingResultUrl)}
-        statusMessage={submitStatusText}
-        onComplete={() => {
-          if (pendingResultUrl) {
-            window.location.href = pendingResultUrl;
-          }
-        }}
+      <GlobalLoader
+        visible={isSubmitting}
+        title="Evaluating Exam Results..."
+        subtitle="Submitting your answers, calculating official scale scores and performance breakdown..."
       />
 
     </div>

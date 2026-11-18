@@ -13,7 +13,6 @@ import { useLanguage } from '@/components/LanguageContext';
 import { Globe, ExternalLink, Flag, Lock, ShieldCheck, Clock, ArrowLeft, Hourglass, Sparkles, AlertTriangle, Keyboard } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import ZoomableImage from '@/components/ZoomableImage';
-import ExamAdGateModal from '@/components/ExamAdGateModal';
 
 
 
@@ -75,10 +74,6 @@ function QuizContent({ params: paramsPromise }) {
   // Modals
   const [showUnansweredModal, setShowUnansweredModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
-
-  // Post-Exam Result Ad Gate States
-  const [showPostExamAdGate, setShowPostExamAdGate] = useState(false);
-  const [pendingResultUrl, setPendingResultUrl] = useState(null);
 
   const timerRef = useRef(null);
 
@@ -409,7 +404,6 @@ function QuizContent({ params: paramsPromise }) {
     if (isSubmitting) return;
     setIsSubmitting(true);
     setLoadingOverlayText(loadingMessage || 'Evaluating Exam Results...');
-    setShowPostExamAdGate(true);
 
     // Convert answers format from { q12: 45 } to { '12': 45 }
     const cleanedAnswers = {};
@@ -424,13 +418,11 @@ function QuizContent({ params: paramsPromise }) {
       const res = await submitQuiz(params.id, cleanedAnswers, previewToken);
       if (res?.attempt_id) {
         const previewQuery = previewToken ? `?preview=${encodeURIComponent(previewToken)}` : '';
-        const resultDest = `/attempt/${res.attempt_id}${previewQuery}`;
-        setPendingResultUrl(resultDest);
+        router.push(`/attempt/${res.attempt_id}${previewQuery}`);
       } else {
-        setPendingResultUrl('/');
+        router.push('/');
       }
     } catch (err) {
-      setShowPostExamAdGate(false);
       alert(err.message || 'Submission failed. Please try again.');
       setIsSubmitting(false);
       setLoadingOverlayText(null);
@@ -1391,27 +1383,12 @@ function QuizContent({ params: paramsPromise }) {
 
       {/* Global Animated Evaluation Loading Overlay */}
       <GlobalLoader
-        visible={Boolean(loadingOverlayText) && !showPostExamAdGate}
+        visible={Boolean(loadingOverlayText)}
         title={loadingOverlayText || 'Evaluating Exam Results...'}
         subtitle="Submitting your answers, calculating official scale scores and performance breakdown..."
       />
       </div>
     </ExamSecurityGuard>
-
-    {/* Post-Exam Video / Sponsor Gate Modal */}
-    <ExamAdGateModal
-      isOpen={showPostExamAdGate}
-      phase="post"
-      testTitle={test?.title || ''}
-      durationSeconds={10}
-      isReadyToProceed={Boolean(pendingResultUrl)}
-      statusMessage={loadingOverlayText || 'Evaluating Exam Results...'}
-      onComplete={() => {
-        if (pendingResultUrl) {
-          window.location.href = pendingResultUrl;
-        }
-      }}
-    />
     </>
   );
 }
