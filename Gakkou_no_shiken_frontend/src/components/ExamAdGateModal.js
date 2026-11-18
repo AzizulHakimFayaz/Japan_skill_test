@@ -4,9 +4,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Play, ShieldCheck, Sparkles, ArrowRight, X, CheckCircle2 } from 'lucide-react';
 import AdsterraBanner300x250 from './AdsterraBanner300x250';
 
-const MONETAG_VIGNETTE_ZONE = '12209357';
-const MONETAG_VIGNETTE_SRC = 'https://n6wxm.com/vignette.min.js';
-
 /**
  * Helper to mark Pre-Exam Ad Gate as cleared in sessionStorage
  * so the target exam page knows the candidate already watched the pre-exam ad
@@ -44,10 +41,9 @@ export function clearPreExamAdToken() {
 }
 
 /**
- * Pre-Exam & Post-Exam Video-Style Sponsor Interstitial Gate
- * - Fires Monetag Vignette Banner (Zone 12209357) + 16:9 Cinema Sponsor Stage
- * - Enforces a mandatory countdown before entering the exam (`phase="pre"`)
- *   or viewing official exam results (`phase="post"`).
+ * Pre-Exam & Post-Exam Sponsor Interstitial Gate
+ * - Displays 16:9 Sponsor Stage + Adsterra 300x250 frame
+ * - Enforces a mandatory countdown before viewing official exam results (`phase="post"`).
  */
 export default function ExamAdGateModal({
   isOpen,
@@ -78,7 +74,7 @@ export default function ExamAdGateModal({
     }
   }, [onComplete]);
 
-  // Inject Monetag Vignette tag & start countdown interval whenever modal opens
+  // Start countdown interval whenever modal opens
   useEffect(() => {
     if (!isOpen) {
       completedRef.current = false;
@@ -86,24 +82,6 @@ export default function ExamAdGateModal({
     }
 
     completedRef.current = false;
-
-    // Inject Monetag Vignette Banner script into top-level document
-    if (typeof document !== 'undefined') {
-      try {
-        document.querySelectorAll('script[data-monetag-gate="1"]').forEach((el) => el.remove());
-        const s = document.createElement('script');
-        s.dataset.zone = MONETAG_VIGNETTE_ZONE;
-        s.dataset.monetagGate = '1';
-        s.src = MONETAG_VIGNETTE_SRC;
-        s.async = true;
-        const target = [document.documentElement, document.body].filter(Boolean).pop();
-        if (target) {
-          target.appendChild(s);
-        }
-      } catch (err) {
-        console.warn('Sponsor script load warning:', err);
-      }
-    }
 
     const interval = setInterval(() => {
       setSecondsLeft((prev) => {
@@ -117,9 +95,6 @@ export default function ExamAdGateModal({
 
     return () => {
       clearInterval(interval);
-      if (typeof document !== 'undefined') {
-        document.querySelectorAll('script[data-monetag-gate="1"]').forEach((el) => el.remove());
-      }
     };
   }, [isOpen, durationSeconds]);
 

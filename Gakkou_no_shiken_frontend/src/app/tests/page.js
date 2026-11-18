@@ -26,8 +26,9 @@ import {
   Bell,
 } from 'lucide-react';
 import ScheduledCountdownBadge from '@/components/ScheduledCountdownBadge';
-import ExamAdGateModal, { markPreExamAdCleared } from '@/components/ExamAdGateModal';
 import InteractiveFeatureShowcase from '@/components/InteractiveFeatureShowcase';
+
+const FACEBOOK_PAGE_URL = 'https://www.facebook.com/Gakkou.No.Shiken';
 
 const LeadCaptureModal = dynamic(() => import('@/components/LeadCaptureModal'), { ssr: false });
 
@@ -47,7 +48,6 @@ function AllTestsContent() {
   const [unlockedMap, setUnlockedMap] = useState({});
   const [leadModal, setLeadModal] = useState(false);
   const [selectedSector, setSelectedSector] = useState('');
-  const [adGateTarget, setAdGateTarget] = useState(null);
 
   const handleStartExamClick = (e, test) => {
     e.preventDefault();
@@ -56,7 +56,12 @@ function AllTestsContent() {
       router.push(`/accounts/login?next=${encodeURIComponent(targetUrl)}`);
       return;
     }
-    setAdGateTarget({ url: targetUrl, title: test.title || '' });
+    if (typeof window !== 'undefined') {
+      window.open(FACEBOOK_PAGE_URL, '_blank', 'noopener,noreferrer');
+      window.location.href = targetUrl;
+      return;
+    }
+    router.push(targetUrl);
   };
 
   const activePartnerId = user?.profile?.partner_school?.id || null;
@@ -632,23 +637,6 @@ function AllTestsContent() {
         isOpen={leadModal}
         onClose={() => setLeadModal(false)}
         sectorName={selectedSector || 'JFT & SSW Mock Tests'}
-      />
-
-      {/* Pre-Exam Video / Sponsor Gate Modal */}
-      <ExamAdGateModal
-        isOpen={Boolean(adGateTarget)}
-        phase="pre"
-        testTitle={adGateTarget?.title || ''}
-        durationSeconds={10}
-        onCancel={() => setAdGateTarget(null)}
-        onComplete={() => {
-          const dest = adGateTarget?.url;
-          setAdGateTarget(null);
-          if (dest) {
-            markPreExamAdCleared();
-            window.location.href = dest;
-          }
-        }}
       />
     </div>
   );

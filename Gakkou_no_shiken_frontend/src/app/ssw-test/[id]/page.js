@@ -28,11 +28,7 @@ import { getQuizData, submitQuiz } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
 import GlobalLoader from '@/components/GlobalLoader';
 import dynamic from 'next/dynamic';
-import ExamAdGateModal, {
-  markPreExamAdCleared,
-  hasRecentPreExamAdClearance,
-  clearPreExamAdToken,
-} from '@/components/ExamAdGateModal';
+import ExamAdGateModal from '@/components/ExamAdGateModal';
 
 import {
   Clock,
@@ -141,23 +137,10 @@ function SswCbtExamContent({ params: paramsPromise }) {
   const [timeLeft, setTimeLeft] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ─── Pre-Exam & Post-Exam Ad Gate States ───────────────────────────────────
-  const [showPreExamAdGate] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    const sp = new URLSearchParams(window.location.search);
-    if (sp.get('preview')) return false;
-    return !hasRecentPreExamAdClearance();
-  });
+  // ─── Post-Exam Result Ad Gate States ─────────────────────────────────────
   const [showPostExamAdGate, setShowPostExamAdGate] = useState(false);
   const [pendingResultUrl, setPendingResultUrl] = useState(null);
   const [submitStatusText, setSubmitStatusText] = useState('Evaluating Exam Results...');
-
-  useEffect(() => {
-    if (!showPreExamAdGate) {
-      const tokenTimer = setTimeout(() => clearPreExamAdToken(), 3000);
-      return () => clearTimeout(tokenTimer);
-    }
-  }, [showPreExamAdGate]);
 
   // ─── Audio Player State ────────────────────────────────────────────────────
   const audioRef = useRef(null);
@@ -258,7 +241,7 @@ function SswCbtExamContent({ params: paramsPromise }) {
 
   // ─── Digital Timer Countdown ───────────────────────────────────────────────
   useEffect(() => {
-    if (timeLeft === null || timeLeft <= 0 || loading || isSubmitting || showPreExamAdGate) return;
+    if (timeLeft === null || timeLeft <= 0 || loading || isSubmitting) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -273,7 +256,7 @@ function SswCbtExamContent({ params: paramsPromise }) {
 
     return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, loading, isSubmitting, showPreExamAdGate]);
+  }, [timeLeft, loading, isSubmitting]);
 
   // ─── Filter Questions by Current Phase ─────────────────────────────────────
   // Phase 1 questions: section === 'audio' or question.type in ['audio', 'audio_typing']
@@ -405,22 +388,6 @@ function SswCbtExamContent({ params: paramsPromise }) {
           </button>
         </div>
       </div>
-    );
-  }
-
-  if (showPreExamAdGate) {
-    return (
-      <ExamAdGateModal
-        isOpen={true}
-        phase="pre"
-        testTitle={quizData?.test?.title || ''}
-        durationSeconds={10}
-        onCancel={() => router.push('/ssw-skill-test')}
-        onComplete={() => {
-          markPreExamAdCleared();
-          window.location.reload();
-        }}
-      />
     );
   }
 
