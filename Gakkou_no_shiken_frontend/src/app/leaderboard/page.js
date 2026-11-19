@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { getLeaderboard } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
@@ -10,917 +10,677 @@ import {
   Medal,
   Award,
   Flame,
-  Target,
-  MapPin,
-  Sparkles,
-  AlertCircle,
   ArrowRight,
-  User,
-  GraduationCap,
-  ChevronRight,
-  Globe,
+  AlertCircle,
   Calendar,
+  Search,
+  Users,
+  Target,
+  ChevronRight,
+  Info,
+  TrendingUp,
 } from 'lucide-react';
 import { getCountryFlag } from '@/lib/utils';
 import CountryFlag from '@/components/CountryFlag';
 
-function formatShortWindowDate(isoStr) {
-  if (!isoStr) return '';
+/* ─────────────────────────── Helpers ─────────────────────────── */
+
+const AVATAR_TONES = [
+  'from-indigo-500 to-violet-500',
+  'from-rose-500 to-orange-400',
+  'from-emerald-500 to-teal-400',
+  'from-sky-500 to-cyan-400',
+  'from-fuchsia-500 to-pink-400',
+  'from-amber-500 to-orange-400',
+];
+
+function toneFor(str = '') {
+  let h = 0;
+  for (const ch of String(str)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return AVATAR_TONES[h % AVATAR_TONES.length];
+}
+
+function initialsOf(name = '') {
+  const parts = String(name).trim().split(/\s+/).filter(Boolean);
+  return ((parts[0]?.[0] || '?') + (parts[1]?.[0] || '')).toUpperCase();
+}
+
+const countryOf = (c) => c?.country || c?.location || 'Global';
+const flagOf = (c) => c?.country_flag || getCountryFlag(countryOf(c));
+
+function fmtDate(iso) {
+  if (!iso) return '';
   try {
-    return new Date(isoStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   } catch {
     return '';
   }
 }
+
+const PLACE = {
+  1: {
+    label: 'Champion',
+    Icon: Crown,
+    strip: 'from-amber-400 via-yellow-300 to-amber-500',
+    badge: 'bg-amber-400 text-amber-950',
+    ring: 'ring-amber-400/70',
+    border: 'border-amber-300/80 dark:border-amber-500/40',
+    glow: 'shadow-[0_20px_50px_-15px_rgba(245,158,11,0.45)]',
+    numeral: 'text-amber-500/15 dark:text-amber-400/15',
+    score: 'text-amber-600 dark:text-amber-400',
+  },
+  2: {
+    label: 'Runner-up',
+    Icon: Medal,
+    strip: 'from-slate-300 via-slate-200 to-slate-400',
+    badge: 'bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-100',
+    ring: 'ring-slate-300/80 dark:ring-slate-500/60',
+    border: 'border-slate-200 dark:border-slate-800',
+    glow: 'shadow-[0_16px_40px_-18px_rgba(15,23,42,0.25)]',
+    numeral: 'text-slate-400/15',
+    score: 'text-slate-700 dark:text-slate-200',
+  },
+  3: {
+    label: 'Third Place',
+    Icon: Award,
+    strip: 'from-orange-500 via-amber-600 to-orange-400',
+    badge: 'bg-orange-500 text-white',
+    ring: 'ring-orange-400/70',
+    border: 'border-slate-200 dark:border-slate-800',
+    glow: 'shadow-[0_16px_40px_-18px_rgba(234,88,12,0.3)]',
+    numeral: 'text-orange-500/15',
+    score: 'text-orange-600 dark:text-orange-400',
+  },
+};
+
+/* ─────────────────────────── Sub-components ─────────────────────────── */
+
+function Avatar({ name, seed, size = 'md', ringClass = '' }) {
+  const sizes = {
+    sm: 'w-9 h-9 text-xs rounded-xl',
+    md: 'w-12 h-12 text-sm rounded-2xl',
+    lg: 'w-16 h-16 text-lg rounded-2xl',
+  };
+  return (
+    <div
+      className={`${sizes[size]} shrink-0 bg-gradient-to-br ${toneFor(seed || name)} text-white font-black flex items-center justify-center shadow-sm ${ringClass}`}
+    >
+      {initialsOf(name)}
+    </div>
+  );
+}
+
+function StatCell({ label, value, sub, valueClass = 'text-slate-900 dark:text-white' }) {
+  return (
+    <div className="text-center min-w-0">
+      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{label}</div>
+      <div className={`text-base sm:text-lg font-black tabular-nums leading-tight ${valueClass}`}>
+        {value}
+        {sub && <span className="text-[10px] font-semibold text-slate-400 ml-0.5">{sub}</span>}
+      </div>
+    </div>
+  );
+}
+
+function PodiumCard({ c, place, orderClass }) {
+  const s = PLACE[place];
+  const isFirst = place === 1;
+  const Icon = s.Icon;
+  const country = countryOf(c);
+
+  return (
+    <div className={`${orderClass} ${isFirst ? 'sm:-translate-y-4' : ''}`}>
+      <Link
+        href={`/profile/${encodeURIComponent(c.username)}`}
+        className={`group relative block overflow-hidden rounded-3xl border ${s.border} bg-white dark:bg-slate-900 ${s.glow} transition-all duration-300 hover:-translate-y-1`}
+      >
+        <div className={`h-1.5 w-full bg-gradient-to-r ${s.strip}`} />
+
+        <div className={`absolute right-3 top-2 select-none text-6xl font-black leading-none ${s.numeral}`}>
+          {place}
+        </div>
+
+        <div className={`relative px-5 ${isFirst ? 'pt-7 pb-6' : 'pt-6 pb-5'} flex flex-col items-center text-center`}>
+          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${s.badge}`}>
+            <Icon className="w-3 h-3" />
+            {s.label}
+          </span>
+
+          <div className="mt-4">
+            <Avatar name={c.full_name} seed={c.username} size="lg" ringClass={`ring-4 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ${s.ring}`} />
+          </div>
+
+          <h3 className="mt-3 w-full truncate text-base font-black text-slate-900 dark:text-white group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors">
+            {c.full_name}
+          </h3>
+          <p className="w-full truncate font-mono text-[11px] text-slate-400">@{c.username}</p>
+
+          <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 px-2.5 py-0.5 text-[11px] font-bold text-slate-600 dark:text-slate-300">
+            <CountryFlag country={country} flagEmoji={flagOf(c)} width={16} height={11} />
+            <span className="truncate max-w-[120px]">{country}</span>
+          </div>
+
+          <div className={`mt-4 w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/50 ${isFirst ? 'py-4' : 'py-3'}`}>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">High Score</div>
+            <div className={`font-black tabular-nums leading-none mt-1 ${isFirst ? 'text-4xl' : 'text-3xl'} ${s.score}`}>
+              {c.highest_score}
+              <span className="text-xs font-semibold text-slate-400"> / 250</span>
+            </div>
+          </div>
+
+          <div className="mt-3 grid w-full grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800">
+            <StatCell label="Passed" value={c.passed_attempts} valueClass="text-emerald-600 dark:text-emerald-400" />
+            <StatCell label="Average" value={c.avg_score} />
+          </div>
+
+          <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-slate-500 group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors">
+            View profile <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+          </span>
+        </div>
+      </Link>
+    </div>
+  );
+}
+
+function ScoreBar({ value }) {
+  const pct = Math.max(0, Math.min(100, (Number(value) / 250) * 100));
+  const passed = Number(value) >= 200;
+  return (
+    <div className="flex items-center gap-2.5">
+      <span className="w-9 text-right font-black tabular-nums text-slate-900 dark:text-white">{value}</span>
+      <div className="relative h-1.5 w-20 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+        <div
+          className={`absolute inset-y-0 left-0 rounded-full ${passed ? 'bg-emerald-500' : 'bg-amber-500'}`}
+          style={{ width: `${pct}%` }}
+        />
+        <div className="absolute inset-y-0 w-px bg-slate-400/60" style={{ left: '80%' }} />
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────── Page ─────────────────────────── */
 
 export default function LeaderboardPage() {
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activePeriod, setActivePeriod] = useState('overall'); // 'overall' | 'weekly'
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const sp = new URLSearchParams(window.location.search);
-    if (sp.get('tab') === 'weekly' || sp.get('period') === 'weekly') {
-      setActivePeriod('weekly');
-    }
-  }, []);
+  const [period, setPeriod] = useState('overall'); // 'overall' | 'weekly'
+  const [query, setQuery] = useState('');
 
   const fetchLeaderboard = () => {
+    setLoading(true);
     getLeaderboard()
       .then((res) => {
         setError(null);
         setData(res);
       })
-      .catch((err) => {
-        setError(err.message || 'Failed to load leaderboard rankings');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      .catch((err) => setError(err.message || 'Failed to load leaderboard rankings'))
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      if (sp.get('tab') === 'weekly' || sp.get('period') === 'weekly') {
+        setPeriod('weekly');
+      }
+    }
     fetchLeaderboard();
   }, []);
 
-  if (loading) {
+  const isWeekly = period === 'weekly';
+  const weekly = data?.weekly || null;
+  const overallTotal = data?.total_candidates || 0;
+  const weeklyTotal = weekly?.total_candidates || 0;
+
+  const board = isWeekly
+    ? { top: weekly?.top_three || [], rows: weekly?.rankings || [], me: weekly?.current_user_rank || null, total: weeklyTotal }
+    : { top: data?.top_three || [], rows: data?.rankings || [], me: data?.current_user_rank || null, total: overallTotal };
+
+  const otherMe = isWeekly ? data?.current_user_rank : weekly?.current_user_rank;
+
+  const rangeText =
+    weekly?.window_start && weekly?.window_end
+      ? `${fmtDate(weekly.window_start)} – ${fmtDate(weekly.window_end)}`
+      : 'Last 7 days';
+
+  const filteredRows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return board.rows;
+    return board.rows.filter(
+      (c) =>
+        (c.full_name || '').toLowerCase().includes(q) ||
+        (c.username || '').toLowerCase().includes(q) ||
+        countryOf(c).toLowerCase().includes(q)
+    );
+  }, [board.rows, query]);
+
+  const selectPeriod = (next) => {
+    setPeriod(next);
+    setQuery('');
+    if (typeof window !== 'undefined') {
+      try {
+        const url = new URL(window.location.href);
+        if (next === 'weekly') url.searchParams.set('tab', 'weekly');
+        else url.searchParams.delete('tab');
+        window.history.replaceState(null, '', url.toString());
+      } catch {}
+    }
+  };
+
+  /* ── Loading ── */
+  if (loading && !data) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
-        <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-sm font-bold text-slate-600 dark:text-slate-400">Loading Candidate Rankings...</p>
+      <div className="space-y-8 animate-pulse">
+        <div className="h-48 rounded-3xl bg-slate-200/70 dark:bg-slate-800/70" />
+        <div className="h-14 rounded-2xl bg-slate-200/70 dark:bg-slate-800/70" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-80 rounded-3xl bg-slate-200/70 dark:bg-slate-800/70" />
+          ))}
+        </div>
       </div>
     );
   }
 
+  /* ── Error ── */
   if (error) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
-        <div className="w-16 h-16 bg-rose-50 dark:bg-rose-950/60 text-japan-red rounded-full flex items-center justify-center text-2xl font-black">
-          <AlertCircle className="w-8 h-8 text-japan-red" />
+        <div className="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-950/60 text-japan-red flex items-center justify-center">
+          <AlertCircle className="w-7 h-7" />
         </div>
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white">{error}</h2>
+        <h2 className="text-lg font-black text-slate-900 dark:text-white">{error}</h2>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => {
-              setLoading(true);
-              fetchLeaderboard();
-            }}
-            className="px-6 py-2.5 bg-japan-red hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
+            onClick={fetchLeaderboard}
+            className="px-5 py-2.5 bg-japan-red hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
           >
             Try Again
           </button>
-          <Link href="/" className="px-6 py-2.5 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl">
-            Back to Portal
+          <Link href="/" className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl">
+            Back Home
           </Link>
         </div>
       </div>
     );
   }
 
-  const isWeekly = activePeriod === 'weekly';
-  const overallTopThree = data?.top_three || [];
-  const overallRankings = data?.rankings || [];
-  const overallTotal = data?.total_candidates || (overallTopThree.length + overallRankings.length);
-  const overallUserRank = data?.current_user_rank || null;
+  const [first, second, third] = [1, 2, 3].map(
+    (r) => board.top.find((c) => c.rank === r) || board.top[r - 1]
+  );
 
-  const weeklyData = data?.weekly || null;
-  const weeklyTopThree = weeklyData?.top_three || [];
-  const weeklyRankings = weeklyData?.rankings || [];
-  const weeklyTotal = weeklyData?.total_candidates ?? (weeklyTopThree.length + weeklyRankings.length);
-  const weeklyUserRank = weeklyData?.current_user_rank || null;
-
-  const top_three = isWeekly ? weeklyTopThree : overallTopThree;
-  const rankings = isWeekly ? weeklyRankings : overallRankings;
-  const current_user_rank = isWeekly ? (weeklyUserRank || overallUserRank) : overallUserRank;
-  const other_user_rank = isWeekly ? overallUserRank : weeklyUserRank;
-  const total_candidates = isWeekly ? weeklyTotal : overallTotal;
-
-  const weeklyRangeText =
-    weeklyData?.window_start && weeklyData?.window_end
-      ? `${formatShortWindowDate(weeklyData.window_start)} – ${formatShortWindowDate(weeklyData.window_end)}`
-      : 'Last 7 Days';
-
-  const handleSelectPeriod = (nextPeriod) => {
-    setActivePeriod(nextPeriod);
-    if (typeof window !== 'undefined') {
-      try {
-        const url = new URL(window.location.href);
-        if (nextPeriod === 'weekly') {
-          url.searchParams.set('tab', 'weekly');
-        } else {
-          url.searchParams.delete('tab');
-        }
-        window.history.replaceState(null, '', url.toString());
-      } catch {}
-    }
-  };
-
-  const firstPlace = top_three.find((c) => c.rank === 1) || top_three[0];
-  const secondPlace = top_three.find((c) => c.rank === 2) || top_three[1];
-  const thirdPlace = top_three.find((c) => c.rank === 3) || top_three[2];
-
-  const firstPlaceCountry = firstPlace?.country || firstPlace?.location || 'Global';
-  const firstPlaceFlag = firstPlace?.country_flag || getCountryFlag(firstPlaceCountry);
-
-  const secondPlaceCountry = secondPlace?.country || secondPlace?.location || 'Global';
-  const secondPlaceFlag = secondPlace?.country_flag || getCountryFlag(secondPlaceCountry);
-
-  const thirdPlaceCountry = thirdPlace?.country || thirdPlace?.location || 'Global';
-  const thirdPlaceFlag = thirdPlace?.country_flag || getCountryFlag(thirdPlaceCountry);
-
-  const userCountry = current_user_rank?.country || current_user_rank?.location || (user?.profile?.country) || '';
-  const userFlag = current_user_rank?.country_flag || (userCountry ? getCountryFlag(userCountry) : '🌐');
+  const me = user ? board.me : null;
+  const percentile =
+    me?.rank && board.total ? Math.max(1, Math.ceil((me.rank / board.total) * 100)) : null;
+  const meCountry = me ? countryOf(me) || user?.profile?.country || 'Global' : 'Global';
 
   return (
-    <div className="space-y-10 sm:space-y-14 animate-fade-in">
-      {/* 1. Header Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-japan-navy to-indigo-950 text-white rounded-3xl p-6 sm:p-12 border border-slate-800 shadow-2xl shadow-slate-900/30">
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-2 sm:space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-black uppercase tracking-wider">
-              <Trophy className="w-3.5 h-3.5 text-amber-400" />
-              <span>National Leaderboard 2026</span>
+    <div className="space-y-8 sm:space-y-10 animate-fade-in">
+      {/* ═══════════ 1. Hero ═══════════ */}
+      <section className="relative overflow-hidden rounded-3xl border border-slate-800 bg-[#0B1020] text-white shadow-2xl shadow-slate-900/20">
+        <div className="pointer-events-none absolute -top-32 -left-24 h-80 w-80 rounded-full bg-indigo-600/25 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-40 right-0 h-96 w-96 rounded-full bg-amber-500/15 blur-3xl" />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+            maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)',
+          }}
+        />
+
+        <div className="relative z-10 grid gap-8 p-6 sm:p-10 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-amber-300">
+              <Trophy className="h-3.5 w-3.5" />
+              Leaderboard 2026
             </div>
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white">
-              Official Candidate{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-rose-400">
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.05]">
+              Candidate{' '}
+              <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-orange-400 bg-clip-text text-transparent">
                 Honor Roll
               </span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
-              Real-time rankings for JFT-Basic &amp; SSW Prometric candidates based on scaled CEFR score performance (10–250) and test completions.
+            <p className="max-w-xl text-sm sm:text-base leading-relaxed text-slate-400">
+              Live rankings of JFT-Basic &amp; SSW candidates across Asia, scored on the official 10–250 CEFR scale.
             </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-            <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 px-4 py-3 rounded-2xl text-center">
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-                {isWeekly ? 'Active This Week' : 'Total Ranked'}
-              </span>
-              <strong className="text-xl sm:text-2xl font-black text-amber-400">{total_candidates}</strong>
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <Link
+                href="/tests"
+                className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-black text-slate-900 shadow-lg transition-all hover:bg-amber-50 active:scale-95"
+              >
+                Take a Mock Exam
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <span className="text-xs text-slate-500">Every completed exam updates your rank instantly.</span>
             </div>
-            <Link
-              href="/tests"
-              className="bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-5 py-3.5 rounded-2xl text-xs sm:text-sm shadow-lg shadow-red-500/25 active:scale-95 transition-all flex items-center justify-center gap-1.5"
-            >
-              <span>Take Mock Exam</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+            {[
+              { icon: Users, label: 'Ranked', value: overallTotal.toLocaleString(), tone: 'text-white' },
+              { icon: Flame, label: 'This Week', value: weeklyTotal.toLocaleString(), tone: 'text-rose-300' },
+              { icon: Target, label: 'Pass Mark', value: '200', tone: 'text-emerald-300' },
+            ].map(({ icon: Icon, label, value, tone }) => (
+              <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 sm:p-4 backdrop-blur-sm">
+                <Icon className="h-4 w-4 text-slate-500" />
+                <div className={`mt-3 text-xl sm:text-3xl font-black tabular-nums ${tone}`}>{value}</div>
+                <div className="mt-0.5 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</div>
+              </div>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* Japanese Watermark */}
-        <div className="absolute -right-6 -bottom-10 opacity-10 font-black text-8xl sm:text-9xl tracking-tighter text-amber-300 pointer-events-none select-none">
-          順位
-        </div>
-      </div>
-
-      {/* 1.5. Overall vs Weekly Standings Smart Switcher */}
-      <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-        <div className="grid grid-cols-2 sm:inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-950/80 p-1 rounded-2xl border border-slate-200/80 dark:border-slate-800">
-          <button
-            type="button"
-            onClick={() => handleSelectPeriod('overall')}
-            className={`px-3.5 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
-              !isWeekly
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200/80 dark:ring-slate-700'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <Trophy className={`w-4 h-4 shrink-0 ${!isWeekly ? 'text-amber-500' : 'text-slate-400'}`} />
-            <span>Overall Standings</span>
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-              !isWeekly
-                ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300'
-                : 'bg-slate-200/70 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-            }`}>
-              {overallTotal}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleSelectPeriod('weekly')}
-            className={`px-3.5 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
-              isWeekly
-                ? 'bg-gradient-to-r from-japan-red to-rose-600 text-white shadow-md shadow-rose-500/20'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <Flame className={`w-4 h-4 shrink-0 ${isWeekly ? 'text-amber-200 animate-pulse' : 'text-rose-500'}`} />
-            <span>Weekly Standings</span>
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-              isWeekly
-                ? 'bg-white/20 text-white'
-                : 'bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300'
-            }`}>
-              {weeklyTotal}
-            </span>
-          </button>
+      {/* ═══════════ 2. Period Switcher ═══════════ */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="inline-grid grid-cols-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900 p-1">
+          {[
+            { key: 'overall', label: 'All-Time', Icon: Trophy, count: overallTotal },
+            { key: 'weekly', label: 'This Week', Icon: Flame, count: weeklyTotal },
+          ].map(({ key, label, Icon, count }) => {
+            const active = period === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => selectPeriod(key)}
+                className={`flex items-center justify-center gap-2 rounded-xl px-4 sm:px-6 py-2.5 text-sm font-bold transition-all cursor-pointer ${
+                  active
+                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
+                }`}
+              >
+                <Icon className={`h-4 w-4 ${active ? (key === 'weekly' ? 'text-rose-500' : 'text-amber-500') : ''}`} />
+                {label}
+                <span
+                  className={`rounded-md px-1.5 py-0.5 text-[10px] font-black tabular-nums ${
+                    active ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
-        <div className="flex items-center justify-between md:justify-end gap-2 px-2 text-xs">
+        <div className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
           {isWeekly ? (
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200/80 dark:border-rose-800/70 text-rose-700 dark:text-rose-300 font-bold">
-              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping shrink-0" />
-              <Calendar className="w-3.5 h-3.5 shrink-0" />
-              <span>Rolling 7-Day Window ({weeklyRangeText})</span>
-            </div>
+            <>
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
+              </span>
+              <Calendar className="h-3.5 w-3.5" />
+              Rolling 7 days · {rangeText}
+            </>
           ) : (
-            <div className="inline-flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-semibold">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span>All-Time Hall of Fame • Switch to Weekly for fresh 7-day competition</span>
-            </div>
+            <>
+              <TrendingUp className="h-3.5 w-3.5" />
+              Ranked by passed exams, then high score
+            </>
           )}
         </div>
       </div>
 
-      {/* 2. Logged-in Candidate Standing Bar */}
-      {user && current_user_rank && (
-        <div className={`text-white rounded-2xl p-4 sm:p-5 border shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
-          isWeekly
-            ? 'bg-gradient-to-r from-rose-950/90 via-slate-900 to-indigo-950 border-rose-500/30'
-            : 'bg-gradient-to-r from-indigo-900/80 via-slate-900 to-indigo-950 border-indigo-500/30'
-        }`}>
-          <div className="flex items-center gap-3.5 min-w-0 flex-1">
-            <div className={`w-11 h-11 sm:w-12 sm:h-12 shrink-0 aspect-square rounded-2xl text-white flex items-center justify-center font-black text-base sm:text-lg shadow-md border ${
-              isWeekly
-                ? 'bg-gradient-to-tr from-japan-red to-amber-500 border-rose-400/40'
-                : 'bg-indigo-600 border-indigo-400/40'
-            }`}>
-              {current_user_rank.rank ? `#${current_user_rank.rank}` : '—'}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`text-[10px] sm:text-xs font-extrabold uppercase shrink-0 ${
-                  isWeekly ? 'text-rose-300' : 'text-indigo-300'
-                }`}>
-                  {isWeekly ? 'Your Weekly Standing:' : 'Your Overall Standing:'}
-                </span>
-                <strong className="text-sm sm:text-base font-black text-white truncate">{current_user_rank.full_name}</strong>
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/10 border border-white/15 text-[10px] sm:text-xs font-bold text-slate-200 shrink-0">
-                  <CountryFlag country={userCountry || 'Global'} flagEmoji={userFlag} width={18} height={12} />
-                  <span className="truncate max-w-[120px]">{userCountry || 'Global'}</span>
-                </span>
+      {/* ═══════════ 3. Your Standing ═══════════ */}
+      {me && (
+        <section className="rounded-3xl border border-indigo-200/70 dark:border-indigo-500/20 bg-gradient-to-r from-indigo-50 via-white to-white dark:from-indigo-950/40 dark:via-slate-900 dark:to-slate-900 p-4 sm:p-5">
+          <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+            <div className="flex items-center gap-4 min-w-0 flex-1">
+              <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900">
+                <span className="text-[9px] font-bold uppercase tracking-wider opacity-60">Rank</span>
+                <span className="text-lg font-black leading-none tabular-nums">{me.rank ? `#${me.rank}` : '—'}</span>
               </div>
-              <p className="text-xs text-slate-300 truncate">
-                {current_user_rank.rank
-                  ? `Ranked #${current_user_rank.rank} of ${total_candidates} ${isWeekly ? 'active candidates this week' : 'candidates overall'}`
-                  : isWeekly
-                  ? 'Take 1 mock exam this week to enter the Weekly Standings!'
-                  : 'Complete your first practice test to join the ranked leaderboard!'}
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                    Your {isWeekly ? 'weekly' : 'all-time'} standing
+                  </span>
+                  {percentile && (
+                    <span className="rounded-md bg-emerald-100 dark:bg-emerald-950/70 px-1.5 py-0.5 text-[10px] font-black text-emerald-700 dark:text-emerald-300">
+                      Top {percentile}%
+                    </span>
+                  )}
+                </div>
+                <div className="mt-0.5 flex items-center gap-2 min-w-0">
+                  <strong className="truncate text-base sm:text-lg font-black text-slate-900 dark:text-white">{me.full_name}</strong>
+                  <CountryFlag country={meCountry} flagEmoji={flagOf(me)} width={18} height={12} />
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {me.rank
+                    ? `${me.rank} of ${board.total} ${isWeekly ? 'active this week' : 'ranked candidates'}`
+                    : isWeekly
+                    ? 'Complete one exam this week to join the weekly board.'
+                    : 'Complete your first exam to get ranked.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2 md:gap-0 md:divide-x divide-slate-200 dark:divide-slate-800 rounded-2xl md:rounded-none bg-white/70 dark:bg-slate-950/40 md:bg-transparent p-3 md:p-0">
+              <div className="md:px-5"><StatCell label="Passed" value={me.passed_attempts} valueClass="text-emerald-600 dark:text-emerald-400" /></div>
+              <div className="md:px-5"><StatCell label="High" value={me.highest_score} /></div>
+              <div className="md:px-5"><StatCell label="Average" value={me.avg_score} /></div>
+              <button
+                type="button"
+                onClick={() => selectPeriod(isWeekly ? 'overall' : 'weekly')}
+                className="md:px-5 cursor-pointer hover:opacity-75 transition-opacity"
+                title={`Switch to ${isWeekly ? 'All-Time' : 'This Week'}`}
+              >
+                <StatCell
+                  label={isWeekly ? 'All-Time' : 'Weekly'}
+                  value={otherMe?.rank ? `#${otherMe.rank}` : '—'}
+                  valueClass="text-indigo-600 dark:text-indigo-400"
+                />
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ═══════════ 4. Podium ═══════════ */}
+      {board.top.length > 0 ? (
+        <section className="space-y-5">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                {isWeekly ? 'This Week’s Top 3' : 'All-Time Top 3'}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                {isWeekly ? `Best performers · ${rangeText}` : 'The highest-ranked candidates on the platform'}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-bold self-end sm:self-center shrink-0">
-            {other_user_rank?.rank && (
-              <button
-                type="button"
-                onClick={() => handleSelectPeriod(isWeekly ? 'overall' : 'weekly')}
-                className="hidden md:flex flex-col text-right border-r border-slate-700 pr-4 hover:opacity-80 transition-opacity cursor-pointer"
-              >
-                <span className="text-slate-400 text-[10px] block uppercase">
-                  {isWeekly ? 'Overall Rank' : 'Weekly Rank'}
-                </span>
-                <span className="text-indigo-300 font-black">#{other_user_rank.rank}</span>
-              </button>
-            )}
-            <div className="text-right">
-              <span className="text-slate-400 text-[10px] block uppercase">Passed Tests</span>
-              <span className="text-emerald-400 font-black">{current_user_rank.passed_attempts}</span>
-            </div>
-            <div className="text-right border-l border-slate-700 pl-4">
-              <span className="text-slate-400 text-[10px] block uppercase">High Score</span>
-              <span className="text-amber-400 font-black">{current_user_rank.highest_score} / 250</span>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 sm:items-end sm:pt-4">
+            {second && <PodiumCard c={second} place={2} orderClass="order-2 sm:order-1" />}
+            {first && <PodiumCard c={first} place={1} orderClass="order-1 sm:order-2" />}
+            {third && <PodiumCard c={third} place={3} orderClass="order-3" />}
           </div>
-        </div>
-      )}
-
-      {/* 3. Top 3 Highlighted Podium */}
-      {top_three.length > 0 ? (
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-              {isWeekly ? (
-                <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-rose-500 shrink-0" />
-              ) : (
-                <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 shrink-0" />
-              )}
-              <span>{isWeekly ? 'Top Weekly Candidates' : 'Top Ranked Candidates'}</span>
-            </h2>
-            <span className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold">
-              {isWeekly ? `Weekly Gold, Silver & Bronze (${weeklyRangeText})` : 'All-Time Gold, Silver & Bronze Podium'}
-            </span>
-          </div>
-
-          {/* Desktop Olympic 3-Column Podium (>= 640px sm) */}
-          <div className="hidden sm:grid sm:grid-cols-3 gap-3 sm:gap-5 items-end">
-            {/* 2nd Place (Silver) */}
-            {secondPlace ? (
-              <div className="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white rounded-3xl p-5 border-2 border-slate-400/50 shadow-xl shadow-slate-900/10 flex flex-col items-center justify-between text-center relative overflow-hidden group hover:border-slate-300 transition-all min-w-0">
-                <div className="absolute top-2 right-2 text-lg font-black opacity-30 select-none">#2</div>
-                <div className="w-full flex flex-col items-center space-y-2.5">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-400/20 text-slate-300 border border-slate-400/30 text-[10px] font-black uppercase">
-                    <Medal className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                    <span>2nd Place Silver</span>
-                  </span>
-
-                  <Link href={`/profile/${encodeURIComponent(secondPlace.username)}`} className="group/item flex flex-col items-center w-full">
-                    <div className="w-14 h-14 shrink-0 aspect-square rounded-2xl bg-gradient-to-tr from-slate-400 to-slate-200 text-slate-900 font-black text-xl flex items-center justify-center shadow-md border-2 border-white/40 group-hover/item:scale-105 transition-transform">
-                      {secondPlace.full_name.slice(0, 1).toUpperCase()}
-                    </div>
-                    <h3 className="text-sm font-black text-white mt-2 leading-tight truncate w-full group-hover/item:text-amber-300 transition-colors">
-                      {secondPlace.full_name}
-                    </h3>
-                    <span className="text-xs text-slate-400 font-mono truncate w-full block">@{secondPlace.username}</span>
-                  </Link>
-
-                  {/* Country Flag Badge */}
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-800/90 border border-slate-700 text-xs font-bold text-slate-200 shadow-xs">
-                    <CountryFlag country={secondPlaceCountry} flagEmoji={secondPlaceFlag} width={20} height={14} />
-                    <span className="truncate max-w-[130px]">{secondPlaceCountry}</span>
-                  </div>
-
-                  <div className="flex flex-wrap justify-center gap-1 w-full">
-                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-800/90 rounded-md text-slate-300 border border-slate-700 truncate max-w-full">
-                      {secondPlace.target_exam_display}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="w-full mt-3 pt-2.5 border-t border-slate-800 space-y-2">
-                  <div className="bg-slate-950/70 rounded-xl py-1.5 px-2 border border-slate-800/80">
-                    <span className="text-[9px] text-slate-400 block uppercase font-bold">High Score</span>
-                    <strong className="text-sm font-black text-amber-400">{secondPlace.highest_score}</strong>
-                  </div>
-                  <div className="flex items-center justify-between text-[10px] text-slate-400 px-1">
-                    <span>Passed: <strong className="text-emerald-400 font-black">{secondPlace.passed_attempts}</strong></span>
-                    <span>Avg: <strong className="text-white font-bold">{secondPlace.avg_score}</strong></span>
-                  </div>
-                  <Link
-                    href={`/profile/${encodeURIComponent(secondPlace.username)}`}
-                    className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 active:scale-95"
-                  >
-                    <span>View Profile</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <div></div>
-            )}
-
-            {/* 1st Place (Gold - Elevated Centerpiece) */}
-            {firstPlace && (
-              <div className="bg-gradient-to-b from-amber-950/90 via-slate-950 to-slate-950 text-white rounded-3xl p-6 border-2 border-amber-400 shadow-2xl shadow-amber-500/25 flex flex-col items-center justify-between text-center relative overflow-hidden group hover:scale-[1.02] transition-all -translate-y-4 min-w-0 z-10">
-                <div className="absolute top-2 right-2 text-lg font-black text-amber-400 opacity-60 select-none">#1</div>
-                <div className="w-full flex flex-col items-center space-y-2.5">
-                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[10px] font-black uppercase shadow-xs">
-                    <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                    <span>Gold Champion</span>
-                  </span>
-
-                  <Link href={`/profile/${encodeURIComponent(firstPlace.username)}`} className="group/item flex flex-col items-center w-full">
-                    <div className="w-18 h-18 shrink-0 aspect-square rounded-2xl bg-gradient-to-tr from-amber-400 via-yellow-400 to-amber-600 text-slate-950 font-black text-2xl flex items-center justify-center shadow-lg border-2 border-white/60 group-hover/item:scale-105 transition-transform">
-                      {firstPlace.full_name.slice(0, 1).toUpperCase()}
-                    </div>
-                    <h3 className="text-base font-black text-white mt-2 leading-tight truncate w-full group-hover/item:text-amber-300 transition-colors">
-                      {firstPlace.full_name}
-                    </h3>
-                    <span className="text-xs text-slate-400 font-mono truncate w-full block">@{firstPlace.username}</span>
-                  </Link>
-
-                  {/* Country Flag Badge */}
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-600/50 text-xs font-black text-amber-200 shadow-xs">
-                    <CountryFlag country={firstPlaceCountry} flagEmoji={firstPlaceFlag} width={22} height={15} />
-                    <span className="truncate max-w-[140px]">{firstPlaceCountry}</span>
-                  </div>
-
-                  <div className="flex flex-wrap justify-center gap-1 w-full">
-                    <span className="text-[10px] font-bold px-2 py-0.5 bg-amber-950/80 rounded-md text-amber-300 border border-amber-700/50 truncate max-w-full">
-                      {firstPlace.target_exam_display}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="w-full mt-3 pt-2.5 border-t border-slate-800 space-y-2">
-                  <div className="bg-slate-950/70 rounded-xl py-1.5 px-2 border border-amber-400/30">
-                    <span className="text-[9px] text-slate-400 block uppercase font-bold">High Score</span>
-                    <strong className="text-base font-black text-amber-400">{firstPlace.highest_score}</strong>
-                  </div>
-                  <div className="flex items-center justify-between text-[10px] text-slate-400 px-1">
-                    <span>Passed: <strong className="text-emerald-400 font-black">{firstPlace.passed_attempts}</strong></span>
-                    <span>Avg: <strong className="text-white font-bold">{firstPlace.avg_score}</strong></span>
-                  </div>
-                  <Link
-                    href={`/profile/${encodeURIComponent(firstPlace.username)}`}
-                    className="w-full py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1 shadow-md shadow-amber-500/20 active:scale-95"
-                  >
-                    <span>View Profile</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {/* 3rd Place (Bronze) */}
-            {thirdPlace ? (
-              <div className="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white rounded-3xl p-5 border-2 border-amber-700/50 shadow-xl shadow-slate-900/10 flex flex-col items-center justify-between text-center relative overflow-hidden group hover:border-amber-600 transition-all min-w-0">
-                <div className="absolute top-2 right-2 text-lg font-black opacity-30 select-none">#3</div>
-                <div className="w-full flex flex-col items-center space-y-2.5">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-700/20 text-amber-400 border border-amber-700/30 text-[10px] font-black uppercase">
-                    <Medal className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                    <span>3rd Place Bronze</span>
-                  </span>
-
-                  <Link href={`/profile/${encodeURIComponent(thirdPlace.username)}`} className="group/item flex flex-col items-center w-full">
-                    <div className="w-14 h-14 shrink-0 aspect-square rounded-2xl bg-gradient-to-tr from-amber-700 to-amber-600 text-white font-black text-xl flex items-center justify-center shadow-md border-2 border-white/20 group-hover/item:scale-105 transition-transform">
-                      {thirdPlace.full_name.slice(0, 1).toUpperCase()}
-                    </div>
-                    <h3 className="text-sm font-black text-white mt-2 leading-tight truncate w-full group-hover/item:text-amber-300 transition-colors">
-                      {thirdPlace.full_name}
-                    </h3>
-                    <span className="text-xs text-slate-400 font-mono truncate w-full block">@{thirdPlace.username}</span>
-                  </Link>
-
-                  {/* Country Flag Badge */}
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-800/90 border border-slate-700 text-xs font-bold text-slate-200 shadow-xs">
-                    <CountryFlag country={thirdPlaceCountry} flagEmoji={thirdPlaceFlag} width={20} height={14} />
-                    <span className="truncate max-w-[130px]">{thirdPlaceCountry}</span>
-                  </div>
-
-                  <div className="flex flex-wrap justify-center gap-1 w-full">
-                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-800/90 rounded-md text-slate-300 border border-slate-700 truncate max-w-full">
-                      {thirdPlace.target_exam_display}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="w-full mt-3 pt-2.5 border-t border-slate-800 space-y-2">
-                  <div className="bg-slate-950/70 rounded-xl py-1.5 px-2 border border-slate-800/80">
-                    <span className="text-[9px] text-slate-400 block uppercase font-bold">High Score</span>
-                    <strong className="text-sm font-black text-amber-400">{thirdPlace.highest_score}</strong>
-                  </div>
-                  <div className="flex items-center justify-between text-[10px] text-slate-400 px-1">
-                    <span>Passed: <strong className="text-emerald-400 font-black">{thirdPlace.passed_attempts}</strong></span>
-                    <span>Avg: <strong className="text-white font-bold">{thirdPlace.avg_score}</strong></span>
-                  </div>
-                  <Link
-                    href={`/profile/${encodeURIComponent(thirdPlace.username)}`}
-                    className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 active:scale-95"
-                  >
-                    <span>View Profile</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <div></div>
-            )}
-          </div>
-
-          {/* Mobile Redesigned Podium Layout (< 640px) */}
-          <div className="block sm:hidden space-y-3">
-            {/* Mobile #1 Champion Spotlight Card */}
-            {firstPlace && (
-              <div className="relative overflow-hidden bg-gradient-to-b from-amber-950/90 via-slate-900 to-slate-950 text-white rounded-3xl p-4 border-2 border-amber-400 shadow-xl shadow-amber-500/15">
-                <div className="flex items-center justify-between gap-2 mb-3 pb-2.5 border-b border-amber-500/20">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[10px] font-black uppercase tracking-wide">
-                    <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                    <span>#1 Gold Champion</span>
-                  </span>
-                  <div className="flex items-center gap-1 text-amber-400 font-black text-xs">
-                    <span className="text-[10px] text-slate-400 font-normal uppercase">High:</span>
-                    <span>{firstPlace.highest_score}</span>
-                    <span className="text-[10px] text-slate-400">/ 250</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3.5">
-                  <div className="w-14 h-14 shrink-0 aspect-square rounded-2xl bg-gradient-to-tr from-amber-400 via-yellow-400 to-amber-600 text-slate-950 font-black text-xl flex items-center justify-center shadow-lg border-2 border-white/60">
-                    {firstPlace.full_name.slice(0, 1).toUpperCase()}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-base font-black text-white leading-snug truncate">
-                      {firstPlace.full_name}
-                    </h3>
-                    <span className="text-xs text-slate-400 font-mono block truncate">
-                      @{firstPlace.username}
-                    </span>
-                    <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-950/80 border border-amber-600/40 text-[11px] font-black text-amber-200">
-                        <CountryFlag country={firstPlaceCountry} flagEmoji={firstPlaceFlag} width={18} height={12} />
-                        <span className="truncate max-w-[120px]">{firstPlaceCountry}</span>
-                      </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-800 rounded text-slate-300 border border-slate-700 truncate max-w-[140px]">
-                        {firstPlace.target_exam_display}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-800/80 text-center">
-                  <div className="bg-slate-950/60 rounded-xl p-1.5 border border-slate-800/60">
-                    <span className="text-[8px] text-slate-400 uppercase block font-bold">High Score</span>
-                    <strong className="text-sm font-black text-amber-400">{firstPlace.highest_score}</strong>
-                  </div>
-                  <div className="bg-slate-950/60 rounded-xl p-1.5 border border-slate-800/60">
-                    <span className="text-[8px] text-slate-400 uppercase block font-bold">Passed</span>
-                    <strong className="text-sm font-black text-emerald-400">{firstPlace.passed_attempts}</strong>
-                  </div>
-                  <div className="bg-slate-950/60 rounded-xl p-1.5 border border-slate-800/60">
-                    <span className="text-[8px] text-slate-400 uppercase block font-bold">Average</span>
-                    <strong className="text-sm font-black text-slate-200">{firstPlace.avg_score}</strong>
-                  </div>
-                </div>
-
-                <Link
-                  href={`/profile/${encodeURIComponent(firstPlace.username)}`}
-                  className="w-full mt-3 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-98"
-                >
-                  <span>View Champion Profile</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            )}
-
-            {/* Mobile #2 Silver Card */}
-            {secondPlace && (
-              <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 text-white rounded-2xl p-3.5 border border-slate-500/50 shadow-md flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className="relative shrink-0">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-slate-400 to-slate-200 text-slate-900 font-black text-base flex items-center justify-center border border-white/50 shadow-sm">
-                      {secondPlace.full_name.slice(0, 1).toUpperCase()}
-                    </div>
-                    <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-slate-300 text-slate-900 text-[10px] font-black flex items-center justify-center border border-slate-800">
-                      2
-                    </span>
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[9px] font-black uppercase text-slate-400 bg-slate-800/80 px-1.5 py-0.2 rounded border border-slate-700">
-                        Silver
-                      </span>
-                      <h4 className="text-xs font-black text-white truncate">{secondPlace.full_name}</h4>
-                    </div>
-                    <span className="text-[10px] text-slate-400 font-mono block truncate">@{secondPlace.username}</span>
-                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-slate-800 text-[10px] font-bold text-slate-200 border border-slate-700">
-                        <CountryFlag country={secondPlaceCountry} flagEmoji={secondPlaceFlag} width={16} height={11} />
-                        <span className="truncate max-w-[100px]">{secondPlaceCountry}</span>
-                      </span>
-                      <span className="text-[9px] text-slate-400 truncate max-w-[110px]">
-                        {secondPlace.target_exam_display}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-end shrink-0 gap-1.5">
-                  <div className="text-right">
-                    <span className="text-xs font-black text-amber-400 block leading-tight">{secondPlace.highest_score}</span>
-                    <span className="text-[9px] font-bold text-emerald-400 block leading-tight">{secondPlace.passed_attempts} passed</span>
-                  </div>
-                  <Link
-                    href={`/profile/${encodeURIComponent(secondPlace.username)}`}
-                    className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold rounded-lg transition-colors inline-flex items-center gap-1"
-                  >
-                    <span>Profile</span>
-                    <ArrowRight className="w-2.5 h-2.5" />
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {/* Mobile #3 Bronze Card */}
-            {thirdPlace && (
-              <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 text-white rounded-2xl p-3.5 border border-amber-700/50 shadow-md flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className="relative shrink-0">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-700 to-amber-600 text-white font-black text-base flex items-center justify-center border border-white/30 shadow-sm">
-                      {thirdPlace.full_name.slice(0, 1).toUpperCase()}
-                    </div>
-                    <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-amber-600 text-white text-[10px] font-black flex items-center justify-center border border-slate-800">
-                      3
-                    </span>
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[9px] font-black uppercase text-amber-400 bg-amber-950/80 px-1.5 py-0.2 rounded border border-amber-800/40">
-                        Bronze
-                      </span>
-                      <h4 className="text-xs font-black text-white truncate">{thirdPlace.full_name}</h4>
-                    </div>
-                    <span className="text-[10px] text-slate-400 font-mono block truncate">@{thirdPlace.username}</span>
-                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-slate-800 text-[10px] font-bold text-slate-200 border border-slate-700">
-                        <CountryFlag country={thirdPlaceCountry} flagEmoji={thirdPlaceFlag} width={16} height={11} />
-                        <span className="truncate max-w-[100px]">{thirdPlaceCountry}</span>
-                      </span>
-                      <span className="text-[9px] text-slate-400 truncate max-w-[110px]">
-                        {thirdPlace.target_exam_display}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-end shrink-0 gap-1.5">
-                  <div className="text-right">
-                    <span className="text-xs font-black text-amber-400 block leading-tight">{thirdPlace.highest_score}</span>
-                    <span className="text-[9px] font-bold text-emerald-400 block leading-tight">{thirdPlace.passed_attempts} passed</span>
-                  </div>
-                  <Link
-                    href={`/profile/${encodeURIComponent(thirdPlace.username)}`}
-                    className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold rounded-lg transition-colors inline-flex items-center gap-1"
-                  >
-                    <span>Profile</span>
-                    <ArrowRight className="w-2.5 h-2.5" />
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        </section>
       ) : (
-        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 sm:p-10 text-center space-y-3 shadow-xs">
-          <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-500 mx-auto flex items-center justify-center">
-            <Flame className="w-6 h-6" />
+        <section className="rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/60 p-10 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-500">
+            <Flame className="h-6 w-6" />
           </div>
-          <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
-            {isWeekly ? 'Weekly Podium Is Wide Open!' : 'No Ranked Candidates Yet'}
+          <h3 className="mt-4 text-lg font-black text-slate-900 dark:text-white">
+            {isWeekly ? 'The weekly podium is wide open' : 'No ranked candidates yet'}
           </h3>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+          <p className="mx-auto mt-1 max-w-md text-sm text-slate-500 dark:text-slate-400">
             {isWeekly
-              ? 'Be the first candidate to complete a mock exam in the last 7 days and claim the #1 Weekly Champion crown.'
+              ? 'Complete a mock exam in the next 7 days to claim the #1 spot.'
               : 'Complete a mock exam to appear on the Honor Roll.'}
           </p>
-          <div className="pt-1 flex items-center justify-center gap-2">
-            <Link
-              href="/tests"
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-japan-red to-rose-600 text-white text-xs font-black shadow-md shadow-rose-500/20"
-            >
-              <span>Start Mock Exam</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-            {isWeekly && (
-              <button
-                type="button"
-                onClick={() => handleSelectPeriod('overall')}
-                className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold cursor-pointer"
-              >
-                View Overall Standings
-              </button>
-            )}
-          </div>
-        </div>
+          <Link
+            href="/tests"
+            className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-slate-900 dark:bg-white px-5 py-2.5 text-xs font-black text-white dark:text-slate-900"
+          >
+            Start a Mock Exam <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </section>
       )}
 
-      {/* Educational Scoring Guide Overview */}
-      <div className="bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-5 space-y-2">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-          How National CBT Rankings &amp; CEFR Scaled Scores Work
-        </h3>
-        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-          Gakkou No Shiken calculates candidate scores according to official Item Response Theory (IRT) scaling used in Prometric JFT-Basic examinations (scale: 10–250 points, passing threshold: 200 points) and SSW skill evaluations (percentage benchmark: 60%). Overall Standings track all-time performance, while Weekly Standings highlight top performers over the rolling last 7 days.
-        </p>
-      </div>
-
-      {/* 4. Full Standings Section */}
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <h2 className="text-base sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            {isWeekly ? 'Weekly Standings' : 'Overall Standings'} (
-            {rankings.length > 0 ? `Ranks 4 to ${rankings.length + 3}` : 'Top Candidates'})
-          </h2>
-          <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 self-start sm:self-auto">
-            <button
-              type="button"
-              onClick={() => handleSelectPeriod('overall')}
-              className={`px-3 py-1 rounded-lg text-[11px] font-black transition-all cursor-pointer ${
-                !isWeekly
-                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
-              }`}
-            >
-              Overall
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSelectPeriod('weekly')}
-              className={`px-3 py-1 rounded-lg text-[11px] font-black transition-all cursor-pointer ${
-                isWeekly
-                  ? 'bg-japan-red text-white shadow-2xs'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
-              }`}
-            >
-              Weekly (7d)
-            </button>
-          </div>
-        </div>
-
-        {rankings.length > 0 ? (
-          <div>
-            {/* Desktop Table View (>= 768px md) */}
-            <div className="hidden md:block bg-white dark:bg-slate-900/90 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs sm:text-sm">
-                  <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[10px] sm:text-xs">
-                    <tr>
-                      <th className="py-3.5 px-4 sm:px-6 w-16 text-center">Rank</th>
-                      <th className="py-3.5 px-4">Candidate</th>
-                      <th className="py-3.5 px-4">Country</th>
-                      <th className="py-3.5 px-4">Target &amp; Level</th>
-                      <th className="py-3.5 px-4 text-center">Passed Exams</th>
-                      <th className="py-3.5 px-4 text-center">High Score</th>
-                      <th className="py-3.5 px-4 text-center">Avg Score</th>
-                      <th className="py-3.5 px-4 text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-700 dark:text-slate-300">
-                    {rankings.map((c) => {
-                      const isCurrentUser = user && user.id === c.user_id;
-                      const countryName = c.country || c.location;
-                      const flag = c.country_flag || getCountryFlag(countryName);
-
-                      return (
-                        <tr
-                          key={c.user_id}
-                          className={`hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors ${
-                            isCurrentUser ? 'bg-indigo-50/50 dark:bg-indigo-950/40 font-semibold' : ''
-                          }`}
-                        >
-                          <td className="py-3 px-4 sm:px-6 text-center font-black text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
-                            #{c.rank}
-                          </td>
-                          <td className="py-3 px-4">
-                            <Link
-                              href={`/profile/${encodeURIComponent(c.username)}`}
-                              className="flex items-center gap-3 group/cand min-w-0"
-                            >
-                              <div className="w-9 h-9 shrink-0 aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-black text-xs flex items-center justify-center border border-slate-200 dark:border-slate-700 group-hover/cand:border-japan-red group-hover/cand:bg-red-50 dark:group-hover/cand:bg-slate-700 transition-colors">
-                                {c.full_name.slice(0, 1).toUpperCase()}
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-1.5">
-                                  <span className="font-bold text-slate-900 dark:text-white group-hover/cand:text-japan-red dark:group-hover/cand:text-rose-400 transition-colors truncate">
-                                    {c.full_name}
-                                  </span>
-                                  {isCurrentUser && (
-                                    <span className="px-1.5 py-0.2 bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded text-[9px] font-extrabold shrink-0">
-                                      You
-                                    </span>
-                                  )}
-                                </div>
-                                <span className="text-[11px] text-slate-400 dark:text-slate-500 block font-mono truncate max-w-[160px] sm:max-w-[220px]">
-                                  @{c.username}
-                                </span>
-                              </div>
-                            </Link>
-                          </td>
-                          <td className="py-3 px-4">
-                            {countryName ? (
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200">
-                                <CountryFlag country={countryName} flagEmoji={flag} width={20} height={14} />
-                                <span className="truncate max-w-[120px]">{countryName}</span>
-                              </span>
-                            ) : (
-                              <span className="text-slate-400 text-xs">—</span>
-                            )}
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="space-y-0.5">
-                              <span className="text-xs text-slate-800 dark:text-slate-200 font-bold block">{c.target_exam_display}</span>
-                              <span className="text-[10px] text-slate-400 dark:text-slate-500 block">{c.japanese_level_display}</span>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 text-center font-bold text-emerald-600 dark:text-emerald-400">
-                            {c.passed_attempts} <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">({c.total_attempts} took)</span>
-                          </td>
-                          <td className="py-3 px-4 text-center font-black text-slate-900 dark:text-white">
-                            {c.highest_score} <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">/ 250</span>
-                          </td>
-                          <td className="py-3 px-4 text-center text-slate-600 dark:text-slate-400">
-                            {c.avg_score}
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <Link
-                              href={`/profile/${encodeURIComponent(c.username)}`}
-                              className="px-2.5 py-1 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-japan-red dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors inline-flex items-center gap-1"
-                            >
-                              <span>View</span>
-                              <ArrowRight className="w-3 h-3" />
-                            </Link>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+      {/* ═══════════ 5. Standings Table ═══════════ */}
+      {board.rows.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                {isWeekly ? 'Weekly Standings' : 'All-Time Standings'}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                Ranks 4 – {board.rows.length + 3}
+              </p>
             </div>
+            <div className="relative w-full sm:w-72">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search name, username or country"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-2.5 pl-9 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-slate-400 dark:focus:border-slate-600 focus:outline-none focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800/60"
+              />
+            </div>
+          </div>
 
-            {/* Mobile Standings Card List (< 768px md) */}
-            <div className="block md:hidden space-y-2.5">
-              {rankings.map((c) => {
-                const isCurrentUser = user && user.id === c.user_id;
-                const countryName = c.country || c.location;
-                const flag = c.country_flag || getCountryFlag(countryName);
-
-                return (
-                  <Link
-                    key={c.user_id}
-                    href={`/profile/${encodeURIComponent(c.username)}`}
-                    className={`block p-3.5 rounded-2xl border transition-all ${
-                      isCurrentUser
-                        ? 'bg-indigo-50/80 dark:bg-indigo-950/50 border-indigo-400 dark:border-indigo-600 shadow-xs'
-                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <span className="w-8 h-8 shrink-0 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-black text-xs flex items-center justify-center border border-slate-200 dark:border-slate-700">
-                          #{c.rank}
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  <th className="py-3.5 pl-6 pr-3 w-20">Rank</th>
+                  <th className="px-3 py-3.5">Candidate</th>
+                  <th className="px-3 py-3.5">Country</th>
+                  <th className="px-3 py-3.5">Target</th>
+                  <th className="px-3 py-3.5 text-center">Passed</th>
+                  <th className="px-3 py-3.5">High Score</th>
+                  <th className="px-3 py-3.5 text-center">Avg</th>
+                  <th className="py-3.5 pl-3 pr-6 w-10" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                {filteredRows.map((c) => {
+                  const mine = user && c.user_id === user.id;
+                  const country = countryOf(c);
+                  return (
+                    <tr
+                      key={c.user_id}
+                      className={`group transition-colors ${
+                        mine ? 'bg-indigo-50/70 dark:bg-indigo-950/30' : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'
+                      }`}
+                    >
+                      <td className="py-3.5 pl-6 pr-3">
+                        <span className="font-black tabular-nums text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                          {String(c.rank).padStart(2, '0')}
                         </span>
-
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <strong className="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate">
-                              {c.full_name}
-                            </strong>
-                            {isCurrentUser && (
-                              <span className="px-1.5 py-0.2 bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded text-[9px] font-extrabold shrink-0">
-                                You
+                      </td>
+                      <td className="px-3 py-3.5">
+                        <Link href={`/profile/${encodeURIComponent(c.username)}`} className="flex items-center gap-3 min-w-0">
+                          <Avatar name={c.full_name} seed={c.username} size="sm" />
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="truncate font-bold text-slate-900 dark:text-white group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors max-w-[200px]">
+                                {c.full_name}
                               </span>
-                            )}
+                              {mine && (
+                                <span className="rounded bg-indigo-600 px-1.5 py-0.5 text-[9px] font-black uppercase text-white">You</span>
+                              )}
+                            </div>
+                            <span className="block truncate font-mono text-[11px] text-slate-400">@{c.username}</span>
                           </div>
-                          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono truncate">
-                              @{c.username}
-                            </span>
-                            {countryName && (
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700">
-                                <CountryFlag country={countryName} flagEmoji={flag} width={16} height={11} />
-                                <span className="truncate max-w-[100px]">{countryName}</span>
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
-                        <div className="text-right">
-                          <span className="text-xs font-black text-amber-600 dark:text-amber-400 block leading-tight">
-                            {c.highest_score}
-                          </span>
-                          <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 block leading-tight">
-                            {c.passed_attempts} passed
-                          </span>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-slate-400" />
-                      </div>
-                    </div>
-
-                    <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
-                      <span className="truncate max-w-[200px]">{c.target_exam_display}</span>
-                      <span>Avg: <strong className="text-slate-700 dark:text-slate-200 font-bold">{c.avg_score}</strong></span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+                        </Link>
+                      </td>
+                      <td className="px-3 py-3.5">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                          <CountryFlag country={country} flagEmoji={flagOf(c)} width={18} height={12} />
+                          <span className="truncate max-w-[110px]">{country}</span>
+                        </span>
+                      </td>
+                      <td className="px-3 py-3.5">
+                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">{c.target_exam_display}</span>
+                      </td>
+                      <td className="px-3 py-3.5 text-center">
+                        <span className="font-black tabular-nums text-emerald-600 dark:text-emerald-400">{c.passed_attempts}</span>
+                        <span className="ml-1 text-[10px] text-slate-400">/ {c.total_attempts}</span>
+                      </td>
+                      <td className="px-3 py-3.5">
+                        <ScoreBar value={c.highest_score} />
+                      </td>
+                      <td className="px-3 py-3.5 text-center font-bold tabular-nums text-slate-600 dark:text-slate-300">{c.avg_score}</td>
+                      <td className="py-3.5 pl-3 pr-6">
+                        <Link
+                          href={`/profile/${encodeURIComponent(c.username)}`}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-300 group-hover:bg-slate-900 group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-slate-900 transition-all"
+                          aria-label={`View ${c.full_name}`}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {filteredRows.length === 0 && (
+              <div className="p-10 text-center text-sm text-slate-500">No candidates match “{query}”.</div>
+            )}
           </div>
-        ) : (
-          <div className="bg-slate-50 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-8 text-center text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
-            Top candidates are highlighted above. Take more tests to see more candidates appear here!
+
+          {/* Mobile list */}
+          <div className="md:hidden overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
+            {filteredRows.map((c) => {
+              const mine = user && c.user_id === user.id;
+              const country = countryOf(c);
+              return (
+                <Link
+                  key={c.user_id}
+                  href={`/profile/${encodeURIComponent(c.username)}`}
+                  className={`flex items-center gap-3 px-4 py-3 ${mine ? 'bg-indigo-50/70 dark:bg-indigo-950/30' : 'active:bg-slate-50 dark:active:bg-slate-800/50'}`}
+                >
+                  <span className="w-7 shrink-0 text-center text-xs font-black tabular-nums text-slate-400">{c.rank}</span>
+                  <Avatar name={c.full_name} seed={c.username} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="truncate text-sm font-bold text-slate-900 dark:text-white">{c.full_name}</span>
+                      {mine && <span className="rounded bg-indigo-600 px-1 py-0.5 text-[9px] font-black uppercase text-white">You</span>}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                      <CountryFlag country={country} flagEmoji={flagOf(c)} width={14} height={10} />
+                      <span className="truncate">{country}</span>
+                      <span>·</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-bold">{c.passed_attempts} passed</span>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className="text-sm font-black tabular-nums text-slate-900 dark:text-white">{c.highest_score}</div>
+                    <div className="text-[10px] text-slate-400">avg {c.avg_score}</div>
+                  </div>
+                </Link>
+              );
+            })}
+            {filteredRows.length === 0 && (
+              <div className="p-8 text-center text-sm text-slate-500">No candidates match “{query}”.</div>
+            )}
           </div>
-        )}
+        </section>
+      )}
+
+      {/* ═══════════ 6. Methodology ═══════════ */}
+      <div className="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 p-4 sm:p-5">
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+        <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+          <strong className="font-bold text-slate-700 dark:text-slate-300">How ranking works.</strong>{' '}
+          Scores use the Prometric JFT-Basic scale (10–250, pass at 200) and the SSW 60% benchmark. Candidates are ranked by
+          passed exams, then highest score, average score and total attempts. <em>All-Time</em> covers every attempt;{' '}
+          <em>This Week</em> covers the rolling last 7 days. Admin preview attempts are excluded.
+        </p>
       </div>
     </div>
   );
