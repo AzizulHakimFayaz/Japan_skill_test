@@ -1276,39 +1276,15 @@ class ProfileAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-def compute_leaderboard_candidates():
-    attempts_qs = Attempt.objects.filter(user__isnull=False, test__is_published=True).select_related('user', 'user__profile')
-
-    user_stats = defaultdict(lambda: {
-        'user': None,
-        'total_attempts': 0,
-        'passed_attempts': 0,
-        'scores': [],
-        'highest_score': 0,
-    })
-
-    for att in attempts_qs:
-        if att.answers and att.answers.get('_is_preview'):
-            continue
-        u = att.user
-        stats = user_stats[u.id]
-        if stats['user'] is None:
-            stats['user'] = u
-        stats['total_attempts'] += 1
-        scaled = att.scaled_score
-        stats['scores'].append(scaled)
-        if scaled > stats['highest_score']:
-            stats['highest_score'] = scaled
-        if scaled >= 200:
-            stats['passed_attempts'] += 1
-
+def _build_ranked_candidates_from_stats(user_stats):
+    """Formats aggregated per-user stats into a sorted, ranked leaderboard list."""
     candidates_list = []
     for user_id, s in user_stats.items():
         u = s['user']
         scores = s['scores']
         avg_score = int(round(sum(scores) / len(scores))) if scores else 0
         pass_rate = int(round(s['passed_attempts'] / s['total_attempts'] * 100)) if s['total_attempts'] > 0 else 0
-        
+
         profile = getattr(u, 'profile', None)
         full_name = f"{u.first_name} {u.last_name}".strip()
         country, country_flag = resolve_user_country_and_flag(profile)
@@ -1343,59 +1319,169 @@ def compute_leaderboard_candidates():
     return candidates_list
 
 
+def compute_leaderboard_candidates(since=None):
+    """Computes ranked candidates for all-time (since=None) or a time window."""
+    attempts_qs = Attempt.objects.filter(user__isnull=False, test__is_published=True).select_related('user', 'user__profile')
+    if since is not None:
+        attempts_qs = attempts_qs.filter(completed_at__gte=since)
+
+    user_stats = defaultdict(lambda: {
+        'user': None,
+        'total_attempts': 0,
+        'passed_attempts': 0,
+        'scores': [],
+        'highest_score': 0,
+    })
+
+    for att in attempts_qs:
+        if att.answers and att.answers.get('_is_preview'):
+            continue
+        u = att.user
+        stats = user_stats[u.id]
+        if stats['user'] is None:
+            stats['user'] = u
+        stats['total_attempts'] += 1
+        scaled = att.scaled_score
+        stats['scores'].append(scaled)
+        if scaled > stats['highest_score']:
+            stats['highest_score'] = scaled
+        if scaled >= 200:
+            stats['passed_attempts'] += 1
+
+    return _build_ranked_candidates_from_stats(user_stats)
+
+
+def compute_overall_and_weekly_leaderboards(days=7):
+    """Computes both Overall and Weekly (rolling N-day) leaderboards in a single DB query."""
+    now = timezone.now()
+    week_cutoff = now - timezone.timedelta(days=days)
+    attempts_qs = Attempt.objects.filter(user__isnull=False, test__is_published=True).select_related('user', 'user__profile')
+
+    def _new_bucket():
+        return {
+            'user': None,
+            'total_attempts': 0,
+            'passed_attempts': 0,
+            'scores': [],
+            'highest_score': 0,
+        }
+
+    overall_stats = defaultdict(_new_bucket)
+    weekly_stats = defaultdict(_new_bucket)
+
+    for att in attempts_qs:
+        if att.answers and att.answers.get('_is_preview'):
+            continue
+        u = att.user
+        scaled = att.scaled_score
+
+        for bucket_map, include in (
+            (overall_stats, True),
+            (weekly_stats, bool(att.completed_at and att.completed_at >= week_cutoff)),
+        ):
+            if not include:
+                continue
+            stats = bucket_map[u.id]
+            if stats['user'] is None:
+                stats['user'] = u
+            stats['total_attempts'] += 1
+            stats['scores'].append(scaled)
+            if scaled > stats['highest_score']:
+                stats['highest_score'] = scaled
+            if scaled >= 200:
+                stats['passed_attempts'] += 1
+
+    return (
+        _build_ranked_candidates_from_stats(overall_stats),
+        _build_ranked_candidates_from_stats(weekly_stats),
+        week_cutoff,
+        now,
+    )
+
+
+def _resolve_current_user_rank(request_user, candidates_list):
+    if not request_user or not request_user.is_authenticated:
+        return None
+    for item in candidates_list:
+        if item['user_id'] == request_user.id:
+            return item
+    profile = getattr(request_user, 'profile', None)
+    full_name = f"{request_user.first_name} {request_user.last_name}".strip()
+    country, country_flag = resolve_user_country_and_flag(profile)
+    return {
+        'user_id': request_user.id,
+        'username': request_user.username,
+        'full_name': full_name if full_name else request_user.username,
+        'bio': profile.bio if profile else '',
+        'target_exam': profile.target_exam if profile else 'jft_basic',
+        'target_exam_display': profile.get_target_exam_display() if profile else 'JFT-Basic',
+        'japanese_level': profile.japanese_level if profile else 'n4',
+        'japanese_level_display': profile.get_japanese_level_display() if profile else 'N4',
+        'location': profile.location if profile else '',
+        'country': country,
+        'country_flag': country_flag,
+        'total_attempts': 0,
+        'passed_attempts': 0,
+        'highest_score': 0,
+        'avg_score': 0,
+        'pass_rate': 0,
+        'rank': None,
+    }
+
+
 class LeaderboardAPIView(APIView):
     """
-    Returns candidate leaderboard ranked by test performance:
+    Returns both Overall (all-time) and Weekly (rolling 7-day) candidate leaderboards
+    in a single query, ranked by:
     1. Tests Passed (count of passed attempts)
     2. Highest Scaled Score
     3. Average Scaled Score
     4. Total Attempts
-    Splits into top_three podium and rankings for 4th onwards.
     """
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
-        candidates_list = compute_leaderboard_candidates()
-        top_three = candidates_list[:3]
-        rankings = candidates_list[3:50]
+        overall_list, weekly_list, week_start, week_end = compute_overall_and_weekly_leaderboards(days=7)
 
-        current_user_rank = None
-        if request.user.is_authenticated:
-            for item in candidates_list:
-                if item['user_id'] == request.user.id:
-                    current_user_rank = item
-                    break
-            if current_user_rank is None:
-                profile = getattr(request.user, 'profile', None)
-                full_name = f"{request.user.first_name} {request.user.last_name}".strip()
-                country, country_flag = resolve_user_country_and_flag(profile)
-                current_user_rank = {
-                    'user_id': request.user.id,
-                    'username': request.user.username,
-                    'full_name': full_name if full_name else request.user.username,
-                    'bio': profile.bio if profile else '',
-                    'target_exam': profile.target_exam if profile else 'jft_basic',
-                    'target_exam_display': profile.get_target_exam_display() if profile else 'JFT-Basic',
-                    'japanese_level': profile.japanese_level if profile else 'n4',
-                    'japanese_level_display': profile.get_japanese_level_display() if profile else 'N4',
-                    'location': profile.location if profile else '',
-                    'country': country,
-                    'country_flag': country_flag,
-                    'total_attempts': 0,
-                    'passed_attempts': 0,
-                    'highest_score': 0,
-                    'avg_score': 0,
-                    'pass_rate': 0,
-                    'rank': None,
-                }
+        overall_top_three = overall_list[:3]
+        overall_rankings = overall_list[3:50]
+        overall_user_rank = _resolve_current_user_rank(request.user, overall_list)
+
+        weekly_top_three = weekly_list[:3]
+        weekly_rankings = weekly_list[3:50]
+        weekly_user_rank = _resolve_current_user_rank(request.user, weekly_list)
 
         total_registered = User.objects.count()
+        weekly_payload = {
+            'period_label': 'Last 7 Days',
+            'window_start': week_start.isoformat(),
+            'window_end': week_end.isoformat(),
+            'total_candidates': len(weekly_list),
+            'top_three': weekly_top_three,
+            'rankings': weekly_rankings,
+            'current_user_rank': weekly_user_rank,
+        }
+
+        period = (request.query_params.get('period') or 'overall').strip().lower()
+        if period == 'weekly':
+            return Response({
+                'period': 'weekly',
+                'total_candidates': len(weekly_list),
+                'total_registered_candidates': total_registered,
+                'top_three': weekly_top_three,
+                'rankings': weekly_rankings,
+                'current_user_rank': weekly_user_rank,
+                'weekly': weekly_payload,
+            })
+
         return Response({
-            'total_candidates': len(candidates_list),
+            'period': 'overall',
+            'total_candidates': len(overall_list),
             'total_registered_candidates': total_registered,
-            'top_three': top_three,
-            'rankings': rankings,
-            'current_user_rank': current_user_rank,
+            'top_three': overall_top_three,
+            'rankings': overall_rankings,
+            'current_user_rank': overall_user_rank,
+            'weekly': weekly_payload,
         })
 
 

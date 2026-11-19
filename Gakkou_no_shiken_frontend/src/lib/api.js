@@ -286,8 +286,10 @@ export async function getMyResults() {
 
 
 // ─── Leaderboard & Rankings API ───
-export async function getLeaderboard() {
-  return apiRequest('/api/leaderboard/');
+export async function getLeaderboard(period = null) {
+  const query = period ? `?period=${encodeURIComponent(period)}` : '';
+  const fetchOpts = typeof window !== 'undefined' ? { cache: 'no-store' } : { next: { revalidate: 60 } };
+  return apiRequest(`/api/leaderboard/${query}`, fetchOpts);
 }
 
 export async function getCandidateProfile(username) {

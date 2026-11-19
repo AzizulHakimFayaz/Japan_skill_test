@@ -19,16 +19,34 @@ import {
   GraduationCap,
   ChevronRight,
   Globe,
+  Calendar,
 } from 'lucide-react';
 import { getCountryFlag } from '@/lib/utils';
 import CountryFlag from '@/components/CountryFlag';
 
+function formatShortWindowDate(isoStr) {
+  if (!isoStr) return '';
+  try {
+    return new Date(isoStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  } catch {
+    return '';
+  }
+}
 
 export default function LeaderboardPage() {
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activePeriod, setActivePeriod] = useState('overall'); // 'overall' | 'weekly'
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const sp = new URLSearchParams(window.location.search);
+    if (sp.get('tab') === 'weekly' || sp.get('period') === 'weekly') {
+      setActivePeriod('weekly');
+    }
+  }, []);
 
   const fetchLeaderboard = () => {
     getLeaderboard()
@@ -82,10 +100,43 @@ export default function LeaderboardPage() {
     );
   }
 
-  const top_three = data?.top_three || [];
-  const rankings = data?.rankings || [];
-  const current_user_rank = data?.current_user_rank || null;
-  const total_candidates = data?.total_candidates || (top_three.length + rankings.length);
+  const isWeekly = activePeriod === 'weekly';
+  const overallTopThree = data?.top_three || [];
+  const overallRankings = data?.rankings || [];
+  const overallTotal = data?.total_candidates || (overallTopThree.length + overallRankings.length);
+  const overallUserRank = data?.current_user_rank || null;
+
+  const weeklyData = data?.weekly || null;
+  const weeklyTopThree = weeklyData?.top_three || [];
+  const weeklyRankings = weeklyData?.rankings || [];
+  const weeklyTotal = weeklyData?.total_candidates ?? (weeklyTopThree.length + weeklyRankings.length);
+  const weeklyUserRank = weeklyData?.current_user_rank || null;
+
+  const top_three = isWeekly ? weeklyTopThree : overallTopThree;
+  const rankings = isWeekly ? weeklyRankings : overallRankings;
+  const current_user_rank = isWeekly ? (weeklyUserRank || overallUserRank) : overallUserRank;
+  const other_user_rank = isWeekly ? overallUserRank : weeklyUserRank;
+  const total_candidates = isWeekly ? weeklyTotal : overallTotal;
+
+  const weeklyRangeText =
+    weeklyData?.window_start && weeklyData?.window_end
+      ? `${formatShortWindowDate(weeklyData.window_start)} – ${formatShortWindowDate(weeklyData.window_end)}`
+      : 'Last 7 Days';
+
+  const handleSelectPeriod = (nextPeriod) => {
+    setActivePeriod(nextPeriod);
+    if (typeof window !== 'undefined') {
+      try {
+        const url = new URL(window.location.href);
+        if (nextPeriod === 'weekly') {
+          url.searchParams.set('tab', 'weekly');
+        } else {
+          url.searchParams.delete('tab');
+        }
+        window.history.replaceState(null, '', url.toString());
+      } catch {}
+    }
+  };
 
   const firstPlace = top_three.find((c) => c.rank === 1) || top_three[0];
   const secondPlace = top_three.find((c) => c.rank === 2) || top_three[1];
@@ -126,11 +177,13 @@ export default function LeaderboardPage() {
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
             <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 px-4 py-3 rounded-2xl text-center">
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total Ranked</span>
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+                {isWeekly ? 'Active This Week' : 'Total Ranked'}
+              </span>
               <strong className="text-xl sm:text-2xl font-black text-amber-400">{total_candidates}</strong>
             </div>
             <Link
-              href="/"
+              href="/tests"
               className="bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-5 py-3.5 rounded-2xl text-xs sm:text-sm shadow-lg shadow-red-500/25 active:scale-95 transition-all flex items-center justify-center gap-1.5"
             >
               <span>Take Mock Exam</span>
@@ -145,31 +198,117 @@ export default function LeaderboardPage() {
         </div>
       </div>
 
+      {/* 1.5. Overall vs Weekly Standings Smart Switcher */}
+      <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        <div className="grid grid-cols-2 sm:inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-950/80 p-1 rounded-2xl border border-slate-200/80 dark:border-slate-800">
+          <button
+            type="button"
+            onClick={() => handleSelectPeriod('overall')}
+            className={`px-3.5 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              !isWeekly
+                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200/80 dark:ring-slate-700'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Trophy className={`w-4 h-4 shrink-0 ${!isWeekly ? 'text-amber-500' : 'text-slate-400'}`} />
+            <span>Overall Standings</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+              !isWeekly
+                ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300'
+                : 'bg-slate-200/70 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+            }`}>
+              {overallTotal}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleSelectPeriod('weekly')}
+            className={`px-3.5 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              isWeekly
+                ? 'bg-gradient-to-r from-japan-red to-rose-600 text-white shadow-md shadow-rose-500/20'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Flame className={`w-4 h-4 shrink-0 ${isWeekly ? 'text-amber-200 animate-pulse' : 'text-rose-500'}`} />
+            <span>Weekly Standings</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+              isWeekly
+                ? 'bg-white/20 text-white'
+                : 'bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300'
+            }`}>
+              {weeklyTotal}
+            </span>
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between md:justify-end gap-2 px-2 text-xs">
+          {isWeekly ? (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200/80 dark:border-rose-800/70 text-rose-700 dark:text-rose-300 font-bold">
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping shrink-0" />
+              <Calendar className="w-3.5 h-3.5 shrink-0" />
+              <span>Rolling 7-Day Window ({weeklyRangeText})</span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-semibold">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <span>All-Time Hall of Fame • Switch to Weekly for fresh 7-day competition</span>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* 2. Logged-in Candidate Standing Bar */}
       {user && current_user_rank && (
-        <div className="bg-gradient-to-r from-indigo-900/80 via-slate-900 to-indigo-950 text-white rounded-2xl p-4 sm:p-5 border border-indigo-500/30 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className={`text-white rounded-2xl p-4 sm:p-5 border shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+          isWeekly
+            ? 'bg-gradient-to-r from-rose-950/90 via-slate-900 to-indigo-950 border-rose-500/30'
+            : 'bg-gradient-to-r from-indigo-900/80 via-slate-900 to-indigo-950 border-indigo-500/30'
+        }`}>
           <div className="flex items-center gap-3.5 min-w-0 flex-1">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 shrink-0 aspect-square rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-base sm:text-lg shadow-md border border-indigo-400/40">
+            <div className={`w-11 h-11 sm:w-12 sm:h-12 shrink-0 aspect-square rounded-2xl text-white flex items-center justify-center font-black text-base sm:text-lg shadow-md border ${
+              isWeekly
+                ? 'bg-gradient-to-tr from-japan-red to-amber-500 border-rose-400/40'
+                : 'bg-indigo-600 border-indigo-400/40'
+            }`}>
               {current_user_rank.rank ? `#${current_user_rank.rank}` : '—'}
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[10px] sm:text-xs text-indigo-300 font-extrabold uppercase shrink-0">Your Standing:</span>
+                <span className={`text-[10px] sm:text-xs font-extrabold uppercase shrink-0 ${
+                  isWeekly ? 'text-rose-300' : 'text-indigo-300'
+                }`}>
+                  {isWeekly ? 'Your Weekly Standing:' : 'Your Overall Standing:'}
+                </span>
                 <strong className="text-sm sm:text-base font-black text-white truncate">{current_user_rank.full_name}</strong>
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-800/70 border border-indigo-500/40 text-[10px] sm:text-xs font-bold text-indigo-200 shrink-0">
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/10 border border-white/15 text-[10px] sm:text-xs font-bold text-slate-200 shrink-0">
                   <CountryFlag country={userCountry || 'Global'} flagEmoji={userFlag} width={18} height={12} />
                   <span className="truncate max-w-[120px]">{userCountry || 'Global'}</span>
                 </span>
               </div>
               <p className="text-xs text-slate-300 truncate">
                 {current_user_rank.rank
-                  ? `Ranked #${current_user_rank.rank} of ${total_candidates} candidates`
+                  ? `Ranked #${current_user_rank.rank} of ${total_candidates} ${isWeekly ? 'active candidates this week' : 'candidates overall'}`
+                  : isWeekly
+                  ? 'Take 1 mock exam this week to enter the Weekly Standings!'
                   : 'Complete your first practice test to join the ranked leaderboard!'}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-4 text-xs font-bold self-end sm:self-center shrink-0">
+            {other_user_rank?.rank && (
+              <button
+                type="button"
+                onClick={() => handleSelectPeriod(isWeekly ? 'overall' : 'weekly')}
+                className="hidden md:flex flex-col text-right border-r border-slate-700 pr-4 hover:opacity-80 transition-opacity cursor-pointer"
+              >
+                <span className="text-slate-400 text-[10px] block uppercase">
+                  {isWeekly ? 'Overall Rank' : 'Weekly Rank'}
+                </span>
+                <span className="text-indigo-300 font-black">#{other_user_rank.rank}</span>
+              </button>
+            )}
             <div className="text-right">
               <span className="text-slate-400 text-[10px] block uppercase">Passed Tests</span>
               <span className="text-emerald-400 font-black">{current_user_rank.passed_attempts}</span>
@@ -183,14 +322,20 @@ export default function LeaderboardPage() {
       )}
 
       {/* 3. Top 3 Highlighted Podium */}
-      {top_three.length > 0 && (
+      {top_three.length > 0 ? (
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
             <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-              <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 shrink-0" />
-              <span>Top Ranked Candidates</span>
+              {isWeekly ? (
+                <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-rose-500 shrink-0" />
+              ) : (
+                <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 shrink-0" />
+              )}
+              <span>{isWeekly ? 'Top Weekly Candidates' : 'Top Ranked Candidates'}</span>
             </h2>
-            <span className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold">Gold, Silver &amp; Bronze Podium</span>
+            <span className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold">
+              {isWeekly ? `Weekly Gold, Silver & Bronze (${weeklyRangeText})` : 'All-Time Gold, Silver & Bronze Podium'}
+            </span>
           </div>
 
           {/* Desktop Olympic 3-Column Podium (>= 640px sm) */}
@@ -523,6 +668,38 @@ export default function LeaderboardPage() {
             )}
           </div>
         </div>
+      ) : (
+        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 sm:p-10 text-center space-y-3 shadow-xs">
+          <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-500 mx-auto flex items-center justify-center">
+            <Flame className="w-6 h-6" />
+          </div>
+          <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+            {isWeekly ? 'Weekly Podium Is Wide Open!' : 'No Ranked Candidates Yet'}
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+            {isWeekly
+              ? 'Be the first candidate to complete a mock exam in the last 7 days and claim the #1 Weekly Champion crown.'
+              : 'Complete a mock exam to appear on the Honor Roll.'}
+          </p>
+          <div className="pt-1 flex items-center justify-center gap-2">
+            <Link
+              href="/tests"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-japan-red to-rose-600 text-white text-xs font-black shadow-md shadow-rose-500/20"
+            >
+              <span>Start Mock Exam</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            {isWeekly && (
+              <button
+                type="button"
+                onClick={() => handleSelectPeriod('overall')}
+                className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold cursor-pointer"
+              >
+                View Overall Standings
+              </button>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Educational Scoring Guide Overview */}
@@ -531,17 +708,41 @@ export default function LeaderboardPage() {
           How National CBT Rankings &amp; CEFR Scaled Scores Work
         </h3>
         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-          Gakkou No Shiken calculates candidate scores according to official Item Response Theory (IRT) scaling used in Prometric JFT-Basic examinations (scale: 10–250 points, passing threshold: 200 points) and SSW skill evaluations (percentage benchmark: 60%). Ranks are updated in real-time based on verified mock exam submissions across Bangladesh and overseas candidate pools.
+          Gakkou No Shiken calculates candidate scores according to official Item Response Theory (IRT) scaling used in Prometric JFT-Basic examinations (scale: 10–250 points, passing threshold: 200 points) and SSW skill evaluations (percentage benchmark: 60%). Overall Standings track all-time performance, while Weekly Standings highlight top performers over the rolling last 7 days.
         </p>
       </div>
 
       {/* 4. Full Standings Section */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <h2 className="text-base sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Overall Standings ({rankings.length > 0 ? `Ranks 4 to ${rankings.length + 3}` : 'Top Candidates'})
+            {isWeekly ? 'Weekly Standings' : 'Overall Standings'} (
+            {rankings.length > 0 ? `Ranks 4 to ${rankings.length + 3}` : 'Top Candidates'})
           </h2>
-          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Standard ranking</span>
+          <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => handleSelectPeriod('overall')}
+              className={`px-3 py-1 rounded-lg text-[11px] font-black transition-all cursor-pointer ${
+                !isWeekly
+                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
+              }`}
+            >
+              Overall
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSelectPeriod('weekly')}
+              className={`px-3 py-1 rounded-lg text-[11px] font-black transition-all cursor-pointer ${
+                isWeekly
+                  ? 'bg-japan-red text-white shadow-2xs'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
+              }`}
+            >
+              Weekly (7d)
+            </button>
+          </div>
         </div>
 
         {rankings.length > 0 ? (

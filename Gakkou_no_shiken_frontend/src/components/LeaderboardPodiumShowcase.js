@@ -56,9 +56,27 @@ const FALLBACK_TOP_THREE = [
   },
 ];
 
+function normalizeTopThree(list) {
+  if (!Array.isArray(list)) return [];
+  return list.map((c, idx) => ({
+    rank: c.rank || idx + 1,
+    full_name: c.full_name || c.username || `Candidate #${idx + 1}`,
+    username: c.username || `candidate_${idx + 1}`,
+    highest_score: c.highest_score || c.avg_score || 200,
+    avg_score: c.avg_score || 190,
+    passed_attempts: c.passed_attempts || 1,
+    country: c.country || 'Bangladesh',
+    country_flag: c.country_flag || '🇧🇩',
+    target_exam_display: c.target_exam_display || 'JFT-Basic',
+  }));
+}
+
 export default function LeaderboardPodiumShowcase() {
-  const [topThree, setTopThree] = useState(FALLBACK_TOP_THREE);
+  const [overallTopThree, setOverallTopThree] = useState(FALLBACK_TOP_THREE);
+  const [weeklyTopThree, setWeeklyTopThree] = useState([]);
   const [totalCandidates, setTotalCandidates] = useState(480);
+  const [weeklyCandidates, setWeeklyCandidates] = useState(0);
+  const [activePeriod, setActivePeriod] = useState('overall'); // 'overall' | 'weekly'
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -67,21 +85,16 @@ export default function LeaderboardPodiumShowcase() {
       .then((data) => {
         if (!isMounted) return;
         if (data?.top_three && Array.isArray(data.top_three) && data.top_three.length > 0) {
-          const formatted = data.top_three.map((c, idx) => ({
-            rank: c.rank || idx + 1,
-            full_name: c.full_name || c.username || `Candidate #${idx + 1}`,
-            username: c.username || `candidate_${idx + 1}`,
-            highest_score: c.highest_score || c.avg_score || 200,
-            avg_score: c.avg_score || 190,
-            passed_attempts: c.passed_attempts || 1,
-            country: c.country || 'Bangladesh',
-            country_flag: c.country_flag || '🇧🇩',
-            target_exam_display: c.target_exam_display || 'JFT-Basic',
-          }));
-          setTopThree(formatted);
+          setOverallTopThree(normalizeTopThree(data.top_three));
         }
         if (data?.total_candidates) {
           setTotalCandidates(data.total_candidates);
+        }
+        if (data?.weekly) {
+          if (Array.isArray(data.weekly.top_three) && data.weekly.top_three.length > 0) {
+            setWeeklyTopThree(normalizeTopThree(data.weekly.top_three));
+          }
+          setWeeklyCandidates(data.weekly.total_candidates || 0);
         }
       })
       .catch((err) => {
@@ -95,6 +108,12 @@ export default function LeaderboardPodiumShowcase() {
       isMounted = false;
     };
   }, []);
+
+  const isWeekly = activePeriod === 'weekly';
+  const topThree = isWeekly
+    ? (weeklyTopThree.length > 0 ? weeklyTopThree : overallTopThree)
+    : overallTopThree;
+  const activeCount = isWeekly ? weeklyCandidates : totalCandidates;
 
   const firstPlace = topThree.find((c) => c.rank === 1) || topThree[0];
   const secondPlace = topThree.find((c) => c.rank === 2) || topThree[1];
@@ -126,16 +145,45 @@ export default function LeaderboardPodiumShowcase() {
           </div>
 
           <h2 className="text-base sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-            Prometric CBT Hall of Fame
+            {isWeekly ? 'Weekly CBT Champions (Last 7 Days)' : 'Prometric CBT Hall of Fame'}
           </h2>
 
           <p className="text-[11px] sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium line-clamp-2 sm:line-clamp-none">
-            Think you have what it takes to break onto the national podium? Take authentic JFT-Basic &amp; SSW mock tests, grind for perfection, and claim your place among {totalCandidates}+ ranked candidates!
+            {isWeekly
+              ? `Fresh rolling 7-day competition! ${activeCount > 0 ? `${activeCount} active candidates ranked this week — ` : ''}take a mock exam today to climb onto the weekly podium!`
+              : `Think you have what it takes to break onto the podium? Take authentic JFT-Basic & SSW mock tests, grind for perfection, and claim your place among ${totalCandidates}+ ranked candidates!`}
           </p>
         </div>
 
-        {/* Quick Action Header CTA */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Quick Action Header CTA + Overall/Weekly Toggle */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 shrink-0">
+          <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setActivePeriod('overall')}
+              className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-black transition-all cursor-pointer flex items-center gap-1 ${
+                !isWeekly
+                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
+              }`}
+            >
+              <Trophy className="w-3 h-3 text-amber-500" />
+              <span>Overall</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActivePeriod('weekly')}
+              className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-black transition-all cursor-pointer flex items-center gap-1 ${
+                isWeekly
+                  ? 'bg-japan-red text-white shadow-2xs'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
+              }`}
+            >
+              <Flame className="w-3 h-3" />
+              <span>Weekly</span>
+            </button>
+          </div>
+
           <button
             onClick={handleGrindScroll}
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-xl bg-gradient-to-r from-japan-red via-rose-600 to-japan-red hover:from-rose-600 hover:to-red-700 text-white font-black text-[11px] sm:text-sm shadow-md shadow-red-500/25 hover:shadow-lg active:scale-95 transition-all cursor-pointer group whitespace-nowrap"
@@ -145,7 +193,7 @@ export default function LeaderboardPodiumShowcase() {
           </button>
 
           <Link
-            href="/leaderboard"
+            href={isWeekly ? '/leaderboard?tab=weekly' : '/leaderboard'}
             className="inline-flex items-center justify-center gap-1 px-2.5 sm:px-3.5 py-1.5 sm:py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/70 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700/80 font-black text-[11px] sm:text-sm transition-all shadow-2xs hover:scale-105 active:scale-95 whitespace-nowrap"
           >
             <Trophy className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500 shrink-0" />
