@@ -41,8 +41,18 @@ function toneFor(str = '') {
 }
 
 function initialsOf(name = '') {
-  const parts = String(name).trim().split(/\s+/).filter(Boolean);
-  return ((parts[0]?.[0] || '?') + (parts[1]?.[0] || '')).toUpperCase();
+  const cleaned = String(name)
+    .trim()
+    .split(/\s+/)
+    .map((p) => p.replace(/^[^a-zA-Z0-9\u0980-\u09FF\u3040-\u30FF\u4E00-\u9FAF]+/, ''))
+    .filter(Boolean);
+  if (cleaned.length >= 2) {
+    return (cleaned[0][0] + cleaned[1][0]).toUpperCase();
+  }
+  if (cleaned.length === 1) {
+    return cleaned[0].slice(0, 2).toUpperCase();
+  }
+  return '?';
 }
 
 const countryOf = (c) => c?.country || c?.location || 'Global';
@@ -129,51 +139,65 @@ function PodiumCard({ c, place, orderClass }) {
   const country = countryOf(c);
 
   return (
-    <div className={`${orderClass} ${isFirst ? 'sm:-translate-y-4' : ''}`}>
+    <div className={`min-w-0 ${orderClass} ${isFirst ? '-translate-y-2 sm:-translate-y-4' : ''}`}>
       <Link
         href={`/profile/${encodeURIComponent(c.username)}`}
-        className={`group relative block overflow-hidden rounded-3xl border ${s.border} bg-white dark:bg-slate-900 ${s.glow} transition-all duration-300 hover:-translate-y-1`}
+        className={`group relative block overflow-hidden rounded-2xl sm:rounded-3xl border ${s.border} bg-white dark:bg-slate-900 ${s.glow} transition-all duration-300 hover:-translate-y-1`}
       >
-        <div className={`h-1.5 w-full bg-gradient-to-r ${s.strip}`} />
+        <div className={`h-1 sm:h-1.5 w-full bg-gradient-to-r ${s.strip}`} />
 
-        <div className={`absolute right-3 top-2 select-none text-6xl font-black leading-none ${s.numeral}`}>
+        <div className={`hidden sm:block absolute right-3 top-2 select-none text-6xl font-black leading-none ${s.numeral}`}>
           {place}
         </div>
 
-        <div className={`relative px-5 ${isFirst ? 'pt-7 pb-6' : 'pt-6 pb-5'} flex flex-col items-center text-center`}>
-          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${s.badge}`}>
-            <Icon className="w-3 h-3" />
-            {s.label}
+        <div className={`relative px-2 sm:px-5 ${isFirst ? 'pt-3.5 pb-3 sm:pt-7 sm:pb-6' : 'pt-3 pb-2.5 sm:pt-6 sm:pb-5'} flex flex-col items-center text-center min-w-0`}>
+          <span className={`inline-flex items-center gap-0.5 sm:gap-1 rounded-full px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-wider max-w-full ${s.badge}`}>
+            <Icon className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
+            <span className="sm:hidden">#{place}</span>
+            <span className="hidden sm:inline">{s.label}</span>
           </span>
 
-          <div className="mt-4">
-            <Avatar name={c.full_name} seed={c.username} size="lg" ringClass={`ring-4 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ${s.ring}`} />
-          </div>
-
-          <h3 className="mt-3 w-full truncate text-base font-black text-slate-900 dark:text-white group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors">
-            {c.full_name}
-          </h3>
-          <p className="w-full truncate font-mono text-[11px] text-slate-400">@{c.username}</p>
-
-          <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 px-2.5 py-0.5 text-[11px] font-bold text-slate-600 dark:text-slate-300">
-            <CountryFlag country={country} flagEmoji={flagOf(c)} width={16} height={11} />
-            <span className="truncate max-w-[120px]">{country}</span>
-          </div>
-
-          <div className={`mt-4 w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/50 ${isFirst ? 'py-4' : 'py-3'}`}>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">High Score</div>
-            <div className={`font-black tabular-nums leading-none mt-1 ${isFirst ? 'text-4xl' : 'text-3xl'} ${s.score}`}>
-              {c.highest_score}
-              <span className="text-xs font-semibold text-slate-400"> / 250</span>
+          <div className="mt-2 sm:mt-4">
+            <div className="sm:hidden">
+              <Avatar name={c.full_name} seed={c.username} size="sm" ringClass={`ring-2 ring-offset-1 ring-offset-white dark:ring-offset-slate-900 ${s.ring}`} />
+            </div>
+            <div className="hidden sm:block">
+              <Avatar name={c.full_name} seed={c.username} size="lg" ringClass={`ring-4 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ${s.ring}`} />
             </div>
           </div>
 
-          <div className="mt-3 grid w-full grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800">
+          <h3 className="mt-2 sm:mt-3 w-full truncate text-[11px] sm:text-base font-black text-slate-900 dark:text-white group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors">
+            {c.full_name}
+          </h3>
+          <p className="w-full truncate font-mono text-[9px] sm:text-[11px] text-slate-400">@{c.username}</p>
+
+          <div className="mt-1.5 sm:mt-2.5 inline-flex items-center gap-1 sm:gap-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 px-1.5 sm:px-2.5 py-0.5 text-[9px] sm:text-[11px] font-bold text-slate-600 dark:text-slate-300 max-w-full">
+            <CountryFlag country={country} flagEmoji={flagOf(c)} width={14} height={10} />
+            <span className="truncate max-w-[68px] sm:max-w-[120px]">{country}</span>
+          </div>
+
+          <div className={`mt-2 sm:mt-4 w-full rounded-xl sm:rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/50 ${isFirst ? 'py-2 sm:py-4' : 'py-1.5 sm:py-3'}`}>
+            <div className="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">Score</div>
+            <div className={`font-black tabular-nums leading-none mt-0.5 sm:mt-1 ${isFirst ? 'text-lg sm:text-4xl' : 'text-base sm:text-3xl'} ${s.score}`}>
+              {c.highest_score}
+              <span className="hidden sm:inline text-xs font-semibold text-slate-400"> / 250</span>
+            </div>
+          </div>
+
+          {/* Mobile compact pass/avg line */}
+          <div className="mt-1.5 sm:hidden flex items-center justify-center gap-1.5 text-[9px] font-bold tabular-nums w-full truncate">
+            <span className="text-emerald-600 dark:text-emerald-400">{c.passed_attempts}✓</span>
+            <span className="text-slate-400">·</span>
+            <span className="text-slate-500 dark:text-slate-400">avg {c.avg_score}</span>
+          </div>
+
+          {/* Desktop 2-col stats + link */}
+          <div className="hidden sm:grid mt-3 w-full grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800">
             <StatCell label="Passed" value={c.passed_attempts} valueClass="text-emerald-600 dark:text-emerald-400" />
             <StatCell label="Average" value={c.avg_score} />
           </div>
 
-          <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-slate-500 group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors">
+          <span className="hidden sm:inline-flex mt-4 items-center gap-1 text-xs font-bold text-slate-500 group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors">
             View profile <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </span>
         </div>
@@ -318,7 +342,7 @@ export default function LeaderboardPage() {
   const meCountry = me ? countryOf(me) || user?.profile?.country || 'Global' : 'Global';
 
   return (
-    <div className="space-y-8 sm:space-y-10 animate-fade-in">
+    <div className="space-y-6 sm:space-y-10 animate-fade-in max-w-full overflow-x-hidden">
       {/* ═══════════ 1. Hero ═══════════ */}
       <section className="relative overflow-hidden rounded-3xl border border-slate-800 bg-[#0B1020] text-white shadow-2xl shadow-slate-900/20">
         <div className="pointer-events-none absolute -top-32 -left-24 h-80 w-80 rounded-full bg-indigo-600/25 blur-3xl" />
@@ -433,10 +457,12 @@ export default function LeaderboardPage() {
       {me && (
         <section className="rounded-3xl border border-indigo-200/70 dark:border-indigo-500/20 bg-gradient-to-r from-indigo-50 via-white to-white dark:from-indigo-950/40 dark:via-slate-900 dark:to-slate-900 p-4 sm:p-5">
           <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
-            <div className="flex items-center gap-4 min-w-0 flex-1">
-              <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+              <div className="flex h-14 min-w-[3.75rem] px-2.5 shrink-0 flex-col items-center justify-center rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900">
                 <span className="text-[9px] font-bold uppercase tracking-wider opacity-60">Rank</span>
-                <span className="text-lg font-black leading-none tabular-nums">{me.rank ? `#${me.rank}` : '—'}</span>
+                <span className={`${me.rank && me.rank >= 1000 ? 'text-sm' : 'text-lg'} font-black leading-none tabular-nums`}>
+                  {me.rank ? `#${me.rank}` : '—'}
+                </span>
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -498,9 +524,9 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 sm:items-end sm:pt-4">
-            {second && <PodiumCard c={second} place={2} orderClass="order-2 sm:order-1" />}
-            {first && <PodiumCard c={first} place={1} orderClass="order-1 sm:order-2" />}
+          <div className="grid grid-cols-3 gap-2 sm:gap-5 items-end pt-3 sm:pt-4">
+            {second && <PodiumCard c={second} place={2} orderClass="order-1" />}
+            {first && <PodiumCard c={first} place={1} orderClass="order-2" />}
             {third && <PodiumCard c={third} place={3} orderClass="order-3" />}
           </div>
         </section>
