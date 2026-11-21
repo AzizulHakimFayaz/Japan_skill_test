@@ -4,7 +4,6 @@ import PracticeTestGrid from '@/components/PracticeTestGrid';
 import HeroBannerCarousel from '@/components/HeroBannerCarousel';
 import LeaderboardPodiumShowcase from '@/components/LeaderboardPodiumShowcase';
 import StudentExamGuide from '@/components/StudentExamGuide';
-import LiveActivityTicker from '@/components/LiveActivityTicker';
 import LearningHubShowcase from '@/components/LearningHubShowcase';
 import AdsterraNativeBanner from '@/components/AdsterraNativeBanner';
 
@@ -97,16 +96,9 @@ export default async function HomePage() {
       />
 
       {/* 1. Hero Banner (Interactive Auto-Sliding Glassmorphic Carousel) */}
-      <div className="space-y-3">
-        <HeroBannerCarousel />
-        {/* Real-time Student Milestone & Activity Ticker */}
-        <LiveActivityTicker />
-      </div>
+      <HeroBannerCarousel />
 
-      {/* 2. Top 3 Champions Podium & "Grind for #1" Promotional Challenge */}
-      <LeaderboardPodiumShowcase />
-
-      {/* 3. Interactive Learning & Game Hub Showcase (Game Zone, Lessons, Tools, Daily Vocab) */}
+      {/* 2. Interactive Learning & Game Hub Showcase (Game Zone, Lessons, Tools, Daily Vocab) */}
       <LearningHubShowcase />
 
       {/* 3. Practice Test Categories & Cards Grid */}
@@ -131,6 +123,9 @@ export default async function HomePage() {
           />
         </section>
       </div>
+
+      {/* 4. Top 3 Champions Podium & "Grind for #1" Promotional Challenge */}
+      <LeaderboardPodiumShowcase />
 
       {/* 3. Animated Interactive Feature Showcase (Audio Equalizer, Language Lens, IRT Scoring Gauge, Hubs) */}
       <AdsterraNativeBanner />
