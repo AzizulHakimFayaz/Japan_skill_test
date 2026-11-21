@@ -36,7 +36,7 @@ const LeadCaptureModal = dynamic(() => import('./LeadCaptureModal'), { ssr: fals
 export default function PracticeTestGrid({
   practiceTests = [],
   title = 'Practice Mock Exams',
-  subtitle = 'Official-style online practice tests with immediate scoring.',
+  subtitle = 'Realistic exam-style online practice tests to help you get familiar with the CBT interface.',
   catKey = 'basic',
   initialViewMode = 'carousel', // 'carousel' or 'grid'
   showViewToggle = true,

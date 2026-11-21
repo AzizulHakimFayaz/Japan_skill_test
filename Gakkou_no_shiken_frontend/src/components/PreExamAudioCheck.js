@@ -142,7 +142,7 @@ export default function PreExamAudioCheck({ isOpen, onClose, testId, testTitle, 
         <div className="space-y-2">
           <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-wider ${modalTheme.badge}`}>
             <Headphones className="w-3.5 h-3.5" />
-            <span>Official CBT Readiness Check</span>
+            <span>CBT Interface &amp; Audio Check</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
             {t('audio_check_title')}

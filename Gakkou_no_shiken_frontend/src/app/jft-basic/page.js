@@ -154,7 +154,7 @@ export default function JftBasicPage() {
         <PracticeTestGrid
           practiceTests={practiceTests}
           title="JFT-Basic Practice Mock Exams"
-          subtitle="Take official-style JFT-Basic practice tests online with instant scoring."
+          subtitle="Take realistic JFT-Basic CBT practice tests online to get familiar with the exam interface and instant scoring."
           catKey="basic"
         />
       </div>

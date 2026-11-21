@@ -1,7 +1,7 @@
 export const metadata = {
   title: 'All CBT Mock Tests | JFT-Basic & SSW Skill Exams',
   description:
-    'Browse all official-style Computer-Based Testing (CBT) practice exams for JFT-Basic and SSW skill evaluation with native listening audio and instant CEFR score reports.',
+    'Browse all realistic Computer-Based Testing (CBT) practice exams for JFT-Basic and SSW skill evaluation — built to help you get familiar with the real exam interface, audio, and timing.',
   alternates: {
     canonical: 'https://www.gakkounoshiken.site/tests',
   },

@@ -871,7 +871,7 @@ function QuizContent({ params: paramsPromise }) {
                   Welcome to Japan Foundation Test for Basic Japanese (JFT-Basic) CBT Simulation
                 </h2>
                 <p className="text-xs sm:text-sm leading-relaxed text-slate-800">
-                  This simulated CBT exam strictly follows official Prometric testing standards. You will complete 4 sections in sequential order.
+                  This independent practice CBT simulator mirrors the real exam interface and 4-section flow so you can get familiar with the system before test day.
                 </p>
 
                 <div className="pt-4">
@@ -1385,7 +1385,7 @@ function QuizContent({ params: paramsPromise }) {
       <GlobalLoader
         visible={Boolean(loadingOverlayText)}
         title={loadingOverlayText || 'Evaluating Exam Results...'}
-        subtitle="Submitting your answers, calculating official scale scores and performance breakdown..."
+        subtitle="Submitting your answers, calculating simulated practice scores and performance breakdown..."
       />
       </div>
     </ExamSecurityGuard>

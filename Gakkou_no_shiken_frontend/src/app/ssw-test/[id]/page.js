@@ -834,7 +834,7 @@ function SswCbtExamContent({ params: paramsPromise }) {
             </div>
 
             <p className="text-sm text-slate-300 leading-relaxed">
-              試験を終了して解答を送信し、公式採点結果を表示しますか？
+              試験を終了して解答を送信し、模擬採点結果を表示しますか？
             </p>
 
             <div className="bg-slate-800/80 rounded-xl p-3.5 text-xs space-y-1.5 text-slate-300 border border-slate-700">
@@ -972,7 +972,7 @@ function SswCbtExamContent({ params: paramsPromise }) {
       <GlobalLoader
         visible={isSubmitting}
         title="Evaluating Exam Results..."
-        subtitle="Submitting your answers, calculating official scale scores and performance breakdown..."
+        subtitle="Submitting your answers, calculating simulated practice scores and performance breakdown..."
       />
 
     </div>

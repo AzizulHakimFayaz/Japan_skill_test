@@ -13,7 +13,7 @@ import jsPDF from 'jspdf';
 export async function exportToPdf(target, options = {}) {
   const {
     filename = 'GakkouNoShiken_Result.pdf',
-    title = 'Official Score Report',
+    title = 'Practice Score Report',
   } = options;
 
   const element = typeof target === 'string' ? document.getElementById(target) : target;

@@ -48,9 +48,9 @@ const SECTIONS = [
   },
   {
     id: 'exam_results',
-    title: '4. Mock Test Attempts & Official Score Certificates',
+    title: '4. Mock Test Attempts & Practice Score Reports',
     content: `When you complete a mock exam:
-• Your answers are evaluated on our secure server, and an official CEFR scaled score is calculated.
+• Your answers are evaluated on our secure server, and a simulated CEFR-style practice score is calculated.
 • The score report and downloadable high-resolution PDF certificate are stored in your private Candidate Dashboard under "My Results".
 • You can review your past answers, view explanations, and track your progress toward the 200-point JFT passing benchmark.
 • Staff and test administrators can view aggregate, anonymized test performance statistics to improve exam question quality and calibrate item difficulty.`,

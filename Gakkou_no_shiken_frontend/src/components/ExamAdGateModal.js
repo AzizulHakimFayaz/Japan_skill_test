@@ -164,7 +164,7 @@ export default function ExamAdGateModal({
             <span className="text-[11px] sm:text-xs font-bold text-slate-300 truncate">
               {isPre
                 ? 'Sponsored Break • Preparing Free CBT Simulator'
-                : 'Sponsored Break • Generating Official Scorecard'}
+                : 'Sponsored Break • Generating Practice Scorecard'}
             </span>
           </div>
 
@@ -214,7 +214,7 @@ export default function ExamAdGateModal({
                 <p className="text-xs text-slate-400 leading-relaxed">
                   {isPre
                     ? 'Watch this short sponsor message to unlock your full distraction-free mock exam. Your exam timer has NOT started yet.'
-                    : 'Your answers are securely saved. Calculating section breakdown and official pass/fail status after this brief sponsor message.'}
+                    : 'Your answers are securely saved. Calculating section breakdown and practice pass/fail status after this brief sponsor message.'}
                 </p>
 
                 {/* Live Sub-status Pill */}
@@ -222,7 +222,7 @@ export default function ExamAdGateModal({
                   {canProceedNow ? (
                     <span className="inline-flex items-center gap-1.5 text-emerald-400">
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>{isPre ? 'Exam environment ready!' : 'Official scorecard ready!'}</span>
+                      <span>{isPre ? 'Exam environment ready!' : 'Practice scorecard ready!'}</span>
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-2 text-amber-300">
@@ -275,7 +275,7 @@ export default function ExamAdGateModal({
           >
             {canProceedNow ? (
               <>
-                <span>{isPre ? 'Start Exam Now' : 'View Official Result'}</span>
+                <span>{isPre ? 'Start Exam Now' : 'View Practice Result'}</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             ) : secondsLeft > 0 ? (

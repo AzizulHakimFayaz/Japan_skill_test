@@ -88,7 +88,7 @@ export default function AboutDynamicStats({ initialStats }) {
           <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-1">
             <span>{stats.official_scaled_scoring || 250}</span>
           </div>
-          <strong className="text-xs sm:text-sm font-bold text-slate-200 block">Official Scaled Scoring</strong>
+          <strong className="text-xs sm:text-sm font-bold text-slate-200 block">Simulated 250-Pt Scoring</strong>
           <span className="text-[11px] text-slate-400 block">Instant CEFR-J A1/A2 results</span>
         </div>
       </div>

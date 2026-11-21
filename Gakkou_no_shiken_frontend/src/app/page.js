@@ -31,7 +31,7 @@ export default async function HomePage() {
         name: 'What is Gakkou No Shiken?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: "Gakkou No Shiken is Asia's #1 official-style Computer-Based Testing (CBT) mock exam platform for candidates preparing for JFT-Basic and SSW (Specified Skilled Worker) Japanese exams.",
+          text: "Gakkou No Shiken is Asia's #1 realistic Computer-Based Testing (CBT) practice simulator, designed to help candidates get familiar with the JFT-Basic and SSW exam interface and timing before test day.",
         },
       },
       {

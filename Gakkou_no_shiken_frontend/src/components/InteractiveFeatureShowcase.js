@@ -22,7 +22,7 @@ import {
 
 const LIVE_TICKER_ITEMS = [
   { text: "🇧🇩 Bangladesh's 1st CBT Platform", tag: 'FIRST IN BD', color: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
-  { text: 'JFT-Basic 2026 Format', tag: 'OFFICIAL', color: 'bg-rose-500/15 text-rose-300 border-rose-500/30' },
+  { text: 'JFT-Basic 2026 Format', tag: 'EXAM-STYLE', color: 'bg-rose-500/15 text-rose-300 border-rose-500/30' },
   { text: 'Prometric 60-Min CBT Timer', tag: 'REALISTIC', color: 'bg-amber-500/15 text-amber-300 border-amber-500/30' },
   { text: '10-Language Instant Helper', tag: 'IN-TEST', color: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30' },
   { text: '200/250 A2 Passing Standard', tag: 'BENCHMARK', color: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
@@ -182,7 +182,7 @@ export default function InteractiveFeatureShowcase() {
                   Instant Scorecard
                 </h3>
                 <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 mt-0.5 sm:mt-1 leading-relaxed font-medium">
-                  Official CEFR-J A2 scaled scoring with 4-section diagnostic accuracy.
+                  Simulated CEFR-J A2 practice scoring with 4-section diagnostic accuracy.
                 </p>
               </div>
             </div>

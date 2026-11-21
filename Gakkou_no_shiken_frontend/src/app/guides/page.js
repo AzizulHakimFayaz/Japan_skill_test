@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'Official JFT-Basic & SSW Examination Guides Hub (2026) | Gakkou No Shiken',
+  title: 'JFT-Basic & SSW Examination Study Guides Hub (2026) | Gakkou No Shiken',
   description:
     'Comprehensive editorial study guides for Japanese Prometric CBT exams. Master JFT-Basic scoring, Prometric registration in Dhaka, SSW sector blueprints (Nursing Care, Food Service, Agriculture), grammar particles, and study plans.',
   alternates: {

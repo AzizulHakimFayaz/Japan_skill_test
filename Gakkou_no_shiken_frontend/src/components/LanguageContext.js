@@ -48,7 +48,7 @@ const TRANSLATIONS = {
     // Coming Soon
     coming_soon: 'Coming Soon',
     coming_soon_title: 'SSW Sector Practice Exams Under Preparation',
-    coming_soon_desc: 'New official-style mock test sets for Nursing Care, Food Service, and Agriculture are being published.',
+    coming_soon_desc: 'New exam-style CBT practice sets for Nursing Care, Food Service, and Agriculture are being published.',
     get_notified: 'Get Notified (Email/WhatsApp)',
     
     // Test Centers & Checklist
@@ -88,7 +88,7 @@ const TRANSLATIONS = {
     released_now: 'Now Live',
     remind_me_btn: 'Notify Me on WhatsApp',
     exam_waiting_room: 'Exam Waiting Room',
-    waiting_room_desc: 'This official CBT examination is scheduled to launch at the exact time indicated below. When the timer hits zero, the test room will unlock automatically.',
+    waiting_room_desc: 'This scheduled CBT practice mock exam is set to open at the time shown below. When the timer hits zero, the practice room will unlock automatically.',
     back_to_tests: 'Back to Practice Tests',
   },
   bn: {
@@ -111,7 +111,7 @@ const TRANSLATIONS = {
     
     // Hero & Headers
     hero_title: 'বাংলাদেশের ১ম ও শীর্ষ জেএফটি-বেসিক ও এসএসডব্লিউ সিবিটি মক টেস্ট পোর্টাল',
-    hero_subtitle: 'জাপান ভিসা পরীক্ষার জন্য দেশের ১ম অফিশিয়াল প্রমেট্রিক সিবিটি মক টেস্ট, অডিও লিসেনিং ও তাৎক্ষণিক সিইএফআর স্কোরিং প্ল্যাটফর্ম।',
+    hero_subtitle: 'জাপান ভিসা পরীক্ষার সিস্টেম ও ইন্টারফেসের সাথে পরিচিত হওয়ার জন্য নির্ভরযোগ্য CBT প্র্যাকটিস মক টেস্ট, অডিও লিসেনিং ও তাৎক্ষণিক স্কোরিং প্ল্যাটফর্ম।',
     start_mock_exam: 'মক টেস্ট শুরু করুন',
     explore_test_centers: 'পরীক্ষা কেন্দ্রসমূহ (BDJ01 ও BDJ02)',
     
@@ -176,7 +176,7 @@ const TRANSLATIONS = {
     released_now: 'এখন উন্মুক্ত',
     remind_me_btn: 'হোয়াটসঅ্যাপে নোটিফিকেশন পান',
     exam_waiting_room: 'পরীক্ষা অপেক্ষার কক্ষ',
-    waiting_room_desc: 'এই অফিশিয়াল CBT মক টেস্টটি নিচের নির্দিষ্ট সময়ে উন্মুক্ত হবে। কাউন্টডাউন শেষ হওয়া মাত্র পরীক্ষার কক্ষ স্বয়ংক্রিয়ভাবে খুলে যাবে।',
+    waiting_room_desc: 'এই নির্ধারিত CBT প্র্যাকটিস মক টেস্টটি নিচের নির্দিষ্ট সময়ে উন্মুক্ত হবে। কাউন্টডাউন শেষ হওয়া মাত্র পরীক্ষার কক্ষ স্বয়ংক্রিয়ভাবে খুলে যাবে।',
     back_to_tests: 'মক টেস্ট তালিকায় ফিরে যান',
   },
   id: {
@@ -199,12 +199,12 @@ const TRANSLATIONS = {
 
     // Hero & Headers
     hero_title: 'Platform Simulasi CBT JFT-Basic & SSW #1 di Asia',
-    hero_subtitle: 'Simulator ujian CBT Prometric resmi dengan audio penutur asli Jepang, dukungan multi-bahasa, dan skor CEFR instan.',
+    hero_subtitle: 'Simulator latihan CBT bergaya ujian asli agar Anda terbiasa dengan sistem & antarmuka ujian, lengkap dengan audio Jepang dan skor latihan CEFR instan.',
     start_mock_exam: 'Mulai Try Out CBT',
     explore_test_centers: 'Lokasi Tes Prometric',
 
     // Test Cards
-    practice_tests: 'Latihan Try Out Resmi',
+    practice_tests: 'Latihan Try Out CBT',
     available_tests: 'Tes Tersedia',
     start_exam: 'Mulai Ujian',
     practice_section: 'Latihan Per Bagian',
@@ -312,7 +312,7 @@ const TRANSLATIONS = {
     // Coming Soon
     coming_soon: 'Malapit Na',
     coming_soon_title: 'Mga Bagong SSW Sector Practice Exam',
-    coming_soon_desc: 'Bagong opisyal na mock test sets para sa Caregiving, Food Service, at Agriculture ang inihahanda.',
+    coming_soon_desc: 'Bagong exam-style na practice mock test sets para sa Caregiving, Food Service, at Agriculture ang inihahanda.',
     get_notified: 'Ma-notify sa Email/WhatsApp',
 
     // Test Centers & Checklist
@@ -373,13 +373,13 @@ const TRANSLATIONS = {
     live_stream: 'ライブ活動',
     
     // Hero & Headers
-    hero_title: 'バングラデシュ初 JFT-Basic & 特定技能（SSW）公式仕様CBT模擬試験ポータル',
+    hero_title: 'JFT-Basic & 特定技能（SSW）本番形式CBT模擬試験・練習ポータル',
     hero_subtitle: 'バングラデシュ初の本格的プロメトリックCBT試験シミュレーター。ネイティブ聴解音声と即時CEFR採点システム。',
     start_mock_exam: '模擬試験を開始',
     explore_test_centers: '試験会場案内 (BDJ01 & BDJ02)',
     
     // Test Cards
-    practice_tests: '公式仕様 模擬試験一覧',
+    practice_tests: '本番形式 模擬試験一覧',
     available_tests: '利用可能テスト',
     start_exam: '試験を開始する',
     practice_section: 'セクション別練習',
@@ -439,7 +439,7 @@ const TRANSLATIONS = {
     released_now: '公開中',
     remind_me_btn: '公開通知を受け取る (WhatsApp)',
     exam_waiting_room: '試験待合室',
-    waiting_room_desc: 'この公式CBT模擬試験は下記の日時に公開されます。タイマーがゼロになると自動的に試験が開始可能になります。',
+    waiting_room_desc: 'このCBT模擬練習試験は下記の日時に公開されます。タイマーがゼロになると自動的に試験が開始可能になります。',
     back_to_tests: '模擬試験一覧に戻る',
   },
 };

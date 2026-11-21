@@ -75,7 +75,7 @@ const DEFAULT_SLIDES = [
     id: 'cbt-simulator',
     title: 'JFT-Basic & SSW CBT Mock Exams',
     title_highlight: 'CBT Mock Exams',
-    subtitle: "Bangladesh's #1 official Prometric test simulator with native listening audio, instant CEFR score report & pass certificates.",
+    subtitle: "Asia's realistic CBT practice simulator — built to help you get familiar with the real exam interface, listening audio, and 250-point practice score reports.",
     mobile_headline_lines: ['AUTHENTIC.', 'PROMETRIC CBT.', 'CEFR PASS.'],
     badge_text: "🇧🇩 BANGLADESH'S #1 CBT SIMULATOR",
     badge_icon: 'zap',
@@ -798,7 +798,7 @@ export default function HeroBannerCarousel() {
 
                         <div className="p-2 rounded-xl bg-slate-900/80 border border-amber-500/30 flex items-center justify-center gap-1.5 text-[11px] font-extrabold text-amber-300">
                           <Award className="w-3.5 h-3.5 text-amber-400" />
-                          <span>Official Prometric Standard</span>
+                          <span>Exam-Style CBT Interface</span>
                         </div>
                       </div>
                     )}

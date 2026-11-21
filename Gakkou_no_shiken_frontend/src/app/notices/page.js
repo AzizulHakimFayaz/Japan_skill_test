@@ -157,13 +157,13 @@ export default function NoticesPage() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-japan-red/10 border border-japan-red/30 text-japan-red text-xs font-black uppercase tracking-wider mb-3">
               <Bell className="w-3.5 h-3.5" />
-              <span>Official Bulletin &amp; Study Hub</span>
+              <span>Candidate Bulletin &amp; Study Hub</span>
             </div>
             <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-              Official Notices &amp; <span className="text-transparent bg-clip-text bg-gradient-to-r from-japan-red via-rose-500 to-amber-500">PDF Study Materials</span>
+              Exam Notices &amp; <span className="text-transparent bg-clip-text bg-gradient-to-r from-japan-red via-rose-500 to-amber-500">PDF Study Materials</span>
             </h1>
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed font-normal">
-              Download official JFT-Basic &amp; SSW vocabulary cheat-sheets, exam center seat alerts, mock test announcements, and official syllabus guidelines.
+              Download JFT-Basic &amp; SSW vocabulary cheat-sheets, exam center seat alerts, mock test announcements, and syllabus study guidelines.
             </p>
           </div>
 

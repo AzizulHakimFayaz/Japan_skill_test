@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'JFT-Basic Official Exam Guide & Prometric CBT Syllabus (2026)',
+  title: 'JFT-Basic Complete Exam Guide & CBT Syllabus (2026)',
   description:
     'Comprehensive guide to the Japan Foundation Test for Basic Japanese (JFT-Basic). Learn test structure, 250-point scoring system, CEFR A2 passing criteria, Prometric CBT interface, and study tips.',
   alternates: {
@@ -62,7 +62,7 @@ export default function JftBasicExamGuidePage() {
     '@type': 'Article',
     headline: 'Complete JFT-Basic Exam Guide: CBT Test Structure, Scoring & Syllabus',
     description:
-      'Master the JFT-Basic examination with this official Prometric CBT guide covering test format, CEFR A2 criteria, test venues, and preparation strategies.',
+      'Master the JFT-Basic examination with this independent CBT preparation guide covering test format, CEFR A2 criteria, test venues, and practice strategies.',
     author: {
       '@type': 'Organization',
       name: 'Gakkou No Shiken',
@@ -99,14 +99,14 @@ export default function JftBasicExamGuidePage() {
         <span>/</span>
         <Link href="/jft-basic" className="hover:text-japan-red transition-colors">JFT-Basic</Link>
         <span>/</span>
-        <span className="text-slate-800 dark:text-slate-200">Official Exam Guide</span>
+        <span className="text-slate-800 dark:text-slate-200">Complete Exam Guide</span>
       </nav>
 
       {/* Hero Header */}
       <header className="space-y-4 border-b border-slate-200 dark:border-slate-800 pb-8">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-japan-red/10 border border-japan-red/20 text-japan-red dark:text-rose-400 text-xs font-black uppercase tracking-wider">
           <Award className="w-3.5 h-3.5" />
-          <span>Official Syllabus & Prometric CBT Guide (2026)</span>
+          <span>Complete Syllabus &amp; CBT Preparation Guide (2026)</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
           Complete JFT-Basic Examination Guide & CBT Test Syllabus

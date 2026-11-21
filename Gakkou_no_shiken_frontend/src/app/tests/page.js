@@ -255,7 +255,7 @@ function AllTestsContent() {
         </h1>
 
         <p className="text-slate-300 text-xs sm:text-base max-w-2xl leading-relaxed">
-          Practice official-format Prometric CBT mock tests with native listening audio, 60-minute timers, and instant CEFR score diagnostic reports.
+          Practice in a safe, realistic CBT simulator designed to help you get familiar with the real exam interface, 60-minute timer, listening audio, and instant practice score breakdown. Independent study tool — not affiliated with Prometric or The Japan Foundation.
         </p>
 
         {partnerSchool && (

@@ -138,7 +138,7 @@ export default function PartnerSchoolDashboardPage() {
     const schoolName = data?.school?.name || slug;
     const text =
       type === 'whatsapp'
-        ? `🏫 *${schoolName} Official JFT-Basic & SSW Mock Exam*\n\nClick the link below, create a free account with your *Full Name*, and complete your mock exam:\n👉 ${generatedInviteUrl}`
+        ? `🏫 *${schoolName} JFT-Basic & SSW CBT Practice Mock Exam*\n\nClick the link below, create a free account with your *Full Name*, and complete your mock exam:\n👉 ${generatedInviteUrl}`
         : generatedInviteUrl;
     try {
       await navigator.clipboard.writeText(text);
@@ -264,7 +264,7 @@ export default function PartnerSchoolDashboardPage() {
           <div className="space-y-2.5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-200 text-xs font-black uppercase tracking-wider">
               <GraduationCap className="w-3.5 h-3.5" />
-              <span>Official Sensei Batch Analytics Portal</span>
+              <span>Sensei Batch Analytics Portal</span>
             </div>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight flex items-center gap-2.5 flex-wrap">
               <span>{school.flag || '🏫'}</span>
@@ -758,3 +758,4 @@ export default function PartnerSchoolDashboardPage() {
     </div>
   );
 }
+

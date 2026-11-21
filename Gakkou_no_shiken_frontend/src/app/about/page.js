@@ -46,10 +46,10 @@ const SHOWCASE_TABS = [
     id: 'jft_runner',
     label: 'JFT-Basic 1:1 Simulator',
     shortLabel: 'JFT Simulator',
-    badge: '1:1 Official Prometric UI',
+    badge: 'Realistic Exam-Style UI',
     title: 'Identical JFT-Basic Computer-Based Test Environment',
     description:
-      'Engineered to match the exact Prometric CBT software used in official Tokyo, Dhaka, and overseas test centers. Complete with the black digital timer bar, olive-green anti-capture subheader, 4 vertical auto-locking section progress bars, and authentic Japanese dialogue audio.',
+      'Designed as a realistic, pressure-free CBT practice environment modeled on the Prometric test interface so candidates can get familiar with the black digital timer bar, olive-green subheader, 4 vertical auto-locking section bars, and Japanese listening controls before exam day.',
     screenshot: '/img/screenshots/cbt_exam_listening.png',
     features: [
       'Black top bar with active question counter & countdown clock',
@@ -101,7 +101,7 @@ const PILLARS = [
     icon: Award,
     title: 'Instant CEFR Scale Scoring',
     description:
-      'Advanced Item Response Theory (IRT) scaling models convert raw correct counts into official 10–250 scale scores, with immediate performance breakdowns across all 4 competencies.',
+      'Simulated Item Response Theory (IRT) scaling models convert raw correct counts into realistic 10–250 CEFR-style practice scores, with immediate performance breakdowns across all 4 competencies.',
   },
   {
     icon: Globe,
@@ -130,7 +130,7 @@ const ECOSYSTEM_CARDS = [
     btnText: 'Read Guides',
   },
   {
-    title: 'Official Study Materials',
+    title: 'Curated Study Materials',
     subtitle: '26 JAC Textbooks & Audio Files',
     description:
       'Complete repository of Japanese Agriculture & Food Service textbooks published by the Japan Agricultural Corporation (JAC), equipped with full bilingual vocabulary and audio tracks.',
@@ -141,7 +141,7 @@ const ECOSYSTEM_CARDS = [
     btnText: 'Browse Books',
   },
   {
-    title: 'Official Exam Notices',
+    title: 'Exam & Seat Notices',
     subtitle: 'Prometric Circulars & Booking Dates',
     description:
       'Stay fully updated on official test voucher sales, Prometric test booking windows in Dhaka and Chittagong, Japan Foundation policy changes, and venue advisories.',

@@ -296,7 +296,7 @@ function SignupForm() {
         <img src="/img/logo.png" alt="Gakkou No Shiken" className="h-16 w-auto mx-auto object-contain filter drop-shadow-xs" />
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Create Candidate Account</h1>
         <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
-          Sign up with 1-click or register with email to start official mock exams.
+          Sign up with 1-click or register with email to practice in our realistic CBT exam environment.
         </p>
       </div>
 

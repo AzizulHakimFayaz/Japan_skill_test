@@ -77,7 +77,7 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
 
       await exportToPdf('official-score-certificate', {
         filename,
-        title: `${data.test?.title || 'JFT-Basic'} - Official CBT Result Certificate`,
+        title: `${data.test?.title || 'JFT-Basic'} - Practice CBT Score Report`,
         quality: 2,
       });
 
@@ -100,7 +100,7 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
         <div className="w-12 h-12 border-4 border-japan-red border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-sm font-bold text-slate-600 dark:text-slate-400">Calculating your official score report...</p>
+        <p className="text-sm font-bold text-slate-600 dark:text-slate-400">Calculating your practice score report...</p>
       </div>
     );
   }
@@ -170,7 +170,7 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
               Administrator Draft Preview Mode
             </div>
             <p className="text-xs sm:text-sm font-semibold text-amber-900 dark:text-amber-200 mt-0.5">
-              This practice test is currently in <strong>Draft</strong>. All answers, scaled scores, and section breakdowns below have been officially evaluated and verified.
+              This practice test is currently in <strong>Draft</strong>. All answers, scaled scores, and section breakdowns below have been evaluated for practice review.
             </p>
           </div>
         </div>
@@ -279,7 +279,7 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
                   {test.category === 'skill' ? '特定技能評価試験 模擬結果通知書' : '日本語基礎テスト 模擬試験 結果通知書'}
                 </h2>
                 <span className="text-[9px] sm:text-xs font-bold text-slate-600 block leading-tight mt-0.5">
-                  {test.category === 'skill' ? 'SSW Skill Evaluation CBT Mock Test Score Report' : 'JFT-Basic CBT Mock Examination Official Score Report'}
+                  {test.category === 'skill' ? 'SSW Skill Evaluation CBT Practice Score Report' : 'JFT-Basic CBT Practice Mock Test Score Report'}
                 </span>
               </div>
             </div>
@@ -543,15 +543,15 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
               </a>
             </div>
             <p className="text-[10px] sm:text-[11px] text-slate-600 max-w-md leading-relaxed">
-              This official score report certifies candidate mock test completion on Bangladesh&apos;s premier Japanese CBT examination simulator portal.
+              This practice score report summarizes your simulated mock test performance on Gakkou No Shiken — an independent CBT practice environment built to help you get familiar with the exam interface (not an official Prometric or government certificate).
             </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
             <div className="w-16 h-16 rounded-full border-2 border-dashed border-red-500 bg-red-50/60 flex flex-col items-center justify-center text-center p-1 transform rotate-[-4deg] select-none shadow-xs">
-              <span className="text-[7.5px] font-black text-red-600 uppercase tracking-tight block leading-none">GNS VERIFIED</span>
-              <span className="text-[11px] font-black text-red-700 block leading-none my-0.5">合格証明</span>
-              <span className="text-[6.5px] font-extrabold text-red-600 uppercase tracking-wider block leading-none">OFFICIAL CBT</span>
+              <span className="text-[7.5px] font-black text-red-600 uppercase tracking-tight block leading-none">GNS PRACTICE</span>
+              <span className="text-[11px] font-black text-red-700 block leading-none my-0.5">模擬採点</span>
+              <span className="text-[6.5px] font-extrabold text-red-600 uppercase tracking-wider block leading-none">PRACTICE CBT</span>
             </div>
           </div>
         </div>
@@ -562,7 +562,7 @@ export default function AttemptResultsPage({ params: paramsPromise }) {
         <div className="space-y-1 text-center sm:text-left">
           <div className="flex items-center justify-center sm:justify-start gap-2">
             <FileText className="w-4 h-4 text-indigo-400" />
-            <strong className="text-sm font-extrabold text-white">Save Your Official Result Certificate</strong>
+            <strong className="text-sm font-extrabold text-white">Save Your Practice Score Report</strong>
           </div>
           <p className="text-xs text-slate-300">
             Download your JFT-Basic score report in high-resolution PDF format to keep for your records or share with your language academy.

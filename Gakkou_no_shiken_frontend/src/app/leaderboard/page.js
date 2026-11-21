@@ -371,7 +371,7 @@ export default function LeaderboardPage() {
               </span>
             </h1>
             <p className="max-w-xl text-sm sm:text-base leading-relaxed text-slate-400">
-              Live rankings of JFT-Basic &amp; SSW candidates across Asia, scored on the official 10–250 CEFR scale.
+              Live rankings of JFT-Basic &amp; SSW practice candidates across Asia, scored on a simulated 10–250 CEFR practice scale.
             </p>
             <div className="flex flex-wrap items-center gap-3 pt-1">
               <Link

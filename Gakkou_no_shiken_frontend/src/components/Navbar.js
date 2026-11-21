@@ -190,7 +190,7 @@ export default function Navbar() {
                           </span>
                         </div>
                         <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
-                          Official Prometric CBT format with listening audio
+                          Realistic CBT exam interface with listening audio
                         </p>
                       </div>
                     </Link>

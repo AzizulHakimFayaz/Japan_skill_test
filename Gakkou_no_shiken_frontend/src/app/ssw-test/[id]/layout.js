@@ -32,7 +32,7 @@ export async function generateMetadata({ params }) {
     const duration = test?.duration_minutes || test?.time_limit || 60;
 
     return {
-      title: `${testTitle} | Official Prometric CBT Mock Exam`,
+      title: `${testTitle} | CBT Practice Mock Exam Simulator`,
       description: `Practice ${testTitle} (SSW Skill Evaluation Test) online with authentic Prometric CBT interface, ${totalQ} questions, ${duration} minutes timer, listening audio, and instant score report.`,
       alternates: {
         canonical: `https://www.gakkounoshiken.site/ssw-test/${id}`,
@@ -69,7 +69,7 @@ export async function generateMetadata({ params }) {
     return {
       title: `SSW Skill Test #${id} | Prometric CBT Portal`,
       description:
-        'Official Prometric CBT mock exam simulation for Specified Skilled Worker (SSW) skill tests.',
+        'Realistic CBT mock exam practice simulator to help Specified Skilled Worker (SSW) candidates get familiar with the exam interface and timing.',
       alternates: {
         canonical: `https://www.gakkounoshiken.site/ssw-test/${id}`,
       },

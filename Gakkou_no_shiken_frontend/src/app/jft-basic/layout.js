@@ -18,7 +18,7 @@ export const metadata = {
   openGraph: {
     title: 'JFT-Basic CBT Mock Tests & Exam Prep - Gakkou No Shiken',
     description:
-      'Practice official-style JFT-Basic CBT mock exams with instant scoring, native listening, and test venue guides.',
+      'Practice realistic JFT-Basic CBT mock exams designed to help you get familiar with the test interface, native listening audio, and instant practice scoring.',
     url: 'https://www.gakkounoshiken.site/jft-basic',
     images: [
       {

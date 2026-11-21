@@ -282,7 +282,7 @@ export default function LearningHubShowcase() {
                 <span>View Notices</span>
                 <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
-              <span className="hidden sm:inline text-[10px] font-bold text-sky-600 dark:text-sky-400">Official</span>
+              <span className="hidden sm:inline text-[10px] font-bold text-sky-600 dark:text-sky-400">Updates</span>
             </div>
           </Link>
         </ScrollReveal>

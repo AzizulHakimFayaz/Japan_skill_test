@@ -43,7 +43,7 @@ export default function LiveActivityTicker() {
         color: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950/80 border-indigo-200 dark:border-indigo-800',
         tag: '2026 CBT',
         title: 'Full Prometric Diagnostic Released',
-        desc: 'Official 47-question timed test with instant scale score report is available now.',
+        desc: 'Realistic 47-question timed practice test with instant score breakdown is available now.',
         time: 'New',
       },
       {

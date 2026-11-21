@@ -37,7 +37,7 @@ const TOOLS = [
     badgeColor: 'bg-rose-50 dark:bg-rose-950/70 text-japan-red dark:text-rose-300 border-rose-200 dark:border-rose-800',
     icon: GraduationCap,
     iconColor: 'from-rose-500 via-red-600 to-amber-600',
-    desc: 'Official 80-lesson Minna no Nihongo & JLPT N5/N4 curriculum containing 2,690+ words and Kanji characters with native audio pronunciation, Furigana toggles, and dual English & Bengali (বাংলা) translations.',
+    desc: 'Structured 80-lesson Minna no Nihongo & JLPT N5/N4 curriculum containing 2,690+ words and Kanji characters with native audio pronunciation, Furigana toggles, and dual English & Bengali (বাংলা) translations.',
     features: ['50 Vocab + 30 Kanji Lessons', '2,690+ Words & Characters', 'Dual English & বাংলা Meanings', 'Interactive Flashcards & Audio'],
   },
   {

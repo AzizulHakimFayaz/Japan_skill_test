@@ -54,7 +54,7 @@ export default function HowItWorksPage() {
   }, []);
 
   const slotRewards = [
-    { title: '250 Pts Mock Exam', sub: 'Prometric CBT 4 Sections', icon: Laptop, tag: 'Official' },
+    { title: '250 Pts Mock Exam', sub: 'Exam-Style CBT 4 Sections', icon: Laptop, tag: 'Exam-Style' },
     { title: '218 / 250 • PASSED!', sub: 'Instant CEFR Scaled Score', icon: Trophy, tag: 'Unlocked 🔓' },
     { title: 'CEFR A2 Certified', sub: 'Japan Visa Ready Score', icon: CheckCircle2, tag: 'Top 3 BD' },
   ];
@@ -440,13 +440,13 @@ export default function HowItWorksPage() {
             {/* Inner Content */}
             <div className="relative z-10 space-y-3 max-w-xl mx-auto">
               <span className="text-xs font-black uppercase tracking-wider text-indigo-400">
-                Official Prometric CBT Simulator
+                Realistic CBT Practice Simulator
               </span>
               <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
                 Join the Practice Portal
               </h2>
               <p className="text-xs sm:text-sm text-slate-400">
-                Get your official Prometric CBT mock exam link right now. Free diagnostic tests with zero registration fee.
+                Practice in our realistic CBT exam environment right now so you get familiar with the test interface before exam day. Free practice mock tests with zero registration fee.
               </p>
             </div>
 

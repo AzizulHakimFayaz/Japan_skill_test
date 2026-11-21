@@ -36,7 +36,7 @@ export async function generateMetadata({ params }) {
     const duration = test?.duration_minutes || test?.time_limit || 60;
 
     return {
-      title: `${testTitle} | Official Prometric CBT Mock Exam`,
+      title: `${testTitle} | CBT Practice Mock Exam Simulator`,
       description: `Practice ${testTitle} (${categoryName}) online with authentic Prometric CBT interface, ${totalQ} questions, ${duration} minutes timer, native listening audio, and instant CEFR score report.`,
       alternates: {
         canonical: `https://www.gakkounoshiken.site/test/${id}`,
@@ -73,7 +73,7 @@ export async function generateMetadata({ params }) {
     return {
       title: `Mock Test #${id} | JFT-Basic & SSW CBT Platform`,
       description:
-        'Practice official Computer-Based Testing (CBT) mock exams for JFT-Basic and SSW skills with authentic Prometric simulation.',
+        'Practice Computer-Based Testing (CBT) mock exams for JFT-Basic and SSW in a safe, realistic simulator built to help you get familiar with the exam interface.',
       alternates: {
         canonical: `https://www.gakkounoshiken.site/test/${id}`,
       },
@@ -98,7 +98,7 @@ export default async function TestDetailLayout({ children, params }) {
     '@context': 'https://schema.org',
     '@type': 'Quiz',
     name: testTitle,
-    description: `Official-style ${categoryName} Computer-Based Testing (CBT) mock exam with instant scoring and audio.`,
+    description: `Realistic ${categoryName} Computer-Based Testing (CBT) practice mock exam with instant scoring and audio.`,
     educationalLevel: test?.category === 'skill' ? 'Intermediate SSW-1' : 'A2 CEFR',
     assesses: 'Japanese Language & Workplace Competency',
     timeRequired: `PT${duration}M`,
