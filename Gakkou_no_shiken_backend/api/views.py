@@ -8,7 +8,6 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, update_last_login
-from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from rest_framework import status, permissions
@@ -16,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.management import call_command
-from django.db.models import Count, Q, Case, When, Value, IntegerField
+from django.db.models import Count, F, Q, Case, When, Value, IntegerField
 from django.utils import timezone
 
 from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic, HeroBanner
@@ -2113,7 +2112,7 @@ class NoticeDetailAPIView(APIView):
         try:
             notice = Notice.objects.get(pk=pk)
             # Increment view counter
-            Notice.objects.filter(pk=pk).update(views_count=models.F('views_count') + 1)
+            Notice.objects.filter(pk=pk).update(views_count=F('views_count') + 1)
             notice.refresh_from_db(fields=['views_count'])
             serializer = NoticeSerializer(notice, context={'request': request})
             return Response(serializer.data)
@@ -2131,7 +2130,7 @@ class NoticeDownloadAPIView(APIView):
             if not notice.pdf_file:
                 return Response({'error': 'No PDF file attached to this notice'}, status=status.HTTP_400_BAD_REQUEST)
             
-            Notice.objects.filter(pk=pk).update(downloads_count=models.F('downloads_count') + 1)
+            Notice.objects.filter(pk=pk).update(downloads_count=F('downloads_count') + 1)
             pdf_url = get_absolute_media_url(notice.pdf_file, request)
             return Response({
                 'status': 'success',
