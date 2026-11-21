@@ -10,6 +10,7 @@ import SupportChatWidget from './SupportChatWidget';
 export default function AppLayout({ children }) {
   const pathname = usePathname();
   const isQuizPage = pathname?.startsWith('/test/') || pathname?.startsWith('/ssw-test/');
+  const isHomePage = pathname === '/';
 
   if (isQuizPage) {
     return <>{children}</>;
@@ -25,7 +26,7 @@ export default function AppLayout({ children }) {
 
       <Footer />
       <MobileDock />
-      <SupportChatWidget />
+      {isHomePage && <SupportChatWidget />}
     </>
   );
 }

@@ -169,15 +169,15 @@ export default function LearningHubShowcase() {
       </div>
 
       {/* ============================================================
-          RESPONSIVE 8-TILE GRID:
-          - 2 Columns on Mobile Screens (4 rows of 2 compact tiles)
+          RESPONSIVE 8-TILE LAYOUT:
+          - Horizontal scrollable strip on Mobile/Tablet (< lg)
           - 4 Columns on Desktop Screens (2 rows of 4 balanced tiles)
           - Covering: Guides, Materials, Notices, About Us, Game Zone,
             Lessons Hub, Study Tools, and Daily Vocab!
           ============================================================ */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+      <div className="flex overflow-x-auto snap-x snap-mandatory gap-2.5 pb-1.5 scrollbar-none lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:pb-0">
         {/* ─── CARD 1: EXAM GUIDES ─── */}
-        <ScrollReveal variant="up" delay={0} duration={400} className="h-full">
+        <ScrollReveal variant="up" delay={0} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
           <Link
             href="/guides"
             className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-amber-50/80 via-white to-amber-50/40 dark:from-amber-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-amber-200/90 dark:border-amber-900/60 hover:border-amber-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-amber-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
@@ -214,7 +214,7 @@ export default function LearningHubShowcase() {
         </ScrollReveal>
 
         {/* ─── CARD 2: STUDY MATERIALS & JAC TEXTBOOKS ─── */}
-        <ScrollReveal variant="up" delay={50} duration={400} className="h-full">
+        <ScrollReveal variant="up" delay={50} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
           <Link
             href="/books"
             className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-emerald-50/80 via-white to-emerald-50/40 dark:from-emerald-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-emerald-200/90 dark:border-emerald-900/60 hover:border-emerald-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-emerald-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
@@ -251,7 +251,7 @@ export default function LearningHubShowcase() {
         </ScrollReveal>
 
         {/* ─── CARD 3: EXAM NOTICES & CIRCULARS ─── */}
-        <ScrollReveal variant="up" delay={100} duration={400} className="h-full">
+        <ScrollReveal variant="up" delay={100} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
           <Link
             href="/notices"
             className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-sky-50/80 via-white to-sky-50/40 dark:from-sky-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-sky-200/90 dark:border-sky-900/60 hover:border-sky-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-sky-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
@@ -288,7 +288,7 @@ export default function LearningHubShowcase() {
         </ScrollReveal>
 
         {/* ─── CARD 4: ABOUT OUR CBT SIMULATOR ─── */}
-        <ScrollReveal variant="up" delay={150} duration={400} className="h-full">
+        <ScrollReveal variant="up" delay={150} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
           <Link
             href="/about"
             className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-rose-50/80 via-white to-rose-50/40 dark:from-rose-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-rose-200/90 dark:border-rose-900/60 hover:border-rose-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-rose-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
@@ -325,7 +325,7 @@ export default function LearningHubShowcase() {
         </ScrollReveal>
 
         {/* ─── CARD 5: GAME ZONE ─── */}
-        <ScrollReveal variant="up" delay={200} duration={400} className="h-full">
+        <ScrollReveal variant="up" delay={200} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
           <Link
             href="/game-zone"
             className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-purple-50/80 via-white to-purple-50/40 dark:from-purple-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-purple-200/90 dark:border-purple-900/60 hover:border-purple-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-purple-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
@@ -367,7 +367,7 @@ export default function LearningHubShowcase() {
         </ScrollReveal>
 
         {/* ─── CARD 6: STRUCTURED LESSONS ─── */}
-        <ScrollReveal variant="up" delay={250} duration={400} className="h-full">
+        <ScrollReveal variant="up" delay={250} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
           <Link
             href="/lessons"
             className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-cyan-50/80 via-white to-cyan-50/40 dark:from-cyan-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-cyan-200/90 dark:border-cyan-900/60 hover:border-cyan-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-cyan-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
@@ -409,7 +409,7 @@ export default function LearningHubShowcase() {
         </ScrollReveal>
 
         {/* ─── CARD 7: INTERACTIVE STUDY TOOLS ─── */}
-        <ScrollReveal variant="up" delay={300} duration={400} className="h-full">
+        <ScrollReveal variant="up" delay={300} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
           <Link
             href="/tools"
             className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-indigo-50/80 via-white to-indigo-50/40 dark:from-indigo-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-indigo-200/90 dark:border-indigo-900/60 hover:border-indigo-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-indigo-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
@@ -451,7 +451,7 @@ export default function LearningHubShowcase() {
         </ScrollReveal>
 
         {/* ─── CARD 8: DAILY VOCABULARY & WORD OF THE DAY (INTERACTIVE) ─── */}
-        <ScrollReveal variant="up" delay={350} duration={400} className="h-full">
+        <ScrollReveal variant="up" delay={350} duration={400} className="w-[168px] sm:w-[205px] lg:w-auto shrink-0 snap-start h-auto">
           <Link
             href="/lessons"
             className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-rose-50/80 via-white to-rose-50/40 dark:from-rose-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-rose-200/90 dark:border-rose-900/60 hover:border-rose-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-rose-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
