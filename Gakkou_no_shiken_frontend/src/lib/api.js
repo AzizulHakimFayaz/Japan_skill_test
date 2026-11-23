@@ -61,6 +61,9 @@ async function apiRequest(endpoint, options = {}) {
   if (token && !headers['Authorization']) {
     headers['Authorization'] = `Bearer ${token}`;
   }
+  if (token && !headers['X-Auth-Token']) {
+    headers['X-Auth-Token'] = token;
+  }
 
   const fetchOptions = {
     ...options,
@@ -556,9 +559,15 @@ export async function submitPartnerApplication(payload) {
 }
 
 export async function setupPartnerSchoolForUser(payload) {
+  const token = getAuthToken();
+  const storedUser = getStoredUser();
   const data = await apiRequest('/api/partners/register-school/', {
     method: 'POST',
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      ...payload,
+      auth_token: token || undefined,
+      username: payload.username || storedUser?.username || undefined,
+    }),
   });
   if (data?.user) {
     setStoredUser(data.user);

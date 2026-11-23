@@ -89,6 +89,8 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+    'x-auth-token',
+    'x-sensei-key',
 ]
 
 # Database-Backed Persistent Admin Sessions (30 days; write only on login/logout to avoid SQLite lock contention)
@@ -119,8 +121,8 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100 MB
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        'accounts.middleware.FlexibleJWTAuthentication',
+        'accounts.middleware.CsrfExemptSessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',

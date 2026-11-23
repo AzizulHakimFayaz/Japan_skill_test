@@ -107,6 +107,7 @@ function LoginForm() {
     setSubmitting(true);
     try {
       const res = await setupPartnerSchoolForUser({
+        username: username.trim(),
         school_name: setupSchoolName.trim(),
         country: setupCountry,
         city: setupCity.trim(),
@@ -139,8 +140,17 @@ function LoginForm() {
             Activate Your School / LPK Portal
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Enter your training center details below to launch your Schoooli Sensei LMS Dashboard &amp; generate your 6-digit Class Join PIN.
+            Your account <strong>{username}</strong> is currently registered as a Candidate. Enter your training center details below to upgrade this account to a <strong>Partner School &amp; Sensei LMS</strong>, or continue as a student.
           </p>
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => router.push(next)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-extrabold text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
+              <span>Continue to Candidate Portal as Student →</span>
+            </button>
+          </div>
         </div>
 
         {error && (
