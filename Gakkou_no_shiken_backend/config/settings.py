@@ -461,8 +461,9 @@ JAZZMIN_UI_TWEAKS = {
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": False,
 
-    # Base Bootstrap theme
-    "theme": "darkly",
+    # Base Bootstrap theme ("default" enables clean Bootstrap 5.3 dark/light data-bs-theme switching)
+    "theme": "default",
+    "default_theme_mode": "dark",
 
     # Button variants
     "button_classes": {

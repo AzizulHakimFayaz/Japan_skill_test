@@ -15,7 +15,7 @@
 <div id="content-main" style="max-width: 1100px; margin: 20px auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
     
     <!-- Top Header Card -->
-    <div class="card shadow-sm mb-4" style="border-radius: 12px; overflow: hidden; border: 1px solid #3b4252; background: #242933; color: #eceff4;">
+    <div class="card shadow-sm mb-4" style="border-radius: 14px; overflow: hidden; border: 1px solid var(--dropx-border); background: var(--dropx-card-bg); color: var(--dropx-text);">
         <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3 p-3" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff;">
             <div>
                 <span class="badge" style="background: rgba(255,255,255,0.2); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -42,27 +42,27 @@
             <!-- Stats Counters -->
             <div class="row text-center mb-4" style="row-gap: 12px;">
                 <div class="col-sm-3 col-6">
-                    <div style="background: #2e3440; padding: 14px; border-radius: 8px; border: 1px solid #434c5e;">
-                        <div style="font-size: 0.8rem; color: #d8dee9; font-weight: 600;">TOTAL QUESTIONS</div>
-                        <div style="font-size: 1.6rem; font-weight: 800; color: #88c0d0;">{{ total_questions }}</div>
+                    <div style="background: var(--dropx-card-elev); padding: 14px; border-radius: 10px; border: 1px solid var(--dropx-border);">
+                        <div style="font-size: 0.78rem; color: var(--dropx-text-muted); font-weight: 700;">TOTAL QUESTIONS</div>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: #0ea5e9;">{{ total_questions }}</div>
                     </div>
                 </div>
                 <div class="col-sm-3 col-6">
-                    <div style="background: #2e3440; padding: 14px; border-radius: 8px; border: 1px solid #434c5e;">
-                        <div style="font-size: 0.8rem; color: #d8dee9; font-weight: 600;">DIALOGUE AUDIO NEEDED</div>
-                        <div style="font-size: 1.6rem; font-weight: 800; color: #ebcb8b;" id="stat-audio-needed">{{ total_audio_needed }}</div>
+                    <div style="background: var(--dropx-card-elev); padding: 14px; border-radius: 10px; border: 1px solid var(--dropx-border);">
+                        <div style="font-size: 0.78rem; color: var(--dropx-text-muted); font-weight: 700;">DIALOGUE AUDIO NEEDED</div>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: #f59e0b;" id="stat-audio-needed">{{ total_audio_needed }}</div>
                     </div>
                 </div>
                 <div class="col-sm-3 col-6">
-                    <div style="background: #2e3440; padding: 14px; border-radius: 8px; border: 1px solid #434c5e;">
-                        <div style="font-size: 0.8rem; color: #d8dee9; font-weight: 600;">AUDIO GENERATED</div>
-                        <div style="font-size: 1.6rem; font-weight: 800; color: #a3be8c;" id="stat-audio-ready">{{ total_generated }}</div>
+                    <div style="background: var(--dropx-card-elev); padding: 14px; border-radius: 10px; border: 1px solid var(--dropx-border);">
+                        <div style="font-size: 0.78rem; color: var(--dropx-text-muted); font-weight: 700;">AUDIO GENERATED</div>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: #10b981;" id="stat-audio-ready">{{ total_generated }}</div>
                     </div>
                 </div>
                 <div class="col-sm-3 col-6">
-                    <div style="background: #2e3440; padding: 14px; border-radius: 8px; border: 1px solid #434c5e;">
-                        <div style="font-size: 0.8rem; color: #d8dee9; font-weight: 600;">COMPLETION</div>
-                        <div style="font-size: 1.6rem; font-weight: 800; color: #b48ead;" id="stat-completion-pct">{{ completion_pct }}%</div>
+                    <div style="background: var(--dropx-card-elev); padding: 14px; border-radius: 10px; border: 1px solid var(--dropx-border);">
+                        <div style="font-size: 0.78rem; color: var(--dropx-text-muted); font-weight: 700;">COMPLETION</div>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: #8b5cf6;" id="stat-completion-pct">{{ completion_pct }}%</div>
                     </div>
                 </div>
             </div>
@@ -73,13 +73,13 @@
                     <span id="progress-status-text">Audio Generation Status</span>
                     <span id="progress-count-text">{{ total_generated }} / {{ total_audio_needed }} Questions</span>
                 </div>
-                <div style="height: 14px; background: #3b4252; border-radius: 7px; overflow: hidden;">
+                <div style="height: 14px; background: var(--dropx-card-elev); border: 1px solid var(--dropx-border); border-radius: 7px; overflow: hidden;">
                     <div id="progress-bar-fill" style="height: 100%; width: {{ completion_pct }}%; background: linear-gradient(90deg, #10b981, #06b6d4); transition: width 0.4s ease;"></div>
                 </div>
             </div>
 
             <!-- Control Actions Bar -->
-            <div class="p-3 mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3" style="background: #2e3440; border-radius: 8px; border: 1px solid #434c5e;">
+            <div class="p-3 mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3" style="background: var(--dropx-card-elev); border-radius: 10px; border: 1px solid var(--dropx-border);">
                 <div class="d-flex flex-wrap align-items-center gap-2">
                     <button type="button" id="btn-start-guided" class="btn btn-success font-weight-bold px-3 py-2" style="border-radius: 6px; font-size: 0.95rem;">
                         <i class="fas fa-play mr-1"></i> ▶️ Generate Audio for All Questions (Live Progress)
@@ -92,7 +92,7 @@
                     </button>
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    <label class="d-flex align-items-center m-0 gap-1" style="font-size: 0.85rem; cursor: pointer; color: #d8dee9;">
+                    <label class="d-flex align-items-center m-0 gap-1" style="font-size: 0.85rem; cursor: pointer; color: var(--dropx-text);">
                         <input type="checkbox" id="chk-overwrite" style="cursor: pointer;">
                         <span>Overwrite existing audio</span>
                     </label>
@@ -106,14 +106,14 @@
             <div id="diag-alert" style="display:none; padding:12px; border-radius:8px; margin-bottom:16px;"></div>
 
             <!-- Tab Navigation: Questions vs Logs -->
-            <ul class="nav nav-tabs mb-3" style="border-bottom: 2px solid #3b4252;">
+            <ul class="nav nav-tabs mb-3" style="border-bottom: 2px solid var(--dropx-border);">
                 <li class="nav-item">
-                    <a class="nav-link active font-weight-bold" id="tab-btn-questions" href="#tab-questions" style="color: #eceff4; cursor: pointer;">
+                    <a class="nav-link active font-weight-bold" id="tab-btn-questions" href="#tab-questions" style="cursor: pointer;">
                         📋 Questions with Audio ({{ total_audio_needed }})
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link font-weight-bold" id="tab-btn-logs" href="#tab-logs" style="color: #88c0d0; cursor: pointer;">
+                    <a class="nav-link font-weight-bold" id="tab-btn-logs" href="#tab-logs" style="cursor: pointer;">
                         📜 Real-Time Logs Console (<span id="log-count">0</span>)
                     </a>
                 </li>
@@ -121,10 +121,10 @@
 
             <!-- Tab 1: Questions Table -->
             <div id="tab-questions-content">
-                <div class="table-responsive" style="border-radius: 8px; border: 1px solid #3b4252; background: #2e3440;">
-                    <table class="table table-dark table-hover m-0" style="font-size: 0.88rem;">
+                <div class="table-responsive" style="border-radius: 10px; border: 1px solid var(--dropx-border); background: var(--dropx-card-bg);">
+                    <table class="table table-hover m-0" style="font-size: 0.88rem;">
                         <thead>
-                            <tr style="background: #3b4252; color: #e5e9f0;">
+                            <tr>
                                 <th style="width: 50px;">#</th>
                                 <th style="width: 110px;">Section</th>
                                 <th style="width: 90px;">Type</th>

@@ -1,0 +1,530 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static jazzmin log quiz_extras %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+{% block bodyclass %}{{ block.super }} dashboard dropx-dashboard{% endblock %}
+
+{% block content_title %}{% trans 'Dashboard' %}{% endblock %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}"><i class="fas fa-home me-1"></i> {% trans 'Home' %}</a></li>
+    <li class="breadcrumb-item active">{% trans 'Dashboard' %}</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+{% get_executive_dashboard_metrics as dash %}
+{% get_side_menu using="app_list" as dashboard_list %}
+
+<div class="col-12 dropx-exec-wrap">
+
+    <!-- Welcome Subtitle Banner -->
+    <div class="dropx-welcome-bar">
+        <div>
+            <h2 class="dropx-page-heading">Dashboard</h2>
+            <p class="dropx-page-subheading">
+                Welcome back, <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>! Here's your complete JFT-Basic &amp; SSW platform overview across all departments.
+            </p>
+        </div>
+        <div class="dropx-welcome-actions">
+            <a href="{% url 'admin:tests_test_add' %}" class="dropx-action-pill dropx-action-primary">
+                <i class="fas fa-plus-circle"></i> <span>New Mock Test</span>
+            </a>
+            <a href="/admin/tests/test/import-csv/" class="dropx-action-pill dropx-action-secondary">
+                <i class="fas fa-file-csv"></i> <span>Import CSV</span>
+            </a>
+            <a href="/admin/statistics/" class="dropx-action-pill dropx-action-secondary">
+                <i class="fas fa-chart-line"></i> <span>Deep Analytics</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ROW 1: 4 VIBRANT GRADIENT KPI CARDS (DropX Hero Cards)
+         ============================================================ -->
+    <div class="dropx-kpi-grid">
+        <!-- KPI 1: Purple / Indigo — Total Candidates -->
+        <a href="{% url 'admin:auth_user_changelist' %}" class="dropx-kpi-card dropx-kpi-purple">
+            <div class="dropx-kpi-top">
+                <span class="dropx-kpi-label">Registered Candidates</span>
+                <span class="dropx-kpi-icon"><i class="fas fa-users"></i></span>
+            </div>
+            <div class="dropx-kpi-value">{{ dash.total_users }}</div>
+            <div class="dropx-kpi-trend">
+                <i class="fas fa-arrow-up"></i>
+                <span>+{{ dash.users_this_month }} this month</span>
+                <span class="dropx-kpi-dot">•</span>
+                <span>+{{ dash.users_today }} today</span>
+            </div>
+        </a>
+
+        <!-- KPI 2: Emerald / Green — Total Exam Attempts -->
+        <a href="{% url 'admin:tests_attempt_changelist' %}" class="dropx-kpi-card dropx-kpi-emerald">
+            <div class="dropx-kpi-top">
+                <span class="dropx-kpi-label">Total Exam Attempts</span>
+                <span class="dropx-kpi-icon"><i class="fas fa-bolt"></i></span>
+            </div>
+            <div class="dropx-kpi-value">{{ dash.total_attempts }}</div>
+            <div class="dropx-kpi-trend">
+                <i class="fas fa-arrow-up"></i>
+                <span>+{{ dash.attempts_this_week }} last 7 days</span>
+                <span class="dropx-kpi-dot">•</span>
+                <span>{{ dash.unique_candidates }} test-takers</span>
+            </div>
+        </a>
+
+        <!-- KPI 3: Cyan / Teal — Pass Rate & Scaled Score -->
+        <a href="/admin/statistics/" class="dropx-kpi-card dropx-kpi-cyan">
+            <div class="dropx-kpi-top">
+                <span class="dropx-kpi-label">Pass Rate &amp; Avg Score</span>
+                <span class="dropx-kpi-icon"><i class="fas fa-award"></i></span>
+            </div>
+            <div class="dropx-kpi-value">{{ dash.overall_pass_rate }}%</div>
+            <div class="dropx-kpi-trend">
+                <i class="fas fa-chart-bar"></i>
+                <span>Avg Score: {{ dash.avg_scaled_score }} / 250</span>
+                <span class="dropx-kpi-dot">•</span>
+                <span>{{ dash.passed_count }} passed</span>
+            </div>
+        </a>
+
+        <!-- KPI 4: Orange / Coral — Active Exams & Support Desk -->
+        <a href="{% url 'admin:tests_test_changelist' %}" class="dropx-kpi-card dropx-kpi-orange">
+            <div class="dropx-kpi-top">
+                <span class="dropx-kpi-label">Live Exams &amp; Support</span>
+                <span class="dropx-kpi-icon"><i class="fas fa-laptop-code"></i></span>
+            </div>
+            <div class="dropx-kpi-value">{{ dash.published_tests }} <small style="font-size:1.05rem;font-weight:700;opacity:0.85;">/ {{ dash.total_tests }} Tests</small></div>
+            <div class="dropx-kpi-trend">
+                <i class="fas fa-headset"></i>
+                <span>{{ dash.open_support_threads }} chats need reply</span>
+                <span class="dropx-kpi-dot">•</span>
+                <span>{{ dash.active_partner_schools }} partners</span>
+            </div>
+        </a>
+    </div>
+
+    <!-- ============================================================
+         ROW 2: 6 DEPARTMENT QUICK-NAVIGATION TILES (DropX Strip)
+         ============================================================ -->
+    <div class="dropx-dept-grid">
+        <a href="/admin/statistics/" class="dropx-dept-tile">
+            <div class="dropx-dept-icon" style="color:#818cf8;background:rgba(99,102,241,0.12);">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <div class="dropx-dept-title">Analytics</div>
+            <div class="dropx-dept-sub">Traffic &amp; pass rates</div>
+        </a>
+
+        <a href="{% url 'admin:tests_test_changelist' %}" class="dropx-dept-tile">
+            <div class="dropx-dept-icon" style="color:#34d399;background:rgba(16,185,129,0.12);">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="dropx-dept-title">Mock Exams</div>
+            <div class="dropx-dept-sub">{{ dash.total_tests }} JFT &amp; SSW tests</div>
+        </a>
+
+        <a href="/admin/tests/test/import-csv/" class="dropx-dept-tile">
+            <div class="dropx-dept-icon" style="color:#fb923c;background:rgba(249,115,22,0.12);">
+                <i class="fas fa-file-csv"></i>
+            </div>
+            <div class="dropx-dept-title">CSV &amp; Audio</div>
+            <div class="dropx-dept-sub">Bulk import &amp; AI TTS</div>
+        </a>
+
+        <a href="{% url 'admin:tests_exambook_changelist' %}" class="dropx-dept-tile">
+            <div class="dropx-dept-icon" style="color:#c084fc;background:rgba(192,132,252,0.12);">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="dropx-dept-title">LMS &amp; Books</div>
+            <div class="dropx-dept-sub">{{ dash.total_books }} books • {{ dash.total_lessons }} lessons</div>
+        </a>
+
+        <a href="{% url 'admin:accounts_partnerschool_changelist' %}" class="dropx-dept-tile">
+            <div class="dropx-dept-icon" style="color:#38bdf8;background:rgba(56,189,248,0.12);">
+                <i class="fas fa-school"></i>
+            </div>
+            <div class="dropx-dept-title">Partner LPKs</div>
+            <div class="dropx-dept-sub">{{ dash.active_partner_schools }} schools • {{ dash.pending_partner_apps }} pending</div>
+        </a>
+
+        <a href="{% url 'admin:accounts_supportthread_changelist' %}" class="dropx-dept-tile">
+            <div class="dropx-dept-icon" style="color:#f472b6;background:rgba(244,114,182,0.12);">
+                <i class="fas fa-headset"></i>
+            </div>
+            <div class="dropx-dept-title">Support Desk</div>
+            <div class="dropx-dept-sub">{{ dash.open_support_threads }} unread • {{ dash.total_support_threads }} threads</div>
+        </a>
+    </div>
+
+    <!-- ============================================================
+         ROW 3: 2 INTERACTIVE CHARTS (Area Line Chart + Bar Traffic Chart)
+         ============================================================ -->
+    <div class="dropx-charts-grid">
+        <!-- Left Chart: 7-Day Exam Attempts & Registrations Smooth Area Line Chart -->
+        <div class="dropx-panel">
+            <div class="dropx-panel-header">
+                <div class="dropx-panel-title">
+                    <span class="dropx-panel-badge" style="background:rgba(99,102,241,0.15);color:#818cf8;"><i class="fas fa-wave-square"></i></span>
+                    <span>Exam Attempts &amp; Registrations (7-Day Trend)</span>
+                </div>
+                <a href="/admin/statistics/" class="dropx-panel-link">View details ↗</a>
+            </div>
+            <div class="dropx-panel-body">
+                <div class="dropx-svg-chart-wrap">
+                    <svg viewBox="0 0 560 205" class="dropx-area-svg" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="dropxAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.38"/>
+                                <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.0"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Horizontal Grid Lines & Y-Axis Labels -->
+                        <line x1="44" y1="22" x2="536" y2="22" class="dropx-svg-grid"/>
+                        <line x1="44" y1="58" x2="536" y2="58" class="dropx-svg-grid"/>
+                        <line x1="44" y1="94" x2="536" y2="94" class="dropx-svg-grid"/>
+                        <line x1="44" y1="130" x2="536" y2="130" class="dropx-svg-grid"/>
+                        <line x1="44" y1="166" x2="536" y2="166" class="dropx-svg-grid"/>
+
+                        <text x="34" y="26" class="dropx-svg-axis" text-anchor="end">{{ dash.chart_y_ticks.0 }}</text>
+                        <text x="34" y="62" class="dropx-svg-axis" text-anchor="end">{{ dash.chart_y_ticks.1 }}</text>
+                        <text x="34" y="98" class="dropx-svg-axis" text-anchor="end">{{ dash.chart_y_ticks.2 }}</text>
+                        <text x="34" y="134" class="dropx-svg-axis" text-anchor="end">{{ dash.chart_y_ticks.3 }}</text>
+                        <text x="34" y="170" class="dropx-svg-axis" text-anchor="end">0</text>
+
+                        <!-- Registrations Secondary Line -->
+                        {% if dash.reg_line_svg_path %}
+                        <path d="{{ dash.reg_line_svg_path }}" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="4 4" opacity="0.8"/>
+                        {% endif %}
+
+                        <!-- Exam Attempts Primary Smooth Area + Line -->
+                        {% if dash.area_svg_path %}
+                        <path d="{{ dash.area_svg_path }}" fill="url(#dropxAreaGrad)"/>
+                        <path d="{{ dash.line_svg_path }}" fill="none" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+                        {% endif %}
+
+                        <!-- Data Nodes & X-Axis Day Labels -->
+                        {% for d in dash.chart_days %}
+                        <circle cx="{{ d.cx }}" cy="{{ d.cy }}" r="4.5" fill="#8b5cf6" stroke="var(--dropx-card-bg)" stroke-width="2">
+                            <title>{{ d.date_label }} ({{ d.day_short }}): {{ d.attempts }} attempts, {{ d.registrations }} signups</title>
+                        </circle>
+                        <text x="{{ d.cx }}" y="192" class="dropx-svg-axis" text-anchor="middle">{{ d.day_short }}</text>
+                        {% endfor %}
+                    </svg>
+                </div>
+                <div class="dropx-chart-legend">
+                    <span><i class="fas fa-circle" style="color:#8b5cf6;font-size:8px;"></i> Exam Attempts ({{ dash.attempts_this_week }} this week)</span>
+                    <span><i class="fas fa-circle" style="color:#10b981;font-size:8px;"></i> New Registrations ({{ dash.users_this_week }} this week)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Chart: 7-Day Daily Activity Vertical Bar Chart (DropX Site Traffic style) -->
+        <div class="dropx-panel">
+            <div class="dropx-panel-header">
+                <div class="dropx-panel-title">
+                    <span class="dropx-panel-badge" style="background:rgba(168,85,247,0.15);color:#c084fc;"><i class="fas fa-chart-column"></i></span>
+                    <span>Daily Exam Traffic (Last 7 Days)</span>
+                </div>
+                <a href="{% url 'admin:tests_attempt_changelist' %}" class="dropx-panel-link">Details ↗</a>
+            </div>
+            <div class="dropx-panel-body">
+                <div class="dropx-bar-chart">
+                    <div class="dropx-bar-yaxis">
+                        <span>{{ dash.chart_y_ticks.0 }}</span>
+                        <span>{{ dash.chart_y_ticks.1 }}</span>
+                        <span>{{ dash.chart_y_ticks.2 }}</span>
+                        <span>{{ dash.chart_y_ticks.3 }}</span>
+                        <span>0</span>
+                    </div>
+                    <div class="dropx-bar-columns">
+                        {% for d in dash.chart_days %}
+                        <div class="dropx-bar-col" title="{{ d.date_label }}: {{ d.attempts }} exam attempts">
+                            <div class="dropx-bar-track">
+                                <div class="dropx-bar-fill" style="height: {{ d.bar_pct }}%;">
+                                    <span class="dropx-bar-tooltip">{{ d.attempts }}</span>
+                                </div>
+                            </div>
+                            <span class="dropx-bar-label">{{ d.day_short }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="dropx-chart-legend">
+                    <span><i class="fas fa-square" style="color:#8b5cf6;font-size:9px;"></i> Completed Mock Exams per Day</span>
+                    <span>Today: <strong>{{ dash.attempts_today }}</strong> attempts</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ROW 4: MOCK TEST PERFORMANCE TABLE + COUNTRY DISTRIBUTION BARS
+         ============================================================ -->
+    <div class="dropx-two-col-grid">
+        <!-- Left Card: Mock Test Performance (DropX Course Performance style) -->
+        <div class="dropx-panel">
+            <div class="dropx-panel-header">
+                <div class="dropx-panel-title">
+                    <span class="dropx-panel-badge" style="background:rgba(139,92,246,0.15);color:#a78bfa;"><i class="fas fa-book-open"></i></span>
+                    <span>Mock Test Performance</span>
+                </div>
+                <a href="{% url 'admin:tests_test_changelist' %}" class="dropx-panel-link">View Exams ↗</a>
+            </div>
+            <div class="dropx-panel-body p-0">
+                <div class="table-responsive">
+                    <table class="dropx-clean-table">
+                        <thead>
+                            <tr>
+                                <th>Mock Exam</th>
+                                <th class="text-center">Attempts</th>
+                                <th class="text-center">Avg Score</th>
+                                <th class="text-end">Pass Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in dash.top_tests %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'admin:tests_test_change' t.id %}" class="dropx-table-primary-link">
+                                        {{ t.title }}
+                                    </a>
+                                    <span class="dropx-mini-tag">{{ t.category }} • {{ t.question_count }} Qs</span>
+                                </td>
+                                <td class="text-center dropx-muted-cell">{{ t.attempt_count }}</td>
+                                <td class="text-center dropx-muted-cell">{{ t.avg_score }}</td>
+                                <td class="text-end">
+                                    <span class="dropx-completion-pct">{{ t.pass_rate }}%</span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 dropx-muted-cell">No mock tests created yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Card: Candidate Country Distribution (DropX Project Progress style) -->
+        <div class="dropx-panel">
+            <div class="dropx-panel-header">
+                <div class="dropx-panel-title">
+                    <span class="dropx-panel-badge" style="background:rgba(16,185,129,0.15);color:#34d399;"><i class="fas fa-globe-asia"></i></span>
+                    <span>Candidate Demographics &amp; Reach</span>
+                </div>
+                <a href="/admin/statistics/" class="dropx-panel-link">View all ↗</a>
+            </div>
+            <div class="dropx-panel-body">
+                <div class="dropx-progress-list">
+                    {% for c in dash.top_countries %}
+                    <div class="dropx-progress-item">
+                        <div class="dropx-progress-meta">
+                            <span class="dropx-progress-name">{{ c.flag }} {{ c.name }} <small class="dropx-muted-cell">({{ c.count }} candidates)</small></span>
+                            <span class="dropx-progress-pct">{{ c.pct }}%</span>
+                        </div>
+                        <div class="dropx-progress-track">
+                            <div class="dropx-progress-fill" style="width: {{ c.bar_width }}%; background: {{ c.gradient }};"></div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="py-4 text-center dropx-muted-cell">No country data recorded yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ROW 5: RECENT EXAM ATTEMPTS + LIVE ACTIVITY FEED
+         ============================================================ -->
+    <div class="dropx-two-col-grid">
+        <!-- Left Card: Recent Exam Attempts (DropX Recent Orders style) -->
+        <div class="dropx-panel">
+            <div class="dropx-panel-header">
+                <div class="dropx-panel-title">
+                    <span class="dropx-panel-badge" style="background:rgba(56,189,248,0.15);color:#38bdf8;"><i class="fas fa-clipboard-check"></i></span>
+                    <span>Recent Exam Submissions</span>
+                </div>
+                <a href="{% url 'admin:tests_attempt_changelist' %}" class="dropx-panel-link">View all ↗</a>
+            </div>
+            <div class="dropx-panel-body">
+                <div class="dropx-orders-list">
+                    {% for att in dash.recent_attempts %}
+                    <div class="dropx-order-row">
+                        <div class="dropx-order-left">
+                            <div class="dropx-avatar-circle" style="background: {{ att.avatar_bg }};">
+                                {{ att.initials }}
+                            </div>
+                            <div>
+                                <a href="{% url 'admin:tests_attempt_change' att.id %}" class="dropx-order-name">
+                                    {{ att.username }}
+                                </a>
+                                <div class="dropx-order-sub">
+                                    #ATT-{{ att.id }} • {{ att.test_title|truncatechars:28 }} • {{ att.completed_at|timesince }} ago
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dropx-order-right">
+                            <div class="dropx-order-amount">{{ att.scaled_score }} <small>/ 250</small></div>
+                            {% if att.is_passed %}
+                            <span class="dropx-status-pill dropx-status-delivered">passed</span>
+                            {% else %}
+                            <span class="dropx-status-pill dropx-status-pending">failed</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="py-4 text-center dropx-muted-cell">No exam submissions yet.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Card: Live Activity & Admin Log (DropX Live Activity style) -->
+        <div class="dropx-panel">
+            <div class="dropx-panel-header">
+                <div class="dropx-panel-title">
+                    <span class="dropx-panel-badge" style="background:rgba(244,114,182,0.15);color:#f472b6;"><i class="fas fa-bolt"></i></span>
+                    <span>Live Activity &amp; Recent Actions</span>
+                </div>
+                <span class="dropx-live-indicator"><span class="dropx-live-dot"></span> Live</span>
+            </div>
+            <div class="dropx-panel-body">
+                <div class="dropx-activity-list">
+                    {% for item in dash.live_activity %}
+                    <a href="{{ item.url }}" class="dropx-activity-row">
+                        <div class="dropx-activity-icon" style="background: {{ item.bg }}; color: {{ item.color }};">
+                            <i class="{{ item.icon }}"></i>
+                        </div>
+                        <div class="dropx-activity-content">
+                            <div class="dropx-activity-title">{{ item.title }}</div>
+                            <div class="dropx-activity-time">{{ item.subtitle }} • {{ item.timestamp|timesince }} ago</div>
+                        </div>
+                    </a>
+                    {% endfor %}
+
+                    {% get_admin_log 4 as admin_log for_user user %}
+                    {% for entry in admin_log %}
+                    <div class="dropx-activity-row">
+                        <div class="dropx-activity-icon" style="background: rgba(99, 102, 241, 0.14); color: #818cf8;">
+                            {% if entry.is_addition %}<i class="fas fa-plus"></i>{% elif entry.is_deletion %}<i class="fas fa-trash"></i>{% else %}<i class="fas fa-pen"></i>{% endif %}
+                        </div>
+                        <div class="dropx-activity-content">
+                            <div class="dropx-activity-title">
+                                {% if not entry.is_deletion and entry.get_admin_url %}
+                                <a href="{{ entry.get_admin_url }}" style="color:inherit;text-decoration:none;">{{ entry.object_repr|truncatechars:42 }}</a>
+                                {% else %}
+                                {{ entry.object_repr|truncatechars:42 }}
+                                {% endif %}
+                                {% if entry.model %}<span class="dropx-mini-tag ms-1">{{ entry.model|capfirst }}</span>{% endif %}
+                            </div>
+                            <div class="dropx-activity-time">Admin action • {{ entry.action_time|timesince }} ago</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ROW 6: 4 MINI SUMMARY STAT CARDS (Bottom of DropX Image 3)
+         ============================================================ -->
+    <div class="dropx-mini-stats-grid">
+        <div class="dropx-mini-stat-card">
+            <div class="dropx-mini-stat-icon" style="background:rgba(139,92,246,0.14);color:#a78bfa;">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <div>
+                <div class="dropx-mini-stat-label">Total Question Bank</div>
+                <div class="dropx-mini-stat-val">{{ dash.total_questions }} <small>Questions</small></div>
+            </div>
+        </div>
+
+        <div class="dropx-mini-stat-card">
+            <div class="dropx-mini-stat-icon" style="background:rgba(16,185,129,0.14);color:#34d399;">
+                <i class="fas fa-book-reader"></i>
+            </div>
+            <div>
+                <div class="dropx-mini-stat-label">JAC Books &amp; Curriculum</div>
+                <div class="dropx-mini-stat-val">{{ dash.total_books }} <small>Books</small> • {{ dash.total_lessons }} <small>Lessons</small></div>
+            </div>
+        </div>
+
+        <div class="dropx-mini-stat-card">
+            <div class="dropx-mini-stat-icon" style="background:rgba(245,158,11,0.14);color:#fbbf24;">
+                <i class="fas fa-bullhorn"></i>
+            </div>
+            <div>
+                <div class="dropx-mini-stat-label">Active Exam Notices</div>
+                <div class="dropx-mini-stat-val">{{ dash.total_notices }} <small>Circulars</small></div>
+            </div>
+        </div>
+
+        <div class="dropx-mini-stat-card">
+            <div class="dropx-mini-stat-icon" style="background:rgba(56,189,248,0.14);color:#38bdf8;">
+                <i class="fas fa-handshake"></i>
+            </div>
+            <div>
+                <div class="dropx-mini-stat-label">Partner LPK Network</div>
+                <div class="dropx-mini-stat-val">{{ dash.active_partner_schools }} <small>Schools</small></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ROW 7: ORGANIZED BACKEND MODULES DIRECTORY (All Models Quick Access)
+         ============================================================ -->
+    <div class="dropx-modules-section">
+        <div class="dropx-modules-header">
+            <h3 class="dropx-modules-title"><i class="fas fa-cubes me-2" style="color:#8b5cf6;"></i>Backend Management Modules</h3>
+            <span class="dropx-muted-cell">Direct access to create, edit, or inspect all database tables</span>
+        </div>
+
+        <div class="dropx-modules-grid">
+            {% for app in dashboard_list %}
+            <div class="dropx-panel mb-0">
+                <div class="dropx-panel-header">
+                    <div class="dropx-panel-title">
+                        <span class="dropx-panel-badge" style="background:rgba(99,102,241,0.14);color:#818cf8;">
+                            <i class="{{ app.icon|default:'fas fa-layer-group' }}"></i>
+                        </span>
+                        <span>{{ app.name }}</span>
+                    </div>
+                    <span class="dropx-mini-tag">{{ app.models|length }} modules</span>
+                </div>
+                <div class="dropx-panel-body p-0">
+                    <div class="dropx-module-rows">
+                        {% for model in app.models %}
+                        <div class="dropx-module-row">
+                            <a href="{{ model.url|default:'#' }}" class="dropx-module-link">
+                                <span class="dropx-module-icon"><i class="{{ model.icon|default:'fas fa-circle' }}"></i></span>
+                                <span>{{ model.name }}</span>
+                            </a>
+                            <div class="dropx-module-actions">
+                                {% if model.add_url %}
+                                <a href="{{ model.add_url }}" class="dropx-btn-xs dropx-btn-add" title="Add {{ model.name }}">
+                                    <i class="fas fa-plus"></i> Add
+                                </a>
+                                {% endif %}
+                                {% if model.url %}
+                                <a href="{{ model.url }}" class="dropx-btn-xs dropx-btn-manage">
+                                    {% if model.custom %}Open{% else %}Manage{% endif %}
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

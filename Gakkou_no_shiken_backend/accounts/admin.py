@@ -233,8 +233,8 @@ class CustomUserAdmin(BaseUserAdmin):
 
     def date_joined_formatted(self, obj):
         return format_html(
-            '<div style="font-size:0.85rem; font-weight:600; color:#e2e8f0;">{}</div>'
-            '<div style="font-size:0.75rem; color:#64748b;">{}</div>',
+            '<div style="font-size:0.85rem; font-weight:600; color:var(--dropx-text);">{}</div>'
+            '<div style="font-size:0.75rem; color:var(--dropx-text-dim);">{}</div>',
             obj.date_joined.strftime('%b %d, %Y'),
             obj.date_joined.strftime('%H:%M')
         )
@@ -465,7 +465,7 @@ class SupportThreadAdmin(admin.ModelAdmin):
         preview = obj.last_message_preview or '—'
         short = preview if len(preview) <= 85 else f"{preview[:82]}..."
         return format_html(
-            '<div style="max-width:360px; font-size:0.84rem; color:#e2e8f0; line-height:1.35;">{}</div>',
+            '<div style="max-width:360px; font-size:0.84rem; color:var(--dropx-text); line-height:1.35;">{}</div>',
             short,
         )
     last_message_snippet.short_description = 'Latest Message'
@@ -526,26 +526,26 @@ class SupportThreadAdmin(admin.ModelAdmin):
             if m.sender_type == SupportMessage.SenderType.USER:
                 bubbles.append(
                     f'<div style="display:flex; flex-direction:column; align-items:flex-start; margin-bottom:12px;">'
-                    f'<div style="font-size:11px; color:#94a3b8; margin-bottom:3px; font-weight:600;">👤 {safe_sender} • {local_dt}</div>'
-                    f'<div style="background:#1e293b; color:#f8fafc; border:1px solid #334155; padding:10px 14px; border-radius:14px 14px 14px 4px; max-width:75%; font-size:13.5px; line-height:1.5;">'
+                    f'<div style="font-size:11px; color:var(--dropx-text-muted); margin-bottom:3px; font-weight:600;">👤 {safe_sender} • {local_dt}</div>'
+                    f'<div style="background:var(--dropx-card-bg); color:var(--dropx-text); border:1px solid var(--dropx-border-strong); padding:10px 14px; border-radius:14px 14px 14px 4px; max-width:75%; font-size:13.5px; line-height:1.5;">'
                     f'{safe_body}</div></div>'
                 )
             elif m.sender_type == SupportMessage.SenderType.ADMIN:
                 bubbles.append(
                     f'<div style="display:flex; flex-direction:column; align-items:flex-end; margin-bottom:12px;">'
-                    f'<div style="font-size:11px; color:#38bdf8; margin-bottom:3px; font-weight:600;">🛡️ {safe_sender} • {local_dt}</div>'
-                    f'<div style="background:#0284c7; color:#ffffff; padding:10px 14px; border-radius:14px 14px 4px 14px; max-width:75%; font-size:13.5px; line-height:1.5;">'
+                    f'<div style="font-size:11px; color:var(--dropx-accent-text); margin-bottom:3px; font-weight:600;">🛡️ {safe_sender} • {local_dt}</div>'
+                    f'<div style="background:#4f46e5; color:#ffffff; padding:10px 14px; border-radius:14px 14px 4px 14px; max-width:75%; font-size:13.5px; line-height:1.5;">'
                     f'{safe_body}</div></div>'
                 )
             else:
                 bubbles.append(
                     f'<div style="display:flex; flex-direction:column; align-items:center; margin-bottom:12px;">'
-                    f'<div style="background:rgba(245,158,11,0.12); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); padding:7px 14px; border-radius:999px; font-size:12px; max-width:85%; text-align:center;">'
+                    f'<div style="background:rgba(245,158,11,0.12); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); padding:7px 14px; border-radius:999px; font-size:12px; max-width:85%; text-align:center;">'
                     f'🤖 {safe_body}</div></div>'
                 )
 
         html = (
-            '<div style="background:#0f172a; border:1px solid #1e293b; border-radius:12px; padding:18px; max-width:850px; max-height:460px; overflow-y:auto;">'
+            '<div style="background:var(--dropx-card-elev); border:1px solid var(--dropx-border); border-radius:12px; padding:18px; max-width:850px; max-height:460px; overflow-y:auto;">'
             + "".join(bubbles)
             + '</div>'
         )
