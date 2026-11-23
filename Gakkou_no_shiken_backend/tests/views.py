@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from typing import Any
 import json
 
 from django.shortcuts import render, get_object_or_404, redirect
@@ -215,7 +216,7 @@ def attempt_results_view(request, pk):
     scaled_score_percent = min(100, max(0, ((scaled_score - 10) / 240.0) * 100))
 
     # Section-by-section breakdown calculations (Official equal-weighted ratio)
-    section_breakdown = {
+    section_breakdown: dict[str, dict[str, Any]] = {
         'script_vocab': {'name_ja': '文字と語彙', 'name_en': 'Script and Vocabulary', 'correct': 0, 'total': 0, 'pct': 0},
         'conversation': {'name_ja': '会話と表現', 'name_en': 'Conversation and Expression', 'correct': 0, 'total': 0, 'pct': 0},
         'listening': {'name_ja': '聴解', 'name_en': 'Listening Comprehension', 'correct': 0, 'total': 0, 'pct': 0},

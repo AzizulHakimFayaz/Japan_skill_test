@@ -1,4 +1,5 @@
 from collections import OrderedDict, defaultdict
+from typing import Any
 import csv
 import io
 import json
@@ -444,6 +445,7 @@ class AttemptResultsAPIView(APIView):
         questions_data = QuestionReviewSerializer(questions, many=True, context={'request': request}).data
 
         # Section-by-section breakdown calculations
+        section_breakdown: dict[str, dict[str, Any]]
         if test.category == Test.Category.SKILL:
             section_breakdown = {
                 'audio': {'name_ja': '第1部：音声・入力試験', 'name_en': 'Phase 1: Audio & Typing Exam', 'correct': 0, 'total': 0, 'pct': 0},
@@ -1412,9 +1414,9 @@ class ProfileAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-def _build_ranked_candidates_from_stats(user_stats):
+def _build_ranked_candidates_from_stats(user_stats: dict[Any, dict[str, Any]]) -> list[dict[str, Any]]:
     """Formats aggregated per-user stats into a sorted, ranked leaderboard list."""
-    candidates_list = []
+    candidates_list: list[dict[str, Any]] = []
     for user_id, s in user_stats.items():
         u = s['user']
         scores = s['scores']
@@ -1461,13 +1463,16 @@ def compute_leaderboard_candidates(since=None):
     if since is not None:
         attempts_qs = attempts_qs.filter(completed_at__gte=since)
 
-    user_stats = defaultdict(lambda: {
-        'user': None,
-        'total_attempts': 0,
-        'passed_attempts': 0,
-        'scores': [],
-        'highest_score': 0,
-    })
+    def _make_user_stat() -> dict[str, Any]:
+        return {
+            'user': None,
+            'total_attempts': 0,
+            'passed_attempts': 0,
+            'scores': [],
+            'highest_score': 0,
+        }
+
+    user_stats: dict[int, dict[str, Any]] = defaultdict(_make_user_stat)
 
     for att in attempts_qs:
         if att.answers and att.answers.get('_is_preview'):
@@ -1493,7 +1498,7 @@ def compute_overall_and_weekly_leaderboards(days=7):
     week_cutoff = now - timezone.timedelta(days=days)
     attempts_qs = Attempt.objects.filter(user__isnull=False, test__is_published=True).select_related('user', 'user__profile')
 
-    def _new_bucket():
+    def _new_bucket() -> dict[str, Any]:
         return {
             'user': None,
             'total_attempts': 0,
@@ -1502,8 +1507,8 @@ def compute_overall_and_weekly_leaderboards(days=7):
             'highest_score': 0,
         }
 
-    overall_stats = defaultdict(_new_bucket)
-    weekly_stats = defaultdict(_new_bucket)
+    overall_stats: dict[int, dict[str, Any]] = defaultdict(_new_bucket)
+    weekly_stats: dict[int, dict[str, Any]] = defaultdict(_new_bucket)
 
     for att in attempts_qs:
         if att.answers and att.answers.get('_is_preview'):
@@ -2668,7 +2673,7 @@ class ExamBookListAPIView(APIView):
 
         # Aggregated language options
         all_published = ExamBook.objects.filter(is_published=True)
-        languages_dict = OrderedDict()
+        languages_dict: OrderedDict[str, dict[str, Any]] = OrderedDict()
         for b in all_published.order_by('order', 'id'):
             if b.language not in languages_dict:
                 languages_dict[b.language] = {
@@ -2725,7 +2730,7 @@ class ExamBookLanguagesAPIView(APIView):
 
     def get(self, request):
         books = ExamBook.objects.filter(is_published=True).order_by('order')
-        langs = OrderedDict()
+        langs: OrderedDict[str, dict[str, Any]] = OrderedDict()
         for b in books:
             if b.language not in langs:
                 langs[b.language] = {
@@ -3235,7 +3240,7 @@ class PartnerSchoolDashboardAPIView(APIView):
             ).values_list('question_id', 'id', 'label'):
                 correct_options_by_qid[q_id].append((opt_id, opt_label))
 
-        section_totals = {
+        section_totals: dict[str, dict[str, Any]] = {
             'script_vocab': {'label': 'Script & Vocabulary', 'correct': 0, 'total': 0},
             'conversation': {'label': 'Conversation & Expression', 'correct': 0, 'total': 0},
             'listening': {'label': 'Listening Comprehension', 'correct': 0, 'total': 0},
@@ -3244,9 +3249,9 @@ class PartnerSchoolDashboardAPIView(APIView):
             'occupational': {'label': 'SSW Practical Knowledge', 'correct': 0, 'total': 0},
         }
 
-        per_user_attempts = defaultdict(list)
-        recent_attempts_data = []
-        all_scaled_scores = []
+        per_user_attempts: dict[int, list[dict[str, Any]]] = defaultdict(list)
+        recent_attempts_data: list[dict[str, Any]] = []
+        all_scaled_scores: list[int] = []
         passed_attempt_count = 0
 
         for att in attempts_list:
@@ -3302,7 +3307,7 @@ class PartnerSchoolDashboardAPIView(APIView):
             recent_attempts_data.append(entry)
 
         # Build student roster with 1st Attempt vs Best Score
-        students_roster = []
+        students_roster: list[dict[str, Any]] = []
         for prof in profiles_list:
             u = prof.user
             full_name = f"{u.first_name} {u.last_name}".strip() or u.username
