@@ -256,7 +256,25 @@ class PartnerSchoolLMSAndSecurityTests(TestCase):
         self.assertEqual(PartnerAssignedExam.objects.get(id=assigned_exam_id).attended_users.count(), 1)
 
     def test_school_self_registration_and_onboarding(self):
-        # 1. Existing user signs in on School tab and completes 1-step school setup
+        # 1. A Candidate account trying to log in with role='school' is rejected with 403
+        res_cand_school_login = self.client.post(
+            '/api/auth/login/',
+            {'username': 'student_budi', 'password': 'password123', 'role': 'school'},
+            format='json',
+        )
+        self.assertEqual(res_cand_school_login.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(res_cand_school_login.data.get('code'), 'not_a_school_account')
+
+        # 2. A School Owner account logging in with role='school' succeeds
+        res_sensei_login = self.client.post(
+            '/api/auth/login/',
+            {'username': 'sensei_sakura', 'password': 'password123', 'role': 'school'},
+            format='json',
+        )
+        self.assertEqual(res_sensei_login.status_code, status.HTTP_200_OK)
+        self.assertEqual(res_sensei_login.data['user']['owned_partner_school']['slug'], 'lpk-sakura')
+
+        # 3. Authenticated School registration creates PartnerSchool with is_featured=False (pending admin feature)
         self.client.force_authenticate(user=self.outsider_user)
         res_setup = self.client.post(
             '/api/partners/register-school/',
@@ -271,9 +289,9 @@ class PartnerSchoolLMSAndSecurityTests(TestCase):
         )
         self.assertEqual(res_setup.status_code, status.HTTP_201_CREATED)
         self.assertEqual(res_setup.data['partner_school']['slug'], 'dhaka-nihongo-academy')
-        self.assertEqual(res_setup.data['user']['owned_partner_school']['slug'], 'dhaka-nihongo-academy')
         created_school = PartnerSchool.objects.get(slug='dhaka-nihongo-academy')
         self.assertEqual(created_school.owner, self.outsider_user)
+        self.assertFalse(created_school.is_featured)
         self.assertEqual(len(created_school.join_code), 6)
 
 

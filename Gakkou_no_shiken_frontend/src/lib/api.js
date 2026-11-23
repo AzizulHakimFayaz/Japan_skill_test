@@ -146,10 +146,11 @@ export async function getSswInfo() {
   return apiRequest('/api/info/ssw/', fetchOpts);
 }
 
-export async function loginUser(username, password) {
+export async function loginUser(username, password, { role = '' } = {}) {
+  const payload = role ? { username, password, role } : { username, password };
   const data = await apiRequest('/api/auth/login/', {
     method: 'POST',
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify(payload),
   });
   if (data?.tokens?.access) {
     setAuthTokens(data.tokens.access, data.tokens.refresh);

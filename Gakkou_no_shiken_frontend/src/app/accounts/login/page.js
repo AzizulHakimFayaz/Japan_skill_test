@@ -3,7 +3,7 @@
 import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { loginUser, setupPartnerSchoolForUser } from '@/lib/api';
+import { loginUser } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
 import GoogleSignInButton from '@/components/GoogleSignInButton';
 import {
@@ -12,9 +12,7 @@ import {
   User,
   GraduationCap,
   KeyRound,
-  Building2,
-  MapPin,
-  Phone,
+  AlertTriangle,
   ArrowRight,
 } from 'lucide-react';
 
@@ -27,7 +25,7 @@ function LoginForm() {
 
   // Role Switcher: 'candidate' | 'school'
   const [role, setRole] = useState(initialRole);
-  // For School tab: 'account' (Username/Email + Password) | 'key' (School Code + Sensei Key)
+  // For School tab: 'account' (School Owner Username/Email + Password) | 'key' (School Code + Sensei Key)
   const [schoolAuthMethod, setSchoolAuthMethod] = useState('account');
 
   const [username, setUsername] = useState('');
@@ -38,13 +36,8 @@ function LoginForm() {
   const [schoolCodeInput, setSchoolCodeInput] = useState('');
   const [senseiKeyInput, setSenseiKeyInput] = useState('');
 
-  // Quick 1-step school onboarding if an existing user logs in on the School tab without a school yet
-  const [needsSchoolSetup, setNeedsSchoolSetup] = useState(false);
-  const [setupSchoolName, setSetupSchoolName] = useState('');
-  const [setupCountry, setSetupCountry] = useState('Bangladesh');
-  const [setupCity, setSetupCity] = useState('');
-  const [setupPhone, setSetupPhone] = useState('');
-  const [setupRequirePin, setSetupRequirePin] = useState(true);
+  // Shown when a Candidate account tries to sign in on the School / Sensei tab
+  const [candidateAccountNotice, setCandidateAccountNotice] = useState(false);
 
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -54,8 +47,9 @@ function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setCandidateAccountNotice(false);
 
-    // If School tab + Sensei Key mode
+    // School tab + Sensei Access Key mode
     if (isSchool && schoolAuthMethod === 'key') {
       const cleanSlug = schoolCodeInput.trim().toLowerCase();
       const cleanKey = senseiKeyInput.trim();
@@ -73,184 +67,42 @@ function LoginForm() {
 
     setSubmitting(true);
     try {
-      const data = await loginUser(username, password);
+      const data = await loginUser(username, password, {
+        role: isSchool ? 'school' : 'candidate',
+      });
       if (data?.user) {
-        login(data.user);
-
         if (isSchool) {
           const ownedSlug = data.user.owned_partner_school?.slug;
           if (ownedSlug) {
+            login(data.user);
             router.push(`/partner/${encodeURIComponent(ownedSlug)}`);
             return;
           }
-          // Account succeeded, but hasn't created a PartnerSchool yet -> show 10-second inline school setup!
-          setNeedsSchoolSetup(true);
+          if (data.user.is_staff || data.user.is_superuser) {
+            login(data.user);
+            router.push('/partners');
+            return;
+          }
+          // Account does not own a PartnerSchool -> block School login cleanly
+          setCandidateAccountNotice(true);
+          setError(
+            `@${data.user.username} is registered as a Candidate / Student account, not a Partner School.`
+          );
           return;
         }
 
+        login(data.user);
         router.push(next);
       }
     } catch (err) {
+      if (isSchool && (err?.data?.code === 'not_a_school_account' || err?.status === 403)) {
+        setCandidateAccountNotice(true);
+      }
       setError(err.message || 'Invalid credentials. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
-
-  const handleCompleteSchoolSetup = async (e) => {
-    e.preventDefault();
-    setError(null);
-    if (!setupSchoolName.trim() || !setupCity.trim() || !setupPhone.trim()) {
-      setError('Please fill in School Name, City, and WhatsApp/Phone number.');
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const res = await setupPartnerSchoolForUser({
-        username: username.trim(),
-        school_name: setupSchoolName.trim(),
-        country: setupCountry,
-        city: setupCity.trim(),
-        whatsapp_or_phone: setupPhone.trim(),
-        require_join_pin: setupRequirePin,
-      });
-      if (res?.user) {
-        login(res.user);
-      }
-      const slug = res?.partner_school?.slug || res?.user?.owned_partner_school?.slug;
-      if (slug) {
-        router.push(`/partner/${encodeURIComponent(slug)}`);
-      }
-    } catch (err) {
-      setError(err.message || 'Could not create school profile. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // Inline School Setup Step for Existing Accounts
-  if (needsSchoolSetup) {
-    return (
-      <div className="bg-white dark:bg-slate-900/90 border border-violet-200 dark:border-violet-800 rounded-3xl p-6 sm:p-10 shadow-xl space-y-6 animate-fade-in">
-        <div className="text-center space-y-2">
-          <div className="w-13 h-13 rounded-2xl bg-violet-100 dark:bg-violet-950 text-violet-600 dark:text-violet-300 flex items-center justify-center mx-auto">
-            <Building2 className="w-7 h-7" />
-          </div>
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white">
-            Activate Your School / LPK Portal
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Your account <strong>{username}</strong> is currently registered as a Candidate. Enter your training center details below to upgrade this account to a <strong>Partner School &amp; Sensei LMS</strong>, or continue as a student.
-          </p>
-          <div className="pt-1">
-            <button
-              type="button"
-              onClick={() => router.push(next)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-extrabold text-slate-700 dark:text-slate-200 cursor-pointer"
-            >
-              <span>Continue to Candidate Portal as Student →</span>
-            </button>
-          </div>
-        </div>
-
-        {error && (
-          <div className="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs p-4 rounded-2xl font-semibold">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleCompleteSchoolSetup} className="space-y-4">
-          <div>
-            <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
-              School / LPK / Training Center Name *
-            </label>
-            <input
-              type="text"
-              required
-              value={setupSchoolName}
-              onChange={(e) => setSetupSchoolName(e.target.value)}
-              placeholder="e.g. LPK Sakura Nusantara / Dhaka Nihongo Center"
-              className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-bold text-slate-900 dark:text-white"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
-                Country *
-              </label>
-              <select
-                value={setupCountry}
-                onChange={(e) => setSetupCountry(e.target.value)}
-                className="w-full px-3.5 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-semibold text-slate-900 dark:text-white"
-              >
-                <option value="Bangladesh">🇧🇩 Bangladesh</option>
-                <option value="Indonesia">🇮🇩 Indonesia</option>
-                <option value="Nepal">🇳🇵 Nepal</option>
-                <option value="Vietnam">🇻🇳 Vietnam</option>
-                <option value="Philippines">🇵🇭 Philippines</option>
-                <option value="Myanmar">🇲🇲 Myanmar</option>
-                <option value="Sri Lanka">🇱🇰 Sri Lanka</option>
-                <option value="India">🇮🇳 India</option>
-                <option value="Japan">🇯🇵 Japan</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
-                City *
-              </label>
-              <div className="relative">
-                <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  required
-                  value={setupCity}
-                  onChange={(e) => setSetupCity(e.target.value)}
-                  placeholder="e.g. Dhaka, Jakarta"
-                  className="w-full pl-9 pr-3.5 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-semibold text-slate-900 dark:text-white"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
-              Official WhatsApp / Contact Phone *
-            </label>
-            <div className="relative">
-              <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                required
-                value={setupPhone}
-                onChange={(e) => setSetupPhone(e.target.value)}
-                placeholder="+880 17... / +62 812..."
-                className="w-full pl-9 pr-3.5 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-semibold text-slate-900 dark:text-white"
-              />
-            </div>
-          </div>
-
-          <label className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={setupRequirePin}
-              onChange={(e) => setSetupRequirePin(e.target.checked)}
-            />
-            <span>🔐 Require 6-Digit Class Join PIN for students</span>
-          </label>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-extrabold text-sm shadow-lg shadow-violet-500/20 cursor-pointer flex items-center justify-center gap-2"
-          >
-            <span>{submitting ? 'Creating School Portal...' : 'Launch My Sensei LMS Dashboard'}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </form>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] space-y-6">
@@ -261,6 +113,7 @@ function LoginForm() {
           onClick={() => {
             setRole('candidate');
             setError(null);
+            setCandidateAccountNotice(false);
           }}
           className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
             !isSchool
@@ -277,6 +130,7 @@ function LoginForm() {
           onClick={() => {
             setRole('school');
             setError(null);
+            setCandidateAccountNotice(false);
           }}
           className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
             isSchool
@@ -302,7 +156,7 @@ function LoginForm() {
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">
           {isSchool
-            ? 'Sign in with your School Account or Sensei Access Key to assign tests, share notes & manage your batch.'
+            ? 'Sign in with your registered Partner School account or Sensei Access Key to manage your classroom.'
             : 'Sign in to track your exam performance, scores, and classroom assignments.'}
         </p>
       </div>
@@ -315,6 +169,7 @@ function LoginForm() {
             onClick={() => {
               setSchoolAuthMethod('account');
               setError(null);
+              setCandidateAccountNotice(false);
             }}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold cursor-pointer transition-all ${
               schoolAuthMethod === 'account'
@@ -329,6 +184,7 @@ function LoginForm() {
             onClick={() => {
               setSchoolAuthMethod('key');
               setError(null);
+              setCandidateAccountNotice(false);
             }}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-all ${
               schoolAuthMethod === 'key'
@@ -352,10 +208,36 @@ function LoginForm() {
         </>
       )}
 
-      {/* Error Alert */}
+      {/* Error Alert + Candidate Account Role Mismatch Guidance */}
       {error && (
-        <div className="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/80 text-rose-800 dark:text-rose-200 text-xs p-4 rounded-2xl font-semibold animate-fade-in">
-          {error}
+        <div className="bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/80 text-rose-800 dark:text-rose-200 text-xs p-4 rounded-2xl space-y-3 animate-fade-in">
+          <div className="flex items-start gap-2 font-semibold">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />
+            <span>{error}</span>
+          </div>
+
+          {candidateAccountNotice && (
+            <div className="pt-1 flex flex-col sm:flex-row gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setRole('candidate');
+                  setError(null);
+                  setCandidateAccountNotice(false);
+                }}
+                className="flex-1 py-2 px-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs cursor-pointer"
+              >
+                Switch to Candidate Sign In →
+              </button>
+              <Link
+                href="/accounts/signup?role=school"
+                className="flex-1 py-2 px-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black text-xs text-center flex items-center justify-center gap-1"
+              >
+                <span>Register School Account</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          )}
         </div>
       )}
 
@@ -398,7 +280,7 @@ function LoginForm() {
                 htmlFor="id_username"
                 className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
               >
-                {isSchool ? 'Sensei Username or School Email' : 'Username or Email'}
+                {isSchool ? 'Registered School Username or Email' : 'Username or Email'}
               </label>
               <input
                 type="text"
@@ -462,7 +344,7 @@ function LoginForm() {
           {submitting
             ? 'Signing In...'
             : isSchool
-            ? 'Open Sensei LMS Dashboard'
+            ? 'Sign In to Sensei LMS Portal'
             : 'Sign In to Candidate Portal'}
         </button>
       </form>
@@ -480,7 +362,7 @@ function LoginForm() {
             isSchool ? 'text-violet-600 dark:text-violet-400' : 'text-japan-red dark:text-rose-400'
           }`}
         >
-          {isSchool ? 'Register School Free →' : 'Register Free'}
+          {isSchool ? 'Register School Account →' : 'Register Free'}
         </Link>
       </div>
     </div>

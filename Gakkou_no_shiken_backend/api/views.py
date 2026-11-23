@@ -695,7 +695,7 @@ def _provision_partner_school_for_user(user, data):
         require_approval=require_approval,
         enrollment_locked=False,
         is_active=True,
-        is_featured=True,
+        is_featured=False,
     )
 
     # Also log in PartnerApplication for admin audit visibility
@@ -915,37 +915,21 @@ class RegisterAPIView(APIView):
 class PartnerSchoolSelfSetupAPIView(APIView):
     """
     POST /api/partners/register-school/
-    Allows an authenticated user (e.g. after signing in on the School tab or via Google Sign-In)
-    to create and link their PartnerSchool immediately.
-    Uses AllowAny + manual token/user resolution so cPanel Apache never triggers a 403 error page.
+    Allows an authenticated user with a valid JWT token to provision their PartnerSchool.
     """
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        target_user = request.user if (request.user and request.user.is_authenticated) else None
-        if not target_user:
-            username_fallback = str(request.data.get('username') or '').strip()
-            if username_fallback:
-                target_user = (
-                    User.objects.filter(username__iexact=username_fallback).first()
-                    or User.objects.filter(email__iexact=username_fallback).first()
-                )
-        if not target_user:
-            return Response(
-                {'detail': 'Please sign in first to activate your Partner School portal.'},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-
         school_name = str(request.data.get('school_name') or '').strip()
         if not school_name:
             return Response(
                 {'detail': 'School / LPK / Training Center Name is required.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        school = _provision_partner_school_for_user(target_user, request.data)
+        school = _provision_partner_school_for_user(request.user, request.data)
         return Response({
             'status': 'success',
-            'user': UserSerializer(target_user).data,
+            'user': UserSerializer(request.user).data,
             'partner_school': PartnerSchoolSummarySerializer(school).data,
             'message': f"{school.name} Sensei LMS Portal is ready!",
         }, status=status.HTTP_201_CREATED)
@@ -975,6 +959,18 @@ class LoginAPIView(APIView):
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            role = str(request.data.get('role') or '').strip().lower()
+            if role == 'school':
+                has_school = PartnerSchool.objects.filter(owner=user, is_active=True).exists()
+                if not has_school and not (user.is_staff or user.is_superuser):
+                    return Response(
+                        {
+                            "detail": f"@{user.username} is registered as a Candidate / Student account, not a Partner School. Please sign in on the Candidate tab, or register an official School / Sensei account.",
+                            "code": "not_a_school_account",
+                        },
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
+
             update_last_login(None, user)
             client_ip = get_client_ip(request)
             if client_ip:
