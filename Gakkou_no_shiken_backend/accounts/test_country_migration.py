@@ -233,9 +233,11 @@ class CountryMigrationAndRegistrationTests(APITestCase):
             call_command('check_country_migration')
         self.assertEqual(cm.exception.code, 0)
 
+    @patch('api.views.lookup_ip_country')
     @patch('accounts.geolocation.lookup_ip_country')
-    def test_detect_country_api_returns_detected_location(self, mock_lookup):
-        mock_lookup.return_value = 'Nepal'
+    def test_detect_country_api_returns_detected_location(self, mock_geo_lookup, mock_views_lookup):
+        mock_geo_lookup.return_value = 'Nepal'
+        mock_views_lookup.return_value = 'Nepal'
         detect_url = reverse('api_detect_country')
         response = self.client.get(detect_url, HTTP_X_FORWARDED_FOR='103.10.28.1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
