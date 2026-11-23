@@ -36,7 +36,7 @@ class AdminDashboardAndUserPageTests(TestCase):
         # Anonymous user must be redirected to login
         resp = self.client.get('/admin/statistics/')
         self.assertEqual(resp.status_code, 302)
-        self.assertIn('/admin/login/', resp['Location'])
+        self.assertIn('/admin/login/', getattr(resp, 'url', ''))
 
     def test_statistics_view_for_staff(self):
         self.client.force_login(self.admin)
