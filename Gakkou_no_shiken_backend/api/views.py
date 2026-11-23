@@ -1892,6 +1892,17 @@ class SetupDatabaseAPIView(APIView):
         except Exception as e:
             logs.append(f'❌ Table/Column creation error: {e}')
 
+        # 1.5. Run self-healing schema_sync (adds Partner LMS columns & tables safely)
+        try:
+            from accounts.schema_sync import ensure_schema_synced
+            sync_logs = ensure_schema_synced()
+            if sync_logs:
+                logs.append(f"✅ Schema Sync: {'; '.join(sync_logs)}")
+            else:
+                logs.append("✅ Schema Sync: All Partner LMS tables & columns verified.")
+        except Exception as e:
+            logs.append(f"⚠️ Schema Sync Note: {e}")
+
         # 2. Run Migrations with auto-fake for pre-existing tables
         try:
             call_command('migrate', '--fake-initial', interactive=False)
