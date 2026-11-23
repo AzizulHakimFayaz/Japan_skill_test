@@ -51,23 +51,23 @@ class AdminDashboardAndUserPageTests(TestCase):
         cua = CustomUserAdmin(User, site)
         
         # Test candidate_card
-        card_html = cua.candidate_card(self.user)
+        card_html = str(cua.candidate_card(self.user))
         self.assertIn('student1', card_html)
         self.assertIn('John Doe', card_html)
         self.assertIn('student1@example.com', card_html)
 
         # Test country_badge
-        country_html = cua.country_badge(self.user)
+        country_html = str(cua.country_badge(self.user))
         self.assertIn('Bangladesh', country_html)
 
         # Test role_badge
-        role_user = cua.role_badge(self.user)
+        role_user = str(cua.role_badge(self.user))
         self.assertIn('Candidate', role_user)
-        role_admin = cua.role_badge(self.admin)
+        role_admin = str(cua.role_badge(self.admin))
         self.assertIn('Admin', role_admin)
 
         # Test status_pill
-        status_html = cua.status_pill(self.user)
+        status_html = str(cua.status_pill(self.user))
         self.assertIn('Active', status_html)
 
     def test_password_change_template_has_eye_toggle(self):
