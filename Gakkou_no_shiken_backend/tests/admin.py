@@ -3,7 +3,8 @@ from django.db import models
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.urls import path, reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, escape
+from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
 from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic, HeroBanner
 from .utils import import_questions_from_csv, generate_sample_csv_string, generate_sample_ssw_csv_string, export_test_questions_to_csv, generate_test_missing_audio_worker
@@ -1159,11 +1160,11 @@ class NoticeAdmin(admin.ModelAdmin):
         if obj.image:
             icons.append('<span style="color:#0284C7;font-size:0.8rem;" title="Has Image Banner"><i class="fas fa-image"></i> Image</span>')
         if obj.pdf_file:
-            size = obj.file_size_text or 'PDF'
+            size = escape(obj.file_size_text or 'PDF')
             icons.append(f'<span style="color:#DC2626;font-size:0.8rem;" title="Has PDF Material: {size}"><i class="fas fa-file-pdf"></i> {size}</span>')
         if not icons:
             return format_html('<span style="color:#94A3B8;font-size:0.75rem;">Text only</span>')
-        return format_html('&nbsp;|&nbsp;'.join(icons))
+        return mark_safe('&nbsp;|&nbsp;'.join(icons))
     media_indicators.short_description = 'Attachments'
 
     def related_test_link(self, obj):
@@ -1250,6 +1251,7 @@ class CurriculumLessonAdmin(admin.ModelAdmin):
     list_filter = ('lesson_type', 'level')
     search_fields = ('title', 'title_ja')
     ordering = ('lesson_type', 'level', 'lesson_number')
+    list_per_page = 30
 
     def get_inlines(self, request, obj):
         if obj and obj.lesson_type == CurriculumLesson.LessonType.VOCABULARY:
@@ -1264,6 +1266,10 @@ class CurriculumVocabularyAdmin(admin.ModelAdmin):
     list_filter = ('lesson__level', 'lesson__lesson_type')
     search_fields = ('word', 'furigana', 'romaji', 'meaning_en', 'meaning_bn')
     ordering = ('lesson', 'order_index')
+    list_per_page = 30
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('lesson')
 
 @admin.register(CurriculumKanji)
 class CurriculumKanjiAdmin(admin.ModelAdmin):
@@ -1271,6 +1277,10 @@ class CurriculumKanjiAdmin(admin.ModelAdmin):
     list_filter = ('lesson__level', 'lesson__lesson_type')
     search_fields = ('character', 'onyomi', 'kunyomi', 'romaji', 'meaning_en', 'meaning_bn')
     ordering = ('lesson', 'order_index')
+    list_per_page = 30
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('lesson')
 
 
 # ─── Exam Books & Topics Admin ───────────────────────────────────────
@@ -1288,6 +1298,7 @@ class ExamBookAdmin(admin.ModelAdmin):
     search_fields = ('title', 'title_ja', 'description')
     ordering = ('order', 'category', 'language')
     inlines = [BookTopicInline]
+    list_per_page = 30
 
 
 @admin.register(BookTopic)
@@ -1296,6 +1307,10 @@ class BookTopicAdmin(admin.ModelAdmin):
     list_filter = ('topic_type', 'book__category', 'book__language')
     search_fields = ('title', 'title_ja', 'summary_text', 'japanese_script')
     ordering = ('book', 'order', 'page_number')
+    list_per_page = 30
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('book')
 
 
 @admin.register(HeroBanner)

@@ -104,10 +104,17 @@ class CustomUserAdmin(BaseUserAdmin):
         # Deterministic background color from username
         colors = ['#4f46e5', '#0284c7', '#059669', '#d97706', '#dc2626', '#7c3aed', '#db2777']
         color = colors[sum(ord(c) for c in obj.username) % len(colors)]
-        
+
         full_name = f"{obj.first_name} {obj.last_name}".strip()
-        name_line = f"<div style='font-size:0.8rem; color:#94a3b8;'>{full_name}</div>" if full_name else ""
-        email_line = f"<div class='user-email-text'><i class='fas fa-envelope' style='font-size:10px; margin-right:4px; opacity:0.7;'></i>{obj.email}</div>" if obj.email else ""
+        name_line = format_html("<div style='font-size:0.8rem; color:#94a3b8;'>{}</div>", full_name) if full_name else ""
+        email_line = (
+            format_html(
+                "<div class='user-email-text'><i class='fas fa-envelope' style='font-size:10px; margin-right:4px; opacity:0.7;'></i>{}</div>",
+                obj.email,
+            )
+            if obj.email
+            else ""
+        )
 
         url = reverse('admin:auth_user_change', args=[obj.id])
         return format_html(
@@ -121,7 +128,7 @@ class CustomUserAdmin(BaseUserAdmin):
                 </div>
             </div>
             """,
-            color, initial, url, obj.username, format_html(name_line), format_html(email_line)
+            color, initial, url, obj.username, name_line, email_line
         )
     candidate_card.short_description = 'Candidate'
     candidate_card.admin_order_field = 'username'
@@ -131,18 +138,18 @@ class CustomUserAdmin(BaseUserAdmin):
         country = profile.country if profile and profile.country else None
         if not country:
             return format_html('<span class="badge bg-secondary opacity-50"><span class="me-1">🌐</span> Not Set</span>')
-        
+
         flag = get_flag(country)
         source = profile.country_source or 'unknown'
         source_badge = ""
-        if source == 'user_selected':
-            source_badge = "<span class='badge bg-success ms-1' style='font-size:9px; padding:2px 5px;'>Self</span>"
-        elif source == 'ip_geolocation':
-            source_badge = "<span class='badge bg-info ms-1' style='font-size:9px; padding:2px 5px;'>IP</span>"
+        if source in (UserProfile.CountrySource.USER, 'user_selected'):
+            source_badge = mark_safe("<span class='badge bg-success ms-1' style='font-size:9px; padding:2px 5px;'>Self</span>")
+        elif source in (UserProfile.CountrySource.IP, 'ip_geolocation'):
+            source_badge = mark_safe("<span class='badge bg-info ms-1' style='font-size:9px; padding:2px 5px;'>IP</span>")
 
         return format_html(
             '<span class="badge-country"><span style="font-size:1.1rem;">{}</span> <span>{}</span>{}</span>',
-            flag, country, format_html(source_badge)
+            flag, country, source_badge
         )
     country_badge.short_description = 'Country'
     country_badge.admin_order_field = 'profile__country'
@@ -246,6 +253,11 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_filter = ('country_source', 'country', 'target_exam', 'japanese_level')
     search_fields = ('user__username', 'user__first_name', 'user__last_name', 'user__email', 'country', 'location', 'bio')
     readonly_fields = ('created_at', 'updated_at')
+    list_per_page = 25
+    save_on_top = True
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user', 'partner_school')
 
     def candidate_link(self, obj):
         user = obj.user
@@ -268,9 +280,9 @@ class UserProfileAdmin(admin.ModelAdmin):
 
     def source_badge(self, obj):
         source = obj.country_source or 'unknown'
-        if source == 'user_selected':
+        if source in (UserProfile.CountrySource.USER, 'user_selected'):
             return format_html('<span class="badge bg-success">User Selected</span>')
-        elif source == 'ip_geolocation':
+        elif source in (UserProfile.CountrySource.IP, 'ip_geolocation'):
             return format_html('<span class="badge bg-info">IP Geolocation</span>')
         return format_html('<span class="badge bg-secondary">Unknown</span>')
     source_badge.short_description = 'Source'

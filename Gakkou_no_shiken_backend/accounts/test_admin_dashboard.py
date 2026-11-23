@@ -101,4 +101,23 @@ class AdminDashboardAndUserPageTests(TestCase):
         resp2 = self.client.get(user_change_url)
         self.assertEqual(resp2.status_code, 200)
 
+    def test_reorganized_admin_dashboard_and_changelists_render(self):
+        self.client.force_login(self.admin)
+        for url_name in [
+            'admin:index',
+            'admin:accounts_supportthread_changelist',
+            'admin:accounts_partnerschool_changelist',
+            'admin:accounts_partnerapplication_changelist',
+            'admin:accounts_userprofile_changelist',
+            'admin:tests_notice_changelist',
+            'admin:tests_exambook_changelist',
+            'admin:tests_booktopic_changelist',
+            'admin:tests_curriculumlesson_changelist',
+            'admin:tests_curriculumvocabulary_changelist',
+            'admin:tests_curriculumkanji_changelist',
+            'admin:tests_herobanner_changelist',
+        ]:
+            resp = self.client.get(reverse(url_name))
+            self.assertEqual(resp.status_code, 200, f"Failed rendering {url_name}")
+
 

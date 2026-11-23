@@ -1,3 +1,4 @@
+import os
 import urllib.request
 import urllib.parse
 import http.cookiejar
@@ -12,8 +13,8 @@ html = res.read().decode('utf-8')
 csrf = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', html).group(1)
 
 login_payload = urllib.parse.urlencode({
-    'username': 'admin',
-    'password': 'admin12345',
+    'username': os.environ.get('ADMIN_USERNAME', 'admin'),
+    'password': os.environ.get('ADMIN_PASSWORD', ''),
     'csrfmiddlewaretoken': csrf,
     'next': '/admin/'
 }).encode('utf-8')

@@ -20,8 +20,7 @@ if env_file.exists():
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-z&v^**=kgkjkpil6$n=+k*r1na0cpd2(w0+d#0l4yle29bo!*t')
 
-# Temporarily force DEBUG=True on Railway to diagnose 500 errors
-DEBUG = True
+DEBUG = env.bool('DEBUG', default=True)
 ALLOWED_HOSTS = ['*']
 
 # Ensure Vercel / Railway domains are always allowed
@@ -31,9 +30,7 @@ if os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV') or os.environ.get('R
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = False
 
-
-
-# Logging — print all Django errors to stdout so they show in Railway deploy logs
+# Logging — print all Django errors to stdout so they show in server deploy logs
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -60,7 +57,7 @@ LOGGING = {
     },
 }
 
-
+# CORS & CSRF Configuration (authoritative single definition)
 CSRF_TRUSTED_ORIGINS = [
     'https://gakkounoshiken.site',
     'https://www.gakkounoshiken.site',
@@ -72,11 +69,13 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
     'https://*.up.railway.app',
     'https://*.railway.app',
+    'https://japanskilltest-production.up.railway.app',
     'http://localhost:3000',
     'http://localhost:5173',
     'http://127.0.0.1:3000',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
 ]
-
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
@@ -92,10 +91,10 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-# Database-Backed Persistent Admin Sessions
+# Database-Backed Persistent Admin Sessions (30 days; write only on login/logout to avoid SQLite lock contention)
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 Days
-SESSION_SAVE_EVERY_REQUEST = False      # ONLY write on login/logout (prevents DB lock contention)
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30
+SESSION_SAVE_EVERY_REQUEST = False
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_NAME = 'sessionid'
 CSRF_COOKIE_NAME = 'csrftoken'
@@ -311,14 +310,6 @@ LOGIN_URL = '/admin/login/'
 LOGIN_REDIRECT_URL = '/admin/'
 LOGOUT_REDIRECT_URL = '/admin/login/'
 
-# Persistent Long-Lived Admin Sessions (Keeps you logged in for 30 days)
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 Days
-SESSION_SAVE_EVERY_REQUEST = True       # Automatically refreshes session on every click
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False # Stay logged in even after closing browser
-SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = False
-
 
 # Jazzmin Admin Panel Customization
 JAZZMIN_SETTINGS = {
@@ -335,23 +326,23 @@ JAZZMIN_SETTINGS = {
     "welcome_sign": "Gakkou No Shiken — Admin Management",
     "copyright": "Gakkou No Shiken © 2026",
 
-
     # Global search — single clean search bar
     "search_model": ["tests.Test"],
 
     # Top navigation links
     "topmenu_links": [
         {"name": "Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "💬 Support Chat", "url": "admin:accounts_supportthread_changelist", "permissions": ["auth.view_user"]},
-        {"name": "🏫 Partner Schools", "url": "admin:accounts_partnerschool_changelist", "permissions": ["auth.view_user"]},
-        {"name": "📊 Live Statistics", "url": "/admin/statistics/", "permissions": ["auth.view_user"]},
-        {"name": "View Site ↗", "url": "/", "new_window": True},
+        {"name": "Tests", "url": "admin:tests_test_changelist", "permissions": ["tests.view_test"]},
+        {"name": "Support Chat", "url": "admin:accounts_supportthread_changelist", "permissions": ["accounts.view_supportthread"]},
+        {"name": "Partner Schools", "url": "admin:accounts_partnerschool_changelist", "permissions": ["accounts.view_partnerschool"]},
+        {"name": "Live Statistics", "url": "/admin/statistics/", "permissions": ["auth.view_user"]},
+        {"name": "View Site", "url": "/", "new_window": True},
     ],
 
     # Custom links in sidebar
     "custom_links": {
         "tests": [{
-            "name": "📊 Live Statistics",
+            "name": "Live Statistics",
             "url": "/admin/statistics/",
             "icon": "fas fa-chart-line",
             "permissions": ["auth.view_user"],
@@ -364,33 +355,67 @@ JAZZMIN_SETTINGS = {
         {"model": "auth.user"},
     ],
 
-    # Sidebar
+    # Sidebar & Dashboard Organization
     "show_sidebar": True,
     "navigation_expanded": True,
     "hide_apps": [],
-    "hide_models": [],
-    "order_with_respect_to": ["tests", "tests.Notice", "tests.Test", "tests.QuestionGroup", "tests.Question", "tests.Attempt", "auth"],
+    # Keep internal security tokens & individual chat rows hidden from dashboard clutter
+    # (still registered in Django Admin and accessible via SupportThread / direct URL)
+    "hide_models": [
+        "accounts.PasswordResetToken",
+        "accounts.SupportMessage",
+    ],
+    "order_with_respect_to": [
+        "tests",
+        "tests.Test",
+        "tests.QuestionGroup",
+        "tests.Question",
+        "tests.Attempt",
+        "tests.Notice",
+        "tests.HeroBanner",
+        "tests.ExamBook",
+        "tests.BookTopic",
+        "tests.CurriculumLesson",
+        "tests.CurriculumVocabulary",
+        "tests.CurriculumKanji",
+        "accounts",
+        "accounts.SupportThread",
+        "accounts.PartnerSchool",
+        "accounts.PartnerApplication",
+        "accounts.UserProfile",
+        "auth",
+        "auth.User",
+        "auth.Group",
+    ],
 
     # Model icons (FontAwesome 5)
     "icons": {
         "auth": "fas fa-shield-alt",
         "auth.user": "fas fa-user-shield",
         "auth.Group": "fas fa-users-cog",
-        "tests.Notice": "fas fa-bullhorn",
+        "tests": "fas fa-clipboard-check",
         "tests.Test": "fas fa-file-alt",
-        "tests.Question": "fas fa-question-circle",
         "tests.QuestionGroup": "fas fa-layer-group",
+        "tests.Question": "fas fa-question-circle",
         "tests.AnswerOption": "fas fa-tasks",
-        "tests.Attempt": "fas fa-chart-line",
-        "accounts.SupportThread": "fas fa-comments",
+        "tests.Attempt": "fas fa-chart-bar",
+        "tests.Notice": "fas fa-bullhorn",
+        "tests.HeroBanner": "fas fa-images",
+        "tests.ExamBook": "fas fa-book-open",
+        "tests.BookTopic": "fas fa-bookmark",
+        "tests.CurriculumLesson": "fas fa-graduation-cap",
+        "tests.CurriculumVocabulary": "fas fa-language",
+        "tests.CurriculumKanji": "fas fa-pen-nib",
+        "accounts": "fas fa-users",
+        "accounts.SupportThread": "fas fa-headset",
         "accounts.SupportMessage": "fas fa-comment-dots",
         "accounts.PartnerSchool": "fas fa-school",
         "accounts.PartnerApplication": "fas fa-handshake",
         "accounts.UserProfile": "fas fa-id-card",
+        "accounts.PasswordResetToken": "fas fa-key",
     },
     "default_icon_parents": "fas fa-folder-open",
-    "default_icon_children": "fas fa-circle-notch",
-
+    "default_icon_children": "fas fa-circle",
 
     # Modals for related objects
     "related_modal_active": True,
@@ -432,13 +457,12 @@ JAZZMIN_UI_TWEAKS = {
     "sidebar_nav_small_text": False,
     "sidebar_disable_expand": False,
     "sidebar_nav_child_indent": True,
-    "sidebar_nav_compact_style": False,
+    "sidebar_nav_compact_style": True,
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": False,
 
     # Base Bootstrap theme
     "theme": "darkly",
-    "dark_mode_theme": None,
 
     # Button variants
     "button_classes": {
@@ -453,25 +477,6 @@ JAZZMIN_UI_TWEAKS = {
     # Actions bar
     "actions_sticky_top": True,
 }
-
-# CORS & CSRF Configuration for gakkounoshiken.site, Vercel, Railway, and localhost
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-
-CSRF_TRUSTED_ORIGINS = [
-    'https://gakkounoshiken.site',
-    'https://www.gakkounoshiken.site',
-    'http://gakkounoshiken.site',
-    'http://www.gakkounoshiken.site',
-    'https://gakkou-no-shiken-frontend.vercel.app',
-    'https://gakkou-no-shiken.vercel.app',
-    'https://*.vercel.app',
-    'https://japanskilltest-production.up.railway.app',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
-]
 
 # Email Configuration (cPanel SMTP / noreply@gakkounoshiken.site)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
