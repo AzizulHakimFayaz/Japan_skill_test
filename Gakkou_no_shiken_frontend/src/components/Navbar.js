@@ -593,7 +593,8 @@ export default function Navbar() {
                     <GraduationCap className="w-3.5 h-3.5 shrink-0" />
                     <span>Sensei LMS</span>
                   </Link>
-                ) : user.profile?.partner_school?.slug ? (
+                ) : user.profile?.partner_school?.slug &&
+                  (user.profile?.partner_status || 'approved') === 'approved' ? (
                   <Link
                     href={`/partner/${encodeURIComponent(user.profile.partner_school.slug)}?mode=classroom`}
                     className="text-xs font-extrabold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/70 hover:bg-indigo-100 border border-indigo-200 dark:border-indigo-800 transition-all py-1.5 px-2.5 rounded-xl flex items-center gap-1 whitespace-nowrap shrink-0"

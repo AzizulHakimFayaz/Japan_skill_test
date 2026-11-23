@@ -558,10 +558,205 @@ export default function PartnerSchoolDashboardPage() {
     const cExams = classroomData?.assigned_exams || [];
     const cNotes = classroomData?.study_notes || [];
     const cNotices = classroomData?.notifications || [];
+    const membershipStatus = classroomData?.membership_status || 'none';
+    const isApprovedMember = membershipStatus === 'approved';
+
+    // Strict Gate: Uninvited, Pending, or Rejected users CANNOT see inside the Student Classroom Portal
+    if (!isApprovedMember) {
+      return (
+        <div className="max-w-xl mx-auto py-10 px-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5">
+            {classroomLoading ? (
+              <div className="py-10 text-center space-y-3">
+                <RefreshCw className="w-7 h-7 text-violet-600 animate-spin mx-auto" />
+                <p className="text-xs font-bold text-slate-500">
+                  Verifying classroom invitation &amp; membership...
+                </p>
+              </div>
+            ) : membershipStatus === 'pending' ? (
+              <div className="text-center space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700 flex items-center justify-center text-amber-600 dark:text-amber-300 mx-auto">
+                  <Clock className="w-7 h-7" />
+                </div>
+                <div className="space-y-1">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-[11px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                    ⏳ Pending Sensei Approval
+                  </span>
+                  <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                    {cSchool?.name || slug} Classroom Locked
+                  </h1>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-md mx-auto">
+                  Your enrollment request is waiting for <strong>Sensei approval</strong>. You cannot view this school&apos;s private classroom, assigned mock exams, study notes, or notifications until your Sensei approves your account.
+                </p>
+                <div className="pt-2 flex flex-wrap justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={fetchClassroom}
+                    className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Check Approval Status</span>
+                  </button>
+                  <Link
+                    href="/"
+                    className="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold"
+                  >
+                    Back to Homepage
+                  </Link>
+                </div>
+              </div>
+            ) : membershipStatus === 'rejected' ? (
+              <div className="text-center space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-rose-100 dark:bg-rose-950/80 border border-rose-300 dark:border-rose-700 flex items-center justify-center text-rose-600 dark:text-rose-300 mx-auto">
+                  <UserX className="w-7 h-7" />
+                </div>
+                <h1 className="text-xl font-black text-slate-900 dark:text-white">
+                  Classroom Access Declined
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-md mx-auto">
+                  Your access to <strong>{cSchool?.name || slug}</strong> was restricted by the Sensei. Please contact your instructor if you believe this is a mistake.
+                </p>
+                <Link
+                  href="/"
+                  className="inline-block px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold"
+                >
+                  Back to Homepage
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-13 h-13 rounded-2xl bg-rose-50 dark:bg-rose-950/70 border border-rose-200 dark:border-rose-800 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0">
+                    <Lock className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-black uppercase tracking-wider text-rose-600 dark:text-rose-400">
+                      Private School Classroom • Invitation Required
+                    </span>
+                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                      {cSchool?.name || slug}
+                    </h1>
+                  </div>
+                </div>
+
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  This classroom is private and restricted to invited students of <strong>{cSchool?.name || slug}</strong>. To request access, you must sign in and enter the <strong>6-Digit Class Invitation PIN</strong> provided by your Sensei.
+                </p>
+
+                {examPinError && (
+                  <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300">
+                    {examPinError}
+                  </div>
+                )}
+
+                {!isAuthenticated ? (
+                  <div className="flex flex-wrap gap-2.5 pt-1">
+                    <Link
+                      href={`/accounts/login?next=${encodeURIComponent(`/partner/${slug}?mode=classroom`)}`}
+                      className="flex-1 py-3 px-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black text-center"
+                    >
+                      Sign In as Candidate to Enter PIN
+                    </Link>
+                    <Link
+                      href={`/accounts/signup?next=${encodeURIComponent(`/partner/${slug}?mode=classroom`)}`}
+                      className="py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold text-center"
+                    >
+                      Register Student Account
+                    </Link>
+                  </div>
+                ) : (
+                  <form
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      if (!joinPinInput.trim()) {
+                        setExamPinError('Please enter the 6-Digit Class Invitation PIN from your Sensei.');
+                        return;
+                      }
+                      setJoinBusy(true);
+                      setExamPinError('');
+                      try {
+                        await joinPartnerSchool({
+                          slug,
+                          batch: joinBatchInput.trim(),
+                          student_id: joinRollInput.trim(),
+                          join_code: joinPinInput.trim(),
+                          first_name: user?.first_name || user?.username || 'Student',
+                          last_name: user?.last_name || '',
+                        });
+                        showToast('Invitation verified!');
+                        await fetchClassroom();
+                      } catch (err) {
+                        setExamPinError(
+                          err?.message || 'Invalid 6-digit Class Invitation PIN. You cannot join without an invitation from your Sensei.'
+                        );
+                      } finally {
+                        setJoinBusy(false);
+                      }
+                    }}
+                    className="space-y-3"
+                  >
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
+                          Batch Name
+                        </label>
+                        <input
+                          type="text"
+                          value={joinBatchInput}
+                          onChange={(e) => setJoinBatchInput(e.target.value)}
+                          placeholder="e.g. Batch-14"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
+                          Student Roll / ID
+                        </label>
+                        <input
+                          type="text"
+                          value={joinRollInput}
+                          onChange={(e) => setJoinRollInput(e.target.value)}
+                          placeholder="Optional"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-black uppercase text-violet-700 dark:text-violet-300 mb-1">
+                        🔐 6-Digit Class Invitation PIN (Required) *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={8}
+                        value={joinPinInput}
+                        onChange={(e) => setJoinPinInput(e.target.value)}
+                        placeholder="Enter 6-digit PIN from your Sensei..."
+                        className="w-full px-3.5 py-3 rounded-xl border-2 border-violet-300 dark:border-violet-700 bg-white dark:bg-slate-900 text-sm font-mono font-black tracking-widest"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={joinBusy}
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-black cursor-pointer disabled:opacity-50 shadow-lg shadow-violet-500/20"
+                    >
+                      {joinBusy ? 'Verifying Invitation PIN...' : 'Verify 6-Digit PIN & Join Classroom →'}
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="max-w-6xl mx-auto py-6 px-3 sm:px-6 space-y-6 animate-fade-in">
-        {/* Top Classroom Header */}
+        {/* Top Classroom Header (Only shown to Approved Members & Sensei) */}
         <div className="rounded-3xl bg-gradient-to-r from-violet-700 via-indigo-700 to-purple-800 text-white p-6 sm:p-8 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs font-black uppercase tracking-wider">
@@ -573,8 +768,8 @@ export default function PartnerSchoolDashboardPage() {
               <span>{cSchool?.name || slug}</span>
             </h1>
             <p className="text-xs sm:text-sm text-violet-100">
-              {classroomData?.student_batch
-                ? `Enrolled Batch: ${classroomData.student_batch}`
+              {classroomData?.user_batch
+                ? `Enrolled Batch: ${classroomData.user_batch}`
                 : 'Official Assigned Mock Exams, Sensei Study Notes & Class Notices'}
             </p>
           </div>
@@ -599,108 +794,6 @@ export default function PartnerSchoolDashboardPage() {
             )}
           </div>
         </div>
-
-        {classroomData?.membership_status === 'none' && (
-          <div className="rounded-3xl bg-white dark:bg-slate-900 border-2 border-violet-200 dark:border-violet-800 p-5 sm:p-6 shadow-md space-y-4">
-            <div>
-              <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                <UserCheck className="w-5 h-5 text-violet-600" />
-                <span>🎒 Join {cSchool?.name || slug} Classroom</span>
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {isAuthenticated
-                  ? 'Enter your Batch Name and 6-Digit Class Join PIN from your Sensei to unlock assigned mock exams, study notes, and notifications.'
-                  : 'Please sign in with your Candidate account first to join this school classroom.'}
-              </p>
-            </div>
-
-            {!isAuthenticated ? (
-              <div className="flex flex-wrap gap-2.5">
-                <Link
-                  href={`/accounts/login?next=${encodeURIComponent(`/partner/${slug}?mode=classroom`)}`}
-                  className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black"
-                >
-                  Sign In as Candidate
-                </Link>
-                <Link
-                  href={`/accounts/signup?next=${encodeURIComponent(`/partner/${slug}?mode=classroom`)}`}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold"
-                >
-                  Create Student Account
-                </Link>
-              </div>
-            ) : (
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  setJoinBusy(true);
-                  setExamPinError('');
-                  try {
-                    await joinPartnerSchool({
-                      slug,
-                      batch: joinBatchInput.trim(),
-                      student_id: joinRollInput.trim(),
-                      join_code: joinPinInput.trim(),
-                      first_name: user?.first_name || user?.username || 'Student',
-                      last_name: user?.last_name || '',
-                    });
-                    showToast('Joined school classroom!');
-                    await fetchClassroom();
-                  } catch (err) {
-                    setExamPinError(err?.message || 'Could not join classroom. Please check your 6-digit Join PIN.');
-                  } finally {
-                    setJoinBusy(false);
-                  }
-                }}
-                className="grid grid-cols-1 sm:grid-cols-4 gap-2.5"
-              >
-                <input
-                  type="text"
-                  value={joinBatchInput}
-                  onChange={(e) => setJoinBatchInput(e.target.value)}
-                  placeholder="Batch (e.g. Batch-14)"
-                  className="px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
-                />
-                <input
-                  type="text"
-                  value={joinRollInput}
-                  onChange={(e) => setJoinRollInput(e.target.value)}
-                  placeholder="Roll / Student ID (Optional)"
-                  className="px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
-                />
-                <input
-                  type="text"
-                  maxLength={8}
-                  value={joinPinInput}
-                  onChange={(e) => setJoinPinInput(e.target.value)}
-                  placeholder="6-Digit Class Join PIN"
-                  className="px-3.5 py-2.5 rounded-xl border border-violet-300 dark:border-violet-700 bg-white dark:bg-slate-900 text-xs font-mono font-black tracking-widest"
-                />
-                <button
-                  type="submit"
-                  disabled={joinBusy}
-                  className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black cursor-pointer disabled:opacity-50"
-                >
-                  {joinBusy ? 'Joining...' : 'Join Classroom →'}
-                </button>
-              </form>
-            )}
-          </div>
-        )}
-
-        {classroomData?.membership_status === 'pending' && (
-          <div className="rounded-3xl bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 p-5 flex items-start gap-3">
-            <Clock className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-            <div>
-              <h3 className="text-sm font-black text-amber-900 dark:text-amber-200">
-                ⏳ Pending Sensei Approval
-              </h3>
-              <p className="text-xs text-amber-800 dark:text-amber-300 mt-0.5">
-                Your enrollment request has been received. As soon as your Sensei approves your account, your batch&apos;s assigned exams, study notes, and notifications will appear below.
-              </p>
-            </div>
-          </div>
-        )}
 
         {classroomError ? (
           <div className="rounded-3xl bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-800 p-8 text-center space-y-3">
@@ -956,7 +1049,9 @@ export default function PartnerSchoolDashboardPage() {
   // --- SENSEI LOGIN / UNLOCK SCREEN ---
   if (!data) {
     const enrolledInThisSchool =
-      isAuthenticated && user?.profile?.partner_school?.slug === slug;
+      isAuthenticated &&
+      user?.profile?.partner_school?.slug === slug &&
+      (user?.profile?.partner_status || 'approved') === 'approved';
     const isPendingOwner =
       pendingAdminApproval ||
       (isAuthenticated &&
@@ -1086,24 +1181,23 @@ export default function PartnerSchoolDashboardPage() {
           <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
             {!isAuthenticated ? (
               <Link
-                href="/accounts/login"
+                href="/accounts/login?role=school"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-extrabold hover:bg-slate-200"
               >
                 <LogIn className="w-3.5 h-3.5" />
-                <span>Sign In with Website Account</span>
+                <span>Sign In with School Account</span>
               </Link>
             ) : (
               <span className="text-slate-500">
                 Signed in as <strong>@{user?.username}</strong>
               </span>
             )}
-            <button
-              type="button"
-              onClick={() => setViewMode('classroom')}
-              className="font-bold text-violet-600 dark:text-violet-400 hover:underline cursor-pointer"
+            <Link
+              href="/partners"
+              className="font-bold text-violet-600 dark:text-violet-400 hover:underline"
             >
-              Switch to Student Classroom View →
-            </button>
+              Partner Schools Overview →
+            </Link>
           </div>
         </div>
       </div>

@@ -133,50 +133,28 @@ export default function PartnersPage() {
             </Link>
           </div>
 
-          {/* Direct Sensei & Student Classroom Portal Launcher */}
-          <div className="mt-6 pt-6 border-t border-white/10 max-w-2xl">
-            <div className="text-xs font-black uppercase tracking-wider text-indigo-300 mb-2">
-              🏫 Already a Partner School or Enrolled Student? Log In Directly:
+          {/* Direct Sensei LMS Login & Invitation Info */}
+          <div className="mt-6 pt-6 border-t border-white/10 max-w-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <div className="text-xs font-black uppercase tracking-wider text-indigo-300">
+                🏫 Already a Registered Partner School or Sensei?
+              </div>
+              <p className="text-xs text-slate-300">
+                Students can only join a private school classroom via their Sensei&apos;s official invitation link &amp; 6-digit PIN.
+              </p>
             </div>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-              <select
-                value={portalSlugInput}
-                onChange={(e) => setPortalSlugInput(e.target.value)}
-                className="px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-xs font-bold text-white focus:outline-none focus:border-indigo-400"
-              >
-                <option value="">-- Select Partner School --</option>
-                {(partnersData.featured_partners || []).map((p) => (
-                  <option key={p.id} value={p.slug}>
-                    {p.flag || '🏫'} {p.name} ({p.slug})
-                  </option>
-                ))}
-              </select>
-              <input
-                type="text"
-                value={portalSlugInput}
-                onChange={(e) => setPortalSlugInput(e.target.value)}
-                placeholder="Or enter school code (e.g. lpk-sakura)"
-                className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-xs font-mono font-bold text-white placeholder:text-slate-400 focus:outline-none focus:border-indigo-400"
-              />
+            <div className="flex items-center gap-2.5 shrink-0">
               <Link
-                href={
-                  portalSlugInput.trim()
-                    ? `/partner/${encodeURIComponent(portalSlugInput.trim().toLowerCase())}`
-                    : '#apply-partner'
-                }
-                className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-black text-center whitespace-nowrap"
+                href="/accounts/login?role=school"
+                className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-black text-center whitespace-nowrap shadow-md shadow-violet-500/20"
               >
-                Sensei Login →
+                Sensei Portal Sign In →
               </Link>
               <Link
-                href={
-                  portalSlugInput.trim()
-                    ? `/partner/${encodeURIComponent(portalSlugInput.trim().toLowerCase())}?mode=classroom`
-                    : '#apply-partner'
-                }
-                className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black text-center whitespace-nowrap"
+                href="/accounts/signup?role=school"
+                className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white text-xs font-bold text-center whitespace-nowrap"
               >
-                Student Classroom →
+                Register School
               </Link>
             </div>
           </div>

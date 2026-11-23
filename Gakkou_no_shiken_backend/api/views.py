@@ -3006,7 +3006,7 @@ class PartnerSchoolPublicInfoAPIView(APIView):
             'city': school.city,
             'welcome_message': school.welcome_message,
             'student_count': student_count,
-            'require_join_pin': school.require_join_pin,
+            'require_join_pin': bool(school.require_join_pin or school.join_code),
             'require_approval': school.require_approval,
             'enrollment_locked': school.enrollment_locked,
         })
@@ -3042,10 +3042,11 @@ class PartnerSchoolJoinAPIView(APIView):
             )
 
         provided_pin = (request.data.get('join_code') or request.data.get('pin') or '').strip()
-        if school.require_join_pin and not already_approved_here:
+        # Always require the 6-digit invitation PIN if the school has a join_code configured
+        if (school.require_join_pin or bool(school.join_code)) and not already_approved_here:
             if not provided_pin or provided_pin != school.join_code:
                 return Response(
-                    {'detail': 'Invalid or missing 6-digit Class Join PIN. Please enter the current PIN from your Sensei.'},
+                    {'detail': 'Invalid or missing 6-digit Class Invitation PIN. You can only join this school with an official invitation PIN from your Sensei.'},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 

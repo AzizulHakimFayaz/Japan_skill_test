@@ -56,7 +56,7 @@ class PartnerSchool(models.Model):
         help_text="6-digit rotating Class Join PIN (e.g. 482910) to prevent unauthorized link sharing.",
     )
     require_join_pin = models.BooleanField(
-        default=False,
+        default=True,
         help_text="If checked, students must enter the 6-digit Class Join PIN to join this school.",
     )
     require_approval = models.BooleanField(

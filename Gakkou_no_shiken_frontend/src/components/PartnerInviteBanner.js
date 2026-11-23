@@ -229,20 +229,22 @@ export default function PartnerInviteBanner() {
                 : "Your mock exam scores will now appear on your Sensei's batch tracker, and your classroom exams, notes & notifications are unlocked."}
             </p>
             <div className="pt-1 flex flex-wrap items-center gap-2">
-              <Link
-                href={`/partner/${encodeURIComponent(joinedSuccess.slug)}?mode=classroom`}
-                onClick={() => setJoinedSuccess(null)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-extrabold shadow-sm transition-all"
-              >
-                <span>Open My Classroom</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+              {joinedStatus === 'approved' && (
+                <Link
+                  href={`/partner/${encodeURIComponent(joinedSuccess.slug)}?mode=classroom`}
+                  onClick={() => setJoinedSuccess(null)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-extrabold shadow-sm transition-all"
+                >
+                  <span>Open My Classroom</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              )}
               <Link
                 href="/tests"
                 onClick={() => setJoinedSuccess(null)}
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-sm transition-all"
               >
-                <span>Mock Tests</span>
+                <span>Open Mock Tests</span>
               </Link>
             </div>
           </div>
