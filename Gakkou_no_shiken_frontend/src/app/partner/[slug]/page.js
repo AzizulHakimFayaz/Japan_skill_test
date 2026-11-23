@@ -10,6 +10,7 @@ import {
   managePartnerSchool,
   getPartnerClassroom,
   postPartnerClassroomAction,
+  joinPartnerSchool,
 } from '@/lib/api';
 import {
   GraduationCap,
@@ -81,6 +82,10 @@ export default function PartnerSchoolDashboardPage() {
   const [classroomError, setClassroomError] = useState('');
   const [examPinInputs, setExamPinInputs] = useState({});
   const [examPinError, setExamPinError] = useState('');
+  const [joinBatchInput, setJoinBatchInput] = useState('');
+  const [joinRollInput, setJoinRollInput] = useState('');
+  const [joinPinInput, setJoinPinInput] = useState('');
+  const [joinBusy, setJoinBusy] = useState(false);
 
   // Schoooli Navigation & Filters
   const [activeNav, setActiveNav] = useState('dashboard'); // 'dashboard' | 'exams' | 'library' | 'students' | 'attempts' | 'notices' | 'security'
@@ -590,6 +595,94 @@ export default function PartnerSchoolDashboardPage() {
             )}
           </div>
         </div>
+
+        {classroomData?.membership_status === 'none' && (
+          <div className="rounded-3xl bg-white dark:bg-slate-900 border-2 border-violet-200 dark:border-violet-800 p-5 sm:p-6 shadow-md space-y-4">
+            <div>
+              <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <UserCheck className="w-5 h-5 text-violet-600" />
+                <span>🎒 Join {cSchool?.name || slug} Classroom</span>
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                {isAuthenticated
+                  ? 'Enter your Batch Name and 6-Digit Class Join PIN from your Sensei to unlock assigned mock exams, study notes, and notifications.'
+                  : 'Please sign in with your Candidate account first to join this school classroom.'}
+              </p>
+            </div>
+
+            {!isAuthenticated ? (
+              <div className="flex flex-wrap gap-2.5">
+                <Link
+                  href={`/accounts/login?next=${encodeURIComponent(`/partner/${slug}?mode=classroom`)}`}
+                  className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black"
+                >
+                  Sign In as Candidate
+                </Link>
+                <Link
+                  href={`/accounts/signup?next=${encodeURIComponent(`/partner/${slug}?mode=classroom`)}`}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold"
+                >
+                  Create Student Account
+                </Link>
+              </div>
+            ) : (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setJoinBusy(true);
+                  setExamPinError('');
+                  try {
+                    await joinPartnerSchool({
+                      slug,
+                      batch: joinBatchInput.trim(),
+                      student_id: joinRollInput.trim(),
+                      join_code: joinPinInput.trim(),
+                      first_name: user?.first_name || user?.username || 'Student',
+                      last_name: user?.last_name || '',
+                    });
+                    showToast('Joined school classroom!');
+                    await fetchClassroom();
+                  } catch (err) {
+                    setExamPinError(err?.message || 'Could not join classroom. Please check your 6-digit Join PIN.');
+                  } finally {
+                    setJoinBusy(false);
+                  }
+                }}
+                className="grid grid-cols-1 sm:grid-cols-4 gap-2.5"
+              >
+                <input
+                  type="text"
+                  value={joinBatchInput}
+                  onChange={(e) => setJoinBatchInput(e.target.value)}
+                  placeholder="Batch (e.g. Batch-14)"
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
+                />
+                <input
+                  type="text"
+                  value={joinRollInput}
+                  onChange={(e) => setJoinRollInput(e.target.value)}
+                  placeholder="Roll / Student ID (Optional)"
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
+                />
+                <input
+                  type="text"
+                  maxLength={8}
+                  value={joinPinInput}
+                  onChange={(e) => setJoinPinInput(e.target.value)}
+                  placeholder="6-Digit Class Join PIN"
+                  className="px-3.5 py-2.5 rounded-xl border border-violet-300 dark:border-violet-700 bg-white dark:bg-slate-900 text-xs font-mono font-black tracking-widest"
+                />
+                <button
+                  type="submit"
+                  disabled={joinBusy}
+                  className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black cursor-pointer disabled:opacity-50"
+                >
+                  {joinBusy ? 'Joining...' : 'Join Classroom →'}
+                </button>
+              </form>
+            )}
+          </div>
+        )}
 
         {classroomData?.membership_status === 'pending' && (
           <div className="rounded-3xl bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 p-5 flex items-start gap-3">
