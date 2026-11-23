@@ -145,6 +145,7 @@ export default function PartnerSchoolDashboardPage() {
     const sp = new URLSearchParams(window.location.search);
     const urlKey = (sp.get('key') || '').trim();
     const modeParam = (sp.get('mode') || '').trim();
+    const tabParam = (sp.get('tab') || '').trim();
     const storageKey = `gns_sensei_key_${slug}`;
     const savedKey = sessionStorage.getItem(storageKey) || '';
 
@@ -154,6 +155,9 @@ export default function PartnerSchoolDashboardPage() {
     }
     if (modeParam === 'classroom') {
       setViewMode('classroom');
+    }
+    if (['dashboard', 'students', 'exams', 'library', 'notices', 'attempts', 'security'].includes(tabParam)) {
+      setActiveNav(tabParam);
     }
     setAccessKey(resolvedKey);
     setKeyInput(resolvedKey);
