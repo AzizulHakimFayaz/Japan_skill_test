@@ -1,0 +1,340 @@
+{% load i18n static quiz_extras %}
+{% if original %}
+{% get_candidate_profile_overview original as cand %}
+{% if cand %}
+<div class="cand360-wrapper mb-4">
+
+    <!-- Top Breadcrumb / Action Strip (Candidates > Name) -->
+    <div class="cand360-topbar">
+        <div class="cand360-crumb">
+            <a href="{% url 'admin:auth_user_changelist' %}" class="cand360-crumb-link">
+                <i class="far fa-user me-1"></i> Candidates
+            </a>
+            <span class="cand360-crumb-sep">&rsaquo;</span>
+            <span class="cand360-crumb-current">{{ cand.full_name }}</span>
+            <span class="cand360-crumb-handle">@{{ cand.username }}</span>
+        </div>
+
+        <div class="cand360-quick-btns">
+            <a href="#cand360-edit-section" class="cand360-action-btn">
+                <i class="fas fa-sliders-h"></i> <span>Edit Account &amp; Profile Below</span>
+            </a>
+            {% if cand.support_thread_id %}
+            <a href="{% url 'admin:accounts_supportthread_change' cand.support_thread_id %}" class="cand360-action-btn">
+                <i class="fas fa-comments"></i> <span>Open Support Chat</span>
+            </a>
+            {% endif %}
+            <a href="{% url 'admin:tests_attempt_changelist' %}?user__id__exact={{ cand.user_id }}" class="cand360-action-btn">
+                <i class="fas fa-list-check"></i> <span>All Attempts ({{ cand.total_attempts }})</span>
+            </a>
+            <a href="https://www.gakkounoshiken.site/profile/{{ cand.username }}" target="_blank" rel="noopener" class="cand360-action-btn cand360-action-primary">
+                <i class="fas fa-external-link-alt"></i> <span>Public Profile</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main 2-Column Candidate 360 Grid (Left Identity Card + Right Assessment Analytics) -->
+    <div class="cand360-main-grid">
+
+        <!-- ============================================================
+             LEFT COLUMN: CANDIDATE IDENTITY, SKILLS, LOCATION & ATTEMPTS
+             ============================================================ -->
+        <div class="cand360-card cand360-identity-card">
+            <!-- Gradient Cover Banner + Verified Pill + Overlapping Avatar -->
+            <div class="cand360-cover-banner">
+                <div class="cand360-cover-pattern"></div>
+                {% if cand.is_verified %}
+                <span class="cand360-verified-pill">
+                    <i class="fas fa-check-circle"></i> Verified
+                </span>
+                {% else %}
+                <span class="cand360-verified-pill cand360-unverified-pill">
+                    <i class="fas fa-clock"></i> Pending
+                </span>
+                {% endif %}
+
+                <div class="cand360-avatar-box js-dyn-style" data-style-bg="{{ cand.avatar_bg }}">
+                    <span>{{ cand.initials }}</span>
+                </div>
+            </div>
+
+            <div class="cand360-identity-body">
+                <!-- Candidate Name + Role Pill -->
+                <div class="cand360-name-row">
+                    <h2 class="cand360-fullname">{{ cand.full_name }}</h2>
+                    <span class="cand360-role-pill">{{ cand.role_label }}</span>
+                </div>
+                <div class="cand360-subhandle">
+                    @{{ cand.username }} &bull; {{ cand.email }}
+                </div>
+
+                <!-- Target Exam & Competencies (Skills Chips) -->
+                <div class="cand360-section-block">
+                    <div class="cand360-section-label">Target Pathway &amp; Skills</div>
+                    <div class="cand360-chip-list">
+                        <span class="cand360-chip">{{ cand.target_exam }}</span>
+                        <span class="cand360-chip">{{ cand.japanese_level }}</span>
+                        <span class="cand360-chip">Arcade Lvl {{ cand.game_level }}</span>
+                        <span class="cand360-chip">{{ cand.game_xp }} XP</span>
+                        <span class="cand360-chip">{{ cand.game_words }} Words</span>
+                    </div>
+                </div>
+
+                <!-- Enrollment & Account Status (Position Type Chips) -->
+                <div class="cand360-section-block">
+                    <div class="cand360-section-label">Enrollment &amp; Status</div>
+                    <div class="cand360-chip-list">
+                        {% if cand.partner_school %}
+                        <span class="cand360-chip cand360-chip-highlight">🏫 {{ cand.partner_school.name }}</span>
+                        <span class="cand360-chip">Batch: {{ cand.partner_batch }}</span>
+                        {% else %}
+                        <span class="cand360-chip">Independent Candidate</span>
+                        {% endif %}
+                        <span class="cand360-chip">ID: {{ cand.student_roll }}</span>
+                        {% if cand.is_active %}
+                        <span class="cand360-chip cand360-chip-active">● Active Account</span>
+                        {% else %}
+                        <span class="cand360-chip cand360-chip-inactive">● Suspended</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 2-Column Info Boxes (Location & Joined / IP) -->
+                <div class="cand360-info-duo">
+                    <div class="cand360-info-box">
+                        <span class="cand360-info-caption">Location</span>
+                        <strong class="cand360-info-value">{{ cand.flag }} {{ cand.country }}</strong>
+                        <span class="cand360-info-sub">{{ cand.country_source_label }}</span>
+                    </div>
+                    <div class="cand360-info-box">
+                        <span class="cand360-info-caption">Joined &amp; Access</span>
+                        <strong class="cand360-info-value">{{ cand.date_joined|date:"M d, Y" }}</strong>
+                        <span class="cand360-info-sub">IP: {{ cand.last_ip }}</span>
+                    </div>
+                </div>
+
+                <!-- Recent Mock Exam Submissions (Job Applications style list) -->
+                <div class="cand360-section-block mb-0">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="cand360-section-label mb-0">Recent Mock Exam Attempts</span>
+                        <a href="{% url 'admin:tests_attempt_changelist' %}?user__id__exact={{ cand.user_id }}" class="cand360-see-more">
+                            See all ({{ cand.total_attempts }}) &rsaquo;
+                        </a>
+                    </div>
+
+                    <div class="cand360-apps-list">
+                        {% for att in cand.recent_attempts %}
+                        <a href="{% url 'admin:tests_attempt_change' att.id %}" class="cand360-app-item">
+                            <div class="cand360-app-logo js-dyn-style" data-style-bg="{{ att.bg }}" data-style-color="{{ att.fg }}">
+                                {{ att.badge_code }}
+                            </div>
+                            <div class="cand360-app-meta">
+                                <div class="cand360-app-title">{{ att.test_title }}</div>
+                                <div class="cand360-app-sub">
+                                    Scaled: <strong>{{ att.scaled_score }}/250</strong> ({{ att.percentage }}%) &bull; {{ att.completed_at|date:"M d, Y" }}
+                                </div>
+                            </div>
+                            <span class="cand360-app-badge {% if att.is_passed %}cand360-pass{% else %}cand360-fail{% endif %}">
+                                {% if att.is_passed %}Pass{% else %}Fail{% endif %}
+                            </span>
+                        </a>
+                        {% empty %}
+                        <div class="cand360-empty-box">
+                            No mock exams completed by this candidate yet.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             RIGHT COLUMN: 3 KPI CARDS, ASPECT SCORE GAUGE, HIGHLIGHTS & PIPELINE
+             ============================================================ -->
+        <div class="cand360-right-col">
+
+            <!-- Top Row: 3 Metric Cards (Pass Rate | Accuracy | Best Scaled Score) -->
+            <div class="cand360-top-metrics">
+                <div class="cand360-card cand360-metric-box">
+                    <div class="cand360-metric-num">{{ cand.pass_rate }}%</div>
+                    <div class="cand360-metric-title">CBT Pass Rate</div>
+                    <div class="cand360-metric-foot">{{ cand.passed_attempts }} of {{ cand.total_attempts }} exams passed</div>
+                </div>
+
+                <div class="cand360-card cand360-metric-box">
+                    <div class="cand360-metric-num">{{ cand.avg_accuracy }}%</div>
+                    <div class="cand360-metric-title">Ability Accuracy</div>
+                    <div class="cand360-metric-foot">Average raw section accuracy</div>
+                </div>
+
+                <div class="cand360-card cand360-metric-box">
+                    <div class="cand360-metric-num">{{ cand.best_scaled_score }}<small>/250</small></div>
+                    <div class="cand360-metric-title">Peak Scaled Score</div>
+                    <div class="cand360-metric-foot">Pass threshold: 200 / 250</div>
+                </div>
+            </div>
+
+            <!-- Middle Row: Semi-Circle Gauge (Aspect Score) + Overall Score Highlights -->
+            <div class="cand360-mid-grid">
+                <!-- Semi-Circle Arc Gauge Card -->
+                <div class="cand360-card cand360-gauge-card">
+                    <div class="cand360-card-heading">Average CBT Scaled Score</div>
+                    <div class="cand360-gauge-wrap">
+                        <svg viewBox="0 0 200 120" class="cand360-gauge-svg">
+                            <defs>
+                                <linearGradient id="cand360GaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#4F46E5"/>
+                                    <stop offset="100%" stop-color="#8B5CF6"/>
+                                </linearGradient>
+                            </defs>
+                            <!-- Background Track Arc -->
+                            <path d="M 24 100 A 76 76 0 0 1 176 100"
+                                  fill="none"
+                                  class="cand360-gauge-track"
+                                  stroke-width="16"
+                                  stroke-linecap="round"/>
+                            <!-- Active Progress Arc -->
+                            <path d="M 24 100 A 76 76 0 0 1 176 100"
+                                  fill="none"
+                                  stroke="url(#cand360GaugeGrad)"
+                                  stroke-width="16"
+                                  stroke-linecap="round"
+                                  stroke-dasharray="{{ cand.gauge_dasharray }}"/>
+                        </svg>
+                        <div class="cand360-gauge-center">
+                            <div class="cand360-gauge-score">{{ cand.avg_scaled_score }}</div>
+                            <div class="cand360-gauge-sub">out of 250 pts</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overall Score & Highlights Card -->
+                <div class="cand360-card cand360-highlights-card">
+                    <div class="cand360-card-heading">Overall Standing &amp; Highlights</div>
+                    <div class="cand360-highlight-list">
+                        <div class="cand360-highlight-item">
+                            <div class="cand360-highlight-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b;">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                            <div>
+                                <div class="cand360-highlight-title">
+                                    {% if cand.best_scaled_score >= 200 %}Top of Class (CEFR A2 Ready){% elif cand.total_attempts > 0 %}Developing Candidate{% else %}New Candidate{% endif %}
+                                </div>
+                                <div class="cand360-highlight-desc">
+                                    {% if cand.best_scaled_score >= 200 %}
+                                    Achieved {{ cand.best_scaled_score }}/250 — meets the 200-point JFT-Basic benchmark.
+                                    {% else %}
+                                    Currently at {{ cand.best_scaled_score }}/250 peak score (target: 200+ points).
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cand360-highlight-item">
+                            <div class="cand360-highlight-icon" style="background:rgba(99,102,241,0.15);color:#6366f1;">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div>
+                                <div class="cand360-highlight-title">Game Zone &amp; Vocabulary Mastery</div>
+                                <div class="cand360-highlight-desc">
+                                    Level {{ cand.game_level }} ({{ cand.game_xp }} XP) &bull; {{ cand.game_words }} words mastered &bull; {{ cand.game_streak }}d streak.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cand360-highlight-item">
+                            <div class="cand360-highlight-icon" style="background:rgba(16,185,129,0.15);color:#10b981;">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div>
+                                <div class="cand360-highlight-title">Exam &amp; Login Activity</div>
+                                <div class="cand360-highlight-desc">
+                                    {% if cand.last_attempt_date %}
+                                    Last exam submitted {{ cand.last_attempt_date|timesince }} ago (Latest: {{ cand.latest_scaled_score }}/250).
+                                    {% else %}
+                                    Joined {{ cand.date_joined|timesince }} ago &bull; No mock exam submitted yet.
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Section: Candidate's Active Exam Breakdown (4-Box Pipeline Strip) -->
+            <div class="cand360-card cand360-pipeline-card">
+                <div class="cand360-pipeline-heading">
+                    {{ cand.full_name }}'s Active Exam Performance
+                </div>
+
+                <!-- Overall Pipeline Strip -->
+                <div class="cand360-pipeline-block">
+                    <div class="cand360-pipeline-subtitle">
+                        <strong>All CBT Mock Examinations</strong> <span class="cand360-pipeline-dot">&bull;</span> <span>{{ cand.target_exam }}</span>
+                    </div>
+                    <div class="cand360-pipeline-strip">
+                        <div class="cand360-stage-box">
+                            <div class="cand360-stage-num">{{ cand.total_attempts }}</div>
+                            <div class="cand360-stage-label">All Attempts</div>
+                            <div class="cand360-stage-bar cand360-bar-dark"></div>
+                        </div>
+                        <div class="cand360-stage-box cand360-stage-active">
+                            <div class="cand360-stage-num">{{ cand.passed_attempts }}</div>
+                            <div class="cand360-stage-label">Passed (200+)</div>
+                            <div class="cand360-stage-bar cand360-bar-indigo"></div>
+                        </div>
+                        <div class="cand360-stage-box">
+                            <div class="cand360-stage-num">{{ cand.failed_attempts }}</div>
+                            <div class="cand360-stage-label">Below 200</div>
+                            <div class="cand360-stage-bar cand360-bar-muted"></div>
+                        </div>
+                        <div class="cand360-stage-box">
+                            <div class="cand360-stage-num">{{ cand.best_scaled_score }}</div>
+                            <div class="cand360-stage-label">Best Scaled</div>
+                            <div class="cand360-stage-bar cand360-bar-muted"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Practiced Individual Tests Pipeline -->
+                {% for tb in cand.top_test_breakdowns %}
+                <div class="cand360-pipeline-block mt-3">
+                    <div class="cand360-pipeline-subtitle">
+                        <strong>{{ tb.test_title }}</strong> <span class="cand360-pipeline-dot">&bull;</span> <span>{{ tb.category }}</span>
+                    </div>
+                    <div class="cand360-pipeline-strip">
+                        <div class="cand360-stage-box">
+                            <div class="cand360-stage-num">{{ tb.total }}</div>
+                            <div class="cand360-stage-label">Attempts</div>
+                            <div class="cand360-stage-bar cand360-bar-dark"></div>
+                        </div>
+                        <div class="cand360-stage-box">
+                            <div class="cand360-stage-num">{{ tb.passed }}</div>
+                            <div class="cand360-stage-label">Passed</div>
+                            <div class="cand360-stage-bar cand360-bar-indigo"></div>
+                        </div>
+                        <div class="cand360-stage-box">
+                            <div class="cand360-stage-num">{{ tb.best_scaled }}</div>
+                            <div class="cand360-stage-label">High Score</div>
+                            <div class="cand360-stage-bar cand360-bar-muted"></div>
+                        </div>
+                        <div class="cand360-stage-box">
+                            <div class="cand360-stage-num">{{ tb.latest_scaled }}</div>
+                            <div class="cand360-stage-label">Latest Score</div>
+                            <div class="cand360-stage-bar cand360-bar-muted"></div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Divider Header for Editable Admin Settings Below -->
+    <div id="cand360-edit-section" class="cand360-edit-divider">
+        <span><i class="fas fa-user-cog me-2"></i>Editable Candidate Account, Profile &amp; Permissions</span>
+    </div>
+</div>
+{% endif %}
+{% endif %}

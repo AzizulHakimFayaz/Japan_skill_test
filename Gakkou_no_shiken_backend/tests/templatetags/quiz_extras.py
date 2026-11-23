@@ -459,3 +459,185 @@ def get_executive_dashboard_metrics():
     return metrics
 
 
+@register.simple_tag
+def get_candidate_profile_overview(obj):
+    """
+    Given a User or UserProfile instance on the Admin Change Form, computes a comprehensive
+    Candidate 360° profile summary (identity, tags, country, partner school, exam pass rate,
+    semi-circular gauge SVG dasharray, per-test breakdown strips, and recent attempts).
+    """
+    from django.contrib.auth.models import User
+    from accounts.models import UserProfile, SupportThread
+    from accounts.geolocation import get_country_flag
+    from tests.models import Attempt, Test
+
+    if obj is None:
+        return None
+
+    user = obj if isinstance(obj, User) else getattr(obj, 'user', None)
+    if user is None or not getattr(user, 'pk', None):
+        return None
+
+    profile = getattr(user, 'profile', None)
+    if profile is None:
+        profile = UserProfile.objects.filter(user=user).select_related('partner_school').first()
+
+    full_name = f"{user.first_name} {user.last_name}".strip() or user.username
+    initials = ((user.first_name[:1] + user.last_name[:1]) if (user.first_name and user.last_name) else user.username[:2]).upper() or 'CA'
+    colors = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#ef4444']
+    avatar_bg = colors[sum(ord(c) for c in user.username) % len(colors)]
+
+    role_label = 'Super Admin' if user.is_superuser else ('Staff Reviewer' if user.is_staff else 'Candidate')
+    country = (profile.country if profile and profile.country else '') or 'Not Specified'
+    flag = get_country_flag(country) if country != 'Not Specified' else '🌐'
+    location = (profile.location if profile and profile.location else '') or country
+    country_source_raw = (profile.country_source if profile else '') or 'unknown'
+    if country_source_raw in ('user', 'user_selected'):
+        country_source_label = 'Verified by Candidate'
+        is_verified = True
+    elif country_source_raw in ('ip', 'ip_geolocation'):
+        country_source_label = 'IP Geolocation'
+        is_verified = True
+    else:
+        country_source_label = 'Unverified Location'
+        is_verified = user.is_active
+
+    target_exam = profile.get_target_exam_display() if (profile and profile.target_exam) else 'JFT-Basic (A2 Standard)'
+    japanese_level = profile.get_japanese_level_display() if (profile and profile.japanese_level) else 'Elementary (N4 / A2)'
+    partner_school = getattr(profile, 'partner_school', None) if profile else None
+    partner_batch = (profile.partner_batch if profile and profile.partner_batch else '') or 'General Cohort'
+    student_roll = (profile.student_roll_or_id if profile and profile.student_roll_or_id else '') or f"CAND-{user.id:04d}"
+
+    game_xp = getattr(profile, 'game_xp', 0) or 0
+    game_level = getattr(profile, 'game_level', 1) or 1
+    game_streak = getattr(profile, 'game_streak', 0) or 0
+    game_words = getattr(profile, 'game_words_mastered', 0) or 0
+    last_ip = getattr(profile, 'last_known_ip', None) or 'Not recorded'
+    bio = getattr(profile, 'bio', '') or ''
+
+    # Exam attempts analytics
+    attempts_qs = Attempt.objects.filter(user=user).select_related('test').order_by('-completed_at')
+    all_attempts = list(attempts_qs[:200])
+    total_attempts = len(all_attempts)
+
+    passed_attempts = 0
+    scaled_scores = []
+    percentages = []
+    recent_attempts = []
+    per_test_map = {}
+
+    logo_palettes = [
+        ('#6366f1', 'rgba(99, 102, 241, 0.14)'),
+        ('#10b981', 'rgba(16, 185, 129, 0.14)'),
+        ('#0ea5e9', 'rgba(14, 165, 233, 0.14)'),
+        ('#f59e0b', 'rgba(245, 158, 11, 0.14)'),
+        ('#ec4899', 'rgba(236, 72, 153, 0.14)'),
+    ]
+
+    for idx, att in enumerate(all_attempts):
+        sc = att.scaled_score
+        pct = att.percentage
+        passed = att.is_passed
+        if passed:
+            passed_attempts += 1
+        scaled_scores.append(sc)
+        percentages.append(pct)
+
+        t_title = att.test.title if att.test else 'Mock Exam'
+        t_cat = 'SSW' if (att.test and att.test.category == Test.Category.SKILL) else 'JFT'
+        fg, bg = logo_palettes[idx % len(logo_palettes)]
+
+        if idx < 5:
+            recent_attempts.append({
+                'id': att.id,
+                'test_id': att.test_id,
+                'test_title': t_title,
+                'badge_code': t_cat,
+                'fg': fg,
+                'bg': bg,
+                'scaled_score': sc,
+                'raw_score': f"{att.score}/{att.total_questions}",
+                'percentage': pct,
+                'is_passed': passed,
+                'completed_at': att.completed_at,
+            })
+
+        if att.test_id:
+            entry = per_test_map.get(att.test_id)
+            if not entry:
+                entry = {
+                    'test_id': att.test_id,
+                    'test_title': t_title,
+                    'category': 'SSW Skill Evaluation' if t_cat == 'SSW' else 'JFT-Basic CBT',
+                    'total': 0,
+                    'passed': 0,
+                    'best_scaled': sc,
+                    'latest_scaled': sc,
+                }
+                per_test_map[att.test_id] = entry
+            entry['total'] += 1
+            if passed:
+                entry['passed'] += 1
+            if sc > entry['best_scaled']:
+                entry['best_scaled'] = sc
+
+    avg_scaled_score = int(round(sum(scaled_scores) / total_attempts)) if total_attempts > 0 else 0
+    best_scaled_score = max(scaled_scores) if scaled_scores else 0
+    latest_scaled_score = scaled_scores[0] if scaled_scores else 0
+    pass_rate = int(round((passed_attempts / total_attempts) * 100)) if total_attempts > 0 else 0
+    avg_accuracy = int(round(sum(percentages) / total_attempts)) if total_attempts > 0 else 0
+
+    # Semi-circle arc gauge calculation (radius = 76, arc length = pi * 76 ≈ 238.76)
+    arc_len = 238.8
+    gauge_ratio = min(1.0, max(0.04, avg_scaled_score / 250.0)) if total_attempts > 0 else 0.04
+    filled_arc = round(arc_len * gauge_ratio, 1)
+    gauge_dasharray = f"{filled_arc} {arc_len}"
+
+    top_test_breakdowns = sorted(per_test_map.values(), key=lambda x: x['total'], reverse=True)[:2]
+
+    support_thread = SupportThread.objects.filter(user=user).first()
+
+    return {
+        'user_id': user.id,
+        'username': user.username,
+        'full_name': full_name,
+        'email': user.email or 'No email linked',
+        'initials': initials,
+        'avatar_bg': avatar_bg,
+        'role_label': role_label,
+        'is_active': user.is_active,
+        'is_verified': is_verified,
+        'date_joined': user.date_joined,
+        'last_login': user.last_login,
+        'country': country,
+        'flag': flag,
+        'location': location,
+        'country_source_label': country_source_label,
+        'last_ip': last_ip,
+        'bio': bio,
+        'target_exam': target_exam,
+        'japanese_level': japanese_level,
+        'partner_school': partner_school,
+        'partner_batch': partner_batch,
+        'student_roll': student_roll,
+        'game_xp': game_xp,
+        'game_level': game_level,
+        'game_streak': game_streak,
+        'game_words': game_words,
+        'total_attempts': total_attempts,
+        'passed_attempts': passed_attempts,
+        'failed_attempts': max(0, total_attempts - passed_attempts),
+        'pass_rate': pass_rate,
+        'avg_accuracy': avg_accuracy,
+        'avg_scaled_score': avg_scaled_score,
+        'best_scaled_score': best_scaled_score,
+        'latest_scaled_score': latest_scaled_score,
+        'last_attempt_date': all_attempts[0].completed_at if all_attempts else None,
+        'gauge_dasharray': gauge_dasharray,
+        'recent_attempts': recent_attempts,
+        'top_test_breakdowns': top_test_breakdowns,
+        'support_thread_id': support_thread.id if support_thread else None,
+    }
+
+
+

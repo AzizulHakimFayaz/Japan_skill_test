@@ -1785,3 +1785,625 @@ img.logo-dark,
     line-height: 1 !important;
     z-index: 25 !important;
 }
+
+/* ============================================================
+   CANDIDATE 360° EXECUTIVE PROFILE VIEW (User & UserProfile Change Form)
+   Matches Jake Richards Candidate Profile Demo in Dark & Light Mode
+   ============================================================ */
+.cand360-wrapper {
+    margin-bottom: 24px;
+}
+
+.cand360-topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.cand360-crumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+.cand360-crumb-link {
+    color: var(--dropx-text-muted) !important;
+    text-decoration: none !important;
+}
+
+.cand360-crumb-link:hover {
+    color: var(--dropx-accent-text) !important;
+}
+
+.cand360-crumb-sep {
+    color: var(--dropx-text-dim);
+}
+
+.cand360-crumb-current {
+    background: var(--dropx-card-elev);
+    border: 1px solid var(--dropx-border-strong);
+    color: var(--dropx-text);
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-weight: 800;
+}
+
+.cand360-crumb-handle {
+    font-size: 0.8rem;
+    color: var(--dropx-text-dim);
+    font-weight: 600;
+}
+
+.cand360-quick-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.cand360-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: var(--dropx-card-bg);
+    color: var(--dropx-text) !important;
+    border: 1px solid var(--dropx-border-strong);
+    text-decoration: none !important;
+    transition: all 0.18s ease;
+}
+
+.cand360-action-btn:hover {
+    border-color: var(--dropx-accent);
+    color: var(--dropx-accent-text) !important;
+    transform: translateY(-1px);
+}
+
+.cand360-action-primary {
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    color: #ffffff !important;
+    border-color: transparent;
+}
+
+.cand360-action-primary:hover {
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+}
+
+/* Main 2-Column Layout */
+.cand360-main-grid {
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+@media (max-width: 1199px) {
+    .cand360-main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.cand360-card {
+    background: var(--dropx-card-bg);
+    border: 1px solid var(--dropx-border);
+    border-radius: 18px;
+    box-shadow: var(--dropx-shadow-sm);
+    overflow: hidden;
+}
+
+/* Left Card: Cover Banner + Avatar + Skills + Location + Recent Exams */
+.cand360-cover-banner {
+    position: relative;
+    height: 118px;
+    margin: 12px 12px 0;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #A855F7 0%, #6366F1 55%, #C084FC 100%);
+    overflow: visible;
+}
+
+.cand360-cover-pattern {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    background:
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.28) 0%, transparent 45%),
+        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.18) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.cand360-verified-pill {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: #FFFFFF;
+    color: #2563EB;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.cand360-unverified-pill {
+    color: #D97706;
+}
+
+.cand360-avatar-box {
+    position: absolute;
+    left: 20px;
+    bottom: -26px;
+    width: 82px;
+    height: 82px;
+    border-radius: 18px;
+    background: #4F46E5;
+    color: #FFFFFF;
+    font-size: 1.75rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid var(--dropx-card-bg);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.cand360-identity-body {
+    padding: 38px 22px 22px;
+}
+
+.cand360-name-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 3px;
+}
+
+.cand360-fullname {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: var(--dropx-text);
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.cand360-role-pill {
+    background: var(--dropx-accent-soft);
+    color: var(--dropx-accent-text);
+    font-size: 0.73rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 7px;
+}
+
+.cand360-subhandle {
+    font-size: 0.78rem;
+    color: var(--dropx-text-dim);
+    margin-bottom: 18px;
+}
+
+.cand360-section-block {
+    margin-bottom: 16px;
+}
+
+.cand360-section-label {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--dropx-text-muted);
+    margin-bottom: 8px;
+}
+
+.cand360-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.cand360-chip {
+    background: var(--dropx-card-elev);
+    border: 1px solid var(--dropx-border-strong);
+    color: var(--dropx-text);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+}
+
+.cand360-chip-highlight {
+    background: var(--dropx-accent-soft);
+    color: var(--dropx-accent-text);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.cand360-chip-active {
+    background: rgba(16, 185, 129, 0.14);
+    color: #10B981;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.cand360-chip-inactive {
+    background: rgba(239, 68, 68, 0.14);
+    color: #EF4444;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* 2-Column Location & Joined Boxes */
+.cand360-info-duo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.cand360-info-box {
+    background: var(--dropx-card-elev);
+    border: 1px solid var(--dropx-border);
+    border-radius: 12px;
+    padding: 11px 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cand360-info-caption {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--dropx-text-dim);
+}
+
+.cand360-info-value {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--dropx-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cand360-info-sub {
+    font-size: 0.68rem;
+    color: var(--dropx-text-muted);
+}
+
+/* Recent Exam Attempts List (Job Applications style) */
+.cand360-see-more {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--dropx-accent-text) !important;
+    text-decoration: none !important;
+}
+
+.cand360-apps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cand360-app-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: var(--dropx-card-elev);
+    border: 1px solid var(--dropx-border);
+    text-decoration: none !important;
+    transition: all 0.16s ease;
+}
+
+.cand360-app-item:hover {
+    border-color: var(--dropx-accent);
+    transform: translateX(2px);
+}
+
+.cand360-app-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cand360-app-meta {
+    flex: 1;
+    min-width: 0;
+}
+
+.cand360-app-title {
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: var(--dropx-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cand360-app-sub {
+    font-size: 0.72rem;
+    color: var(--dropx-text-muted);
+}
+
+.cand360-app-badge {
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+}
+
+.cand360-pass {
+    background: rgba(16, 185, 129, 0.16);
+    color: #10B981;
+}
+
+.cand360-fail {
+    background: rgba(239, 68, 68, 0.16);
+    color: #EF4444;
+}
+
+.cand360-empty-box {
+    padding: 14px;
+    border-radius: 10px;
+    background: var(--dropx-card-elev);
+    color: var(--dropx-text-dim);
+    font-size: 0.78rem;
+    text-align: center;
+}
+
+/* Right Column Layout */
+.cand360-right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.cand360-top-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+@media (max-width: 767px) {
+    .cand360-top-metrics {
+        grid-template-columns: 1fr;
+    }
+}
+
+.cand360-metric-box {
+    padding: 20px 22px;
+}
+
+.cand360-metric-num {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: var(--dropx-text);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+.cand360-metric-num small {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--dropx-text-dim);
+}
+
+.cand360-metric-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--dropx-text-muted);
+    margin-top: 6px;
+}
+
+.cand360-metric-foot {
+    font-size: 0.72rem;
+    color: var(--dropx-text-dim);
+    margin-top: 2px;
+}
+
+/* Middle Grid: Semi-Circle Gauge + Highlights */
+.cand360-mid-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 16px;
+}
+
+@media (max-width: 991px) {
+    .cand360-mid-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.cand360-gauge-card,
+.cand360-highlights-card,
+.cand360-pipeline-card {
+    padding: 22px 24px;
+}
+
+.cand360-card-heading {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--dropx-text);
+    margin-bottom: 14px;
+}
+
+.cand360-gauge-wrap {
+    position: relative;
+    max-width: 240px;
+    margin: 6px auto 0;
+    text-align: center;
+}
+
+.cand360-gauge-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.cand360-gauge-track {
+    stroke: var(--dropx-border-strong);
+}
+
+.cand360-gauge-center {
+    margin-top: -42px;
+}
+
+.cand360-gauge-score {
+    font-size: 2.35rem;
+    font-weight: 800;
+    color: var(--dropx-text);
+    line-height: 1;
+}
+
+.cand360-gauge-sub {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--dropx-text-dim);
+    margin-top: 4px;
+}
+
+.cand360-highlight-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.cand360-highlight-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.cand360-highlight-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+
+.cand360-highlight-title {
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: var(--dropx-text);
+}
+
+.cand360-highlight-desc {
+    font-size: 0.76rem;
+    color: var(--dropx-text-muted);
+    line-height: 1.35;
+    margin-top: 2px;
+}
+
+/* Bottom Pipeline Card (4-Stage Horizontal Boxes) */
+.cand360-pipeline-heading {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--dropx-text);
+    margin-bottom: 12px;
+}
+
+.cand360-pipeline-subtitle {
+    font-size: 0.84rem;
+    color: var(--dropx-text);
+    margin-bottom: 10px;
+}
+
+.cand360-pipeline-subtitle span {
+    color: var(--dropx-text-muted);
+}
+
+.cand360-pipeline-dot {
+    margin: 0 5px;
+}
+
+.cand360-pipeline-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border: 1px solid var(--dropx-border-strong);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--dropx-card-elev);
+}
+
+@media (max-width: 575px) {
+    .cand360-pipeline-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.cand360-stage-box {
+    padding: 14px 16px 12px;
+    border-right: 1px solid var(--dropx-border);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.cand360-stage-box:last-child {
+    border-right: none;
+}
+
+.cand360-stage-active {
+    background: var(--dropx-accent-soft);
+}
+
+.cand360-stage-num {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: var(--dropx-text);
+    line-height: 1.1;
+}
+
+.cand360-stage-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--dropx-text-muted);
+    margin: 4px 0 10px;
+}
+
+.cand360-stage-bar {
+    height: 4px;
+    border-radius: 999px;
+    width: 100%;
+}
+
+.cand360-bar-dark {
+    background: var(--dropx-text);
+}
+
+.cand360-bar-indigo {
+    background: #6366F1;
+}
+
+.cand360-bar-muted {
+    background: var(--dropx-border-strong);
+}
+
+.cand360-edit-divider {
+    margin-top: 22px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: var(--dropx-card-elev);
+    border: 1px solid var(--dropx-border);
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: var(--dropx-text-muted);
+}

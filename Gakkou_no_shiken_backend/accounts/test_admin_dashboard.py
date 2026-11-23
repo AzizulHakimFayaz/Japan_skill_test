@@ -96,10 +96,19 @@ class AdminDashboardAndUserPageTests(TestCase):
         resp = self.client.get(admin_change_url)
         self.assertEqual(resp.status_code, 200)
 
-        # Test change view for normal user
+        # Test change view for normal user (Candidate 360 profile view)
         user_change_url = reverse('admin:auth_user_change', args=[self.user.id])
         resp2 = self.client.get(user_change_url)
         self.assertEqual(resp2.status_code, 200)
+        self.assertContains(resp2, 'cand360-wrapper')
+        self.assertContains(resp2, 'Average CBT Scaled Score')
+        self.assertContains(resp2, 'John Doe')
+
+        # Test UserProfile change view also renders Candidate 360 profile view
+        profile_change_url = reverse('admin:accounts_userprofile_change', args=[self.profile.id])
+        resp3 = self.client.get(profile_change_url)
+        self.assertEqual(resp3.status_code, 200)
+        self.assertContains(resp3, 'cand360-wrapper')
 
     def test_reorganized_admin_dashboard_and_changelists_render(self):
         self.client.force_login(self.admin)
