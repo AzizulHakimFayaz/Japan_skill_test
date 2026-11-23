@@ -73,6 +73,7 @@ urlpatterns = [
 
     # B2B2C Partner Schools & LPK Ecosystem
     path('partners/', views.PartnerPublicListAPIView.as_view(), name='api_partners_list'),
+    path('partners/register-school/', views.PartnerSchoolSelfSetupAPIView.as_view(), name='api_partner_register_school'),
     path('partners/join/', views.PartnerSchoolJoinAPIView.as_view(), name='api_partner_join'),
     path('partners/leave/', views.PartnerSchoolLeaveAPIView.as_view(), name='api_partner_leave'),
     path('partners/apply/', views.PartnerApplicationCreateAPIView.as_view(), name='api_partner_apply'),

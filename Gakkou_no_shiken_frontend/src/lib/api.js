@@ -168,7 +168,16 @@ export async function googleAuthLogin(idToken) {
 }
 
 
-export async function sendRegistrationOTP(username, email, password, passwordConfirm, firstName = '', lastName = '', country = '') {
+export async function sendRegistrationOTP(
+  username,
+  email,
+  password,
+  passwordConfirm,
+  firstName = '',
+  lastName = '',
+  country = '',
+  extraPayload = {}
+) {
   return apiRequest('/api/auth/send-otp/', {
     method: 'POST',
     body: JSON.stringify({
@@ -179,14 +188,15 @@ export async function sendRegistrationOTP(username, email, password, passwordCon
       email,
       password,
       password_confirm: passwordConfirm,
+      ...extraPayload,
     }),
   });
 }
 
-export async function verifyRegistrationOTP(email, otpCode) {
+export async function verifyRegistrationOTP(email, otpCode, extraPayload = {}) {
   const data = await apiRequest('/api/auth/verify-otp/', {
     method: 'POST',
-    body: JSON.stringify({ email, otp_code: otpCode }),
+    body: JSON.stringify({ email, otp_code: otpCode, ...extraPayload }),
   });
   if (data?.tokens?.access) {
     setAuthTokens(data.tokens.access, data.tokens.refresh);
@@ -543,6 +553,17 @@ export async function submitPartnerApplication(payload) {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+}
+
+export async function setupPartnerSchoolForUser(payload) {
+  const data = await apiRequest('/api/partners/register-school/', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  if (data?.user) {
+    setStoredUser(data.user);
+  }
+  return data;
 }
 
 export async function getPartnerDashboard(slug, { key = '', batch = '', testId = '', days = '' } = {}) {

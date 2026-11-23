@@ -636,6 +636,86 @@ def send_otp_email(email, otp_code, name=''):
         return False
 
 
+def _provision_partner_school_for_user(user, data):
+    """
+    Creates or retrieves a PartnerSchool owned by `user` during School/Sensei registration
+    (or 1-click school onboarding) and logs an approved PartnerApplication record.
+    """
+    from django.utils.text import slugify
+
+    school_name = str(data.get('school_name') or '').strip()[:160]
+    if not school_name:
+        return None
+
+    existing = PartnerSchool.objects.filter(owner=user).first()
+    if existing:
+        return existing
+
+    country = str(data.get('country') or getattr(getattr(user, 'profile', None), 'country', '') or 'Bangladesh').strip()[:100]
+    city = str(data.get('city') or data.get('school_city') or '').strip()[:100]
+    whatsapp_or_phone = str(data.get('whatsapp_or_phone') or data.get('school_phone') or '').strip()[:80]
+    contact_name = str(
+        data.get('contact_name')
+        or f"{user.first_name} {user.last_name}".strip()
+        or user.username
+    ).strip()[:120]
+    try:
+        estimated_students = max(1, int(data.get('estimated_students') or 50))
+    except (TypeError, ValueError):
+        estimated_students = 50
+
+    require_join_pin = bool(data.get('require_join_pin', True))
+    require_approval = bool(data.get('require_approval', False))
+    exam_focus = str(data.get('exam_focus') or data.get('message') or '').strip()[:500]
+
+    base_slug = slugify(school_name)[:50] or f"school-{user.id}"
+    slug = base_slug
+    counter = 2
+    while PartnerSchool.objects.filter(slug__iexact=slug).exists():
+        slug = f"{base_slug[:44]}-{counter}"
+        counter += 1
+
+    welcome_msg = str(
+        data.get('welcome_message')
+        or f"Welcome to {school_name} Official JFT-Basic & SSW Mock Exam Classroom!"
+    ).strip()[:300]
+
+    school = PartnerSchool.objects.create(
+        name=school_name,
+        slug=slug,
+        country=country,
+        city=city,
+        contact_person=contact_name,
+        contact_whatsapp_or_email=f"{whatsapp_or_phone} | {user.email or ''}".strip(' |')[:200],
+        welcome_message=welcome_msg,
+        owner=user,
+        require_join_pin=require_join_pin,
+        require_approval=require_approval,
+        enrollment_locked=False,
+        is_active=True,
+        is_featured=True,
+    )
+
+    # Also log in PartnerApplication for admin audit visibility
+    try:
+        PartnerApplication.objects.create(
+            school_name=school_name,
+            country=country,
+            city=city,
+            contact_name=contact_name,
+            whatsapp_or_phone=whatsapp_or_phone,
+            email=user.email or '',
+            estimated_students=estimated_students,
+            message=exam_focus or 'Self-registered via School & Sensei Signup Portal.',
+            status=PartnerApplication.Status.APPROVED,
+            approved_school=school,
+        )
+    except Exception:
+        pass
+
+    return school
+
+
 class SendRegistrationOTPAPIView(APIView):
     """Validates registration data, generates 6-digit OTP, and sends verification email."""
     permission_classes = [permissions.AllowAny]
@@ -648,9 +728,14 @@ class SendRegistrationOTPAPIView(APIView):
         first_name = request.data.get('first_name', '').strip()
         last_name = request.data.get('last_name', '').strip()
         country = request.data.get('country', '').strip()
+        role = str(request.data.get('role') or 'candidate').strip().lower()
+        school_name = str(request.data.get('school_name') or '').strip()
 
         if not username or not email or not password:
             return Response({'detail': 'Please provide username, email, and password.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if role == 'school' and not school_name:
+            return Response({'detail': 'Please enter your School / LPK / Training Center Name.'}, status=status.HTTP_400_BAD_REQUEST)
 
         if not country:
             return Response({'country': ['Country is required for registration.']}, status=status.HTTP_400_BAD_REQUEST)
@@ -740,11 +825,22 @@ class VerifyRegistrationOTPAPIView(APIView):
                 profile.country_source = UserProfile.CountrySource.IP
         profile.save()
 
+        # If registering as a School / Sensei (LPK), auto-provision PartnerSchool
+        role = str(request.data.get('role') or 'candidate').strip().lower()
+        created_school = None
+        if role == 'school' or request.data.get('school_name'):
+            created_school = _provision_partner_school_for_user(user, request.data)
+
         tokens = get_tokens_for_user(user)
         return Response({
             'user': UserSerializer(user).data,
             'tokens': tokens,
-            'message': f'Email verified successfully! Welcome to Gakkou No Shiken, {user.username}!'
+            'partner_school': PartnerSchoolSummarySerializer(created_school).data if created_school else None,
+            'message': (
+                f"School account verified! Welcome to {created_school.name} Sensei LMS!"
+                if created_school
+                else f"Email verified successfully! Welcome to Gakkou No Shiken, {user.username}!"
+            ),
         }, status=status.HTTP_201_CREATED)
 
 
@@ -782,10 +878,16 @@ class ResendRegistrationOTPAPIView(APIView):
 
 
 class RegisterAPIView(APIView):
-    """Registers a new candidate and returns JWT tokens."""
+    """Registers a new candidate or Partner School owner and returns JWT tokens."""
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
+        role = str(request.data.get('role') or 'candidate').strip().lower()
+        if role == 'school' and not str(request.data.get('school_name') or '').strip():
+            return Response(
+                {'detail': 'Please provide your School / LPK / Training Center Name.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -795,13 +897,41 @@ class RegisterAPIView(APIView):
                 profile, _ = UserProfile.objects.get_or_create(user=user)
                 profile.last_known_ip = client_ip
                 profile.save(update_fields=['last_known_ip'])
+            created_school = None
+            if role == 'school' or request.data.get('school_name'):
+                created_school = _provision_partner_school_for_user(user, request.data)
             tokens = get_tokens_for_user(user)
             return Response({
                 'user': UserSerializer(user).data,
                 'tokens': tokens,
+                'partner_school': PartnerSchoolSummarySerializer(created_school).data if created_school else None,
                 'message': f"Welcome to JFT Practice, {user.username}!"
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PartnerSchoolSelfSetupAPIView(APIView):
+    """
+    POST /api/partners/register-school/
+    Allows an authenticated user (e.g. after signing in on the School tab or via Google Sign-In)
+    to create and link their PartnerSchool immediately.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        school_name = str(request.data.get('school_name') or '').strip()
+        if not school_name:
+            return Response(
+                {'detail': 'School / LPK / Training Center Name is required.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        school = _provision_partner_school_for_user(request.user, request.data)
+        return Response({
+            'status': 'success',
+            'user': UserSerializer(request.user).data,
+            'partner_school': PartnerSchoolSummarySerializer(school).data,
+            'message': f"{school.name} Sensei LMS Portal is ready!",
+        }, status=status.HTTP_201_CREATED)
 
 
 class LoginAPIView(APIView):

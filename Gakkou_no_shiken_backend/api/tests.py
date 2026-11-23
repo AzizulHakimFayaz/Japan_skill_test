@@ -255,3 +255,25 @@ class PartnerSchoolLMSAndSecurityTests(TestCase):
         self.assertEqual(res_good_exam_pin.data['test_id'], self.mock_test.id)
         self.assertEqual(PartnerAssignedExam.objects.get(id=assigned_exam_id).attended_users.count(), 1)
 
+    def test_school_self_registration_and_onboarding(self):
+        # 1. Existing user signs in on School tab and completes 1-step school setup
+        self.client.force_authenticate(user=self.outsider_user)
+        res_setup = self.client.post(
+            '/api/partners/register-school/',
+            {
+                'school_name': 'Dhaka Nihongo Academy',
+                'country': 'Bangladesh',
+                'city': 'Dhaka',
+                'whatsapp_or_phone': '+8801711000000',
+                'require_join_pin': True,
+            },
+            format='json',
+        )
+        self.assertEqual(res_setup.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res_setup.data['partner_school']['slug'], 'dhaka-nihongo-academy')
+        self.assertEqual(res_setup.data['user']['owned_partner_school']['slug'], 'dhaka-nihongo-academy')
+        created_school = PartnerSchool.objects.get(slug='dhaka-nihongo-academy')
+        self.assertEqual(created_school.owner, self.outsider_user)
+        self.assertEqual(len(created_school.join_code), 6)
+
+
