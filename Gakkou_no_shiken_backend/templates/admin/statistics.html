@@ -337,7 +337,7 @@
                                     </span>
                                 </div>
                                 <div class="progress progress-dark">
-                                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ c.percentage }}%;" aria-valuenow="{{ c.percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar bg-info js-dyn-style" role="progressbar" data-style-width="{{ c.percentage }}%" aria-valuenow="{{ c.percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                             </div>
                             {% endfor %}

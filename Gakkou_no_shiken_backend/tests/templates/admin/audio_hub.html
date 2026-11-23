@@ -74,7 +74,7 @@
                     <span id="progress-count-text">{{ total_generated }} / {{ total_audio_needed }} Questions</span>
                 </div>
                 <div style="height: 14px; background: var(--dropx-card-elev); border: 1px solid var(--dropx-border); border-radius: 7px; overflow: hidden;">
-                    <div id="progress-bar-fill" style="height: 100%; width: {{ completion_pct }}%; background: linear-gradient(90deg, #10b981, #06b6d4); transition: width 0.4s ease;"></div>
+                    <div id="progress-bar-fill" class="js-dyn-style" data-style-width="{{ completion_pct }}%" style="height: 100%; width: 0%; background: linear-gradient(90deg, #10b981, #06b6d4); transition: width 0.4s ease;"></div>
                 </div>
             </div>
 
@@ -196,7 +196,11 @@
 
 <script>
 (function() {
-    const TEST_ID = {{ test_obj.id }};
+    const TEST_ID = Number("{{ test_obj.id }}");
+    const initBar = document.getElementById('progress-bar-fill');
+    if (initBar && initBar.dataset.styleWidth) {
+        initBar.style.width = initBar.dataset.styleWidth;
+    }
     const CSRF_TOKEN = document.querySelector('[name=csrfmiddlewaretoken]') ? document.querySelector('[name=csrfmiddlewaretoken]').value : "{{ csrf_token }}";
 
     // URLs (using placeholder replacement to prevent any double-slash routing issues)

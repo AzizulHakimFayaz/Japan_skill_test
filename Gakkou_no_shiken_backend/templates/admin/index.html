@@ -242,7 +242,7 @@
                         {% for d in dash.chart_days %}
                         <div class="dropx-bar-col" title="{{ d.date_label }}: {{ d.attempts }} exam attempts">
                             <div class="dropx-bar-track">
-                                <div class="dropx-bar-fill" style="height: {{ d.bar_pct }}%;">
+                                <div class="dropx-bar-fill js-dyn-style" data-style-height="{{ d.bar_pct }}%">
                                     <span class="dropx-bar-tooltip">{{ d.attempts }}</span>
                                 </div>
                             </div>
@@ -327,7 +327,7 @@
                             <span class="dropx-progress-pct">{{ c.pct }}%</span>
                         </div>
                         <div class="dropx-progress-track">
-                            <div class="dropx-progress-fill" style="width: {{ c.bar_width }}%; background: {{ c.gradient }};"></div>
+                            <div class="dropx-progress-fill js-dyn-style" data-style-width="{{ c.bar_width }}%" data-style-bg="{{ c.gradient }}"></div>
                         </div>
                     </div>
                     {% empty %}
@@ -356,7 +356,7 @@
                     {% for att in dash.recent_attempts %}
                     <div class="dropx-order-row">
                         <div class="dropx-order-left">
-                            <div class="dropx-avatar-circle" style="background: {{ att.avatar_bg }};">
+                            <div class="dropx-avatar-circle js-dyn-style" data-style-bg="{{ att.avatar_bg }}">
                                 {{ att.initials }}
                             </div>
                             <div>
@@ -397,7 +397,7 @@
                 <div class="dropx-activity-list">
                     {% for item in dash.live_activity %}
                     <a href="{{ item.url }}" class="dropx-activity-row">
-                        <div class="dropx-activity-icon" style="background: {{ item.bg }}; color: {{ item.color }};">
+                        <div class="dropx-activity-icon js-dyn-style" data-style-bg="{{ item.bg }}" data-style-color="{{ item.color }}">
                             <i class="{{ item.icon }}"></i>
                         </div>
                         <div class="dropx-activity-content">

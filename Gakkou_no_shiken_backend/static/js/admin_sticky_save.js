@@ -329,6 +329,14 @@ function initAdminEnhancements() {
         });
     }
 
+    // 5. Hydrate data-style-* attributes (eliminates IDE CSS validator warnings on Django template tags)
+    document.querySelectorAll('.js-dyn-style').forEach(function (el) {
+        if (el.dataset.styleWidth) el.style.width = el.dataset.styleWidth;
+        if (el.dataset.styleHeight) el.style.height = el.dataset.styleHeight;
+        if (el.dataset.styleBg) el.style.background = el.dataset.styleBg;
+        if (el.dataset.styleColor) el.style.color = el.dataset.styleColor;
+    });
+
     initAdminPasswordToggles();
 }
 
