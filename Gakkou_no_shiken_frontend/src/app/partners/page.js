@@ -34,6 +34,7 @@ const COUNTRIES = [
 
 export default function PartnersPage() {
   const [partnersData, setPartnersData] = useState({ total_partners: 0, featured_partners: [] });
+  const [portalSlugInput, setPortalSlugInput] = useState('');
 
   // Application form state
   const [schoolName, setSchoolName] = useState('');
@@ -130,6 +131,54 @@ export default function PartnersPage() {
             >
               Try Public Mock Tests First
             </Link>
+          </div>
+
+          {/* Direct Sensei & Student Classroom Portal Launcher */}
+          <div className="mt-6 pt-6 border-t border-white/10 max-w-2xl">
+            <div className="text-xs font-black uppercase tracking-wider text-indigo-300 mb-2">
+              🏫 Already a Partner School or Enrolled Student? Log In Directly:
+            </div>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+              <select
+                value={portalSlugInput}
+                onChange={(e) => setPortalSlugInput(e.target.value)}
+                className="px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-xs font-bold text-white focus:outline-none focus:border-indigo-400"
+              >
+                <option value="">-- Select Partner School --</option>
+                {(partnersData.featured_partners || []).map((p) => (
+                  <option key={p.id} value={p.slug}>
+                    {p.flag || '🏫'} {p.name} ({p.slug})
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                value={portalSlugInput}
+                onChange={(e) => setPortalSlugInput(e.target.value)}
+                placeholder="Or enter school code (e.g. lpk-sakura)"
+                className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700 text-xs font-mono font-bold text-white placeholder:text-slate-400 focus:outline-none focus:border-indigo-400"
+              />
+              <Link
+                href={
+                  portalSlugInput.trim()
+                    ? `/partner/${encodeURIComponent(portalSlugInput.trim().toLowerCase())}`
+                    : '#apply-partner'
+                }
+                className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-black text-center whitespace-nowrap"
+              >
+                Sensei Login →
+              </Link>
+              <Link
+                href={
+                  portalSlugInput.trim()
+                    ? `/partner/${encodeURIComponent(portalSlugInput.trim().toLowerCase())}?mode=classroom`
+                    : '#apply-partner'
+                }
+                className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black text-center whitespace-nowrap"
+              >
+                Student Classroom →
+              </Link>
+            </div>
           </div>
         </div>
       </section>

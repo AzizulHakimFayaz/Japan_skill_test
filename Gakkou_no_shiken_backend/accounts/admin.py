@@ -15,6 +15,9 @@ from .models import (
     SupportMessage,
     PartnerSchool,
     PartnerApplication,
+    PartnerAssignedExam,
+    PartnerStudyNote,
+    PartnerNotification,
 )
 
 from accounts.geolocation import COUNTRY_FLAG_MAP, get_country_flag as get_flag
@@ -603,14 +606,14 @@ class PartnerSchoolAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'is_featured', 'country', 'created_at')
     search_fields = ('name', 'slug', 'country', 'city', 'contact_person', 'contact_whatsapp_or_email')
     list_editable = ('is_active', 'is_featured')
-    readonly_fields = ('access_token', 'student_invite_url_box', 'sensei_dashboard_url_box', 'created_at', 'updated_at')
+    readonly_fields = ('access_token', 'join_code', 'student_invite_url_box', 'sensei_dashboard_url_box', 'created_at', 'updated_at')
     fieldsets = (
         ('🏫 Partner School / LPK Profile', {
-            'fields': ('name', 'slug', 'country', 'city', 'contact_person', 'contact_whatsapp_or_email', 'website_url', 'welcome_message'),
+            'fields': ('name', 'slug', 'owner', 'country', 'city', 'contact_person', 'contact_whatsapp_or_email', 'website_url', 'welcome_message'),
         }),
-        ('🔗 Invite & Sensei Dashboard Links', {
-            'fields': ('student_invite_url_box', 'sensei_dashboard_url_box', 'access_token'),
-            'description': 'Share the Student Invite URL with the school\'s batches, and give the private Sensei Dashboard URL to their teacher/owner.',
+        ('🔐 Smart Student Gate & Invite Links', {
+            'fields': ('join_code', 'require_join_pin', 'require_approval', 'enrollment_locked', 'student_invite_url_box', 'sensei_dashboard_url_box', 'access_token'),
+            'description': 'Share the Student Invite URL + 6-digit Class Join PIN with the school\'s batches, and assign a School Owner User or give the private Sensei Dashboard URL to their teacher.',
         }),
         ('⚙️ Visibility & Status', {
             'fields': ('is_active', 'is_featured', 'created_at', 'updated_at'),
@@ -791,3 +794,27 @@ class PartnerApplicationAdmin(admin.ModelAdmin):
             f"Approved {queryset.count()} application(s) and created {created_count} new Partner School(s)!",
             level=messages.SUCCESS,
         )
+
+
+@admin.register(PartnerAssignedExam)
+class PartnerAssignedExamAdmin(admin.ModelAdmin):
+    list_display = ('title', 'school', 'test', 'target_batch', 'attendance_pin', 'require_pin', 'is_active', 'created_at')
+    list_filter = ('school', 'is_active', 'require_pin', 'created_at')
+    search_fields = ('title', 'school__name', 'test__title', 'target_batch')
+    list_per_page = 25
+
+
+@admin.register(PartnerStudyNote)
+class PartnerStudyNoteAdmin(admin.ModelAdmin):
+    list_display = ('title', 'school', 'category', 'target_batch', 'views_count', 'is_pinned', 'created_at')
+    list_filter = ('school', 'category', 'is_pinned', 'created_at')
+    search_fields = ('title', 'content', 'school__name', 'target_batch')
+    list_per_page = 25
+
+
+@admin.register(PartnerNotification)
+class PartnerNotificationAdmin(admin.ModelAdmin):
+    list_display = ('title', 'school', 'priority', 'target_batch', 'is_active', 'created_at')
+    list_filter = ('school', 'priority', 'is_active', 'created_at')
+    search_fields = ('title', 'message', 'school__name', 'target_batch')
+    list_per_page = 25

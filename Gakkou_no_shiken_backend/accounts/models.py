@@ -40,6 +40,33 @@ class PartnerSchool(models.Model):
         blank=True,
         help_text="Secret Sensei Dashboard key (?key=...). Auto-generated on save.",
     )
+    owner = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='owned_partner_schools',
+        help_text="Optional website user account (Sensei/Owner) who can log into this school's portal directly.",
+    )
+    join_code = models.CharField(
+        max_length=16,
+        blank=True,
+        default='',
+        db_index=True,
+        help_text="6-digit rotating Class Join PIN (e.g. 482910) to prevent unauthorized link sharing.",
+    )
+    require_join_pin = models.BooleanField(
+        default=False,
+        help_text="If checked, students must enter the 6-digit Class Join PIN to join this school.",
+    )
+    require_approval = models.BooleanField(
+        default=False,
+        help_text="If checked, new students who join via link enter Pending status until approved by Sensei.",
+    )
+    enrollment_locked = models.BooleanField(
+        default=False,
+        help_text="If checked, no new students can join until unlocked by Sensei.",
+    )
     is_active = models.BooleanField(default=True, db_index=True)
     is_featured = models.BooleanField(
         default=False,
@@ -64,6 +91,8 @@ class PartnerSchool(models.Model):
             self.slug = candidate
         if not self.access_token:
             self.access_token = secrets.token_urlsafe(18)
+        if not self.join_code:
+            self.join_code = f"{random.randint(100000, 999999)}"
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -125,6 +154,11 @@ class UserProfile(models.Model):
         USER = 'user', 'User Selected'
         IP = 'ip', 'IP Estimated'
         UNKNOWN = 'unknown', 'Unknown'
+
+    class PartnerStatus(models.TextChoices):
+        APPROVED = 'approved', 'Approved Member'
+        PENDING = 'pending', 'Pending Sensei Approval'
+        REJECTED = 'rejected', 'Rejected / Blocked'
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.TextField(max_length=500, blank=True, default='', help_text="Short candidate introduction or learning target.")
@@ -189,6 +223,13 @@ class UserProfile(models.Model):
         blank=True,
         default='',
         help_text="Optional roll number or student ID assigned by their school.",
+    )
+    partner_status = models.CharField(
+        max_length=16,
+        choices=PartnerStatus.choices,
+        default=PartnerStatus.APPROVED,
+        db_index=True,
+        help_text="Enrollment approval state for the linked Partner School.",
     )
     partner_joined_at = models.DateTimeField(null=True, blank=True)
 
@@ -370,6 +411,126 @@ class SupportMessage(models.Model):
 
     def __str__(self):
         return f"[{self.sender_type}] {self.sender_name}: {self.body[:40]}"
+
+
+class PartnerAssignedExam(models.Model):
+    """Scheduled or assigned mock exam set by a Partner School / Sensei for their students."""
+
+    school = models.ForeignKey(PartnerSchool, on_delete=models.CASCADE, related_name='assigned_exams')
+    test = models.ForeignKey('tests.Test', on_delete=models.CASCADE, related_name='school_assignments')
+    title = models.CharField(
+        max_length=200,
+        blank=True,
+        default='',
+        help_text="Custom exam routine title (defaults to Test title if blank).",
+    )
+    target_batch = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        help_text="Leave blank for All Batches, or specify e.g. Batch-12.",
+    )
+    attendance_pin = models.CharField(
+        max_length=12,
+        blank=True,
+        default='',
+        help_text="Optional 4-digit Live Exam Room PIN for attendance verification.",
+    )
+    require_pin = models.BooleanField(
+        default=False,
+        help_text="If enabled, students must enter the Attendance PIN before starting this assigned exam.",
+    )
+    instructions = models.CharField(max_length=400, blank=True, default='')
+    scheduled_date_label = models.CharField(
+        max_length=80,
+        blank=True,
+        default='',
+        help_text="Display schedule label, e.g. 'Friday 10:00 AM' or 'Weekly Assessment'.",
+    )
+    is_active = models.BooleanField(default=True, db_index=True)
+    attended_users = models.ManyToManyField(User, blank=True, related_name='attended_partner_exams')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-is_active', '-created_at']
+        verbose_name = 'School Assigned Exam'
+        verbose_name_plural = 'School Assigned Exams'
+
+    def save(self, *args, **kwargs):
+        if not self.title and self.test_id:
+            try:
+                self.title = self.test.title
+            except Exception:
+                pass
+        if self.require_pin and not self.attendance_pin:
+            self.attendance_pin = f"{random.randint(1000, 9999)}"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"[{self.school.name}] {self.title or 'Assigned Exam'} ({self.target_batch or 'All Batches'})"
+
+
+class PartnerStudyNote(models.Model):
+    """Study note, vocabulary sheet, PDF link, or class routine shared by a Partner School."""
+
+    class Category(models.TextChoices):
+        VOCABULARY = 'vocabulary', 'Vocabulary & Kanji'
+        GRAMMAR = 'grammar', 'Grammar & Conversation'
+        LISTENING = 'listening', 'Listening & Audio Script'
+        SSW_SKILL = 'ssw_skill', 'SSW Sector Study Material'
+        ROUTINE = 'routine', 'Class Routine & Syllabus'
+
+    school = models.ForeignKey(PartnerSchool, on_delete=models.CASCADE, related_name='study_notes')
+    title = models.CharField(max_length=200)
+    category = models.CharField(max_length=32, choices=Category.choices, default=Category.VOCABULARY)
+    content = models.TextField(
+        blank=True,
+        default='',
+        help_text="Study note content, vocabulary list, or lesson summary.",
+    )
+    external_url = models.URLField(
+        max_length=500,
+        blank=True,
+        default='',
+        help_text="Optional Google Drive / PDF / YouTube / Resource link.",
+    )
+    target_batch = models.CharField(max_length=64, blank=True, default='')
+    views_count = models.PositiveIntegerField(default=0)
+    is_pinned = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-is_pinned', '-created_at']
+        verbose_name = 'School Study Note'
+        verbose_name_plural = 'School Study Notes'
+
+    def __str__(self):
+        return f"[{self.school.name}] {self.title}"
+
+
+class PartnerNotification(models.Model):
+    """Announcement or exam notification sent by a Partner School to its students."""
+
+    class Priority(models.TextChoices):
+        NORMAL = 'normal', 'Standard Update'
+        IMPORTANT = 'important', 'Important Reminder'
+        URGENT = 'urgent', 'Urgent Exam Alert'
+
+    school = models.ForeignKey(PartnerSchool, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=200)
+    message = models.TextField(max_length=1500)
+    priority = models.CharField(max_length=20, choices=Priority.choices, default=Priority.NORMAL)
+    target_batch = models.CharField(max_length=64, blank=True, default='')
+    is_active = models.BooleanField(default=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'School Notification'
+        verbose_name_plural = 'School Notifications'
+
+    def __str__(self):
+        return f"[{self.school.name}] {self.title}"
 
 
 

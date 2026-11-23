@@ -90,6 +90,9 @@ def ensure_schema_synced():
             if 'partner_joined_at' not in profile_cols:
                 cursor.execute("ALTER TABLE accounts_userprofile ADD COLUMN partner_joined_at datetime NULL")
                 logs.append("Added 'partner_joined_at' column to accounts_userprofile.")
+            if 'partner_status' not in profile_cols:
+                cursor.execute("ALTER TABLE accounts_userprofile ADD COLUMN partner_status varchar(16) NOT NULL DEFAULT 'approved'")
+                logs.append("Added 'partner_status' column to accounts_userprofile.")
         except Exception as e:
             logs.append(f"Note on accounts_userprofile columns: {e}")
 
@@ -244,7 +247,69 @@ def ensure_schema_synced():
                     created_at datetime NOT NULL
                 )
             """)
-            logs.append("Verified accounts_partnerschool and accounts_partnerapplication tables.")
+            cursor.execute("PRAGMA table_info(accounts_partnerschool)")
+            ps_cols = [c[1] for c in cursor.fetchall()]
+            if 'owner_id' not in ps_cols:
+                cursor.execute("ALTER TABLE accounts_partnerschool ADD COLUMN owner_id integer NULL REFERENCES auth_user (id)")
+            if 'join_code' not in ps_cols:
+                cursor.execute("ALTER TABLE accounts_partnerschool ADD COLUMN join_code varchar(16) NOT NULL DEFAULT ''")
+            if 'require_join_pin' not in ps_cols:
+                cursor.execute("ALTER TABLE accounts_partnerschool ADD COLUMN require_join_pin bool NOT NULL DEFAULT 0")
+            if 'require_approval' not in ps_cols:
+                cursor.execute("ALTER TABLE accounts_partnerschool ADD COLUMN require_approval bool NOT NULL DEFAULT 0")
+            if 'enrollment_locked' not in ps_cols:
+                cursor.execute("ALTER TABLE accounts_partnerschool ADD COLUMN enrollment_locked bool NOT NULL DEFAULT 0")
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS accounts_partnerassignedexam (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    title varchar(200) NOT NULL DEFAULT '',
+                    target_batch varchar(64) NOT NULL DEFAULT '',
+                    attendance_pin varchar(12) NOT NULL DEFAULT '',
+                    require_pin bool NOT NULL DEFAULT 0,
+                    instructions varchar(400) NOT NULL DEFAULT '',
+                    scheduled_date_label varchar(80) NOT NULL DEFAULT '',
+                    is_active bool NOT NULL DEFAULT 1,
+                    created_at datetime NOT NULL,
+                    school_id bigint NOT NULL REFERENCES accounts_partnerschool (id) DEFERRABLE INITIALLY DEFERRED,
+                    test_id bigint NOT NULL REFERENCES tests_test (id) DEFERRABLE INITIALLY DEFERRED
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS accounts_partnerassignedexam_attended_users (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    partnerassignedexam_id bigint NOT NULL REFERENCES accounts_partnerassignedexam (id) DEFERRABLE INITIALLY DEFERRED,
+                    user_id integer NOT NULL REFERENCES auth_user (id) DEFERRABLE INITIALLY DEFERRED,
+                    UNIQUE (partnerassignedexam_id, user_id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS accounts_partnerstudynote (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    title varchar(200) NOT NULL,
+                    category varchar(32) NOT NULL DEFAULT 'vocabulary',
+                    content text NOT NULL DEFAULT '',
+                    external_url varchar(500) NOT NULL DEFAULT '',
+                    target_batch varchar(64) NOT NULL DEFAULT '',
+                    views_count integer unsigned NOT NULL DEFAULT 0,
+                    is_pinned bool NOT NULL DEFAULT 0,
+                    created_at datetime NOT NULL,
+                    school_id bigint NOT NULL REFERENCES accounts_partnerschool (id) DEFERRABLE INITIALLY DEFERRED
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS accounts_partnernotification (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    title varchar(200) NOT NULL,
+                    message text NOT NULL,
+                    priority varchar(20) NOT NULL DEFAULT 'normal',
+                    target_batch varchar(64) NOT NULL DEFAULT '',
+                    is_active bool NOT NULL DEFAULT 1,
+                    created_at datetime NOT NULL,
+                    school_id bigint NOT NULL REFERENCES accounts_partnerschool (id) DEFERRABLE INITIALLY DEFERRED
+                )
+            """)
+            logs.append("Verified accounts_partnerschool, accounts_partnerapplication, and LMS classroom tables.")
         except Exception as e:
             logs.append(f"Note on partner school tables: {e}")
 
@@ -257,6 +322,7 @@ def ensure_schema_synced():
                 ('accounts', '0004_userprofile_game_last_played_userprofile_game_level_and_more'),
                 ('accounts', '0005_supportthread_supportmessage'),
                 ('accounts', '0006_partnerapplication_partnerschool_and_more'),
+                ('accounts', '0007_partnerschool_enrollment_locked_and_more'),
                 ('tests', '0014_question_audio_script_questiongroup_audio_script_and_more'),
                 ('tests', '0015_notice'),
                 ('tests', '0016_test_scheduled_release_at'),

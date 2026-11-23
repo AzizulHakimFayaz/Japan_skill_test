@@ -23,6 +23,8 @@ export default function PartnerInviteBanner() {
   const [lastName, setLastName] = useState('');
   const [batch, setBatch] = useState('');
   const [studentId, setStudentId] = useState('');
+  const [joinCode, setJoinCode] = useState('');
+  const [joinedStatus, setJoinedStatus] = useState('approved');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [joinedSuccess, setJoinedSuccess] = useState(null);
@@ -156,6 +158,11 @@ export default function PartnerInviteBanner() {
       return;
     }
 
+    if (schoolInfo?.require_join_pin && !joinCode.trim()) {
+      setError('Please enter the 6-digit Class Join PIN provided by your Sensei.');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const res = await joinPartnerSchool({
@@ -164,6 +171,7 @@ export default function PartnerInviteBanner() {
         student_id: studentId.trim(),
         first_name: trimmedFirst,
         last_name: lastName.trim(),
+        join_code: joinCode.trim(),
       });
 
       if (res?.user) {
@@ -177,6 +185,7 @@ export default function PartnerInviteBanner() {
         sessionStorage.removeItem(DISMISSED_PARTNER_KEY);
       } catch {}
 
+      setJoinedStatus(res?.partner_status || 'approved');
       setJoinedSuccess(res?.partner_school || schoolInfo);
       setPending(null);
 
@@ -215,16 +224,25 @@ export default function PartnerInviteBanner() {
               </button>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-              Your mock exam scores will now appear on your Sensei&apos;s batch tracker, and school-exclusive exams are unlocked.
+              {joinedStatus === 'pending'
+                ? 'Your enrollment request is now waiting for Sensei approval. Once approved, your school-exclusive exams, study notes, and notifications will unlock.'
+                : "Your mock exam scores will now appear on your Sensei's batch tracker, and your classroom exams, notes & notifications are unlocked."}
             </p>
-            <div className="pt-1 flex items-center gap-2">
+            <div className="pt-1 flex flex-wrap items-center gap-2">
+              <Link
+                href={`/partner/${encodeURIComponent(joinedSuccess.slug)}?mode=classroom`}
+                onClick={() => setJoinedSuccess(null)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-extrabold shadow-sm transition-all"
+              >
+                <span>Open My Classroom</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
               <Link
                 href="/tests"
                 onClick={() => setJoinedSuccess(null)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-sm transition-all"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-sm transition-all"
               >
-                <span>Open Mock Tests</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <span>Mock Tests</span>
               </Link>
             </div>
           </div>
@@ -358,6 +376,29 @@ export default function PartnerInviteBanner() {
                     />
                   </div>
                 </div>
+
+                {schoolInfo.require_join_pin && (
+                  <div className="p-2.5 rounded-xl bg-violet-50 dark:bg-violet-950/60 border border-violet-200 dark:border-violet-800">
+                    <label className="block text-[10px] font-black uppercase tracking-wide text-violet-700 dark:text-violet-300 mb-1">
+                      🔐 6-Digit Class Join PIN (Required by Sensei) *
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={8}
+                      required
+                      value={joinCode}
+                      onChange={(e) => setJoinCode(e.target.value)}
+                      placeholder="Enter 6-digit PIN from your Sensei..."
+                      className="w-full px-3 py-2 text-xs font-mono font-black tracking-widest rounded-xl border border-violet-300 dark:border-violet-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-violet-500"
+                    />
+                  </div>
+                )}
+
+                {schoolInfo.enrollment_locked && (
+                  <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-[11px] font-bold text-rose-700 dark:text-rose-300">
+                    🔒 New student enrollment is currently locked by Sensei.
+                  </div>
+                )}
 
                 {error && (
                   <p className="text-[11px] font-bold text-rose-600 dark:text-rose-400">

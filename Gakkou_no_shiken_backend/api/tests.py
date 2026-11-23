@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from rest_framework import status
 from tests.models import Test, Question, QuestionGroup, AnswerOption, Attempt
+from accounts.models import PartnerSchool, PartnerAssignedExam, PartnerStudyNote, PartnerNotification, UserProfile
 
 
 class APITests(TestCase):
@@ -117,3 +118,140 @@ class APITests(TestCase):
         self.assertEqual(res_results.status_code, status.HTTP_200_OK)
         self.assertTrue(res_results.data['attempt']['is_preview'])
         self.assertEqual(res_results.data['attempt']['score'], 1)
+
+
+class PartnerSchoolLMSAndSecurityTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.sensei_user = User.objects.create_user(
+            username='sensei_sakura', email='sensei@sakura.com', password='password123'
+        )
+        self.student_user = User.objects.create_user(
+            username='student_budi', email='budi@example.com', password='password123'
+        )
+        self.outsider_user = User.objects.create_user(
+            username='outsider_user', email='outsider@example.com', password='password123'
+        )
+
+        self.school = PartnerSchool.objects.create(
+            name='LPK Sakura Nusantara',
+            slug='lpk-sakura',
+            country='Indonesia',
+            city='Jakarta',
+            owner=self.sensei_user,
+            join_code='482910',
+            require_join_pin=True,
+            require_approval=True,
+            enrollment_locked=False,
+        )
+
+        self.mock_test = Test.objects.create(
+            title='Sakura Friday JFT Exam',
+            category=Test.Category.BASIC,
+            is_published=True,
+            partner_school=self.school,
+        )
+
+    def test_anti_leak_join_pin_and_approval_gate(self):
+        self.client.force_authenticate(user=self.student_user)
+
+        # 1. Joining without PIN when require_join_pin=True fails with 400
+        res_no_pin = self.client.post(
+            '/api/partners/join/',
+            {'slug': 'lpk-sakura', 'batch': 'Batch-14', 'first_name': 'Budi', 'join_code': '000000'},
+            format='json',
+        )
+        self.assertEqual(res_no_pin.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # 2. Joining with valid 6-digit PIN succeeds, places student in 'pending' status
+        res_ok = self.client.post(
+            '/api/partners/join/',
+            {'slug': 'lpk-sakura', 'batch': 'Batch-14', 'first_name': 'Budi', 'join_code': '482910'},
+            format='json',
+        )
+        self.assertEqual(res_ok.status_code, status.HTTP_200_OK)
+        self.assertEqual(res_ok.data['partner_status'], 'pending')
+
+        # 3. While pending, student receives empty private classroom feed with membership_status='pending'
+        res_classroom_pending = self.client.get('/api/partners/lpk-sakura/classroom/')
+        self.assertEqual(res_classroom_pending.status_code, status.HTTP_200_OK)
+        self.assertEqual(res_classroom_pending.data['membership_status'], 'pending')
+        self.assertEqual(len(res_classroom_pending.data['assigned_exams']), 0)
+
+        # 4. Sensei (logged in via website account owner) approves student, assigns exam, note, and notice
+        self.client.force_authenticate(user=self.sensei_user)
+
+        res_approve = self.client.post(
+            '/api/partners/lpk-sakura/manage/',
+            {'action': 'approve_student', 'user_id': self.student_user.id},
+            format='json',
+        )
+        self.assertEqual(res_approve.status_code, status.HTTP_200_OK)
+
+        res_assign = self.client.post(
+            '/api/partners/lpk-sakura/manage/',
+            {
+                'action': 'assign_exam',
+                'test_id': self.mock_test.id,
+                'title_override': 'Friday Room B Assessment',
+                'target_batch': 'Batch-14',
+                'schedule_label': 'Friday 10:00 AM',
+                'attendance_pin': '7788',
+                'require_pin': True,
+            },
+            format='json',
+        )
+        self.assertEqual(res_assign.status_code, status.HTTP_201_CREATED)
+        assigned_exam_id = res_assign.data['assigned_exam']['id']
+
+        res_note = self.client.post(
+            '/api/partners/lpk-sakura/manage/',
+            {
+                'action': 'create_note',
+                'title': 'Lesson 12 Grammar Sheet',
+                'category': 'grammar',
+                'target_batch': 'Batch-14',
+                'content': 'Important grammar particles for JFT-Basic A2.',
+            },
+            format='json',
+        )
+        self.assertEqual(res_note.status_code, status.HTTP_201_CREATED)
+
+        res_notice = self.client.post(
+            '/api/partners/lpk-sakura/manage/',
+            {
+                'action': 'create_notification',
+                'title': 'Exam starts at 10 AM sharp',
+                'message': 'Bring headphones.',
+                'priority': 'important',
+            },
+            format='json',
+        )
+        self.assertEqual(res_notice.status_code, status.HTTP_201_CREATED)
+
+        # 5. Approved student now accesses classroom, verifies 4-digit exam PIN, and marks attendance
+        self.client.force_authenticate(user=self.student_user)
+        res_classroom_ok = self.client.get('/api/partners/lpk-sakura/classroom/')
+        self.assertEqual(res_classroom_ok.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res_classroom_ok.data['assigned_exams']), 1)
+        self.assertEqual(len(res_classroom_ok.data['study_notes']), 1)
+        self.assertEqual(len(res_classroom_ok.data['notifications']), 1)
+
+        # Wrong 4-digit exam PIN fails with 400
+        res_bad_exam_pin = self.client.post(
+            '/api/partners/lpk-sakura/classroom/',
+            {'action': 'verify_exam_pin', 'assigned_exam_id': assigned_exam_id, 'pin': '1111'},
+            format='json',
+        )
+        self.assertEqual(res_bad_exam_pin.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Correct 4-digit exam PIN marks attendance
+        res_good_exam_pin = self.client.post(
+            '/api/partners/lpk-sakura/classroom/',
+            {'action': 'verify_exam_pin', 'assigned_exam_id': assigned_exam_id, 'pin': '7788'},
+            format='json',
+        )
+        self.assertEqual(res_good_exam_pin.status_code, status.HTTP_200_OK)
+        self.assertEqual(res_good_exam_pin.data['test_id'], self.mock_test.id)
+        self.assertEqual(PartnerAssignedExam.objects.get(id=assigned_exam_id).attended_users.count(), 1)
+

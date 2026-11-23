@@ -584,6 +584,25 @@ export default function Navbar() {
 
             {isAuthenticated && user ? (
               <>
+                {user.owned_partner_school?.slug ? (
+                  <Link
+                    href={`/partner/${encodeURIComponent(user.owned_partner_school.slug)}`}
+                    className="text-xs font-extrabold text-violet-700 dark:text-violet-300 bg-violet-50 dark:bg-violet-950/70 hover:bg-violet-100 border border-violet-200 dark:border-violet-800 transition-all py-1.5 px-2.5 rounded-xl flex items-center gap-1 whitespace-nowrap shrink-0"
+                    title="Open Sensei LMS Dashboard"
+                  >
+                    <GraduationCap className="w-3.5 h-3.5 shrink-0" />
+                    <span>Sensei LMS</span>
+                  </Link>
+                ) : user.profile?.partner_school?.slug ? (
+                  <Link
+                    href={`/partner/${encodeURIComponent(user.profile.partner_school.slug)}?mode=classroom`}
+                    className="text-xs font-extrabold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/70 hover:bg-indigo-100 border border-indigo-200 dark:border-indigo-800 transition-all py-1.5 px-2.5 rounded-xl flex items-center gap-1 whitespace-nowrap shrink-0"
+                    title="Open My School Classroom"
+                  >
+                    <GraduationCap className="w-3.5 h-3.5 shrink-0" />
+                    <span>My Classroom</span>
+                  </Link>
+                ) : null}
                 {user.is_staff && (
                   <a
                     href={`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/`}

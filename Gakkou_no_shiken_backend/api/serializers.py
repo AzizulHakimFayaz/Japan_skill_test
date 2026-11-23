@@ -29,7 +29,18 @@ class PartnerSchoolSummarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PartnerSchool
-        fields = ['id', 'name', 'slug', 'country', 'flag', 'city', 'welcome_message']
+        fields = [
+            'id',
+            'name',
+            'slug',
+            'country',
+            'flag',
+            'city',
+            'welcome_message',
+            'require_join_pin',
+            'require_approval',
+            'enrollment_locked',
+        ]
 
     def get_flag(self, obj):
         return get_country_flag(obj.country) if obj.country else '🏫'
@@ -58,6 +69,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'partner_school',
             'partner_batch',
             'student_roll_or_id',
+            'partner_status',
             'partner_joined_at',
             'updated_at',
         ]
@@ -66,14 +78,29 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer(read_only=True)
     full_name = serializers.SerializerMethodField()
+    owned_partner_school = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'full_name', 'email', 'is_staff', 'profile']
+        fields = ['id', 'username', 'first_name', 'last_name', 'full_name', 'email', 'is_staff', 'profile', 'owned_partner_school']
 
     def get_full_name(self, obj):
         name = f"{obj.first_name} {obj.last_name}".strip()
         return name if name else obj.username
+
+    def get_owned_partner_school(self, obj):
+        try:
+            school = PartnerSchool.objects.filter(owner_id=obj.id, is_active=True).first()
+            if school:
+                return {
+                    'id': school.id,
+                    'name': school.name,
+                    'slug': school.slug,
+                    'access_token': school.access_token,
+                }
+        except Exception:
+            pass
+        return None
 
 
 class RegisterSerializer(serializers.ModelSerializer):

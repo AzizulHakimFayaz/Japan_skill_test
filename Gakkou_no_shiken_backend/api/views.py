@@ -27,6 +27,9 @@ from accounts.models import (
     SupportMessage,
     PartnerSchool,
     PartnerApplication,
+    PartnerAssignedExam,
+    PartnerStudyNote,
+    PartnerNotification,
 )
 from accounts.schema_sync import ensure_schema_synced
 from accounts.geolocation import get_client_ip, lookup_ip_country, resolve_user_country_and_flag, get_country_flag
@@ -73,12 +76,16 @@ def get_tokens_for_user(user):
 
 
 def _get_user_active_partner_school(user):
-    """Returns the user's active PartnerSchool instance, or None."""
+    """Returns the user's active & approved PartnerSchool instance (or owned school), or None."""
     if not user or not user.is_authenticated:
         return None
+    owned = PartnerSchool.objects.filter(owner_id=user.pk, is_active=True).first()
+    if owned:
+        return owned
     profile = UserProfile.objects.select_related('partner_school').filter(
         user_id=user.pk,
         partner_school__is_active=True,
+        partner_status=UserProfile.PartnerStatus.APPROVED,
     ).first()
     if profile and profile.partner_school:
         return profile.partner_school
@@ -2833,7 +2840,7 @@ class PartnerSchoolPublicInfoAPIView(APIView):
 
     def get(self, request, slug):
         school = get_object_or_404(PartnerSchool, slug=slug, is_active=True)
-        student_count = school.students.count()
+        student_count = school.students.filter(partner_status=UserProfile.PartnerStatus.APPROVED).count()
         return Response({
             'id': school.id,
             'name': school.name,
@@ -2843,13 +2850,16 @@ class PartnerSchoolPublicInfoAPIView(APIView):
             'city': school.city,
             'welcome_message': school.welcome_message,
             'student_count': student_count,
+            'require_join_pin': school.require_join_pin,
+            'require_approval': school.require_approval,
+            'enrollment_locked': school.enrollment_locked,
         })
 
 
 class PartnerSchoolJoinAPIView(APIView):
     """
-    Links the authenticated student to a PartnerSchool by slug, updating optional
-    Full Name (first_name/last_name), batch cohort, and student roll ID.
+    Links the authenticated student to a PartnerSchool by slug, enforcing optional
+    6-digit Class Join PIN, Enrollment Lock, and Sensei Approval Queue.
     """
     permission_classes = [permissions.IsAuthenticated]
 
@@ -2862,12 +2872,32 @@ class PartnerSchoolJoinAPIView(APIView):
         if not school:
             return Response({'detail': 'Partner school code was not found or is inactive.'}, status=status.HTTP_404_NOT_FOUND)
 
+        user = request.user
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        already_approved_here = (
+            profile.partner_school_id == school.id
+            and profile.partner_status == UserProfile.PartnerStatus.APPROVED
+        )
+
+        if school.enrollment_locked and not already_approved_here:
+            return Response(
+                {'detail': f"Enrollment at {school.name} is currently locked by the Sensei. Please contact your instructor."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        provided_pin = (request.data.get('join_code') or request.data.get('pin') or '').strip()
+        if school.require_join_pin and not already_approved_here:
+            if not provided_pin or provided_pin != school.join_code:
+                return Response(
+                    {'detail': 'Invalid or missing 6-digit Class Join PIN. Please enter the current PIN from your Sensei.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
         batch = (request.data.get('batch') or request.data.get('partner_batch') or '').strip()[:64]
         student_id = (request.data.get('student_id') or request.data.get('student_roll_or_id') or '').strip()[:64]
         first_name = (request.data.get('first_name') or '').strip()[:150]
         last_name = (request.data.get('last_name') or '').strip()[:150]
 
-        user = request.user
         user_updated = False
         if first_name:
             user.first_name = first_name
@@ -2878,7 +2908,6 @@ class PartnerSchoolJoinAPIView(APIView):
         if user_updated:
             user.save(update_fields=['first_name', 'last_name'])
 
-        profile, _ = UserProfile.objects.get_or_create(user=user)
         profile.partner_school = school
         if batch:
             profile.partner_batch = batch
@@ -2886,13 +2915,27 @@ class PartnerSchoolJoinAPIView(APIView):
             profile.student_roll_or_id = student_id
         if not profile.partner_joined_at:
             profile.partner_joined_at = timezone.now()
+
+        if already_approved_here:
+            profile.partner_status = UserProfile.PartnerStatus.APPROVED
+        elif school.require_approval:
+            profile.partner_status = UserProfile.PartnerStatus.PENDING
+        else:
+            profile.partner_status = UserProfile.PartnerStatus.APPROVED
+
         profile.save()
 
         refreshed_user = User.objects.select_related('profile', 'profile__partner_school').get(pk=user.pk)
+        status_msg = (
+            f"Request sent to {school.name}! Your Sensei will approve your membership shortly."
+            if profile.partner_status == UserProfile.PartnerStatus.PENDING
+            else f"Linked to {school.name} successfully!"
+        )
 
         return Response({
             'status': 'success',
-            'message': f"Linked to {school.name} successfully!",
+            'partner_status': profile.partner_status,
+            'message': status_msg,
             'user': UserSerializer(refreshed_user).data,
             'partner_school': PartnerSchoolSummarySerializer(school).data,
         })
@@ -2975,22 +3018,41 @@ class PartnerApplicationCreateAPIView(APIView):
         }, status=status.HTTP_201_CREATED)
 
 
+def _authorize_partner_school_sensei(request, school):
+    """
+    Returns True if the request is authorized to manage `school`:
+    - Authenticated platform staff/superuser
+    - Authenticated user who is `school.owner`
+    - Valid `key` matching `school.access_token` (in query_params, headers, or request.data)
+    """
+    if request.user and request.user.is_authenticated:
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        if school.owner_id and school.owner_id == request.user.id:
+            return True
+    provided_key = (
+        request.query_params.get('key')
+        or request.headers.get('X-Sensei-Key')
+        or (request.data.get('key') if hasattr(request, 'data') and isinstance(request.data, dict) else '')
+        or ''
+    ).strip()
+    return bool(provided_key and provided_key == school.access_token)
+
+
 class PartnerSchoolDashboardAPIView(APIView):
     """
     Private Sensei / Instructor Batch Dashboard API (/api/partners/<slug>/dashboard/?key=...).
+    Supports both website user login (school.owner / staff) and Sensei access key.
     Provides KPI metrics, 4-Section Class Weakness Breakdown, 1st vs Best attempt scores,
-    student roster, and 1-click UTF-8 CSV export without exposing emails or admin credentials.
+    student approval queue, assigned exams with attendance PINs, study notes, and notifications.
     """
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, slug):
         school = get_object_or_404(PartnerSchool, slug=slug, is_active=True)
-        provided_key = (request.query_params.get('key') or '').strip()
-        is_staff = bool(request.user.is_authenticated and request.user.is_staff)
-
-        if not is_staff and provided_key != school.access_token:
+        if not _authorize_partner_school_sensei(request, school):
             return Response(
-                {'detail': 'Invalid or missing Sensei access key for this school dashboard.'},
+                {'detail': 'Invalid or missing Sensei access key or school owner login for this dashboard.'},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -3119,6 +3181,7 @@ class PartnerSchoolDashboardAPIView(APIView):
                 'full_name': full_name,
                 'batch': prof.partner_batch or 'General',
                 'student_roll_or_id': prof.student_roll_or_id or '',
+                'partner_status': prof.partner_status or UserProfile.PartnerStatus.APPROVED,
                 'attempts_count': len(u_atts),
                 'first_score': first_att['scaled_score'] if first_att else None,
                 'first_pct': first_att['percentage'] if first_att else None,
@@ -3191,6 +3254,73 @@ class PartnerSchoolDashboardAPIView(APIView):
 
         recent_attempts_data.sort(key=lambda x: x['completed_at'] or '', reverse=True)
 
+        # Assigned Exams, Study Notes & Notifications for Schoooli LMS Dashboard
+        assigned_exams_qs = (
+            PartnerAssignedExam.objects.filter(school=school)
+            .select_related('test')
+            .prefetch_related('attended_users')
+            .order_by('-is_active', '-created_at')
+        )
+        assigned_exams_data = []
+        for ae in assigned_exams_qs:
+            attended_ids = {u.id for u in ae.attended_users.all()}
+            submitted_for_test = {
+                a.user_id for a in attempts_list if a.test_id == ae.test_id
+            }
+            combined_attended = attended_ids | submitted_for_test
+            assigned_exams_data.append({
+                'id': ae.id,
+                'test_id': ae.test_id,
+                'test_title': ae.test.title if ae.test else 'Mock Test',
+                'category': ae.test.category if ae.test else 'basic',
+                'title': ae.title or (ae.test.title if ae.test else 'Assigned Exam'),
+                'target_batch': ae.target_batch or 'All Batches',
+                'attendance_pin': ae.attendance_pin,
+                'require_pin': ae.require_pin,
+                'instructions': ae.instructions,
+                'scheduled_date_label': ae.scheduled_date_label or 'Active Routine',
+                'is_active': ae.is_active,
+                'attended_count': len(combined_attended),
+                'submitted_count': len(submitted_for_test),
+                'created_at': ae.created_at.isoformat() if ae.created_at else None,
+            })
+
+        study_notes_qs = PartnerStudyNote.objects.filter(school=school).order_by('-is_pinned', '-created_at')
+        study_notes_data = [
+            {
+                'id': sn.id,
+                'title': sn.title,
+                'category': sn.category,
+                'category_label': sn.get_category_display(),
+                'content': sn.content,
+                'external_url': sn.external_url,
+                'target_batch': sn.target_batch or 'All Batches',
+                'views_count': sn.views_count,
+                'is_pinned': sn.is_pinned,
+                'created_at': sn.created_at.isoformat() if sn.created_at else None,
+            }
+            for sn in study_notes_qs
+        ]
+
+        notifications_qs = PartnerNotification.objects.filter(school=school).order_by('-created_at')[:30]
+        notifications_data = [
+            {
+                'id': nf.id,
+                'title': nf.title,
+                'message': nf.message,
+                'priority': nf.priority,
+                'priority_label': nf.get_priority_display(),
+                'target_batch': nf.target_batch or 'All Batches',
+                'is_active': nf.is_active,
+                'created_at': nf.created_at.isoformat() if nf.created_at else None,
+            }
+            for nf in notifications_qs
+        ]
+
+        pending_count = sum(1 for s in students_roster if s['partner_status'] == UserProfile.PartnerStatus.PENDING)
+        approved_count = sum(1 for s in students_roster if s['partner_status'] == UserProfile.PartnerStatus.APPROVED)
+        passed_students_count = sum(1 for s in students_roster if s['passed'])
+
         return Response({
             'school': {
                 'id': school.id,
@@ -3201,20 +3331,399 @@ class PartnerSchoolDashboardAPIView(APIView):
                 'city': school.city,
                 'welcome_message': school.welcome_message,
                 'invite_url': f"https://www.gakkounoshiken.site/?partner={school.slug}",
+                'join_code': school.join_code,
+                'require_join_pin': school.require_join_pin,
+                'require_approval': school.require_approval,
+                'enrollment_locked': school.enrollment_locked,
             },
             'kpis': {
                 'total_students': len(profiles_list),
+                'approved_students': approved_count,
+                'pending_students': pending_count,
                 'tested_students': sum(1 for s in students_roster if s['attempts_count'] > 0),
+                'passed_students': passed_students_count,
                 'total_attempts': len(attempts_list),
                 'pass_rate_pct': pass_rate,
                 'avg_scaled_score': avg_score,
+                'assigned_exams_count': len(assigned_exams_data),
+                'study_notes_count': len(study_notes_data),
+                'notifications_count': len(notifications_data),
             },
             'section_analytics': section_analytics,
             'batches': all_batches,
             'available_tests': available_tests,
             'students': students_roster,
             'recent_attempts': recent_attempts_data[:100],
+            'assigned_exams': assigned_exams_data,
+            'study_notes': study_notes_data,
+            'notifications': notifications_data,
         })
+
+
+class PartnerSchoolManageAPIView(APIView):
+    """
+    Sensei / School Owner Management API (POST /api/partners/<slug>/manage/).
+    Allows schools to manage student approval, rotate Join PINs, lock enrollment,
+    assign/schedule mock tests with 4-digit attendance PINs, share study notes,
+    and post notifications to students.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, slug):
+        import random
+        school = get_object_or_404(PartnerSchool, slug=slug, is_active=True)
+        if not _authorize_partner_school_sensei(request, school):
+            return Response(
+                {'detail': 'Unauthorized. Please provide a valid Sensei key or log in with the School Owner account.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        action = (request.data.get('action') or '').strip().lower()
+
+        # 1. Update School Security / Join PIN / Approval Gate
+        if action in ('update_security', 'regenerate_join_code'):
+            if 'require_join_pin' in request.data:
+                school.require_join_pin = bool(request.data.get('require_join_pin'))
+            if 'require_approval' in request.data:
+                school.require_approval = bool(request.data.get('require_approval'))
+            if 'enrollment_locked' in request.data:
+                school.enrollment_locked = bool(request.data.get('enrollment_locked'))
+            if 'welcome_message' in request.data:
+                school.welcome_message = str(request.data.get('welcome_message') or '').strip()[:300]
+            if request.data.get('rotate_join_pin') or action == 'regenerate_join_code':
+                school.join_code = f"{random.randint(100000, 999999)}"
+            school.save()
+            return Response({
+                'status': 'success',
+                'message': 'School security & enrollment settings updated.',
+                'join_code': school.join_code,
+                'require_join_pin': school.require_join_pin,
+                'require_approval': school.require_approval,
+                'enrollment_locked': school.enrollment_locked,
+                'welcome_message': school.welcome_message,
+            })
+
+        # 2. Student Approval / Rejection / Batch Edit / Removal
+        if action in ('student_status', 'approve_student', 'reject_student', 'remove_student', 'update_student_meta'):
+            target_uid = request.data.get('user_id')
+            new_status = (request.data.get('status') or '').strip().lower()
+            if action == 'approve_student':
+                new_status = UserProfile.PartnerStatus.APPROVED
+            elif action == 'reject_student':
+                new_status = UserProfile.PartnerStatus.REJECTED
+            elif action == 'remove_student':
+                new_status = 'remove'
+            prof = UserProfile.objects.filter(user_id=target_uid, partner_school=school).first()
+            if not prof:
+                return Response({'detail': 'Student not found in this school.'}, status=status.HTTP_404_NOT_FOUND)
+
+            if new_status == 'remove':
+                prof.partner_school = None
+                prof.partner_batch = ''
+                prof.student_roll_or_id = ''
+                prof.partner_status = UserProfile.PartnerStatus.APPROVED
+                prof.save()
+                return Response({'status': 'success', 'message': 'Student removed from school roster.'})
+
+            if new_status in (
+                UserProfile.PartnerStatus.APPROVED,
+                UserProfile.PartnerStatus.PENDING,
+                UserProfile.PartnerStatus.REJECTED,
+            ):
+                prof.partner_status = new_status
+            if 'batch' in request.data:
+                prof.partner_batch = str(request.data.get('batch') or '').strip()[:64]
+            if 'student_roll_or_id' in request.data:
+                prof.student_roll_or_id = str(request.data.get('student_roll_or_id') or '').strip()[:64]
+            prof.save()
+            return Response({'status': 'success', 'message': 'Student membership updated.'})
+
+        if action in ('bulk_approve_pending', 'approve_all_pending'):
+            updated = UserProfile.objects.filter(
+                partner_school=school,
+                partner_status=UserProfile.PartnerStatus.PENDING,
+            ).update(partner_status=UserProfile.PartnerStatus.APPROVED)
+            return Response({'status': 'success', 'message': f'Approved {updated} pending student(s).'})
+
+        # 3. Assign / Schedule Mock Exam with Attendance PIN
+        if action in ('create_assigned_exam', 'assign_exam'):
+            test_id = request.data.get('test_id')
+            test_obj = Test.objects.filter(pk=test_id).first()
+            if not test_obj:
+                return Response({'detail': 'Please select a valid mock test.'}, status=status.HTTP_400_BAD_REQUEST)
+            title = str(
+                request.data.get('title')
+                or request.data.get('title_override')
+                or test_obj.title
+            ).strip()[:200]
+            target_batch = str(request.data.get('target_batch') or '').strip()[:64]
+            if target_batch.lower() == 'all':
+                target_batch = ''
+            require_pin = bool(request.data.get('require_pin', True))
+            custom_pin = str(request.data.get('attendance_pin') or '').strip()[:12]
+            if require_pin and not custom_pin:
+                custom_pin = f"{random.randint(1000, 9999)}"
+            scheduled_date_label = str(
+                request.data.get('scheduled_date_label')
+                or request.data.get('schedule_label')
+                or ''
+            ).strip()[:80]
+            instructions = str(request.data.get('instructions') or '').strip()[:400]
+
+            ae = PartnerAssignedExam.objects.create(
+                school=school,
+                test=test_obj,
+                title=title,
+                target_batch=target_batch,
+                attendance_pin=custom_pin,
+                require_pin=require_pin,
+                scheduled_date_label=scheduled_date_label,
+                instructions=instructions,
+                is_active=True,
+            )
+            return Response({
+                'status': 'success',
+                'message': f"Assigned '{ae.title}' to {target_batch or 'All Batches'}!",
+                'assigned_exam_id': ae.id,
+                'attendance_pin': ae.attendance_pin,
+                'assigned_exam': {
+                    'id': ae.id,
+                    'title': ae.title,
+                    'attendance_pin': ae.attendance_pin,
+                },
+            }, status=status.HTTP_201_CREATED)
+
+        if action == 'toggle_assigned_exam':
+            exam_id = request.data.get('exam_id')
+            ae = PartnerAssignedExam.objects.filter(pk=exam_id, school=school).first()
+            if not ae:
+                return Response({'detail': 'Assigned exam not found.'}, status=status.HTTP_404_NOT_FOUND)
+            ae.is_active = not ae.is_active
+            ae.save(update_fields=['is_active'])
+            return Response({'status': 'success', 'is_active': ae.is_active})
+
+        if action == 'rotate_exam_pin':
+            exam_id = request.data.get('exam_id')
+            ae = PartnerAssignedExam.objects.filter(pk=exam_id, school=school).first()
+            if not ae:
+                return Response({'detail': 'Assigned exam not found.'}, status=status.HTTP_404_NOT_FOUND)
+            ae.attendance_pin = f"{random.randint(1000, 9999)}"
+            ae.require_pin = True
+            ae.save(update_fields=['attendance_pin', 'require_pin'])
+            return Response({'status': 'success', 'attendance_pin': ae.attendance_pin})
+
+        if action == 'delete_assigned_exam':
+            exam_id = request.data.get('exam_id')
+            PartnerAssignedExam.objects.filter(pk=exam_id, school=school).delete()
+            return Response({'status': 'success', 'message': 'Assigned exam removed.'})
+
+        # 4. Share Study Note / Library Material
+        if action in ('create_study_note', 'create_note'):
+            title = str(request.data.get('title') or '').strip()[:200]
+            if not title:
+                return Response({'detail': 'Study note title is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            category = str(request.data.get('category') or PartnerStudyNote.Category.VOCABULARY).strip()
+            content = str(request.data.get('content') or '').strip()
+            external_url = str(request.data.get('external_url') or '').strip()[:500]
+            target_batch = str(request.data.get('target_batch') or '').strip()[:64]
+            if target_batch.lower() == 'all':
+                target_batch = ''
+            is_pinned = bool(request.data.get('is_pinned', False))
+
+            note = PartnerStudyNote.objects.create(
+                school=school,
+                title=title,
+                category=category if category in dict(PartnerStudyNote.Category.choices) else PartnerStudyNote.Category.VOCABULARY,
+                content=content,
+                external_url=external_url,
+                target_batch=target_batch,
+                is_pinned=is_pinned,
+            )
+            return Response({'status': 'success', 'note_id': note.id, 'message': 'Study material shared with students!'}, status=status.HTTP_201_CREATED)
+
+        if action in ('delete_study_note', 'delete_note'):
+            note_id = request.data.get('note_id')
+            PartnerStudyNote.objects.filter(pk=note_id, school=school).delete()
+            return Response({'status': 'success', 'message': 'Study note deleted.'})
+
+        # 5. Send School Notification / Announcement
+        if action == 'create_notification':
+            title = str(request.data.get('title') or '').strip()[:200]
+            message = str(request.data.get('message') or '').strip()[:1500]
+            if not title or not message:
+                return Response({'detail': 'Notification title and message are required.'}, status=status.HTTP_400_BAD_REQUEST)
+            priority = str(request.data.get('priority') or PartnerNotification.Priority.NORMAL).strip()
+            target_batch = str(request.data.get('target_batch') or '').strip()[:64]
+            if target_batch.lower() == 'all':
+                target_batch = ''
+
+            nf = PartnerNotification.objects.create(
+                school=school,
+                title=title,
+                message=message,
+                priority=priority if priority in dict(PartnerNotification.Priority.choices) else PartnerNotification.Priority.NORMAL,
+                target_batch=target_batch,
+                is_active=True,
+            )
+            return Response({'status': 'success', 'notification_id': nf.id, 'message': 'Notification broadcast to students!'}, status=status.HTTP_201_CREATED)
+
+        if action == 'delete_notification':
+            notification_id = request.data.get('notification_id')
+            PartnerNotification.objects.filter(pk=notification_id, school=school).delete()
+            return Response({'status': 'success', 'message': 'Notification deleted.'})
+
+        return Response({'detail': f"Unknown management action '{action}'."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PartnerStudentClassroomAPIView(APIView):
+    """
+    Student Classroom Hub API (/api/partners/<slug>/classroom/).
+    - GET: Returns the school's assigned exams, shared study notes, and notifications
+      for an approved student of that school (or Sensei/staff). If the student is
+      pending approval, withholds private classroom items and returns pending status.
+    - POST: Verifies a 4-digit Live Attendance PIN ('verify_exam_pin') to mark attendance
+      and unlock the assigned test, or records a study note view ('view_note').
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, slug):
+        school = get_object_or_404(PartnerSchool, slug=slug, is_active=True)
+        is_sensei = _authorize_partner_school_sensei(request, school)
+
+        user_batch = ''
+        membership_status = 'none'
+        if is_sensei:
+            membership_status = 'approved'
+        elif request.user and request.user.is_authenticated:
+            prof = UserProfile.objects.filter(user=request.user, partner_school=school).first()
+            if prof:
+                membership_status = prof.partner_status or UserProfile.PartnerStatus.APPROVED
+                user_batch = (prof.partner_batch or '').strip()
+
+        if membership_status != UserProfile.PartnerStatus.APPROVED:
+            return Response({
+                'school': PartnerSchoolSummarySerializer(school).data,
+                'membership_status': membership_status,
+                'assigned_exams': [],
+                'study_notes': [],
+                'notifications': [],
+            })
+
+        batch_q = Q(target_batch='') | Q(target_batch__iexact='All Batches')
+        if user_batch:
+            batch_q = batch_q | Q(target_batch__iexact=user_batch)
+
+        exams_qs = (
+            PartnerAssignedExam.objects.filter(school=school, is_active=True)
+            .filter(batch_q if not is_sensei else Q())
+            .select_related('test')
+            .order_by('-created_at')
+        )
+        user_id = request.user.id if (request.user and request.user.is_authenticated) else None
+        completed_test_ids = (
+            set(Attempt.objects.filter(user_id=user_id).values_list('test_id', flat=True))
+            if user_id
+            else set()
+        )
+
+        exams_data = []
+        for ae in exams_qs:
+            has_attended = (
+                ae.attended_users.filter(id=user_id).exists() if user_id else False
+            ) or (ae.test_id in completed_test_ids)
+            exams_data.append({
+                'id': ae.id,
+                'test_id': ae.test_id,
+                'test_title': ae.test.title if ae.test else 'Mock Test',
+                'category': ae.test.category if ae.test else 'basic',
+                'title': ae.title or (ae.test.title if ae.test else 'Assigned Exam'),
+                'target_batch': ae.target_batch or 'All Batches',
+                'require_pin': ae.require_pin,
+                'instructions': ae.instructions,
+                'scheduled_date_label': ae.scheduled_date_label or 'Assigned Practice',
+                'schedule_label': ae.scheduled_date_label or 'Assigned Practice',
+                'has_attended': has_attended,
+                'has_completed': ae.test_id in completed_test_ids,
+                'created_at': ae.created_at.isoformat() if ae.created_at else None,
+            })
+
+        notes_qs = (
+            PartnerStudyNote.objects.filter(school=school)
+            .filter(batch_q if not is_sensei else Q())
+            .order_by('-is_pinned', '-created_at')
+        )
+        notes_data = [
+            {
+                'id': sn.id,
+                'title': sn.title,
+                'category': sn.category,
+                'category_label': sn.get_category_display(),
+                'content': sn.content,
+                'external_url': sn.external_url,
+                'target_batch': sn.target_batch or 'All Batches',
+                'views_count': sn.views_count,
+                'is_pinned': sn.is_pinned,
+                'created_at': sn.created_at.isoformat() if sn.created_at else None,
+            }
+            for sn in notes_qs
+        ]
+
+        notifs_qs = (
+            PartnerNotification.objects.filter(school=school, is_active=True)
+            .filter(batch_q if not is_sensei else Q())
+            .order_by('-created_at')[:15]
+        )
+        notifs_data = [
+            {
+                'id': nf.id,
+                'title': nf.title,
+                'message': nf.message,
+                'priority': nf.priority,
+                'priority_label': nf.get_priority_display(),
+                'target_batch': nf.target_batch or 'All Batches',
+                'created_at': nf.created_at.isoformat() if nf.created_at else None,
+            }
+            for nf in notifs_qs
+        ]
+
+        return Response({
+            'school': PartnerSchoolSummarySerializer(school).data,
+            'membership_status': 'approved',
+            'user_batch': user_batch,
+            'assigned_exams': exams_data,
+            'study_notes': notes_data,
+            'notifications': notifs_data,
+        })
+
+    def post(self, request, slug):
+        school = get_object_or_404(PartnerSchool, slug=slug, is_active=True)
+        action = (request.data.get('action') or '').strip().lower()
+
+        if action == 'verify_exam_pin':
+            exam_id = request.data.get('exam_id') or request.data.get('assigned_exam_id')
+            provided_pin = str(request.data.get('pin') or '').strip()
+            ae = get_object_or_404(PartnerAssignedExam.objects.select_related('test'), pk=exam_id, school=school, is_active=True)
+            if ae.require_pin and ae.attendance_pin and provided_pin != ae.attendance_pin:
+                return Response(
+                    {'detail': 'Incorrect 4-digit Exam Room Attendance PIN. Please check the PIN displayed by your Sensei.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if request.user and request.user.is_authenticated:
+                ae.attended_users.add(request.user)
+            return Response({
+                'status': 'verified',
+                'test_id': ae.test_id,
+                'category': ae.test.category if ae.test else 'basic',
+                'test_category': ae.test.category if ae.test else 'basic',
+                'message': 'Attendance verified! Launching exam...',
+            })
+
+        if action == 'view_note':
+            note_id = request.data.get('note_id')
+            PartnerStudyNote.objects.filter(pk=note_id, school=school).update(views_count=F('views_count') + 1)
+            return Response({'status': 'ok'})
+
+        return Response({'detail': 'Invalid classroom action.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 

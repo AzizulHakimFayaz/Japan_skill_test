@@ -545,7 +545,7 @@ export async function submitPartnerApplication(payload) {
   });
 }
 
-export async function getPartnerDashboard(slug, { key, batch = '', testId = '', days = '' } = {}) {
+export async function getPartnerDashboard(slug, { key = '', batch = '', testId = '', days = '' } = {}) {
   const params = new URLSearchParams();
   if (key) params.set('key', key);
   if (batch) params.set('batch', batch);
@@ -553,10 +553,11 @@ export async function getPartnerDashboard(slug, { key, batch = '', testId = '', 
   if (days) params.set('days', String(days));
   return apiRequest(`/api/partners/${encodeURIComponent(slug)}/dashboard/?${params.toString()}`, {
     cache: 'no-store',
+    headers: key ? { 'X-Sensei-Key': key } : {},
   });
 }
 
-export function getPartnerDashboardCsvUrl(slug, { key, batch = '', testId = '', days = '' } = {}) {
+export function getPartnerDashboardCsvUrl(slug, { key = '', batch = '', testId = '', days = '' } = {}) {
   const params = new URLSearchParams();
   if (key) params.set('key', key);
   if (batch) params.set('batch', batch);
@@ -565,6 +566,31 @@ export function getPartnerDashboardCsvUrl(slug, { key, batch = '', testId = '', 
   params.set('export', 'csv');
   return `${getApiBase()}/api/partners/${encodeURIComponent(slug)}/dashboard/?${params.toString()}`;
 }
+
+export async function managePartnerSchool(slug, payload, { key = '' } = {}) {
+  const bodyPayload = key ? { ...payload, key } : payload;
+  return apiRequest(`/api/partners/${encodeURIComponent(slug)}/manage/`, {
+    method: 'POST',
+    headers: key ? { 'X-Sensei-Key': key } : {},
+    body: JSON.stringify(bodyPayload),
+  });
+}
+
+export async function getPartnerClassroom(slug, { key = '' } = {}) {
+  const query = key ? `?key=${encodeURIComponent(key)}` : '';
+  return apiRequest(`/api/partners/${encodeURIComponent(slug)}/classroom/${query}`, {
+    cache: 'no-store',
+    headers: key ? { 'X-Sensei-Key': key } : {},
+  });
+}
+
+export async function postPartnerClassroomAction(slug, payload) {
+  return apiRequest(`/api/partners/${encodeURIComponent(slug)}/classroom/`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
 
 
 

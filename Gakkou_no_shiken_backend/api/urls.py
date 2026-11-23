@@ -78,6 +78,8 @@ urlpatterns = [
     path('partners/apply/', views.PartnerApplicationCreateAPIView.as_view(), name='api_partner_apply'),
     path('partners/<slug:slug>/info/', views.PartnerSchoolPublicInfoAPIView.as_view(), name='api_partner_info'),
     path('partners/<slug:slug>/dashboard/', views.PartnerSchoolDashboardAPIView.as_view(), name='api_partner_dashboard'),
+    path('partners/<slug:slug>/manage/', views.PartnerSchoolManageAPIView.as_view(), name='api_partner_manage'),
+    path('partners/<slug:slug>/classroom/', views.PartnerStudentClassroomAPIView.as_view(), name='api_partner_classroom'),
 
     # One-Click Setup Trigger & Admin Helpers
     path('setup-database/', views.SetupDatabaseAPIView.as_view(), name='api_setup_database'),
