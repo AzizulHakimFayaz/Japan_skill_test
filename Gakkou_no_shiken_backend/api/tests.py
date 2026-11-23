@@ -274,7 +274,7 @@ class PartnerSchoolLMSAndSecurityTests(TestCase):
         self.assertEqual(res_sensei_login.status_code, status.HTTP_200_OK)
         self.assertEqual(res_sensei_login.data['user']['owned_partner_school']['slug'], 'lpk-sakura')
 
-        # 3. Authenticated School registration creates PartnerSchool with is_featured=False (pending admin feature)
+        # 3. Authenticated School registration creates PartnerSchool with is_active=False (Pending Admin Approval)
         self.client.force_authenticate(user=self.outsider_user)
         res_setup = self.client.post(
             '/api/partners/register-school/',
@@ -291,7 +291,19 @@ class PartnerSchoolLMSAndSecurityTests(TestCase):
         self.assertEqual(res_setup.data['partner_school']['slug'], 'dhaka-nihongo-academy')
         created_school = PartnerSchool.objects.get(slug='dhaka-nihongo-academy')
         self.assertEqual(created_school.owner, self.outsider_user)
+        self.assertFalse(created_school.is_active)
         self.assertFalse(created_school.is_featured)
         self.assertEqual(len(created_school.join_code), 6)
+
+        # 4. Before Admin approves, visiting Sensei Dashboard returns 403 school_pending_admin_approval
+        res_dash_pending = self.client.get('/api/partners/dhaka-nihongo-academy/dashboard/')
+        self.assertEqual(res_dash_pending.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(res_dash_pending.data.get('code'), 'school_pending_admin_approval')
+
+        # 5. Once Admin approves (is_active=True), Sensei Dashboard unlocks (200 OK)
+        created_school.is_active = True
+        created_school.save(update_fields=['is_active'])
+        res_dash_approved = self.client.get('/api/partners/dhaka-nihongo-academy/dashboard/')
+        self.assertEqual(res_dash_approved.status_code, status.HTTP_200_OK)
 
 

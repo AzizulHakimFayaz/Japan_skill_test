@@ -90,13 +90,15 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_owned_partner_school(self, obj):
         try:
-            school = PartnerSchool.objects.filter(owner_id=obj.id, is_active=True).first()
+            school = PartnerSchool.objects.filter(owner_id=obj.id).order_by('-is_active', '-id').first()
             if school:
                 return {
                     'id': school.id,
                     'name': school.name,
                     'slug': school.slug,
-                    'access_token': school.access_token,
+                    'is_active': school.is_active,
+                    'approval_status': 'approved' if school.is_active else 'pending',
+                    'access_token': school.access_token if school.is_active else '',
                 }
         except Exception:
             pass

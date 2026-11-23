@@ -70,6 +70,7 @@ export default function PartnerSchoolDashboardPage() {
   const [loading, setLoading] = useState(false);
   const [actionBusy, setActionBusy] = useState(false);
   const [error, setError] = useState('');
+  const [pendingAdminApproval, setPendingAdminApproval] = useState(null);
   const [toast, setToast] = useState('');
   const [data, setData] = useState(null);
 
@@ -179,11 +180,20 @@ export default function PartnerSchoolDashboardPage() {
         }
       } catch (err) {
         setData(null);
-        if (effectiveKey) {
-          setError(
-            err?.message ||
-              'Invalid Sensei access key or unauthorized account. Please verify your key or sign in with your linked School Owner account.'
-          );
+        if (err?.data?.code === 'school_pending_admin_approval') {
+          setPendingAdminApproval({
+            school_name: err.data.school_name || slug,
+            detail: err.data.detail,
+          });
+          setError('');
+        } else {
+          setPendingAdminApproval(null);
+          if (effectiveKey) {
+            setError(
+              err?.message ||
+                'Invalid Sensei access key or unauthorized account. Please verify your key or sign in with your linked School Owner account.'
+            );
+          }
         }
       } finally {
         if (!silent) setLoading(false);
@@ -850,6 +860,57 @@ export default function PartnerSchoolDashboardPage() {
   if (!data) {
     const enrolledInThisSchool =
       isAuthenticated && user?.profile?.partner_school?.slug === slug;
+    const isPendingOwner =
+      pendingAdminApproval ||
+      (isAuthenticated &&
+        user?.owned_partner_school?.slug === slug &&
+        user?.owned_partner_school?.is_active === false &&
+        !user?.is_staff);
+
+    if (isPendingOwner) {
+      const pendingName =
+        pendingAdminApproval?.school_name || user?.owned_partner_school?.name || slug;
+      return (
+        <div className="max-w-xl mx-auto py-10 px-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 border-2 border-amber-200 dark:border-amber-800/80 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700 flex items-center justify-center text-amber-600 dark:text-amber-300 mx-auto">
+              <Clock className="w-7 h-7" />
+            </div>
+            <div className="space-y-1.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-[11px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                ⏳ Pending Platform Admin Approval
+              </span>
+              <h1 className="text-2xl font-black text-slate-900 dark:text-white">
+                {pendingName}
+              </h1>
+              <p className="text-xs font-mono text-slate-400">School Code: {slug}</p>
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-md mx-auto">
+              Your school registration has been received and is awaiting <strong>Platform Admin verification</strong>. As soon as our team approves your training center in the backend, your Schoooli Sensei LMS Dashboard, 6-Digit Class Join PIN, and Student Invite Links will unlock automatically.
+            </p>
+
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => fetchDashboard(accessKey)}
+                className="px-5 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-black flex items-center gap-2 cursor-pointer shadow-lg shadow-violet-500/20 disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <span>{loading ? 'Checking Status...' : 'Check Approval Status'}</span>
+              </button>
+              <Link
+                href="/"
+                className="px-5 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-extrabold text-slate-700 dark:text-slate-200"
+              >
+                Back to Homepage
+              </Link>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="max-w-xl mx-auto py-10 px-4 animate-fade-in">

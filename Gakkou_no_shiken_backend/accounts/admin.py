@@ -619,7 +619,7 @@ class PartnerSchoolAdmin(admin.ModelAdmin):
             'fields': ('is_active', 'is_featured', 'created_at', 'updated_at'),
         }),
     )
-    actions = ['regenerate_access_tokens']
+    actions = ['approve_partner_schools', 'regenerate_access_tokens']
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
@@ -628,15 +628,42 @@ class PartnerSchoolAdmin(admin.ModelAdmin):
         )
 
     def school_card(self, obj):
+        status_pill = (
+            '<span class="badge bg-success ms-1" style="font-size:10px;">Approved</span>'
+            if obj.is_active
+            else '<span class="badge bg-warning text-dark ms-1" style="font-size:10px;">⏳ Pending Admin Approval</span>'
+        )
         return format_html(
-            '<div><strong style="color:#38bdf8; font-size:0.95rem;">🏫 {}</strong>'
+            '<div><strong style="color:#38bdf8; font-size:0.95rem;">🏫 {}</strong> {}'
             '<div style="font-size:0.75rem; color:#94a3b8;">Slug: <code>{}</code> • {}</div></div>',
             obj.name,
+            mark_safe(status_pill),
             obj.slug,
             obj.contact_person or obj.contact_whatsapp_or_email or 'Partner Center',
         )
     school_card.short_description = 'School / LPK'
     school_card.admin_order_field = 'name'
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if obj.is_active:
+            PartnerApplication.objects.filter(school_name__iexact=obj.name).exclude(
+                status=PartnerApplication.Status.APPROVED
+            ).update(status=PartnerApplication.Status.APPROVED)
+
+    @admin.action(description='✅ Approve & Activate Selected Partner School(s)')
+    def approve_partner_schools(self, request, queryset):
+        names = list(queryset.values_list('name', flat=True))
+        updated = queryset.update(is_active=True)
+        for nm in names:
+            PartnerApplication.objects.filter(school_name__iexact=nm).update(
+                status=PartnerApplication.Status.APPROVED
+            )
+        self.message_user(
+            request,
+            f"Approved and activated {updated} Partner School(s)! Their Sensei LMS Portals and student invite links are now live.",
+            level=messages.SUCCESS,
+        )
 
     def location_badge(self, obj):
         flag = get_flag(obj.country) if obj.country else '🌐'
@@ -712,9 +739,13 @@ class PartnerSchoolAdmin(admin.ModelAdmin):
 
 
 def _create_partner_school_from_application(app):
-    """Creates an active PartnerSchool from a PartnerApplication if not already created."""
+    """Creates or activates a PartnerSchool from a PartnerApplication."""
     existing = PartnerSchool.objects.filter(name__iexact=app.school_name).first()
     if existing:
+        if not existing.is_active:
+            existing.is_active = True
+            existing.save(update_fields=['is_active', 'updated_at'])
+            return existing, True
         return existing, False
     school = PartnerSchool.objects.create(
         name=app.school_name,
@@ -760,8 +791,14 @@ class PartnerApplicationAdmin(admin.ModelAdmin):
         school = PartnerSchool.objects.filter(name__iexact=obj.school_name).first()
         if school:
             url = reverse('admin:accounts_partnerschool_change', args=[school.id])
+            if school.is_active:
+                return format_html(
+                    '<a href="{}" class="badge bg-success" style="text-decoration:none;">✅ Active School ({})</a>',
+                    url,
+                    school.slug,
+                )
             return format_html(
-                '<a href="{}" class="badge bg-primary" style="text-decoration:none;">🏫 View School ({})</a>',
+                '<a href="{}" class="badge bg-warning text-dark" style="text-decoration:none;">⏳ Pending Activation ({})</a>',
                 url,
                 school.slug,
             )

@@ -694,11 +694,11 @@ def _provision_partner_school_for_user(user, data):
         require_join_pin=require_join_pin,
         require_approval=require_approval,
         enrollment_locked=False,
-        is_active=True,
+        is_active=False,
         is_featured=False,
     )
 
-    # Also log in PartnerApplication for admin audit visibility
+    # Log in PartnerApplication as PENDING so Platform Admin can review & approve in 1 click
     try:
         PartnerApplication.objects.create(
             school_name=school_name,
@@ -708,9 +708,8 @@ def _provision_partner_school_for_user(user, data):
             whatsapp_or_phone=whatsapp_or_phone,
             email=user.email or '',
             estimated_students=estimated_students,
-            message=exam_focus or 'Self-registered via School & Sensei Signup Portal.',
-            status=PartnerApplication.Status.APPROVED,
-            approved_school=school,
+            message=f"[Self-Registered by @{user.username}] {exam_focus or 'School & Sensei Signup Portal'}".strip(),
+            status=PartnerApplication.Status.PENDING,
         )
     except Exception:
         pass
@@ -961,7 +960,7 @@ class LoginAPIView(APIView):
         if user is not None:
             role = str(request.data.get('role') or '').strip().lower()
             if role == 'school':
-                has_school = PartnerSchool.objects.filter(owner=user, is_active=True).exists()
+                has_school = PartnerSchool.objects.filter(owner=user).exists()
                 if not has_school and not (user.is_staff or user.is_superuser):
                     return Response(
                         {
@@ -3206,7 +3205,20 @@ class PartnerSchoolDashboardAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, slug):
-        school = get_object_or_404(PartnerSchool, slug=slug, is_active=True)
+        school = get_object_or_404(PartnerSchool, slug=slug)
+        is_platform_staff = bool(
+            request.user and request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser)
+        )
+        if not school.is_active and not is_platform_staff:
+            return Response(
+                {
+                    'detail': f"'{school.name}' is currently pending Platform Admin approval. Once the Admin approves your training center, your Sensei LMS Dashboard and student invite links will unlock automatically.",
+                    'code': 'school_pending_admin_approval',
+                    'school_name': school.name,
+                    'slug': school.slug,
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
         if not _authorize_partner_school_sensei(request, school):
             return Response(
                 {'detail': 'Invalid or missing Sensei access key or school owner login for this dashboard.'},
