@@ -130,10 +130,10 @@ export default function LeaderboardPodiumShowcase() {
   };
 
   return (
-    <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-50/40 via-white to-orange-50/20 dark:from-slate-900/95 dark:via-slate-950/90 dark:to-slate-900/95 border border-amber-200/80 dark:border-amber-500/20 p-2.5 sm:p-6 lg:p-8 shadow-xl shadow-amber-900/5 dark:shadow-[0_0_40px_rgba(0,0,0,0.6)] transition-all">
+    <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-50/40 via-white to-red-50/20 dark:from-slate-900/95 dark:via-slate-950/90 dark:to-slate-900/95 border border-amber-200/80 dark:border-amber-500/20 p-2.5 sm:p-6 lg:p-8 shadow-xl shadow-amber-900/5 dark:shadow-[0_0_40px_rgba(0,0,0,0.6)] transition-all">
       {/* Decorative ambient background glows */}
       <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-gradient-to-b from-amber-400/15 via-rose-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-slate-900/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* 1. Header Bar: Badge, Title & Grind Callout */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-2.5 sm:gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-3 sm:pb-6 mb-3 sm:mb-8">
@@ -363,7 +363,7 @@ export default function LeaderboardPodiumShowcase() {
               </div>
 
               <div className="flex flex-col items-center space-y-1 sm:space-y-2.5">
-                <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2.5 py-0.5 rounded-full bg-orange-100/70 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-700/30 dark:border-amber-800/60 text-[8px] sm:text-[10px] font-black uppercase tracking-wider truncate max-w-full">
+                <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2.5 py-0.5 rounded-full bg-red-100/70 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-700/30 dark:border-amber-800/60 text-[8px] sm:text-[10px] font-black uppercase tracking-wider truncate max-w-full">
                   <Award className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-700 dark:text-amber-400 shrink-0" />
                   <span className="hidden xs:inline">3rd Bronze</span>
                   <span className="xs:hidden">#3 Bronze</span>

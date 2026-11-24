@@ -107,7 +107,7 @@ export default function SswSkillTestPage() {
         </div>
 
         <div className="group bg-white dark:bg-slate-900/90 p-6 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-xl hover-lift hover-shine-container transition-all duration-300 flex items-center gap-4 animate-fade-in-up delay-150">
-          <div className="w-13 h-13 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xl flex-shrink-0 group-hover:scale-110 transition-transform">
+          <div className="w-13 h-13 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 font-black text-xl flex-shrink-0 group-hover:scale-110 transition-transform">
             CBT
           </div>
           <div>

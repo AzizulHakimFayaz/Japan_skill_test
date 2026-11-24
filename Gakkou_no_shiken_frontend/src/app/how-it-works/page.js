@@ -78,7 +78,7 @@ export default function HowItWorksPage() {
       {/* =========================================================================
           1. PAGE SHELL: BEZEL-LESS DEVICE FRAME (~24px radius, #05060a background)
          ========================================================================= */}
-      <div className="relative rounded-[24px] sm:rounded-[32px] bg-[#05060a] border border-slate-800/90 shadow-[0_0_90px_rgba(0,0,0,0.95)] overflow-hidden p-5 sm:p-10 lg:p-14 space-y-16 sm:space-y-24 text-slate-100 selection:bg-indigo-500 selection:text-white">
+      <div className="relative rounded-[24px] sm:rounded-[32px] bg-[#05060a] border border-slate-800/90 shadow-[0_0_90px_rgba(0,0,0,0.95)] overflow-hidden p-5 sm:p-10 lg:p-14 space-y-16 sm:space-y-24 text-slate-100 selection:bg-slate-900 selection:text-white">
         
         {/* =========================================================================
             2. GLOBAL BACKGROUND SYSTEM (Starfield + Radial Nebula Glows + Sunburst Rays)
@@ -87,9 +87,9 @@ export default function HowItWorksPage() {
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff18_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-40"></div>
 
         {/* Soft Radial Nebula Glows */}
-        <div className="absolute top-8 left-1/2 -translate-x-1/2 w-[850px] h-[450px] bg-gradient-to-b from-indigo-600/25 via-purple-600/15 to-transparent blur-[130px] pointer-events-none"></div>
-        <div className="absolute top-[650px] left-1/4 w-[500px] h-[500px] bg-blue-600/10 blur-[140px] pointer-events-none"></div>
-        <div className="absolute bottom-20 right-1/4 w-[600px] h-[400px] bg-purple-600/15 blur-[140px] pointer-events-none"></div>
+        <div className="absolute top-8 left-1/2 -translate-x-1/2 w-[850px] h-[450px] bg-gradient-to-b from-slate-900/25 via-slate-900/15 to-transparent blur-[130px] pointer-events-none"></div>
+        <div className="absolute top-[650px] left-1/4 w-[500px] h-[500px] bg-slate-900/10 blur-[140px] pointer-events-none"></div>
+        <div className="absolute bottom-20 right-1/4 w-[600px] h-[400px] bg-slate-900/15 blur-[140px] pointer-events-none"></div>
 
         {/* =========================================================================
             3. SECTION: HERO (Headline + Avatar Badge + 3 Hero Cards + Light Horizon)
@@ -112,7 +112,7 @@ export default function HowItWorksPage() {
                 <span className="w-6 h-6 rounded-full bg-rose-500 text-[9px] font-black text-white flex items-center justify-center ring-2 ring-[#05060a]">
                   FA
                 </span>
-                <span className="w-6 h-6 rounded-full bg-indigo-500 text-[9px] font-black text-white flex items-center justify-center ring-2 ring-[#05060a]">
+                <span className="w-6 h-6 rounded-full bg-slate-900 text-[9px] font-black text-white flex items-center justify-center ring-2 ring-[#05060a]">
                   RH
                 </span>
                 <span className="w-6 h-6 rounded-full bg-emerald-500 text-[9px] font-black text-white flex items-center justify-center ring-2 ring-[#05060a]">
@@ -139,7 +139,7 @@ export default function HowItWorksPage() {
             <div
               className={`relative bg-[#090b14]/90 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-7 shadow-2xl flex flex-col justify-between h-[230px] transition-all duration-700 ${
                 heroPhase >= 2
-                  ? 'opacity-100 translate-y-0 scale-100 hover:border-indigo-500/50'
+                  ? 'opacity-100 translate-y-0 scale-100 hover:border-slate-500/50'
                   : 'opacity-0 translate-y-6 scale-95'
               }`}
             >
@@ -159,25 +159,25 @@ export default function HowItWorksPage() {
 
             {/* Center Card: Promoted with Radiant Purple Glow (Animates in FIRST in Phase 1) */}
             <div
-              className={`relative bg-gradient-to-b from-[#141228] via-[#0d0d1e] to-[#070712] border-2 border-purple-500/80 rounded-3xl p-6 sm:p-8 flex flex-col justify-between h-[260px] transform md:-translate-y-3 transition-all duration-700 ${
+              className={`relative bg-gradient-to-b from-[#141228] via-[#0d0d1e] to-[#070712] border-2 border-slate-500/80 rounded-3xl p-6 sm:p-8 flex flex-col justify-between h-[260px] transform md:-translate-y-3 transition-all duration-700 ${
                 heroPhase >= 1
                   ? 'opacity-100 scale-100 shadow-[0_0_70px_rgba(168,85,247,0.45)]'
                   : 'opacity-0 scale-90 shadow-none'
               }`}
             >
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-20 bg-purple-500/30 rounded-full blur-2xl pointer-events-none"></div>
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-20 bg-slate-900/30 rounded-full blur-2xl pointer-events-none"></div>
 
               <div className="space-y-1 relative z-10">
-                <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-white to-purple-300 font-mono tracking-tight">
+                <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-white to-slate-800 font-mono tracking-tight">
                   200+ Pts
                 </div>
-                <div className="text-xs font-bold text-purple-300 uppercase tracking-wider">
+                <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">
                   in passing score (CEFR A2)
                 </div>
               </div>
-              <div className="flex items-center justify-between text-xs text-purple-200 pt-4 border-t border-purple-900/50 relative z-10">
+              <div className="flex items-center justify-between text-xs text-slate-200 pt-4 border-t border-slate-900/50 relative z-10">
                 <span>For TOP 3 rankers</span>
-                <span className="px-2 py-0.5 rounded-md bg-purple-500/20 font-mono text-[10px] text-purple-300 font-bold border border-purple-500/30">3x</span>
+                <span className="px-2 py-0.5 rounded-md bg-slate-900/20 font-mono text-[10px] text-slate-300 font-bold border border-slate-500/30">3x</span>
               </div>
             </div>
 
@@ -185,7 +185,7 @@ export default function HowItWorksPage() {
             <div
               className={`relative bg-[#090b14]/90 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-7 shadow-2xl flex flex-col justify-between h-[230px] transition-all duration-700 ${
                 heroPhase >= 2
-                  ? 'opacity-100 translate-y-0 scale-100 hover:border-blue-500/50'
+                  ? 'opacity-100 translate-y-0 scale-100 hover:border-slate-500/50'
                   : 'opacity-0 translate-y-6 scale-95'
               }`}
             >
@@ -214,8 +214,8 @@ export default function HowItWorksPage() {
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[850px] h-[320px] bg-[radial-gradient(ellipse_at_center,rgba(91,91,240,0.3)_0%,rgba(139,92,246,0.15)_45%,transparent_75%)] rounded-[100%] blur-3xl pointer-events-none animate-ray-pulse"></div>
             
             {/* Crisp Horizon Line Stroke */}
-            <div className="absolute inset-x-16 bottom-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent blur-xs"></div>
-            <div className="absolute inset-x-4 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
+            <div className="absolute inset-x-16 bottom-0 h-[2px] bg-gradient-to-r from-transparent via-slate-800 to-transparent blur-xs"></div>
+            <div className="absolute inset-x-4 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-slate-800 to-transparent"></div>
 
             {/* Primary Pill Button resting on Horizon */}
             <Link
@@ -263,10 +263,10 @@ export default function HowItWorksPage() {
                   {/* Index Label */}
                   <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-400">
                     <span className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-900"></span>
                       <span>0.1</span>
                     </span>
-                    <span className="text-[10px] font-bold text-indigo-400 bg-indigo-950/60 border border-indigo-800/80 px-2 py-0.5 rounded-full uppercase">
+                    <span className="text-[10px] font-bold text-slate-300 bg-slate-950/60 border border-slate-800/80 px-2 py-0.5 rounded-full uppercase">
                       Step 1
                     </span>
                   </div>
@@ -277,7 +277,7 @@ export default function HowItWorksPage() {
                       {/* Simulated Pill Button */}
                       <div
                         className={`inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#5b5bf0] to-[#3b82f6] text-white text-xs font-black shadow-lg transition-transform duration-200 ${
-                          cursorTapped ? 'scale-95 shadow-indigo-500/40' : 'scale-100 shadow-indigo-500/20'
+                          cursorTapped ? 'scale-95 shadow-slate-500/40' : 'scale-100 shadow-slate-500/20'
                         }`}
                       >
                         <span>Join Practice &rarr;</span>
@@ -295,7 +295,7 @@ export default function HowItWorksPage() {
                     <h3 className="text-lg sm:text-xl font-black text-white">
                       Join the practice portal
                     </h3>
-                    <p className="text-xs text-indigo-400 font-bold">
+                    <p className="text-xs text-slate-300 font-bold">
                       ফ্রি সাইন-আপ করুন ও পরীক্ষা নির্বাচন করুন
                     </p>
                     <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
@@ -311,10 +311,10 @@ export default function HowItWorksPage() {
                   {/* Index Label */}
                   <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-400">
                     <span className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-900"></span>
                       <span>0.2</span>
                     </span>
-                    <span className="text-[10px] font-bold text-purple-400 bg-purple-950/60 border border-purple-800/80 px-2 py-0.5 rounded-full uppercase">
+                    <span className="text-[10px] font-bold text-slate-300 bg-slate-950/60 border border-slate-800/80 px-2 py-0.5 rounded-full uppercase">
                       Step 2
                     </span>
                   </div>
@@ -322,32 +322,32 @@ export default function HowItWorksPage() {
                   {/* Inner Demo Box: Central Node + Secondary Nodes + SVG Bezier Lines + Radar Pulse */}
                   <div className="h-52 rounded-2xl bg-[#0b0d1a] border border-white/10 p-4 flex items-center justify-center relative overflow-hidden shadow-inner">
                     {/* Radar Pulse Wave behind center */}
-                    <div className="absolute w-24 h-24 rounded-full border border-purple-500/40 bg-purple-500/10 animate-radar-pulse pointer-events-none"></div>
+                    <div className="absolute w-24 h-24 rounded-full border border-slate-500/40 bg-slate-900/10 animate-radar-pulse pointer-events-none"></div>
 
                     {/* SVG Connecting Bezier Lines */}
-                    <svg className="absolute inset-0 w-full h-full pointer-events-none stroke-purple-500/40 stroke-2 fill-none">
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none stroke-slate-500/40 stroke-2 fill-none">
                       <path d="M 120 100 Q 150 40 220 55" strokeDasharray="3 3" />
                       <path d="M 120 100 Q 80 150 50 140" strokeDasharray="3 3" />
                       <path d="M 120 100 Q 170 160 210 145" strokeDasharray="3 3" />
                     </svg>
 
                     {/* Central Main Avatar Node */}
-                    <div className="relative z-10 w-12 h-12 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 border-2 border-white/80 flex items-center justify-center text-white shadow-xl">
+                    <div className="relative z-10 w-12 h-12 rounded-full bg-gradient-to-tr from-slate-900 to-slate-900 border-2 border-white/80 flex items-center justify-center text-white shadow-xl">
                       <span className="text-xs font-black">You</span>
                     </div>
 
                     {/* Top-Right Secondary Node */}
-                    <div className="absolute top-8 right-12 w-8 h-8 rounded-full bg-slate-800 border border-purple-400/60 flex items-center justify-center text-[10px] text-purple-300 font-bold shadow-md">
+                    <div className="absolute top-8 right-12 w-8 h-8 rounded-full bg-slate-800 border border-slate-400/60 flex items-center justify-center text-[10px] text-slate-300 font-bold shadow-md">
                       RH
                     </div>
 
                     {/* Bottom-Left Secondary Node */}
-                    <div className="absolute bottom-9 left-10 w-8 h-8 rounded-full bg-slate-800 border border-indigo-400/60 flex items-center justify-center text-[10px] text-indigo-300 font-bold shadow-md">
+                    <div className="absolute bottom-9 left-10 w-8 h-8 rounded-full bg-slate-800 border border-slate-400/60 flex items-center justify-center text-[10px] text-slate-300 font-bold shadow-md">
                       FA
                     </div>
 
                     {/* Bottom-Right Node */}
-                    <div className="absolute bottom-9 right-14 w-8 h-8 rounded-full bg-slate-800 border border-pink-400/60 flex items-center justify-center text-[10px] text-pink-300 font-bold shadow-md">
+                    <div className="absolute bottom-9 right-14 w-8 h-8 rounded-full bg-slate-800 border border-red-400/60 flex items-center justify-center text-[10px] text-red-300 font-bold shadow-md">
                       MK
                     </div>
                   </div>
@@ -357,7 +357,7 @@ export default function HowItWorksPage() {
                     <h3 className="text-lg sm:text-xl font-black text-white">
                       Challenge friends to climb the leaderboard
                     </h3>
-                    <p className="text-xs text-purple-400 font-bold">
+                    <p className="text-xs text-slate-300 font-bold">
                       বন্ধুদের সাথে প্রতিযোগিতা করুন ও র‍্যাংক বাড়ান
                     </p>
                     <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
@@ -390,18 +390,18 @@ export default function HowItWorksPage() {
                           key={rIdx}
                           className={`w-full max-w-[230px] p-2.5 rounded-xl transition-all duration-500 flex items-center justify-between border ${
                             isSelected
-                              ? 'bg-gradient-to-r from-[#1c1c38] to-[#121426] border-purple-500/80 shadow-[0_0_20px_rgba(168,85,247,0.3)] scale-105 z-10'
+                              ? 'bg-gradient-to-r from-[#1c1c38] to-[#121426] border-slate-500/80 shadow-[0_0_20px_rgba(168,85,247,0.3)] scale-105 z-10'
                               : 'bg-slate-900/40 border-white/5 opacity-40 scale-95'
                           }`}
                         >
                           <div className="flex items-center gap-2">
-                            <reward.icon className={`w-4 h-4 ${isSelected ? 'text-purple-400' : 'text-slate-500'}`} />
+                            <reward.icon className={`w-4 h-4 ${isSelected ? 'text-slate-300' : 'text-slate-500'}`} />
                             <div>
                               <div className="text-[11px] font-black text-white">{reward.title}</div>
                               <div className="text-[9px] text-slate-400">{reward.sub}</div>
                             </div>
                           </div>
-                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${isSelected ? 'bg-purple-500/20 text-purple-300' : 'text-slate-500'}`}>
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${isSelected ? 'bg-slate-900/20 text-slate-300' : 'text-slate-500'}`}>
                             {reward.tag}
                           </span>
                         </div>
@@ -439,7 +439,7 @@ export default function HowItWorksPage() {
 
             {/* Inner Content */}
             <div className="relative z-10 space-y-3 max-w-xl mx-auto">
-              <span className="text-xs font-black uppercase tracking-wider text-indigo-400">
+              <span className="text-xs font-black uppercase tracking-wider text-slate-300">
                 Realistic CBT Practice Simulator
               </span>
               <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
@@ -476,7 +476,7 @@ export default function HowItWorksPage() {
         <ScrollReveal variant="up" delay={100} duration={600}>
           <div className="space-y-4 max-w-3xl mx-auto pt-4">
             <div className="text-center space-y-1">
-              <span className="text-xs font-black uppercase text-indigo-400">FAQ</span>
+              <span className="text-xs font-black uppercase text-slate-300">FAQ</span>
               <h3 className="text-xl sm:text-2xl font-black text-white">
                 Frequently Asked Questions
               </h3>
@@ -513,7 +513,7 @@ export default function HowItWorksPage() {
                       <h4 className="text-xs sm:text-sm font-black text-white">
                         {faq.q}
                       </h4>
-                      <span className="text-[11px] text-indigo-400 font-bold block mt-0.5">
+                      <span className="text-[11px] text-slate-300 font-bold block mt-0.5">
                         {faq.q_bn}
                       </span>
                     </div>

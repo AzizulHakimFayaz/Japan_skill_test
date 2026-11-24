@@ -191,7 +191,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
                   <Medal className="w-4 h-4" />
                 </span>
               ) : rank ? (
-                <span className="absolute -bottom-2 -right-2 bg-indigo-600 text-white border border-indigo-400 text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full shadow-md">
+                <span className="absolute -bottom-2 -right-2 bg-slate-900 text-white border border-slate-400 text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full shadow-md">
                   #{rank}
                 </span>
               ) : null}
@@ -226,8 +226,8 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
               {/* Badges Strip */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 {target_exam_display && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 text-xs font-bold">
-                    <Target className="w-3.5 h-3.5 text-indigo-400" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900/20 text-slate-200 border border-slate-500/30 text-xs font-bold">
+                    <Target className="w-3.5 h-3.5 text-slate-300" />
                     <span>{target_exam_display}</span>
                   </span>
                 )}
@@ -263,7 +263,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
                 </button>
                 <Link
                   href="/accounts/my-results"
-                  className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold px-5 py-3 rounded-2xl text-xs sm:text-sm transition-all shadow-md shadow-indigo-500/20 active:scale-95"
+                  className="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-700 text-white font-extrabold px-5 py-3 rounded-2xl text-xs sm:text-sm transition-all shadow-md shadow-slate-500/20 active:scale-95"
                 >
                   My Test Dashboard
                 </Link>
@@ -353,12 +353,12 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
         </div>
 
         {/* Metric 4: CEFR Rating */}
-        <div className="bg-white dark:bg-slate-900/90 p-5 sm:p-7 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-3 hover:border-indigo-400/60 transition-all">
+        <div className="bg-white dark:bg-slate-900/90 p-5 sm:p-7 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-3 hover:border-slate-400/60 transition-all">
           <div className="flex items-center justify-between">
             <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               CEFR Level
             </span>
-            <GraduationCap className="w-5 h-5 text-indigo-500" />
+            <GraduationCap className="w-5 h-5 text-slate-700" />
           </div>
           <div>
             <strong className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white leading-none block">
@@ -437,7 +437,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-              <FileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+              <FileText className="w-5 h-5 text-slate-700 dark:text-slate-300" />
               <span>Recent Verified Mock Exams</span>
             </h2>
             <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Last 5 completed attempts</span>
@@ -458,7 +458,7 @@ export default function CandidatePublicProfilePage({ params: paramsPromise }) {
                       className={`text-[9px] sm:text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md ${
                         att.test_category === 'skill'
                           ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-800'
-                          : 'bg-indigo-100 dark:bg-indigo-950/80 text-indigo-900 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-800'
+                          : 'bg-slate-100 dark:bg-slate-950/80 text-slate-900 dark:text-slate-200 border border-slate-300 dark:border-slate-800'
                       }`}
                     >
                       {att.test_category === 'skill' ? 'SSW Skill' : 'JFT-Basic'}

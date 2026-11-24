@@ -331,7 +331,7 @@ function SignupForm() {
           <div
             className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto shadow-xs border ${
               role === 'school'
-                ? 'bg-violet-50 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800'
+                ? 'bg-slate-50 dark:bg-slate-950/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800'
                 : 'bg-red-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400 border-red-100 dark:border-rose-800/60'
             }`}
           >
@@ -371,7 +371,7 @@ function SignupForm() {
                 value={digit}
                 onChange={(e) => handleOtpChange(idx, e.target.value)}
                 onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                className="w-10 h-12 sm:w-13 sm:h-15 text-center text-xl sm:text-2xl font-black text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 focus:border-violet-600 dark:focus:border-violet-400 rounded-2xl transition-all font-mono shadow-xs"
+                className="w-10 h-12 sm:w-13 sm:h-15 text-center text-xl sm:text-2xl font-black text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 focus:border-slate-600 dark:focus:border-slate-400 rounded-2xl transition-all font-mono shadow-xs"
               />
             ))}
           </div>
@@ -381,7 +381,7 @@ function SignupForm() {
             disabled={verifyingOtp || otpDigits.join('').length < 6}
             className={`w-full py-4 text-white font-extrabold rounded-2xl text-sm transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 ${
               role === 'school'
-                ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-violet-500/20'
+                ? 'bg-gradient-to-r from-slate-900 to-slate-900 hover:from-slate-900 hover:to-slate-900 shadow-slate-500/20'
                 : 'bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 shadow-red-500/20'
             }`}
           >
@@ -453,7 +453,7 @@ function SignupForm() {
           }}
           className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
             isSchool
-              ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm'
+              ? 'bg-gradient-to-r from-slate-900 to-slate-900 text-white shadow-sm'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
@@ -505,8 +505,8 @@ function SignupForm() {
         {/* REQUIRED SCHOOL / LPK DETAILS SECTION (WHEN ROLE === SCHOOL) */}
         {/* ============================================================ */}
         {isSchool && (
-          <div className="p-4 sm:p-5 rounded-2xl bg-violet-50/70 dark:bg-violet-950/30 border border-violet-200/80 dark:border-violet-800/70 space-y-3.5">
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-violet-700 dark:text-violet-300">
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 dark:bg-slate-950/30 border border-slate-200/80 dark:border-slate-800/70 space-y-3.5">
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-300">
               <Building2 className="w-4 h-4" />
               <span>1. Training Center / School Information (Required)</span>
             </div>
@@ -521,7 +521,7 @@ function SignupForm() {
                 value={schoolName}
                 onChange={(e) => setSchoolName(e.target.value)}
                 placeholder="e.g. LPK Sakura Nusantara / Dhaka Nihongo Academy"
-                className="w-full px-4 py-3 rounded-xl border border-violet-200 dark:border-violet-800 bg-white dark:bg-slate-900 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-violet-600"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-slate-600"
               />
             </div>
 
@@ -538,7 +538,7 @@ function SignupForm() {
                     value={schoolCity}
                     onChange={(e) => setSchoolCity(e.target.value)}
                     placeholder="e.g. Dhaka, Jakarta, Kathmandu"
-                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-violet-200 dark:border-violet-800 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-violet-600"
+                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-slate-600"
                   />
                 </div>
               </div>
@@ -555,7 +555,7 @@ function SignupForm() {
                     value={schoolPhone}
                     onChange={(e) => setSchoolPhone(e.target.value)}
                     placeholder="+880 17... / +62 812..."
-                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-violet-200 dark:border-violet-800 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-violet-600"
+                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-slate-600"
                   />
                 </div>
               </div>
@@ -573,7 +573,7 @@ function SignupForm() {
                     min="1"
                     value={estimatedStudents}
                     onChange={(e) => setEstimatedStudents(e.target.value)}
-                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-violet-200 dark:border-violet-800 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-violet-600"
+                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-slate-600"
                   />
                 </div>
               </div>
@@ -585,7 +585,7 @@ function SignupForm() {
                 <select
                   value={examFocus}
                   onChange={(e) => setExamFocus(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-violet-200 dark:border-violet-800 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-violet-600"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-slate-600"
                 >
                   <option value="JFT-Basic A2 & SSW Sector Skills">JFT-Basic A2 &amp; SSW Skills</option>
                   <option value="JFT-Basic A2 Standard Only">JFT-Basic A2 Standard Only</option>
@@ -595,16 +595,16 @@ function SignupForm() {
             </div>
 
             {/* Anti-Leak Security Checkboxes */}
-            <div className="pt-1 space-y-2 border-t border-violet-200/60 dark:border-violet-800/60">
+            <div className="pt-1 space-y-2 border-t border-slate-200/60 dark:border-slate-800/60">
               <label className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={requireJoinPin}
                   onChange={(e) => setRequireJoinPin(e.target.checked)}
-                  className="mt-0.5 rounded text-violet-600"
+                  className="mt-0.5 rounded text-slate-700"
                 />
                 <span>
-                  <strong className="font-black text-violet-800 dark:text-violet-300">
+                  <strong className="font-black text-slate-800 dark:text-slate-300">
                     🔐 Enable 6-Digit Class Join PIN
                   </strong>{' '}
                   — Prevents outsiders from joining if a student shares your link.
@@ -616,10 +616,10 @@ function SignupForm() {
                   type="checkbox"
                   checked={requireApproval}
                   onChange={(e) => setRequireApproval(e.target.checked)}
-                  className="mt-0.5 rounded text-violet-600"
+                  className="mt-0.5 rounded text-slate-700"
                 />
                 <span>
-                  <strong className="font-black text-violet-800 dark:text-violet-300">
+                  <strong className="font-black text-slate-800 dark:text-slate-300">
                     🛡️ Require Sensei Approval Queue
                   </strong>{' '}
                   — Hold new students in Pending until you approve them.
@@ -631,7 +631,7 @@ function SignupForm() {
 
         {isSchool && (
           <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 pt-1">
-            <User className="w-4 h-4 text-violet-600" />
+            <User className="w-4 h-4 text-slate-700" />
             <span>2. Sensei / Coordinator Login Credentials</span>
           </div>
         )}
@@ -839,7 +839,7 @@ function SignupForm() {
             <button
               type="button"
               onClick={() => setShowStudentSchoolBox(!showStudentSchoolBox)}
-              className="text-xs font-extrabold text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1.5 cursor-pointer"
+              className="text-xs font-extrabold text-slate-700 dark:text-slate-300 hover:underline flex items-center gap-1.5 cursor-pointer"
             >
               <GraduationCap className="w-4 h-4" />
               <span>
@@ -876,7 +876,7 @@ function SignupForm() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-violet-600 dark:text-violet-300 mb-1">
+                  <label className="block text-[10px] font-black uppercase text-slate-700 dark:text-slate-300 mb-1">
                     6-Digit Join PIN
                   </label>
                   <input
@@ -885,7 +885,7 @@ function SignupForm() {
                     value={studentJoinPin}
                     onChange={(e) => setStudentJoinPin(e.target.value)}
                     placeholder="e.g. 482910"
-                    className="w-full px-3 py-2 rounded-xl border border-violet-300 dark:border-violet-700 bg-white dark:bg-slate-900 text-xs font-mono font-black tracking-widest"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono font-black tracking-widest"
                   />
                 </div>
               </div>
@@ -898,7 +898,7 @@ function SignupForm() {
           disabled={submitting}
           className={`w-full py-4 text-white font-extrabold rounded-2xl text-sm transition-all shadow-lg active:scale-95 mt-2 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 ${
             isSchool
-              ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-violet-500/20'
+              ? 'bg-gradient-to-r from-slate-900 to-slate-900 hover:from-slate-900 hover:to-slate-900 shadow-slate-500/20'
               : 'bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 shadow-red-500/20'
           }`}
         >
@@ -923,7 +923,7 @@ function SignupForm() {
         <Link
           href={`/accounts/login?role=${role}${next && next !== '/' ? `&next=${encodeURIComponent(next)}` : ''}`}
           className={`hover:underline font-bold transition-colors ml-1 ${
-            isSchool ? 'text-violet-600 dark:text-violet-400' : 'text-japan-red dark:text-rose-400'
+            isSchool ? 'text-slate-700 dark:text-slate-300' : 'text-japan-red dark:text-rose-400'
           }`}
         >
           {isSchool ? 'Sign In to Sensei Portal' : 'Sign In'}

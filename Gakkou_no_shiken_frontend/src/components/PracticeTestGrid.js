@@ -190,7 +190,7 @@ export default function PracticeTestGrid({
     }
     return {
       label: t('diff_standard'),
-      color: 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/80',
+      color: 'bg-slate-50 dark:bg-slate-950/70 text-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-800/80',
     };
   };
 
@@ -211,11 +211,11 @@ export default function PracticeTestGrid({
     if (isFree) {
       return {
         isFree: true,
-        topBar: 'bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600',
+        topBar: 'bg-gradient-to-r from-emerald-500 via-slate-800 to-emerald-600',
         cardBorderHover: 'hover:border-emerald-500/40 dark:hover:border-emerald-400/50',
         cardGlowHover: 'hover:shadow-emerald-500/10 dark:hover:shadow-[0_0_25px_rgba(16,185,129,0.15)]',
         titleHover: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400',
-        button: 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-500/25',
+        button: 'bg-gradient-to-r from-emerald-600 via-slate-900 to-emerald-600 hover:from-emerald-700 hover:to-slate-900 text-white shadow-emerald-500/25',
         badge: 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 shadow-2xs',
       };
     }
@@ -421,7 +421,7 @@ export default function PracticeTestGrid({
                                 <span>{t('scheduled_badge')}</span>
                               </span>
                             ) : test.is_school_exclusive ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black bg-slate-50 dark:bg-slate-950/80 text-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                 <span>🏫 Exclusive: {test.partner_school_name || 'Partner School'}</span>
                               </span>
                             ) : (
@@ -476,7 +476,7 @@ export default function PracticeTestGrid({
                               <span>{formatTimeLimit(test.time_limit_seconds)}</span>
                             </span>
                             <span className="inline-flex items-center gap-1 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 sm:px-2 rounded-md border border-slate-100 dark:border-slate-700">
-                              <Layers className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-indigo-500" />
+                              <Layers className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-700" />
                               <span>4 {t('sections')}</span>
                             </span>
                           </div>

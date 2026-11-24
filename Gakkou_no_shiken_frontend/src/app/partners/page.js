@@ -99,16 +99,16 @@ export default function PartnersPage() {
   return (
     <div className="space-y-10 sm:space-y-14 animate-fade-in pb-12">
       {/* 1. Hero Pitch Section */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white p-6 sm:p-10 lg:p-14 border border-slate-800 shadow-2xl">
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-900 text-white p-6 sm:p-10 lg:p-14 border border-slate-800 shadow-2xl">
         <div className="max-w-4xl space-y-5">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-400/35 text-indigo-200 text-xs font-black uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/20 border border-slate-400/35 text-slate-200 text-xs font-black uppercase tracking-wider">
             <GraduationCap className="w-4 h-4 text-rose-400" />
             <span>For LPKs, Review Centers &amp; Japanese Institutes</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.15]">
             Run Weekly Prometric JFT-Basic &amp; SSW Mock Exams for Your Entire Batch —{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-rose-400 to-indigo-300">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-rose-400 to-slate-800">
               100% Free
             </span>
           </h1>
@@ -136,7 +136,7 @@ export default function PartnersPage() {
           {/* Direct Sensei LMS Login & Invitation Info */}
           <div className="mt-6 pt-6 border-t border-white/10 max-w-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-0.5">
-              <div className="text-xs font-black uppercase tracking-wider text-indigo-300">
+              <div className="text-xs font-black uppercase tracking-wider text-slate-300">
                 🏫 Already a Registered Partner School or Sensei?
               </div>
               <p className="text-xs text-slate-300">
@@ -146,7 +146,7 @@ export default function PartnersPage() {
             <div className="flex items-center gap-2.5 shrink-0">
               <Link
                 href="/accounts/login?role=school"
-                className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-black text-center whitespace-nowrap shadow-md shadow-violet-500/20"
+                className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-900 text-white text-xs font-black text-center whitespace-nowrap shadow-md shadow-slate-500/20"
               >
                 Sensei Portal Sign In →
               </Link>
@@ -176,7 +176,7 @@ export default function PartnersPage() {
         </div>
 
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xs space-y-2.5">
-          <div className="w-11 h-11 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+          <div className="w-11 h-11 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300">
             <BarChart3 className="w-5 h-5" />
           </div>
           <h3 className="text-base font-black text-slate-900 dark:text-white">
@@ -261,7 +261,7 @@ export default function PartnersPage() {
             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                  <Building2 className="w-3.5 h-3.5 text-indigo-500" />
+                  <Building2 className="w-3.5 h-3.5 text-slate-700" />
                   <span>Featured Partner Training Centers ({partnersData.total_partners})</span>
                 </h3>
               </div>
@@ -284,10 +284,10 @@ export default function PartnersPage() {
         {/* 4. Partner Application Form */}
         <div
           id="apply-partner"
-          className="lg:col-span-6 bg-white dark:bg-slate-900 border-2 border-indigo-200 dark:border-indigo-800/80 rounded-3xl p-6 sm:p-8 shadow-xl space-y-5"
+          className="lg:col-span-6 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 sm:p-8 shadow-xl space-y-5"
         >
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-[11px] font-black text-indigo-700 dark:text-indigo-300 uppercase mb-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-[11px] font-black text-slate-800 dark:text-slate-300 uppercase mb-2">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Free Partner Onboarding</span>
             </div>
@@ -330,7 +330,7 @@ export default function PartnersPage() {
                   value={schoolName}
                   onChange={(e) => setSchoolName(e.target.value)}
                   placeholder="e.g. LPK Sakura Nusantara / Nihongo Center Dhaka"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-slate-500"
                 />
               </div>
 
@@ -342,7 +342,7 @@ export default function PartnersPage() {
                   <select
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-indigo-500 cursor-pointer"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-slate-500 cursor-pointer"
                   >
                     {COUNTRIES.map((c) => (
                       <option key={c} value={c}>
@@ -360,7 +360,7 @@ export default function PartnersPage() {
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     placeholder="e.g. Jakarta, Manila, Dhaka"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-slate-500"
                   />
                 </div>
               </div>
@@ -376,7 +376,7 @@ export default function PartnersPage() {
                     value={contactName}
                     onChange={(e) => setContactName(e.target.value)}
                     placeholder="e.g. Budi Sensei"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-slate-500"
                   />
                 </div>
                 <div>
@@ -390,7 +390,7 @@ export default function PartnersPage() {
                       min="1"
                       value={estimatedStudents}
                       onChange={(e) => setEstimatedStudents(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-indigo-500"
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-slate-500"
                     />
                   </div>
                 </div>
@@ -406,7 +406,7 @@ export default function PartnersPage() {
                     value={whatsappOrPhone}
                     onChange={(e) => setWhatsappOrPhone(e.target.value)}
                     placeholder="+62 812... / +880 17..."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-slate-500"
                   />
                 </div>
                 <div>
@@ -418,7 +418,7 @@ export default function PartnersPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="sensei@yourschool.com"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-slate-500"
                   />
                 </div>
               </div>
@@ -432,7 +432,7 @@ export default function PartnersPage() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="e.g. Preparing 60 Caregiver & Food Service students for JFT-Basic next month..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-slate-500"
                 />
               </div>
 
@@ -445,7 +445,7 @@ export default function PartnersPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-japan-red hover:from-indigo-700 hover:to-rose-700 text-white font-black text-sm shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all"
+                className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-slate-900 to-japan-red hover:from-slate-900 hover:to-rose-700 text-white font-black text-sm shadow-lg shadow-slate-500/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all"
               >
                 <Send className="w-4 h-4" />
                 <span>{submitting ? 'Submitting Application...' : 'Submit Free Partnership Application'}</span>

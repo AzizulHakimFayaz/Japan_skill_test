@@ -43,77 +43,87 @@ const JLPT_LEVEL_GUIDE = [
   {
     level: 'N5',
     rank: 1,
+    jaRank: '初級',
+    stepHeight: 'lg:min-h-[132px]',
     label: 'Beginner',
-    difficultyTag: 'Easiest • Start Here',
+    difficultyTag: 'Level 1 of 5 • Entry Point',
     cefr: 'CEFR A1',
     kanji: '~100 Kanji',
+    kanjiPct: 10,
     vocab: '~800 Words',
+    vocabPct: 10,
     hours: '150 hrs',
-    goal: 'Basic phrases, Hiragana, Katakana & everyday greetings',
-    badgeClass: 'bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100',
-    barFill: 'bg-slate-400 dark:bg-slate-500',
-    ctaClass: 'bg-slate-800 hover:bg-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 text-white',
-    pillBg: 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300',
+    hoursPct: 16,
+    goal: 'Master Hiragana, Katakana, essential daily greetings, and simple everyday phrases.',
+    career: 'Travel & Basic Daily Life in Japan',
   },
   {
     level: 'N4',
     rank: 2,
+    jaRank: '基礎',
+    stepHeight: 'lg:min-h-[164px]',
     label: 'Elementary',
-    difficultyTag: 'Basic • JFT / SSW Level',
+    difficultyTag: 'Level 2 of 5 • SSW & JFT Equivalent',
     cefr: 'CEFR A2',
     kanji: '~300 Kanji',
+    kanjiPct: 20,
     vocab: '~1,500 Words',
+    vocabPct: 20,
     hours: '300 hrs',
-    goal: 'Daily conversations, SSW visa & JFT-Basic equivalent',
-    badgeClass: 'bg-slate-300 dark:bg-slate-700 text-slate-900 dark:text-white',
-    barFill: 'bg-slate-500 dark:bg-slate-400',
-    ctaClass: 'bg-slate-800 hover:bg-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 text-white',
-    pillBg: 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300',
+    hoursPct: 33,
+    goal: 'Handle everyday conversations, workplace instructions, and JFT-Basic / SSW visa requirements.',
+    career: 'SSW Visa & Entry-Level Work in Japan',
   },
   {
     level: 'N3',
     rank: 3,
+    jaRank: '中級',
+    stepHeight: 'lg:min-h-[196px]',
     label: 'Intermediate',
-    difficultyTag: 'Moderate • Bridge Level',
+    difficultyTag: 'Level 3 of 5 • Career Bridge',
     cefr: 'CEFR B1',
     kanji: '~650 Kanji',
+    kanjiPct: 40,
     vocab: '~3,750 Words',
+    vocabPct: 42,
     hours: '450 hrs',
-    goal: 'Natural workplace Japanese, news summaries & daily reading',
-    badgeClass: 'bg-slate-700 dark:bg-slate-600 text-white',
-    barFill: 'bg-slate-700 dark:bg-slate-300',
-    ctaClass: 'bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white',
-    pillBg: 'bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200',
+    hoursPct: 50,
+    goal: 'Understand natural workplace Japanese, news summaries, and everyday written articles.',
+    career: 'Vocational Schools & Japanese Workplaces',
   },
   {
     level: 'N2',
     rank: 4,
+    jaRank: '上級',
+    stepHeight: 'lg:min-h-[228px]',
     label: 'Pre-Advanced',
-    difficultyTag: 'Hard • Business & Uni',
+    difficultyTag: 'Level 4 of 5 • Business & University',
     cefr: 'CEFR B2',
     kanji: '~1,000 Kanji',
+    kanjiPct: 65,
     vocab: '~6,000 Words',
+    vocabPct: 65,
     hours: '600 hrs',
-    goal: 'Japanese companies, university admission & full articles',
-    badgeClass: 'bg-slate-900 dark:bg-white text-white dark:text-slate-900',
-    barFill: 'bg-slate-900 dark:bg-white',
-    ctaClass: 'bg-slate-900 hover:bg-japan-red dark:bg-slate-800 dark:hover:bg-japan-red text-white',
-    pillBg: 'bg-red-50 dark:bg-red-950/40 text-japan-red dark:text-red-300',
+    hoursPct: 68,
+    goal: 'Read newspapers, follow fast native discussions, and qualify for Japanese universities & corporate roles.',
+    career: 'Japanese Companies & University Admission',
   },
   {
     level: 'N1',
     rank: 5,
+    jaRank: '最上級',
+    stepHeight: 'lg:min-h-[260px]',
     label: 'Advanced Master',
-    difficultyTag: 'Hardest • Near-Native',
+    difficultyTag: 'Level 5 of 5 • Near-Native Summit',
     cefr: 'CEFR C1',
     kanji: '~2,000+ Kanji',
+    kanjiPct: 100,
     vocab: '~10,000+ Words',
+    vocabPct: 100,
     hours: '900+ hrs',
-    goal: 'Academic papers, legal/editorial Japanese & top career roles',
-    badgeClass: 'bg-japan-red text-white',
-    barFill: 'bg-japan-red',
-    ctaClass: 'bg-japan-red hover:bg-japan-redhover text-white',
-    pillBg: 'bg-red-50 dark:bg-red-950/50 text-japan-red dark:text-red-300',
+    hoursPct: 100,
+    goal: 'Comprehend complex academic papers, legal/editorial Japanese, and nuanced native speech effortlessly.',
+    career: 'Executive Roles, Translators & Graduate Study',
   },
 ];
 
@@ -153,6 +163,9 @@ export default function JlptHubPage() {
   const [placementResult, setPlacementResult] = useState(null);
   const [placementLang, setPlacementLang] = useState('en');
   const [showPlacementReview, setShowPlacementReview] = useState(false);
+
+  // Section 2: Interactive Difficulty Guide focus
+  const [focusedGuideLevel, setFocusedGuideLevel] = useState('N1');
 
   // Section 3: Proper Mock Tests state
   const [selectedLevel, setSelectedLevel] = useState('N1');
@@ -628,137 +641,215 @@ export default function JlptHubPage() {
       </section>
 
       {/* =====================================================================
-          SECTION 2 (MIDDLE): PROFESSIONAL JLPT DIFFICULTY LADDER (N5 -> N1)
+          SECTION 2 (MIDDLE): ARCHITECTURAL JLPT ELEVATION STAIRCASE (N5 -> N1)
          ===================================================================== */}
       <section
         id="jlpt-level-guide"
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14"
       >
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-black uppercase tracking-wider">
-            <BarChart3 className="w-3.5 h-3.5 text-japan-red" /> Step 2 • JLPT Difficulty Guide
-          </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black mt-3 tracking-tight text-slate-900 dark:text-white">
-            Which JLPT Level Is Harder?{' '}
-            <span className="text-japan-red">N5 (Easiest) → N1 (Hardest)</span>
-          </h2>
-          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-2">
-            JLPT counts <strong>backwards</strong>: <strong>N5</strong> is the beginner entry point, while <strong>N1</strong> is the most difficult near-native summit. <strong>Click any level card</strong> to jump straight to its mock tests.
-          </p>
-        </div>
-
-        {/* Clean Monochrome-to-Crimson Difficulty Ruler */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider mb-2 px-1">
-            <span className="text-slate-600 dark:text-slate-400">
-              Easiest — Start Here (N5)
-            </span>
-            <span className="hidden sm:inline text-slate-700 dark:text-slate-300">
-              Intermediate Bridge (N3)
-            </span>
-            <span className="text-japan-red">
-              Hardest — Near-Native Summit (N1)
-            </span>
+        <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+          {/* Top Editorial Header */}
+          <div className="px-6 sm:px-10 pt-8 sm:pt-10 pb-6 border-b border-slate-100 dark:border-slate-800/80 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+            <div className="max-w-2xl">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-black uppercase tracking-wider">
+                <BarChart3 className="w-3.5 h-3.5 text-japan-red" /> Step 2 • JLPT Difficulty Roadmap
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black mt-3 tracking-tight text-slate-900 dark:text-white">
+                Understand Every Level at a Glance:{' '}
+                <span className="text-japan-red">N5 (Start) → N1 (Summit)</span>
+              </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1.5">
+                JLPT counts backwards — each step up doubles the kanji and vocabulary required. <strong>Click any step</strong> to inspect its requirements or jump straight into its mock tests.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 shrink-0">
+              <span>N5 Easiest</span>
+              <span className="w-16 h-1.5 rounded-full bg-gradient-to-r from-slate-300 via-slate-700 to-japan-red inline-block" />
+              <span className="text-japan-red">N1 Hardest</span>
+            </div>
           </div>
-          <div className="h-2.5 rounded-full bg-gradient-to-r from-slate-300 via-slate-700 to-japan-red dark:from-slate-700 dark:via-slate-400 dark:to-japan-red" />
-        </div>
 
-        {/* 5 Ascending Interactive Level Cards (Unified Navy/Slate/Red System) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-stretch">
-          {JLPT_LEVEL_GUIDE.map((item) => {
-            const stats = levelMap[item.level];
-            const isSelected = selectedLevel === item.level;
-            return (
-              <button
-                key={item.level}
-                type="button"
-                onClick={() => jumpToLevelMocks(item.level)}
-                className={`group text-left rounded-2xl bg-white dark:bg-[#0f1629] border-2 transition-all duration-200 overflow-hidden shadow-xs hover:shadow-lg hover:-translate-y-1 cursor-pointer flex flex-col justify-between ${
-                  isSelected
-                    ? 'border-japan-red ring-2 ring-japan-red/20 shadow-md'
-                    : 'border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-600'
-                }`}
-              >
-                <div className="p-4 pb-0">
-                  <div className="flex items-end justify-between gap-2 mb-3">
-                    <div>
-                      <span
-                        className={`inline-flex items-center px-3 py-0.5 rounded-lg text-lg font-black ${item.badgeClass}`}
-                      >
-                        {item.level}
-                      </span>
-                      <div className="text-xs font-black mt-1.5 text-slate-900 dark:text-white">
-                        {item.label}
+          {/* Ascending Architectural Staircase (True Physical Elevation on Desktop) */}
+          <div className="px-6 sm:px-10 pt-8 pb-0 bg-slate-50/80 dark:bg-[#090e1a] border-b border-slate-200 dark:border-slate-800">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+              {JLPT_LEVEL_GUIDE.map((item) => {
+                const stats = levelMap[item.level];
+                const isFocused = focusedGuideLevel === item.level;
+                const isSummit = item.level === 'N1';
+                return (
+                  <button
+                    key={item.level}
+                    type="button"
+                    onMouseEnter={() => setFocusedGuideLevel(item.level)}
+                    onClick={() => {
+                      setFocusedGuideLevel(item.level);
+                      jumpToLevelMocks(item.level);
+                    }}
+                    className={`group relative text-left rounded-t-2xl rounded-b-xl lg:rounded-b-none p-5 transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden border-t-4 border-x border-b lg:border-b-0 ${item.stepHeight} ${
+                      isFocused
+                        ? 'bg-[#0B1120] text-white border-t-japan-red border-x-slate-800 shadow-xl'
+                        : isSummit
+                        ? 'bg-white dark:bg-[#11192e] text-slate-900 dark:text-white border-t-japan-red border-x-slate-200 dark:border-x-slate-800 hover:bg-[#0B1120] hover:text-white'
+                        : 'bg-white dark:bg-[#11192e] text-slate-900 dark:text-white border-t-slate-300 dark:border-t-slate-700 border-x-slate-200 dark:border-x-slate-800 hover:border-t-japan-red'
+                    }`}
+                  >
+                    {/* Subtle Japanese Kanji Watermark */}
+                    <span
+                      className={`absolute -right-2 -bottom-3 text-5xl font-black pointer-events-none select-none transition-opacity ${
+                        isFocused ? 'text-white/10' : 'text-slate-900/[0.04] dark:text-white/[0.05]'
+                      }`}
+                    >
+                      {item.jaRank}
+                    </span>
+
+                    <div className="relative z-10 flex items-start justify-between gap-2">
+                      <div>
+                        <span
+                          className={`text-[10px] font-extrabold uppercase tracking-widest block ${
+                            isFocused ? 'text-red-400' : 'text-slate-400 dark:text-slate-500'
+                          }`}
+                        >
+                          Step {item.rank} • {item.cefr}
+                        </span>
+                        <div className="flex items-baseline gap-2 mt-0.5">
+                          <span className="text-2xl sm:text-3xl font-black tracking-tight">
+                            {item.level}
+                          </span>
+                          <span
+                            className={`text-xs font-bold ${
+                              isFocused ? 'text-slate-300' : 'text-slate-500 dark:text-slate-400'
+                            }`}
+                          >
+                            {item.label}
+                          </span>
+                        </div>
+                      </div>
+                      {isSummit && (
+                        <span className="px-2 py-0.5 rounded-md bg-japan-red text-white text-[9px] font-black uppercase">
+                          Peak
+                        </span>
+                      )}
+                    </div>
+
+                    {/* 5-Dot Intensity Meter & Live Set Count */}
+                    <div className="relative z-10 mt-4 pt-3 border-t border-current/10 space-y-2">
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((dot) => (
+                          <span
+                            key={dot}
+                            className={`h-1.5 flex-1 rounded-full ${
+                              dot <= item.rank
+                                ? isSummit || isFocused
+                                  ? 'bg-japan-red'
+                                  : 'bg-slate-800 dark:bg-slate-300'
+                                : isFocused
+                                ? 'bg-white/15'
+                                : 'bg-slate-200 dark:bg-slate-800'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] font-bold">
+                        <span className={isFocused ? 'text-slate-300' : 'text-slate-500 dark:text-slate-400'}>
+                          {overviewLoading ? '...' : `${(stats?.total_sets || 0).toLocaleString()} Sets`}
+                        </span>
+                        <span className={isFocused ? 'text-white font-black' : 'text-japan-red font-black'}>
+                          Open →
+                        </span>
                       </div>
                     </div>
-                    {/* Clean Visual Mini Staircase Difficulty Bars */}
-                    <div className="flex items-end gap-1 h-11">
-                      {[1, 2, 3, 4, 5].map((bar) => (
-                        <div
-                          key={bar}
-                          style={{ height: `${bar * 20}%` }}
-                          className={`w-2 rounded-t-xs transition-all ${
-                            bar <= item.rank
-                              ? item.barFill
-                              : 'bg-slate-200 dark:bg-slate-800'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-                  <div
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${item.pillBg}`}
-                  >
-                    <span>Difficulty {item.rank}/5</span>
-                    <span>•</span>
-                    <span>{item.cefr}</span>
-                  </div>
-                </div>
-
-                <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug">
-                    {item.goal}
-                  </p>
-
-                  <div className="grid grid-cols-2 gap-1.5 text-[11px] font-bold">
-                    <div className="rounded-lg bg-slate-50 dark:bg-slate-900 px-2 py-1.5 border border-slate-200/70 dark:border-slate-800">
-                      <span className="text-slate-400 block text-[9px] uppercase">Kanji</span>
-                      <span className="text-slate-800 dark:text-slate-200">{item.kanji}</span>
-                    </div>
-                    <div className="rounded-lg bg-slate-50 dark:bg-slate-900 px-2 py-1.5 border border-slate-200/70 dark:border-slate-800">
-                      <span className="text-slate-400 block text-[9px] uppercase">Vocab</span>
-                      <span className="text-slate-800 dark:text-slate-200">{item.vocab}</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] font-bold">
-                    <span className="text-slate-500 dark:text-slate-400">
-                      {overviewLoading
-                        ? 'Loading...'
-                        : `${(stats?.total_sets || 0).toLocaleString()} Sets`}
+          {/* Connected Interactive Level Dossier Panel */}
+          {(() => {
+            const guide =
+              JLPT_LEVEL_GUIDE.find((g) => g.level === focusedGuideLevel) || JLPT_LEVEL_GUIDE[4];
+            const stats = levelMap[guide.level];
+            return (
+              <div className="p-6 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div className="lg:col-span-6 space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="px-3 py-1 rounded-lg bg-[#0B1120] dark:bg-white text-white dark:text-slate-900 text-sm font-black">
+                      JLPT {guide.level} — {guide.label}
                     </span>
-                    {stats?.ready_sets > 0 ? (
-                      <span className="text-emerald-700 dark:text-emerald-400 font-black">
-                        {stats.ready_sets} Graded Live
-                      </span>
-                    ) : (
-                      <span className="text-slate-500 dark:text-slate-400 font-bold">
-                        {stats?.total_questions?.toLocaleString() || 0} Qs
+                    <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold">
+                      {guide.difficultyTag}
+                    </span>
+                    {stats?.ready_sets > 0 && (
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-black">
+                        {stats.ready_sets} Graded Sets Live
                       </span>
                     )}
                   </div>
 
-                  <div
-                    className={`w-full py-2 px-3 rounded-xl text-center text-xs font-black transition flex items-center justify-center gap-1.5 ${item.ctaClass}`}
-                  >
-                    <span>Explore {item.level} Tests</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
+                    {guide.goal}
+                  </p>
+
+                  <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                    Best For: <span className="text-slate-900 dark:text-white">{guide.career}</span>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => jumpToLevelMocks(guide.level)}
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-japan-red hover:bg-japan-redhover text-white text-xs sm:text-sm font-black shadow-md transition cursor-pointer"
+                    >
+                      <span>Start JLPT {guide.level} Mock Tests</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-              </button>
+
+                {/* Proportional Mastery Gauges */}
+                <div className="lg:col-span-6 space-y-4 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 p-5">
+                  <div>
+                    <div className="flex justify-between text-xs font-extrabold mb-1.5">
+                      <span className="text-slate-600 dark:text-slate-400 uppercase">Required Kanji</span>
+                      <span className="text-slate-900 dark:text-white">{guide.kanji}</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                      <div
+                        className="h-full bg-[#0B1120] dark:bg-white rounded-full transition-all duration-300"
+                        style={{ width: `${guide.kanjiPct}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-xs font-extrabold mb-1.5">
+                      <span className="text-slate-600 dark:text-slate-400 uppercase">Required Vocabulary</span>
+                      <span className="text-slate-900 dark:text-white">{guide.vocab}</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                      <div
+                        className="h-full bg-slate-700 dark:bg-slate-300 rounded-full transition-all duration-300"
+                        style={{ width: `${guide.vocabPct}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-xs font-extrabold mb-1.5">
+                      <span className="text-slate-600 dark:text-slate-400 uppercase">Estimated Study Time</span>
+                      <span className="text-japan-red font-black">{guide.hours}</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                      <div
+                        className="h-full bg-japan-red rounded-full transition-all duration-300"
+                        style={{ width: `${guide.hoursPct}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             );
-          })}
+          })()}
         </div>
       </section>
 

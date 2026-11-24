@@ -256,30 +256,30 @@ export default function HeroBannerCarousel() {
       case 'purple':
         return {
           glow: 'shadow-[0_0_35px_rgba(168,85,247,0.22)]',
-          border: 'border-purple-500/40',
-          badgeBg: 'bg-purple-950/80 border-purple-400/50 text-purple-300',
-          gradientText: 'from-purple-400 via-pink-400 to-amber-300',
-          primaryBtn: 'bg-gradient-to-r from-purple-600 via-fuchsia-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-purple-600/35',
-          dot: 'bg-purple-500',
-          accent: 'text-purple-400',
+          border: 'border-slate-500/40',
+          badgeBg: 'bg-slate-950/80 border-slate-400/50 text-slate-300',
+          gradientText: 'from-slate-800 via-red-400 to-amber-300',
+          primaryBtn: 'bg-gradient-to-r from-slate-900 via-red-600 to-slate-900 hover:from-slate-800 hover:to-slate-800 shadow-slate-600/35',
+          dot: 'bg-slate-900',
+          accent: 'text-slate-300',
         };
       case 'cyan':
         return {
           glow: 'shadow-[0_0_35px_rgba(6,182,212,0.22)]',
-          border: 'border-cyan-500/40',
-          badgeBg: 'bg-cyan-950/80 border-cyan-400/50 text-cyan-300',
-          gradientText: 'from-cyan-300 via-teal-300 to-emerald-300',
-          primaryBtn: 'bg-gradient-to-r from-cyan-600 via-teal-600 to-emerald-600 hover:from-cyan-500 hover:to-teal-500 shadow-cyan-600/35',
-          dot: 'bg-cyan-400',
-          accent: 'text-cyan-400',
+          border: 'border-slate-500/40',
+          badgeBg: 'bg-slate-950/80 border-slate-400/50 text-slate-300',
+          gradientText: 'from-slate-800 via-slate-800 to-emerald-300',
+          primaryBtn: 'bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-600 hover:from-slate-800 hover:to-slate-800 shadow-slate-600/35',
+          dot: 'bg-slate-700',
+          accent: 'text-slate-300',
         };
       case 'emerald':
         return {
           glow: 'shadow-[0_0_35px_rgba(16,185,129,0.22)]',
           border: 'border-emerald-500/40',
           badgeBg: 'bg-emerald-950/80 border-emerald-400/50 text-emerald-300',
-          gradientText: 'from-emerald-400 via-teal-300 to-cyan-300',
-          primaryBtn: 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 shadow-emerald-600/35',
+          gradientText: 'from-emerald-400 via-slate-800 to-slate-800',
+          primaryBtn: 'bg-gradient-to-r from-emerald-600 via-slate-900 to-emerald-600 hover:from-emerald-500 hover:to-slate-800 shadow-emerald-600/35',
           dot: 'bg-emerald-500',
           accent: 'text-emerald-400',
         };
@@ -288,7 +288,7 @@ export default function HeroBannerCarousel() {
           glow: 'shadow-[0_0_35px_rgba(245,158,11,0.22)]',
           border: 'border-amber-500/40',
           badgeBg: 'bg-amber-950/80 border-amber-400/50 text-amber-300',
-          gradientText: 'from-amber-400 via-yellow-300 to-orange-400',
+          gradientText: 'from-amber-400 via-yellow-300 to-red-400',
           primaryBtn: 'bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 shadow-amber-500/35 text-slate-950',
           dot: 'bg-amber-400',
           accent: 'text-amber-400',
@@ -476,12 +476,12 @@ export default function HeroBannerCarousel() {
                     <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                       {slide.type === 'game' ? (
                         <>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-500/25 border border-purple-500/40 text-purple-200 text-[10px] font-bold">
-                            <Gamepad2 className="w-3 h-3 text-purple-400" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-900/25 border border-slate-500/40 text-slate-200 text-[10px] font-bold">
+                            <Gamepad2 className="w-3 h-3 text-slate-300" />
                             <span>8 Arcade Modes</span>
                           </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-pink-500/25 border border-pink-500/40 text-pink-200 text-[10px] font-bold">
-                            <Swords className="w-3 h-3 text-pink-400" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-600/25 border border-red-600/40 text-red-200 text-[10px] font-bold">
+                            <Swords className="w-3 h-3 text-red-400" />
                             <span>Kanji Hunter</span>
                           </span>
                           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/25 border border-amber-500/40 text-amber-200 text-[10px] font-bold">
@@ -491,8 +491,8 @@ export default function HeroBannerCarousel() {
                         </>
                       ) : slide.type === 'lessons' ? (
                         <>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cyan-500/25 border border-cyan-500/40 text-cyan-200 text-[10px] font-bold">
-                            <GraduationCap className="w-3 h-3 text-cyan-400" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-900/25 border border-slate-500/40 text-slate-200 text-[10px] font-bold">
+                            <GraduationCap className="w-3 h-3 text-slate-300" />
                             <span>JLPT N5 &amp; N4</span>
                           </span>
                           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-500/40 text-emerald-200 text-[10px] font-bold">
@@ -508,7 +508,7 @@ export default function HeroBannerCarousel() {
                           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-500/40 text-emerald-200 text-[10px] font-bold">
                             <span>26 JAC Textbooks</span>
                           </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cyan-500/25 border border-cyan-500/40 text-cyan-200 text-[10px] font-bold">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-900/25 border border-slate-500/40 text-slate-200 text-[10px] font-bold">
                             <span>15 National Languages</span>
                           </span>
                           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/25 border border-amber-500/40 text-amber-200 text-[10px] font-bold">
@@ -520,7 +520,7 @@ export default function HeroBannerCarousel() {
                           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-500/40 text-emerald-200 text-[10px] font-bold">
                             <span>12 SSW Sectors</span>
                           </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cyan-500/25 border border-cyan-500/40 text-cyan-200 text-[10px] font-bold">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-900/25 border border-slate-500/40 text-slate-200 text-[10px] font-bold">
                             <span>Prometric CBT</span>
                           </span>
                           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/25 border border-amber-500/40 text-amber-200 text-[10px] font-bold">
@@ -567,15 +567,15 @@ export default function HeroBannerCarousel() {
                   <div className="hidden lg:flex flex-col items-end flex-shrink-0 relative">
                     {slide.type === 'game' ? (
                       /* Game Zone Showcase */
-                      <div className="relative w-72 xl:w-80 rounded-3xl bg-slate-950/85 border border-purple-500/40 p-5 shadow-2xl backdrop-blur-md space-y-3.5">
+                      <div className="relative w-72 xl:w-80 rounded-3xl bg-slate-950/85 border border-slate-500/40 p-5 shadow-2xl backdrop-blur-md space-y-3.5">
                         <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
                           <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300">
+                            <span className="w-2 h-2 rounded-full bg-slate-700 animate-ping" />
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">
                               ARCADE ZONE LIVE
                             </span>
                           </div>
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-purple-400/20 text-purple-300 border border-purple-400/40">
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-slate-700/20 text-slate-300 border border-slate-400/40">
                             8 MODES
                           </span>
                         </div>
@@ -583,34 +583,34 @@ export default function HeroBannerCarousel() {
                         <div className="grid grid-cols-2 gap-2">
                           <Link
                             href="/game-zone/kanji-hunter"
-                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-purple-500/50 flex flex-col items-center justify-center text-center space-y-1 transition-all group/item"
+                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-500/50 flex flex-col items-center justify-center text-center space-y-1 transition-all group/item"
                           >
-                            <Swords className="w-6 h-6 text-pink-400 group-hover/item:scale-110 transition-transform" />
+                            <Swords className="w-6 h-6 text-red-400 group-hover/item:scale-110 transition-transform" />
                             <span className="text-xs font-black text-white">Kanji Hunter</span>
                             <span className="text-[9px] text-slate-400">Boss Battle</span>
                           </Link>
 
                           <Link
                             href="/game-zone/word-match"
-                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-purple-500/50 flex flex-col items-center justify-center text-center space-y-1 transition-all group/item"
+                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-500/50 flex flex-col items-center justify-center text-center space-y-1 transition-all group/item"
                           >
-                            <Gamepad2 className="w-6 h-6 text-purple-400 group-hover/item:scale-110 transition-transform" />
+                            <Gamepad2 className="w-6 h-6 text-slate-300 group-hover/item:scale-110 transition-transform" />
                             <span className="text-xs font-black text-white">Word Match</span>
                             <span className="text-[9px] text-slate-400">Card Pairs</span>
                           </Link>
 
                           <Link
                             href="/game-zone/listen-catch"
-                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-purple-500/50 flex flex-col items-center justify-center text-center space-y-1 transition-all group/item"
+                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-500/50 flex flex-col items-center justify-center text-center space-y-1 transition-all group/item"
                           >
-                            <Headphones className="w-6 h-6 text-cyan-400 group-hover/item:scale-110 transition-transform" />
+                            <Headphones className="w-6 h-6 text-slate-300 group-hover/item:scale-110 transition-transform" />
                             <span className="text-xs font-black text-white">Listen &amp; Catch</span>
                             <span className="text-[9px] text-slate-400">Audio Quiz</span>
                           </Link>
 
                           <Link
                             href="/game-zone/three-lives"
-                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-purple-500/50 flex flex-col items-center justify-center text-center space-y-1 transition-all group/item"
+                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-500/50 flex flex-col items-center justify-center text-center space-y-1 transition-all group/item"
                           >
                             <Flame className="w-6 h-6 text-amber-400 group-hover/item:scale-110 transition-transform" />
                             <span className="text-xs font-black text-white">3 Lives</span>
@@ -620,23 +620,23 @@ export default function HeroBannerCarousel() {
 
                         <Link
                           href="/game-zone"
-                          className="p-2.5 rounded-xl bg-purple-950/60 border border-purple-500/40 flex items-center justify-center gap-1.5 text-xs font-black text-purple-200 hover:bg-purple-900/60 transition-colors"
+                          className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-500/40 flex items-center justify-center gap-1.5 text-xs font-black text-slate-200 hover:bg-slate-900/60 transition-colors"
                         >
-                          <Play className="w-3.5 h-3.5 text-purple-400" />
+                          <Play className="w-3.5 h-3.5 text-slate-300" />
                           <span>Enter Japanese Arcade →</span>
                         </Link>
                       </div>
                     ) : slide.type === 'lessons' ? (
                       /* Lessons Hub Showcase */
-                      <div className="relative w-72 xl:w-80 rounded-3xl bg-slate-950/85 border border-cyan-500/40 p-5 shadow-2xl backdrop-blur-md space-y-3.5">
+                      <div className="relative w-72 xl:w-80 rounded-3xl bg-slate-950/85 border border-slate-500/40 p-5 shadow-2xl backdrop-blur-md space-y-3.5">
                         <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
                           <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300">
+                            <span className="w-2 h-2 rounded-full bg-slate-700 animate-pulse" />
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">
                               CURRICULUM HUB
                             </span>
                           </div>
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-cyan-400/20 text-cyan-300 border border-cyan-400/40">
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-slate-700/20 text-slate-300 border border-slate-400/40">
                             N5 &amp; N4
                           </span>
                         </div>
@@ -644,10 +644,10 @@ export default function HeroBannerCarousel() {
                         <div className="space-y-2">
                           <Link
                             href="/lessons"
-                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 flex items-center justify-between transition-all"
+                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-500/50 flex items-center justify-between transition-all"
                           >
                             <div className="flex items-center gap-2.5">
-                              <div className="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-300 font-black text-xs flex items-center justify-center">
+                              <div className="w-9 h-9 rounded-xl bg-slate-900/20 text-slate-300 font-black text-xs flex items-center justify-center">
                                 N5
                               </div>
                               <div>
@@ -655,15 +655,15 @@ export default function HeroBannerCarousel() {
                                 <div className="text-[10px] text-slate-400">25 Structured Units</div>
                               </div>
                             </div>
-                            <ArrowRight className="w-4 h-4 text-cyan-400" />
+                            <ArrowRight className="w-4 h-4 text-slate-300" />
                           </Link>
 
                           <Link
                             href="/lessons"
-                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 flex items-center justify-between transition-all"
+                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-500/50 flex items-center justify-between transition-all"
                           >
                             <div className="flex items-center gap-2.5">
-                              <div className="w-9 h-9 rounded-xl bg-teal-500/20 text-teal-300 font-black text-xs flex items-center justify-center">
+                              <div className="w-9 h-9 rounded-xl bg-slate-900/20 text-slate-300 font-black text-xs flex items-center justify-center">
                                 N4
                               </div>
                               <div>
@@ -671,12 +671,12 @@ export default function HeroBannerCarousel() {
                                 <div className="text-[10px] text-slate-400">Grammar &amp; Vocabulary</div>
                               </div>
                             </div>
-                            <ArrowRight className="w-4 h-4 text-teal-400" />
+                            <ArrowRight className="w-4 h-4 text-slate-300" />
                           </Link>
                         </div>
 
-                        <div className="p-2.5 rounded-xl bg-slate-900/80 border border-cyan-500/30 flex items-center justify-center gap-1.5 text-xs font-extrabold text-cyan-300">
-                          <GraduationCap className="w-4 h-4 text-cyan-400" />
+                        <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-500/30 flex items-center justify-center gap-1.5 text-xs font-extrabold text-slate-300">
+                          <GraduationCap className="w-4 h-4 text-slate-300" />
                           <span>100% Free Structured Lessons</span>
                         </div>
                       </div>
@@ -725,8 +725,8 @@ export default function HeroBannerCarousel() {
                       <div className="relative w-72 xl:w-80 rounded-3xl bg-slate-950/85 border border-emerald-500/40 p-5 shadow-2xl backdrop-blur-md space-y-3.5">
                         <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
                           <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-teal-300">
+                            <span className="w-2 h-2 rounded-full bg-slate-700 animate-pulse" />
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">
                               12 SSW SECTORS
                             </span>
                           </div>
@@ -752,7 +752,7 @@ export default function HeroBannerCarousel() {
                             <span className="text-[9px] text-slate-400">農業分野</span>
                           </div>
                           <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col items-center justify-center text-center space-y-1">
-                            <HardHat className="w-5 h-5 text-cyan-400" />
+                            <HardHat className="w-5 h-5 text-slate-300" />
                             <span className="text-[11px] font-extrabold text-white">Construction</span>
                             <span className="text-[9px] text-slate-400">建設分野</span>
                           </div>
@@ -760,9 +760,9 @@ export default function HeroBannerCarousel() {
 
                         <Link
                           href="/ssw-skill-test"
-                          className="p-2.5 rounded-xl bg-teal-950/60 border border-teal-500/40 flex items-center justify-center gap-1.5 text-xs font-black text-teal-200 hover:bg-teal-900/60 transition-colors"
+                          className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-500/40 flex items-center justify-center gap-1.5 text-xs font-black text-slate-200 hover:bg-slate-900/60 transition-colors"
                         >
-                          <Compass className="w-3.5 h-3.5 text-teal-400" />
+                          <Compass className="w-3.5 h-3.5 text-slate-300" />
                           <span>Explore All 12 Sectors →</span>
                         </Link>
                       </div>
@@ -872,7 +872,7 @@ export default function HeroBannerCarousel() {
               href="https://www.facebook.com/Gakkou.No.Shiken"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-2 sm:px-2.5 py-1 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 font-bold flex items-center gap-1 transition-colors text-[10px] sm:text-xs"
+              className="px-2 sm:px-2.5 py-1 rounded-lg bg-slate-900/20 hover:bg-slate-900/30 text-slate-300 border border-slate-500/30 font-bold flex items-center gap-1 transition-colors text-[10px] sm:text-xs"
             >
               <span>Facebook</span>
               <ExternalLink className="w-2.5 h-2.5" />
@@ -881,7 +881,7 @@ export default function HeroBannerCarousel() {
               href="https://www.instagram.com/gakkou.no.shiken/"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-2 sm:px-2.5 py-1 rounded-lg bg-pink-600/20 hover:bg-pink-600/30 text-pink-300 border border-pink-500/30 font-bold flex items-center gap-1 transition-colors text-[10px] sm:text-xs"
+              className="px-2 sm:px-2.5 py-1 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-600/30 font-bold flex items-center gap-1 transition-colors text-[10px] sm:text-xs"
             >
               <span>Instagram</span>
               <ExternalLink className="w-2.5 h-2.5" />

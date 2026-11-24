@@ -124,7 +124,7 @@ export default function NoticesPage() {
   const getTypeIcon = (type) => {
     switch (type) {
       case 'material':
-        return <FileDown className="w-3.5 h-3.5 text-blue-500" />;
+        return <FileDown className="w-3.5 h-3.5 text-slate-700" />;
       case 'exam_alert':
         return <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />;
       case 'update':
@@ -137,7 +137,7 @@ export default function NoticesPage() {
   const getTypeBadgeClass = (type) => {
     switch (type) {
       case 'material':
-        return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30';
+        return 'bg-slate-900/10 text-slate-700 dark:text-slate-300 border-slate-500/30';
       case 'exam_alert':
         return 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30';
       case 'update':
@@ -152,7 +152,7 @@ export default function NoticesPage() {
       {/* =========================================================================
            1. HERO HEADER & QUICK STATS
            ========================================================================= */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-900/10 via-amber-900/5 to-blue-900/10 dark:from-rose-950/40 dark:via-slate-900/60 dark:to-blue-950/40 p-6 sm:p-10 border border-slate-200/80 dark:border-slate-800/80 backdrop-blur-xl shadow-xs">
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-900/10 via-amber-900/5 to-slate-900/10 dark:from-rose-950/40 dark:via-slate-900/60 dark:to-slate-900/40 p-6 sm:p-10 border border-slate-200/80 dark:border-slate-800/80 backdrop-blur-xl shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-japan-red/10 border border-japan-red/30 text-japan-red text-xs font-black uppercase tracking-wider mb-3">
@@ -170,7 +170,7 @@ export default function NoticesPage() {
           {/* Quick Stats Pill Grid */}
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap lg:flex-nowrap">
             <div className="flex items-center gap-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-2xl shadow-xs">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black">
+              <div className="w-10 h-10 rounded-xl bg-slate-900/10 text-slate-700 dark:text-slate-300 flex items-center justify-center font-black">
                 <FileDown className="w-5 h-5" />
               </div>
               <div>
@@ -216,7 +216,7 @@ export default function NoticesPage() {
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#0b1120] to-[#040711] text-white p-6 sm:p-8 lg:p-10 border border-slate-800/90 shadow-2xl">
             {/* Ambient Lighting */}
             <div className="absolute top-0 right-1/4 w-96 h-96 bg-rose-600/15 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="absolute -bottom-10 left-10 w-72 h-72 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute -bottom-10 left-10 w-72 h-72 bg-slate-900/15 rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
               <div className="lg:col-span-8 space-y-4">
@@ -315,13 +315,13 @@ export default function NoticesPage() {
                 ) : pinnedNotice.pdf_file_url ? (
                   <div
                     onClick={(e) => handleDownloadPdf(e, pinnedNotice)}
-                    className="w-full max-w-sm p-6 rounded-2xl bg-gradient-to-br from-blue-950/60 to-slate-900 border border-blue-500/40 flex flex-col items-center justify-center text-center cursor-pointer hover:border-blue-400 transition-all shadow-xl group/pdf"
+                    className="w-full max-w-sm p-6 rounded-2xl bg-gradient-to-br from-slate-900/60 to-slate-900 border border-slate-500/40 flex flex-col items-center justify-center text-center cursor-pointer hover:border-slate-400 transition-all shadow-xl group/pdf"
                   >
-                    <div className="w-16 h-16 rounded-2xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400 mb-3 group-hover/pdf:scale-110 transition-transform shadow-md">
+                    <div className="w-16 h-16 rounded-2xl bg-slate-900/20 border border-slate-500/40 flex items-center justify-center text-slate-300 mb-3 group-hover/pdf:scale-110 transition-transform shadow-md">
                       <FileDown className="w-8 h-8" />
                     </div>
                     <span className="text-sm font-extrabold text-white">Download PDF Guide</span>
-                    <span className="text-xs text-blue-300 mt-1 font-mono">{pinnedNotice.file_size_text || 'PDF Document'}</span>
+                    <span className="text-xs text-slate-300 mt-1 font-mono">{pinnedNotice.file_size_text || 'PDF Document'}</span>
                   </div>
                 ) : null}
               </div>
@@ -354,8 +354,8 @@ export default function NoticesPage() {
             onClick={() => setActiveFilter('material')}
             className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
               activeFilter === 'material'
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                : 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 border border-slate-200/90 dark:border-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40'
+                ? 'bg-slate-900 text-white shadow-md shadow-slate-600/30'
+                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200/90 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-950/40'
             }`}
           >
             <FileDown className="w-3.5 h-3.5" />
@@ -512,23 +512,23 @@ export default function NoticesPage() {
                   {notice.pdf_file_url && (
                     <div
                       onClick={(e) => handleDownloadPdf(e, notice)}
-                      className="mt-1 p-3.5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50/60 dark:from-blue-950/40 dark:to-indigo-950/30 border border-blue-200/80 dark:border-blue-800/60 flex items-center justify-between gap-3 cursor-pointer hover:border-blue-400 dark:hover:border-blue-700 transition-all shadow-xs group/pdf"
+                      className="mt-1 p-3.5 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-800/60 dark:from-slate-900/40 dark:to-slate-900/30 border border-slate-200/80 dark:border-slate-800/60 flex items-center justify-between gap-3 cursor-pointer hover:border-slate-400 dark:hover:border-slate-700 transition-all shadow-xs group/pdf"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-600/20 group-hover/pdf:scale-105 transition-transform">
+                        <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-slate-600/20 group-hover/pdf:scale-105 transition-transform">
                           <FileDown className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                          <div className="text-xs font-black text-blue-950 dark:text-blue-200 truncate">
+                          <div className="text-xs font-black text-slate-950 dark:text-slate-200 truncate">
                             Download PDF Material
                           </div>
-                          <div className="text-[11px] text-blue-600 dark:text-blue-400 font-mono font-bold">
+                          <div className="text-[11px] text-slate-700 dark:text-slate-300 font-mono font-bold">
                             {notice.file_size_text || 'PDF File Ready'}
                           </div>
                         </div>
                       </div>
 
-                      <span className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-extrabold group-hover/pdf:scale-105 transition-transform flex-shrink-0 flex items-center gap-1.5 shadow-sm">
+                      <span className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-700 text-white text-[11px] font-extrabold group-hover/pdf:scale-105 transition-transform flex-shrink-0 flex items-center gap-1.5 shadow-sm">
                         <Download className="w-3.5 h-3.5" />
                         <span>Get PDF</span>
                       </span>
@@ -573,7 +573,7 @@ export default function NoticesPage() {
                       </span>
                     )}
                     {notice.downloads_count > 0 && (
-                      <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-bold" title="Downloads">
+                      <span className="flex items-center gap-1 text-slate-700 dark:text-slate-300 font-bold" title="Downloads">
                         <Download className="w-3 h-3" />
                         <span>{notice.downloads_count}</span>
                       </span>
@@ -638,16 +638,16 @@ export default function NoticesPage() {
 
               {/* PDF Material Highlight Download Banner */}
               {selectedNotice.pdf_file_url && (
-                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 border border-blue-200 dark:border-blue-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-800 dark:from-slate-900/40 dark:to-slate-900/40 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-600/30">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-slate-600/30">
                       <FileDown className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="text-sm sm:text-base font-extrabold text-blue-950 dark:text-blue-100">
+                      <h4 className="text-sm sm:text-base font-extrabold text-slate-950 dark:text-slate-100">
                         Downloadable PDF Document Attached
                       </h4>
-                      <p className="text-xs text-blue-700 dark:text-blue-300 font-mono mt-0.5">
+                      <p className="text-xs text-slate-800 dark:text-slate-300 font-mono mt-0.5">
                         {selectedNotice.file_size_text || 'PDF File Ready'} • {selectedNotice.downloads_count || 0} candidate download(s)
                       </p>
                     </div>
@@ -656,7 +656,7 @@ export default function NoticesPage() {
                   <button
                     type="button"
                     onClick={(e) => handleDownloadPdf(e, selectedNotice)}
-                    className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-extrabold shadow-lg shadow-blue-600/30 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                    className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-900 text-white text-xs sm:text-sm font-extrabold shadow-lg shadow-slate-600/30 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                   >
                     <Download className="w-4 h-4" />
                     <span>Download PDF Now</span>

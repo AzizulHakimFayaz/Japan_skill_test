@@ -26,12 +26,12 @@ import CountryFlag from '@/components/CountryFlag';
 /* ─────────────────────────── Helpers ─────────────────────────── */
 
 const AVATAR_TONES = [
-  'from-indigo-500 to-violet-500',
-  'from-rose-500 to-orange-400',
-  'from-emerald-500 to-teal-400',
-  'from-sky-500 to-cyan-400',
-  'from-fuchsia-500 to-pink-400',
-  'from-amber-500 to-orange-400',
+  'from-slate-800 to-slate-800',
+  'from-rose-500 to-red-400',
+  'from-emerald-500 to-slate-800',
+  'from-slate-800 to-slate-800',
+  'from-red-600 to-red-400',
+  'from-amber-500 to-red-400',
 ];
 
 function toneFor(str = '') {
@@ -93,13 +93,13 @@ const PLACE = {
   3: {
     label: 'Third Place',
     Icon: Award,
-    strip: 'from-orange-500 via-amber-600 to-orange-400',
-    badge: 'bg-orange-500 text-white',
-    ring: 'ring-orange-400/70',
+    strip: 'from-red-600 via-amber-600 to-red-400',
+    badge: 'bg-red-600 text-white',
+    ring: 'ring-red-400/70',
     border: 'border-slate-200 dark:border-slate-800',
     glow: 'shadow-[0_16px_40px_-18px_rgba(234,88,12,0.3)]',
-    numeral: 'text-orange-500/15',
-    score: 'text-orange-600 dark:text-orange-400',
+    numeral: 'text-red-600/15',
+    score: 'text-red-600 dark:text-red-400',
   },
 };
 
@@ -345,7 +345,7 @@ export default function LeaderboardPage() {
     <div className="space-y-6 sm:space-y-10 animate-fade-in max-w-full overflow-x-hidden">
       {/* ═══════════ 1. Hero ═══════════ */}
       <section className="relative overflow-hidden rounded-3xl border border-slate-800 bg-[#0B1020] text-white shadow-2xl shadow-slate-900/20">
-        <div className="pointer-events-none absolute -top-32 -left-24 h-80 w-80 rounded-full bg-indigo-600/25 blur-3xl" />
+        <div className="pointer-events-none absolute -top-32 -left-24 h-80 w-80 rounded-full bg-slate-900/25 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-40 right-0 h-96 w-96 rounded-full bg-amber-500/15 blur-3xl" />
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.07]"
@@ -366,7 +366,7 @@ export default function LeaderboardPage() {
             </div>
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.05]">
               Candidate{' '}
-              <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-orange-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-red-400 bg-clip-text text-transparent">
                 Honor Roll
               </span>
             </h1>
@@ -455,7 +455,7 @@ export default function LeaderboardPage() {
 
       {/* ═══════════ 3. Your Standing ═══════════ */}
       {me && (
-        <section className="rounded-3xl border border-indigo-200/70 dark:border-indigo-500/20 bg-gradient-to-r from-indigo-50 via-white to-white dark:from-indigo-950/40 dark:via-slate-900 dark:to-slate-900 p-4 sm:p-5">
+        <section className="rounded-3xl border border-slate-200/70 dark:border-slate-500/20 bg-gradient-to-r from-slate-800 via-white to-white dark:from-slate-900/40 dark:via-slate-900 dark:to-slate-900 p-4 sm:p-5">
           <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
               <div className="flex h-14 min-w-[3.75rem] px-2.5 shrink-0 flex-col items-center justify-center rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900">
@@ -466,7 +466,7 @@ export default function LeaderboardPage() {
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Your {isWeekly ? 'weekly' : 'all-time'} standing
                   </span>
                   {percentile && (
@@ -502,7 +502,7 @@ export default function LeaderboardPage() {
                 <StatCell
                   label={isWeekly ? 'All-Time' : 'Weekly'}
                   value={otherMe?.rank ? `#${otherMe.rank}` : '—'}
-                  valueClass="text-indigo-600 dark:text-indigo-400"
+                  valueClass="text-slate-700 dark:text-slate-300"
                 />
               </button>
             </div>
@@ -599,7 +599,7 @@ export default function LeaderboardPage() {
                     <tr
                       key={c.user_id}
                       className={`group transition-colors ${
-                        mine ? 'bg-indigo-50/70 dark:bg-indigo-950/30' : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'
+                        mine ? 'bg-slate-50/70 dark:bg-slate-950/30' : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'
                       }`}
                     >
                       <td className="py-3.5 pl-6 pr-3">
@@ -616,7 +616,7 @@ export default function LeaderboardPage() {
                                 {c.full_name}
                               </span>
                               {mine && (
-                                <span className="rounded bg-indigo-600 px-1.5 py-0.5 text-[9px] font-black uppercase text-white">You</span>
+                                <span className="rounded bg-slate-900 px-1.5 py-0.5 text-[9px] font-black uppercase text-white">You</span>
                               )}
                             </div>
                             <span className="block truncate font-mono text-[11px] text-slate-400">@{c.username}</span>
@@ -668,14 +668,14 @@ export default function LeaderboardPage() {
                 <Link
                   key={c.user_id}
                   href={`/profile/${encodeURIComponent(c.username)}`}
-                  className={`flex items-center gap-3 px-4 py-3 ${mine ? 'bg-indigo-50/70 dark:bg-indigo-950/30' : 'active:bg-slate-50 dark:active:bg-slate-800/50'}`}
+                  className={`flex items-center gap-3 px-4 py-3 ${mine ? 'bg-slate-50/70 dark:bg-slate-950/30' : 'active:bg-slate-50 dark:active:bg-slate-800/50'}`}
                 >
                   <span className="w-7 shrink-0 text-center text-xs font-black tabular-nums text-slate-400">{c.rank}</span>
                   <Avatar name={c.full_name} seed={c.username} size="sm" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <span className="truncate text-sm font-bold text-slate-900 dark:text-white">{c.full_name}</span>
-                      {mine && <span className="rounded bg-indigo-600 px-1 py-0.5 text-[9px] font-black uppercase text-white">You</span>}
+                      {mine && <span className="rounded bg-slate-900 px-1 py-0.5 text-[9px] font-black uppercase text-white">You</span>}
                     </div>
                     <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
                       <CountryFlag country={country} flagEmoji={flagOf(c)} width={14} height={10} />

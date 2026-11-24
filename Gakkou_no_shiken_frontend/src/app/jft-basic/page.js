@@ -51,7 +51,7 @@ export default function JftBasicPage() {
   return (
     <div className="space-y-12 animate-fade-in">
       {/* Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-japan-navy to-indigo-950 text-white p-6 sm:p-14 shadow-2xl shadow-slate-900/30 border border-slate-800/80 animate-fade-in-up">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-japan-navy to-slate-900 text-white p-6 sm:p-14 shadow-2xl shadow-slate-900/30 border border-slate-800/80 animate-fade-in-up">
         <div className="relative z-10 max-w-4xl space-y-4 sm:space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-japan-red/20 border border-japan-red/40 text-rose-300 text-[10px] sm:text-xs font-black tracking-wider uppercase backdrop-blur-md">
             <span>🇧🇩</span>
@@ -99,7 +99,7 @@ export default function JftBasicPage() {
       {/* Exam At-A-Glance Cards Grid */}
       <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="group bg-white dark:bg-slate-900/90 p-6 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-xs hover:shadow-xl hover-lift transition-all duration-300 flex items-start gap-4 hover-shine-container animate-fade-in-up delay-75">
-          <div className="w-13 h-13 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
+          <div className="w-13 h-13 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 font-bold flex-shrink-0 group-hover:scale-110 transition-transform">
             <Laptop className="w-6 h-6" />
           </div>
           <div>
@@ -194,9 +194,9 @@ export default function JftBasicPage() {
           {jftInfo.sections.map((sec) =>
             activeSection === sec.id ? (
               <div key={sec.id} className="space-y-6 animate-fade-in">
-                <div className="bg-gradient-to-r from-slate-50 to-indigo-50/30 dark:from-slate-800 dark:to-indigo-950/40 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="bg-gradient-to-r from-slate-50 to-slate-800/30 dark:from-slate-800 dark:to-slate-900/40 p-6 sm:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                   <div className="space-y-2">
-                    <span className="inline-block px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 text-xs font-bold">
+                    <span className="inline-block px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-950/80 text-slate-800 dark:text-slate-300 text-xs font-bold">
                       {sec.item_count}
                     </span>
                     <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">{sec.name}</h3>
@@ -364,8 +364,8 @@ export default function JftBasicPage() {
             </div>
 
             {/* Local Voucher Notice */}
-            <div className="mt-5 p-3.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 text-xs text-indigo-950 dark:text-indigo-200 space-y-1">
-              <strong className="font-extrabold flex items-center gap-1.5 text-indigo-800 dark:text-indigo-300">
+            <div className="mt-5 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800/60 text-xs text-slate-950 dark:text-slate-200 space-y-1">
+              <strong className="font-extrabold flex items-center gap-1.5 text-slate-800 dark:text-slate-300">
                 <span>💡 Bangladesh Candidates Voucher Tip:</span>
               </strong>
               <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">

@@ -105,7 +105,7 @@ export default function LearningHubShowcase() {
   return (
     <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800/90 p-3 sm:p-6 lg:p-7 shadow-lg shadow-slate-200/40 dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] transition-all">
       {/* Background Subtle Ambient Glows */}
-      <div className="absolute -top-24 -left-24 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-24 -left-24 w-72 h-72 bg-slate-900/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header Bar */}
@@ -143,7 +143,7 @@ export default function LearningHubShowcase() {
           </Link>
           <Link
             href="/notices"
-            className="text-[10px] sm:text-xs font-black text-sky-600 dark:text-sky-400 hover:text-sky-700 bg-sky-50 dark:bg-sky-950/60 px-2.5 py-1 rounded-lg border border-sky-200 dark:border-sky-800 transition-colors whitespace-nowrap"
+            className="text-[10px] sm:text-xs font-black text-slate-700 dark:text-slate-300 hover:text-slate-800 bg-slate-50 dark:bg-slate-950/60 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 transition-colors whitespace-nowrap"
           >
             <span>Notices ↗</span>
           </Link>
@@ -155,13 +155,13 @@ export default function LearningHubShowcase() {
           </Link>
           <Link
             href="/game-zone"
-            className="text-[10px] sm:text-xs font-black text-purple-600 dark:text-purple-400 hover:text-purple-700 bg-purple-50 dark:bg-purple-950/60 px-2.5 py-1 rounded-lg border border-purple-200 dark:border-purple-800 transition-colors whitespace-nowrap"
+            className="text-[10px] sm:text-xs font-black text-slate-700 dark:text-slate-300 hover:text-slate-800 bg-slate-50 dark:bg-slate-950/60 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 transition-colors whitespace-nowrap"
           >
             <span>Arcade ↗</span>
           </Link>
           <Link
             href="/lessons"
-            className="text-[10px] sm:text-xs font-black text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 bg-cyan-50 dark:bg-cyan-950/60 px-2.5 py-1 rounded-lg border border-cyan-200 dark:border-cyan-800 transition-colors whitespace-nowrap"
+            className="text-[10px] sm:text-xs font-black text-slate-700 dark:text-slate-300 hover:text-slate-800 bg-slate-50 dark:bg-slate-950/60 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 transition-colors whitespace-nowrap"
           >
             <span>Lessons ↗</span>
           </Link>
@@ -221,7 +221,7 @@ export default function LearningHubShowcase() {
           >
             <div className="space-y-1.5 sm:space-y-2.5">
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-emerald-600/30 group-hover:scale-110 transition-transform shrink-0 border border-emerald-300/60 dark:border-emerald-800 bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-emerald-600/30 group-hover:scale-110 transition-transform shrink-0 border border-emerald-300/60 dark:border-emerald-800 bg-gradient-to-br from-emerald-500 to-slate-900 flex items-center justify-center text-white">
                   <Library className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-emerald-200/80 dark:border-emerald-800">
@@ -254,21 +254,21 @@ export default function LearningHubShowcase() {
         <ScrollReveal variant="up" delay={100} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
           <Link
             href="/notices"
-            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-sky-50/80 via-white to-sky-50/40 dark:from-sky-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-sky-200/90 dark:border-sky-900/60 hover:border-sky-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-sky-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
+            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-slate-800/80 via-white to-slate-800/40 dark:from-slate-900/30 dark:via-slate-900 dark:to-slate-900/90 border border-slate-200/90 dark:border-slate-900/60 hover:border-slate-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-slate-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
           >
             <div className="space-y-1.5 sm:space-y-2.5">
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-sky-600/30 group-hover:scale-110 transition-transform shrink-0 border border-sky-300/60 dark:border-sky-800 bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-slate-600/30 group-hover:scale-110 transition-transform shrink-0 border border-slate-300/60 dark:border-slate-800 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-white">
                   <BellRing className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-sky-200/80 dark:border-sky-800">
-                  <Zap className="w-2.5 h-2.5 text-sky-500" />
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-slate-200/80 dark:border-slate-800">
+                  <Zap className="w-2.5 h-2.5 text-slate-700" />
                   <span>Circulars</span>
                 </span>
               </div>
 
               <div>
-                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors leading-tight">
+                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors leading-tight">
                   Exam Notices
                 </h3>
                 <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
@@ -277,12 +277,12 @@ export default function LearningHubShowcase() {
               </div>
             </div>
 
-            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-sky-100 dark:border-sky-950/80 flex items-center justify-between">
-              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-sky-600 group-hover:bg-sky-700 shadow-xs transition-colors">
+            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-slate-100 dark:border-slate-950/80 flex items-center justify-between">
+              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-slate-900 group-hover:bg-slate-700 shadow-xs transition-colors">
                 <span>View Notices</span>
                 <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
-              <span className="hidden sm:inline text-[10px] font-bold text-sky-600 dark:text-sky-400">Updates</span>
+              <span className="hidden sm:inline text-[10px] font-bold text-slate-700 dark:text-slate-300">Updates</span>
             </div>
           </Link>
         </ScrollReveal>
@@ -328,11 +328,11 @@ export default function LearningHubShowcase() {
         <ScrollReveal variant="up" delay={200} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
           <Link
             href="/game-zone"
-            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-purple-50/80 via-white to-purple-50/40 dark:from-purple-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-purple-200/90 dark:border-purple-900/60 hover:border-purple-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-purple-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
+            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-slate-800/80 via-white to-slate-800/40 dark:from-slate-900/30 dark:via-slate-900 dark:to-slate-900/90 border border-slate-200/90 dark:border-slate-900/60 hover:border-slate-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-slate-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
           >
             <div className="space-y-1.5 sm:space-y-2.5">
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-purple-600/30 group-hover:scale-110 transition-transform shrink-0 border border-purple-300/60 dark:border-purple-800 bg-purple-100">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-slate-600/30 group-hover:scale-110 transition-transform shrink-0 border border-slate-300/60 dark:border-slate-800 bg-slate-100">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/img/game_zone_icon.png"
@@ -340,14 +340,14 @@ export default function LearningHubShowcase() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-purple-200/80 dark:border-purple-800">
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-slate-200/80 dark:border-slate-800">
                   <Flame className="w-2.5 h-2.5 text-amber-500" />
                   <span>8 Games</span>
                 </span>
               </div>
 
               <div>
-                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-tight">
+                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors leading-tight">
                   Game Zone
                 </h3>
                 <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
@@ -356,12 +356,12 @@ export default function LearningHubShowcase() {
               </div>
             </div>
 
-            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-purple-100 dark:border-purple-950/80 flex items-center justify-between">
-              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-purple-600 group-hover:bg-purple-700 shadow-xs transition-colors">
+            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-slate-100 dark:border-slate-950/80 flex items-center justify-between">
+              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-slate-900 group-hover:bg-slate-700 shadow-xs transition-colors">
                 <span>Play Now</span>
                 <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
-              <span className="hidden sm:inline text-[10px] font-bold text-purple-600 dark:text-purple-400">Arcade</span>
+              <span className="hidden sm:inline text-[10px] font-bold text-slate-700 dark:text-slate-300">Arcade</span>
             </div>
           </Link>
         </ScrollReveal>
@@ -370,11 +370,11 @@ export default function LearningHubShowcase() {
         <ScrollReveal variant="up" delay={250} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
           <Link
             href="/lessons"
-            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-cyan-50/80 via-white to-cyan-50/40 dark:from-cyan-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-cyan-200/90 dark:border-cyan-900/60 hover:border-cyan-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-cyan-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
+            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-slate-800/80 via-white to-slate-800/40 dark:from-slate-900/30 dark:via-slate-900 dark:to-slate-900/90 border border-slate-200/90 dark:border-slate-900/60 hover:border-slate-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-slate-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
           >
             <div className="space-y-1.5 sm:space-y-2.5">
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-cyan-600/30 group-hover:scale-110 transition-transform shrink-0 border border-cyan-300/60 dark:border-cyan-800 bg-cyan-100">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-slate-600/30 group-hover:scale-110 transition-transform shrink-0 border border-slate-300/60 dark:border-slate-800 bg-slate-100">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/img/lessons_hub_icon.png"
@@ -382,14 +382,14 @@ export default function LearningHubShowcase() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-cyan-200/80 dark:border-cyan-800">
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-slate-200/80 dark:border-slate-800">
                   <CheckCircle2 className="w-2.5 h-2.5 text-emerald-500" />
                   <span>N5 • N4</span>
                 </span>
               </div>
 
               <div>
-                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors leading-tight">
+                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors leading-tight">
                   Lessons Hub
                 </h3>
                 <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
@@ -398,12 +398,12 @@ export default function LearningHubShowcase() {
               </div>
             </div>
 
-            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-cyan-100 dark:border-cyan-950/80 flex items-center justify-between">
-              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-cyan-600 group-hover:bg-cyan-700 shadow-xs transition-colors">
+            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-slate-100 dark:border-slate-950/80 flex items-center justify-between">
+              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-slate-900 group-hover:bg-slate-700 shadow-xs transition-colors">
                 <span>Start</span>
                 <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
-              <span className="hidden sm:inline text-[10px] font-bold text-cyan-600 dark:text-cyan-400">80 Units</span>
+              <span className="hidden sm:inline text-[10px] font-bold text-slate-700 dark:text-slate-300">80 Units</span>
             </div>
           </Link>
         </ScrollReveal>
@@ -412,11 +412,11 @@ export default function LearningHubShowcase() {
         <ScrollReveal variant="up" delay={300} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
           <Link
             href="/tools"
-            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-indigo-50/80 via-white to-indigo-50/40 dark:from-indigo-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-indigo-200/90 dark:border-indigo-900/60 hover:border-indigo-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-indigo-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
+            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-slate-800/80 via-white to-slate-800/40 dark:from-slate-900/30 dark:via-slate-900 dark:to-slate-900/90 border border-slate-200/90 dark:border-slate-900/60 hover:border-slate-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-slate-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
           >
             <div className="space-y-1.5 sm:space-y-2.5">
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-indigo-600/30 group-hover:scale-110 transition-transform shrink-0 border border-indigo-300/60 dark:border-indigo-800 bg-indigo-100">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-slate-600/30 group-hover:scale-110 transition-transform shrink-0 border border-slate-300/60 dark:border-slate-800 bg-slate-100">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/img/study_tools_icon.png"
@@ -424,14 +424,14 @@ export default function LearningHubShowcase() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-indigo-200/80 dark:border-indigo-800">
-                  <Compass className="w-2.5 h-2.5 text-indigo-500" />
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-slate-200/80 dark:border-slate-800">
+                  <Compass className="w-2.5 h-2.5 text-slate-700" />
                   <span>Free Tools</span>
                 </span>
               </div>
 
               <div>
-                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">
+                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors leading-tight">
                   Study Tools
                 </h3>
                 <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
@@ -440,12 +440,12 @@ export default function LearningHubShowcase() {
               </div>
             </div>
 
-            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-indigo-100 dark:border-indigo-950/80 flex items-center justify-between">
-              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-indigo-600 group-hover:bg-indigo-700 shadow-xs transition-colors">
+            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-slate-100 dark:border-slate-950/80 flex items-center justify-between">
+              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-slate-900 group-hover:bg-slate-700 shadow-xs transition-colors">
                 <span>Explore</span>
                 <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
-              <span className="hidden sm:inline text-[10px] font-bold text-indigo-600 dark:text-indigo-400">Drills</span>
+              <span className="hidden sm:inline text-[10px] font-bold text-slate-700 dark:text-slate-300">Drills</span>
             </div>
           </Link>
         </ScrollReveal>

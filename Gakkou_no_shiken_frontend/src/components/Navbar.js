@@ -230,13 +230,13 @@ export default function Navbar() {
                           : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-8 h-8 rounded-lg bg-slate-900/10 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0 mt-0.5">
                         <Layers className="w-4 h-4" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-black leading-tight">SSW Sector Skills</span>
-                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300">
                             CBT
                           </span>
                         </div>
@@ -307,11 +307,11 @@ export default function Navbar() {
                       onClick={() => setActiveDropdown(null)}
                       className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
                         isActive('/game-zone')
-                          ? 'bg-purple-50 dark:bg-purple-950/40 text-purple-600'
+                          ? 'bg-slate-50 dark:bg-slate-950/40 text-slate-700'
                           : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 mt-0.5 shadow-xs border border-purple-200 dark:border-purple-800 bg-purple-50">
+                      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 mt-0.5 shadow-xs border border-slate-200 dark:border-slate-800 bg-slate-50">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src="/img/game_zone_icon.png"
@@ -322,7 +322,7 @@ export default function Navbar() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-black leading-tight">Japanese Game Zone</span>
-                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300">
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300">
                             8 Games
                           </span>
                         </div>
@@ -337,11 +337,11 @@ export default function Navbar() {
                       onClick={() => setActiveDropdown(null)}
                       className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
                         isActive('/lessons')
-                          ? 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600'
+                          ? 'bg-slate-50 dark:bg-slate-950/40 text-slate-700'
                           : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 mt-0.5 shadow-xs border border-cyan-200 dark:border-cyan-800 bg-cyan-50">
+                      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 mt-0.5 shadow-xs border border-slate-200 dark:border-slate-800 bg-slate-50">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src="/img/lessons_hub_icon.png"
@@ -352,7 +352,7 @@ export default function Navbar() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-black leading-tight">Structured Lessons</span>
-                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300">
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300">
                             N5 • N4
                           </span>
                         </div>
@@ -428,11 +428,11 @@ export default function Navbar() {
                       onClick={() => setActiveDropdown(null)}
                       className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
                         isActive('/tools')
-                          ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600'
+                          ? 'bg-slate-50 dark:bg-slate-950/40 text-slate-700'
                           : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 mt-0.5 shadow-xs border border-indigo-200 dark:border-indigo-800 bg-indigo-50">
+                      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 mt-0.5 shadow-xs border border-slate-200 dark:border-slate-800 bg-slate-50">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src="/img/study_tools_icon.png"
@@ -443,7 +443,7 @@ export default function Navbar() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-black leading-tight">Candidate Tools</span>
-                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300">
                             Free
                           </span>
                         </div>
@@ -538,15 +538,15 @@ export default function Navbar() {
                       onClick={() => setActiveDropdown(null)}
                       className={`flex items-center justify-between gap-2 p-2 rounded-xl transition-all ${
                         pathname.startsWith('/partners')
-                          ? 'bg-indigo-50/80 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold'
+                          ? 'bg-slate-50/80 dark:bg-slate-950/40 text-slate-700 dark:text-slate-300 font-bold'
                           : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
                       }`}
                     >
                       <span className="flex items-center gap-2.5">
-                        <GraduationCap className="w-4 h-4 text-indigo-500" />
+                        <GraduationCap className="w-4 h-4 text-slate-700" />
                         <span className="text-xs font-bold">Schools &amp; LPKs</span>
                       </span>
-                      <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                      <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300">
                         FREE
                       </span>
                     </Link>
@@ -613,7 +613,7 @@ export default function Navbar() {
                 {user.owned_partner_school?.slug ? (
                   <Link
                     href={`/partner/${encodeURIComponent(user.owned_partner_school.slug)}`}
-                    className="text-xs font-extrabold text-violet-700 dark:text-violet-300 bg-violet-50 dark:bg-violet-950/70 hover:bg-violet-100 border border-violet-200 dark:border-violet-800 transition-all py-1.5 px-2.5 rounded-xl flex items-center gap-1 whitespace-nowrap shrink-0"
+                    className="text-xs font-extrabold text-slate-800 dark:text-slate-300 bg-slate-50 dark:bg-slate-950/70 hover:bg-slate-100 border border-slate-200 dark:border-slate-800 transition-all py-1.5 px-2.5 rounded-xl flex items-center gap-1 whitespace-nowrap shrink-0"
                     title="Open Sensei LMS Dashboard"
                   >
                     <GraduationCap className="w-3.5 h-3.5 shrink-0" />
@@ -623,7 +623,7 @@ export default function Navbar() {
                   (user.profile?.partner_status || 'approved') === 'approved' ? (
                   <Link
                     href={`/partner/${encodeURIComponent(user.profile.partner_school.slug)}?mode=classroom`}
-                    className="text-xs font-extrabold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/70 hover:bg-indigo-100 border border-indigo-200 dark:border-indigo-800 transition-all py-1.5 px-2.5 rounded-xl flex items-center gap-1 whitespace-nowrap shrink-0"
+                    className="text-xs font-extrabold text-slate-800 dark:text-slate-300 bg-slate-50 dark:bg-slate-950/70 hover:bg-slate-100 border border-slate-200 dark:border-slate-800 transition-all py-1.5 px-2.5 rounded-xl flex items-center gap-1 whitespace-nowrap shrink-0"
                     title="Open My School Classroom"
                   >
                     <GraduationCap className="w-3.5 h-3.5 shrink-0" />
@@ -898,10 +898,10 @@ export default function Navbar() {
               <Link
                 href="/partners"
                 onClick={() => setOpen(false)}
-                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-slate-900 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all flex items-center justify-between"
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-700 dark:hover:text-slate-300 transition-all flex items-center justify-between"
               >
                 <span className="flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4 text-indigo-500 shrink-0" />
+                  <GraduationCap className="w-4 h-4 text-slate-700 shrink-0" />
                   <span>Schools &amp; LPKs (Partner Free)</span>
                 </span>
                 <ChevronRight className="w-3.5 h-3.5 text-slate-400" />

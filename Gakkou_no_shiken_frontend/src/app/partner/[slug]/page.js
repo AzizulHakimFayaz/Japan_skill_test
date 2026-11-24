@@ -48,8 +48,8 @@ import {
 } from 'lucide-react';
 
 const NOTE_CATEGORY_META = {
-  vocab: { label: 'Vocabulary & Kanji', icon: '🈯', bg: 'bg-violet-100 dark:bg-violet-950/70 text-violet-700 dark:text-violet-300' },
-  grammar: { label: 'Grammar & Expression', icon: '📘', bg: 'bg-sky-100 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300' },
+  vocab: { label: 'Vocabulary & Kanji', icon: '🈯', bg: 'bg-slate-100 dark:bg-slate-950/70 text-slate-800 dark:text-slate-300' },
+  grammar: { label: 'Grammar & Expression', icon: '📘', bg: 'bg-slate-100 dark:bg-slate-950/70 text-slate-800 dark:text-slate-300' },
   listening: { label: 'Listening & Audio Tips', icon: '🎧', bg: 'bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300' },
   ssw: { label: 'SSW / Tokutei Ginou', icon: '🏢', bg: 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300' },
   routine: { label: 'Class Routine & Syllabus', icon: '🗓️', bg: 'bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300' },
@@ -568,7 +568,7 @@ export default function PartnerSchoolDashboardPage() {
           <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5">
             {classroomLoading ? (
               <div className="py-10 text-center space-y-3">
-                <RefreshCw className="w-7 h-7 text-violet-600 animate-spin mx-auto" />
+                <RefreshCw className="w-7 h-7 text-slate-700 animate-spin mx-auto" />
                 <p className="text-xs font-bold text-slate-500">
                   Verifying classroom invitation &amp; membership...
                 </p>
@@ -593,7 +593,7 @@ export default function PartnerSchoolDashboardPage() {
                   <button
                     type="button"
                     onClick={fetchClassroom}
-                    className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black flex items-center gap-1.5 cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-700 text-white text-xs font-black flex items-center gap-1.5 cursor-pointer"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Check Approval Status</span>
@@ -654,7 +654,7 @@ export default function PartnerSchoolDashboardPage() {
                   <div className="flex flex-wrap gap-2.5 pt-1">
                     <Link
                       href={`/accounts/login?next=${encodeURIComponent(`/partner/${slug}?mode=classroom`)}`}
-                      className="flex-1 py-3 px-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black text-center"
+                      className="flex-1 py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-700 text-white text-xs font-black text-center"
                     >
                       Sign In as Candidate to Enter PIN
                     </Link>
@@ -724,7 +724,7 @@ export default function PartnerSchoolDashboardPage() {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-black uppercase text-violet-700 dark:text-violet-300 mb-1">
+                      <label className="block text-[11px] font-black uppercase text-slate-800 dark:text-slate-300 mb-1">
                         🔐 6-Digit Class Invitation PIN (Required) *
                       </label>
                       <input
@@ -734,14 +734,14 @@ export default function PartnerSchoolDashboardPage() {
                         value={joinPinInput}
                         onChange={(e) => setJoinPinInput(e.target.value)}
                         placeholder="Enter 6-digit PIN from your Sensei..."
-                        className="w-full px-3.5 py-3 rounded-xl border-2 border-violet-300 dark:border-violet-700 bg-white dark:bg-slate-900 text-sm font-mono font-black tracking-widest"
+                        className="w-full px-3.5 py-3 rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-mono font-black tracking-widest"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={joinBusy}
-                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-black cursor-pointer disabled:opacity-50 shadow-lg shadow-violet-500/20"
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-slate-900 to-slate-900 hover:from-slate-900 hover:to-slate-900 text-white text-xs font-black cursor-pointer disabled:opacity-50 shadow-lg shadow-slate-500/20"
                     >
                       {joinBusy ? 'Verifying Invitation PIN...' : 'Verify 6-Digit PIN & Join Classroom →'}
                     </button>
@@ -757,7 +757,7 @@ export default function PartnerSchoolDashboardPage() {
     return (
       <div className="max-w-6xl mx-auto py-6 px-3 sm:px-6 space-y-6 animate-fade-in">
         {/* Top Classroom Header (Only shown to Approved Members & Sensei) */}
-        <div className="rounded-3xl bg-gradient-to-r from-violet-700 via-indigo-700 to-purple-800 text-white p-6 sm:p-8 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-slate-900 text-white p-6 sm:p-8 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs font-black uppercase tracking-wider">
               <GraduationCap className="w-4 h-4" />
@@ -767,7 +767,7 @@ export default function PartnerSchoolDashboardPage() {
               <span>{cSchool?.flag || '🏫'}</span>
               <span>{cSchool?.name || slug}</span>
             </h1>
-            <p className="text-xs sm:text-sm text-violet-100">
+            <p className="text-xs sm:text-sm text-slate-100">
               {classroomData?.user_batch
                 ? `Enrolled Batch: ${classroomData.user_batch}`
                 : 'Official Assigned Mock Exams, Sensei Study Notes & Class Notices'}
@@ -807,7 +807,7 @@ export default function PartnerSchoolDashboardPage() {
             <div className="pt-2 flex justify-center gap-3">
               <Link
                 href={`/?partner=${encodeURIComponent(slug)}`}
-                className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black"
+                className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-700 text-white text-xs font-black"
               >
                 Join or Check Enrollment Status
               </Link>
@@ -827,7 +827,7 @@ export default function PartnerSchoolDashboardPage() {
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-                    <ClipboardCheck className="w-5 h-5 text-violet-600" />
+                    <ClipboardCheck className="w-5 h-5 text-slate-700" />
                     <span>Assigned Mock Exams ({cExams.length})</span>
                   </h2>
                 </div>
@@ -852,7 +852,7 @@ export default function PartnerSchoolDashboardPage() {
                         <div className="flex items-start justify-between gap-2">
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="px-2.5 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300 text-[10px] font-black">
+                              <span className="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300 text-[10px] font-black">
                                 {ex.schedule_label || 'Assigned Mock Test'}
                               </span>
                               {ex.target_batch && (
@@ -887,13 +887,13 @@ export default function PartnerSchoolDashboardPage() {
                                 setExamPinInputs((prev) => ({ ...prev, [ex.id]: e.target.value }))
                               }
                               placeholder="Enter 4-Digit Room PIN..."
-                              className="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:border-violet-500"
+                              className="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:border-slate-500"
                             />
                           )}
                           <button
                             type="button"
                             onClick={() => handleStudentLaunchExam(ex)}
-                            className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-violet-500/20"
+                            className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-700 text-white text-xs font-black flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-slate-500/20"
                           >
                             <Play className="w-3.5 h-3.5" />
                             <span>
@@ -910,7 +910,7 @@ export default function PartnerSchoolDashboardPage() {
               {/* Study Notes Library */}
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
                 <h2 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-sky-500" />
+                  <BookOpen className="w-5 h-5 text-slate-700" />
                   <span>Sensei Library &amp; Study Notes ({cNotes.length})</span>
                 </h2>
                 {cNotes.length === 0 ? (
@@ -943,7 +943,7 @@ export default function PartnerSchoolDashboardPage() {
                           <button
                             type="button"
                             onClick={() => handleOpenNote(note)}
-                            className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-violet-600 dark:text-violet-400 hover:bg-violet-50 cursor-pointer shrink-0"
+                            className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-extrabold text-slate-700 dark:text-slate-300 hover:bg-slate-50 cursor-pointer shrink-0"
                           >
                             Read Now
                           </button>
@@ -980,7 +980,7 @@ export default function PartnerSchoolDashboardPage() {
                         }`}
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
                             {n.priority.toUpperCase()} {n.target_batch ? `• ${n.target_batch}` : ''}
                           </span>
                           <span className="text-[10px] text-slate-400">
@@ -1008,7 +1008,7 @@ export default function PartnerSchoolDashboardPage() {
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-2xl w-full p-6 space-y-4 max-h-[85vh] overflow-y-auto shadow-2xl">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     {NOTE_CATEGORY_META[activeNoteModal.category]?.label || 'Study Note'}
                   </span>
                   <h3 className="text-xl font-black text-slate-900 dark:text-white">
@@ -1033,7 +1033,7 @@ export default function PartnerSchoolDashboardPage() {
                   href={activeNoteModal.external_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-700 text-white text-xs font-black"
                 >
                   <span>Open Attached Document / PDF</span>
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -1087,7 +1087,7 @@ export default function PartnerSchoolDashboardPage() {
                 type="button"
                 disabled={loading}
                 onClick={() => fetchDashboard(accessKey)}
-                className="px-5 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-black flex items-center gap-2 cursor-pointer shadow-lg shadow-violet-500/20 disabled:opacity-50"
+                className="px-5 py-3 rounded-xl bg-gradient-to-r from-slate-900 to-slate-900 hover:from-slate-900 hover:to-slate-900 text-white text-xs font-black flex items-center gap-2 cursor-pointer shadow-lg shadow-slate-500/20 disabled:opacity-50"
               >
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 <span>{loading ? 'Checking Status...' : 'Check Approval Status'}</span>
@@ -1108,11 +1108,11 @@ export default function PartnerSchoolDashboardPage() {
       <div className="max-w-xl mx-auto py-10 px-4 animate-fade-in">
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
           <div className="flex items-center gap-3.5">
-            <div className="w-13 h-13 rounded-2xl bg-violet-100 dark:bg-violet-950/80 border border-violet-200 dark:border-violet-800 flex items-center justify-center text-violet-600 dark:text-violet-400 shrink-0">
+            <div className="w-13 h-13 rounded-2xl bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 shrink-0">
               <GraduationCap className="w-7 h-7" />
             </div>
             <div>
-              <span className="text-[11px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">
+              <span className="text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
                 School &amp; Sensei LMS Portal
               </span>
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
@@ -1157,7 +1157,7 @@ export default function PartnerSchoolDashboardPage() {
                   value={keyInput}
                   onChange={(e) => setKeyInput(e.target.value)}
                   placeholder="Paste private Sensei access key..."
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-violet-500"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-slate-500"
                 />
               </div>
             </div>
@@ -1172,7 +1172,7 @@ export default function PartnerSchoolDashboardPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-black text-sm shadow-lg shadow-violet-500/20 cursor-pointer disabled:opacity-50 transition-all"
+              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-slate-900 to-slate-900 hover:from-slate-900 hover:to-slate-900 text-white font-black text-sm shadow-lg shadow-slate-500/20 cursor-pointer disabled:opacity-50 transition-all"
             >
               {loading ? 'Unlocking Sensei LMS...' : 'Unlock Sensei Dashboard'}
             </button>
@@ -1194,7 +1194,7 @@ export default function PartnerSchoolDashboardPage() {
             )}
             <Link
               href="/partners"
-              className="font-bold text-violet-600 dark:text-violet-400 hover:underline"
+              className="font-bold text-slate-700 dark:text-slate-300 hover:underline"
             >
               Partner Schools Overview →
             </Link>
@@ -1241,11 +1241,11 @@ export default function PartnerSchoolDashboardPage() {
           {/* Schoooli Brand Header */}
           <div className="flex items-center justify-between lg:justify-start gap-3 px-2">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-600 text-white flex items-center justify-center shadow-md shadow-violet-500/25">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900 text-white flex items-center justify-center shadow-md shadow-slate-500/25">
                 <GraduationCap className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <div className="text-base font-black tracking-tight text-violet-700 dark:text-violet-300 truncate">
+                <div className="text-base font-black tracking-tight text-slate-800 dark:text-slate-300 truncate">
                   {school.flag || '🏫'} {school.name}
                 </div>
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -1257,7 +1257,7 @@ export default function PartnerSchoolDashboardPage() {
             <button
               type="button"
               onClick={() => setViewMode('classroom')}
-              className="lg:hidden px-3 py-1.5 rounded-xl bg-violet-50 dark:bg-violet-950 text-violet-700 dark:text-violet-300 text-[11px] font-black cursor-pointer"
+              className="lg:hidden px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-300 text-[11px] font-black cursor-pointer"
             >
               Student View
             </button>
@@ -1275,12 +1275,12 @@ export default function PartnerSchoolDashboardPage() {
                   onClick={() => setActiveNav(item.id)}
                   className={`flex items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-2xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
                     isActive
-                      ? 'bg-[#EDE9FE] dark:bg-violet-950/80 text-violet-700 dark:text-violet-300 shadow-2xs'
+                      ? 'bg-[#EDE9FE] dark:bg-slate-950/80 text-slate-800 dark:text-slate-300 shadow-2xs'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-violet-600 dark:text-violet-400' : 'text-slate-400'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400'}`} />
                     <span>{item.label}</span>
                   </div>
                   {item.badge > 0 ? (
@@ -1290,7 +1290,7 @@ export default function PartnerSchoolDashboardPage() {
                   ) : item.count !== undefined ? (
                     <span className="text-[10px] font-bold text-slate-400">{item.count}</span>
                   ) : (
-                    <ChevronRight className={`w-3.5 h-3.5 hidden lg:block ${isActive ? 'text-violet-500' : 'text-slate-300 dark:text-slate-700'}`} />
+                    <ChevronRight className={`w-3.5 h-3.5 hidden lg:block ${isActive ? 'text-slate-700' : 'text-slate-300 dark:text-slate-700'}`} />
                   )}
                 </button>
               );
@@ -1299,18 +1299,18 @@ export default function PartnerSchoolDashboardPage() {
         </div>
 
         {/* Bottom Schoooli Purple Rocket Card: Smart Anti-Leak Class PIN */}
-        <div className="hidden lg:block mt-8 rounded-3xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 text-white p-5 shadow-xl relative overflow-hidden space-y-3">
+        <div className="hidden lg:block mt-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900 text-white p-5 shadow-xl relative overflow-hidden space-y-3">
           <div className="w-11 h-11 rounded-2xl bg-white/15 backdrop-blur-xs flex items-center justify-center mx-auto">
             <Rocket className="w-6 h-6 text-amber-300" />
           </div>
           <div className="text-center space-y-1">
-            <div className="text-[10px] font-extrabold uppercase tracking-wider text-violet-200">
+            <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-200">
               Anti-Leak Class Join PIN
             </div>
             <div className="text-2xl font-black tracking-widest font-mono">
               {school.join_code || '------'}
             </div>
-            <p className="text-[11px] text-violet-100 leading-snug">
+            <p className="text-[11px] text-slate-100 leading-snug">
               {school.require_join_pin ? 'PIN Gate Active' : 'PIN Optional'} •{' '}
               {school.require_approval ? 'Approval Queue ON' : 'Auto-Approve'}
             </p>
@@ -1319,7 +1319,7 @@ export default function PartnerSchoolDashboardPage() {
             <button
               type="button"
               onClick={() => handleCopy('whatsapp')}
-              className="w-full py-2 px-3 rounded-xl bg-white text-violet-700 font-black text-xs shadow-sm hover:bg-violet-50 cursor-pointer transition-all"
+              className="w-full py-2 px-3 rounded-xl bg-white text-slate-800 font-black text-xs shadow-sm hover:bg-slate-50 cursor-pointer transition-all"
             >
               {copiedType === 'whatsapp' ? 'Copied Invite + PIN!' : 'Copy Invite + PIN'}
             </button>
@@ -1340,13 +1340,13 @@ export default function PartnerSchoolDashboardPage() {
         {/* Top Search & Utility Bar (Schoooli Topbar) */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5">
           <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 text-violet-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-700 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search students, roll ID, batch, or exam..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-xs font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-violet-500 shadow-2xs"
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-xs font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-slate-500 shadow-2xs"
             />
           </div>
 
@@ -1367,7 +1367,7 @@ export default function PartnerSchoolDashboardPage() {
             <button
               type="button"
               onClick={() => setViewMode('classroom')}
-              className="px-3.5 py-2 rounded-xl bg-violet-100 dark:bg-violet-950/80 text-violet-700 dark:text-violet-300 text-xs font-black flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-950/80 text-slate-800 dark:text-slate-300 text-xs font-black flex items-center gap-1.5 cursor-pointer"
               title="Preview what enrolled students see"
             >
               <Eye className="w-3.5 h-3.5" />
@@ -1443,37 +1443,37 @@ export default function PartnerSchoolDashboardPage() {
             {/* ROW 1: 3 Pastel KPI Cards (Schoooli Students / Teachers-Exams / Awards) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Lavender Card: Students */}
-              <div className="rounded-3xl bg-[#F3EEFF] dark:bg-violet-950/40 border border-violet-200/60 dark:border-violet-800/50 p-5 sm:p-6 flex items-center justify-between">
+              <div className="rounded-3xl bg-[#F3EEFF] dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-800/50 p-5 sm:p-6 flex items-center justify-between">
                 <div className="space-y-1">
-                  <span className="text-xs font-bold text-slate-500 dark:text-violet-300">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-300">
                     Students
                   </span>
                   <div className="text-3xl font-black text-slate-900 dark:text-white">
                     {kpis.total_students}
                   </div>
-                  <p className="text-[11px] font-semibold text-violet-700 dark:text-violet-300">
+                  <p className="text-[11px] font-semibold text-slate-800 dark:text-slate-300">
                     {kpis.tested_students} tested • {kpis.pending_students || 0} pending
                   </p>
                 </div>
-                <div className="w-13 h-13 rounded-2xl bg-violet-500/15 flex items-center justify-center text-violet-600 dark:text-violet-300">
+                <div className="w-13 h-13 rounded-2xl bg-slate-900/15 flex items-center justify-center text-slate-700 dark:text-slate-300">
                   <GraduationCap className="w-7 h-7" />
                 </div>
               </div>
 
               {/* Sky Blue Card: Assigned Exams & Attempts */}
-              <div className="rounded-3xl bg-[#EAF6FF] dark:bg-sky-950/40 border border-sky-200/60 dark:border-sky-800/50 p-5 sm:p-6 flex items-center justify-between">
+              <div className="rounded-3xl bg-[#EAF6FF] dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-800/50 p-5 sm:p-6 flex items-center justify-between">
                 <div className="space-y-1">
-                  <span className="text-xs font-bold text-slate-500 dark:text-sky-300">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-300">
                     Assigned Exams
                   </span>
                   <div className="text-3xl font-black text-slate-900 dark:text-white">
                     {assigned_exams.length}
                   </div>
-                  <p className="text-[11px] font-semibold text-sky-700 dark:text-sky-300">
+                  <p className="text-[11px] font-semibold text-slate-800 dark:text-slate-300">
                     {kpis.total_attempts} completed attempts
                   </p>
                 </div>
-                <div className="w-13 h-13 rounded-2xl bg-sky-500/15 flex items-center justify-center text-sky-600 dark:text-sky-300">
+                <div className="w-13 h-13 rounded-2xl bg-slate-900/15 flex items-center justify-center text-slate-700 dark:text-slate-300">
                   <ClipboardCheck className="w-7 h-7" />
                 </div>
               </div>
@@ -1513,7 +1513,7 @@ export default function PartnerSchoolDashboardPage() {
                   <button
                     type="button"
                     onClick={() => setActiveNav('exams')}
-                    className="text-xs font-extrabold text-violet-600 dark:text-violet-400 hover:underline cursor-pointer"
+                    className="text-xs font-extrabold text-slate-700 dark:text-slate-300 hover:underline cursor-pointer"
                   >
                     + Assign Exam
                   </button>
@@ -1527,7 +1527,7 @@ export default function PartnerSchoolDashboardPage() {
                     <button
                       type="button"
                       onClick={() => setActiveNav('exams')}
-                      className="px-4 py-2 rounded-xl bg-violet-600 text-white text-xs font-black cursor-pointer"
+                      className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-black cursor-pointer"
                     >
                       Assign First Mock Exam
                     </button>
@@ -1550,14 +1550,14 @@ export default function PartnerSchoolDashboardPage() {
                               <span
                                 className={`px-2 py-0.5 rounded-lg text-[10px] font-black ${
                                   isFirst
-                                    ? 'bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300'
+                                    ? 'bg-slate-100 text-slate-800 dark:bg-slate-950 dark:text-slate-300'
                                     : 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
                                 }`}
                               >
                                 {ex.schedule_label || 'Active Routine'}
                               </span>
                               {ex.require_pin && (
-                                <span className="font-mono text-[11px] font-black text-violet-600 dark:text-violet-300">
+                                <span className="font-mono text-[11px] font-black text-slate-700 dark:text-slate-300">
                                   PIN: {ex.attendance_pin}
                                 </span>
                               )}
@@ -1567,7 +1567,7 @@ export default function PartnerSchoolDashboardPage() {
                             </h3>
                             <div className="h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                               <div
-                                className={`h-full rounded-full ${isFirst ? 'bg-sky-500' : 'bg-amber-500'}`}
+                                className={`h-full rounded-full ${isFirst ? 'bg-slate-900' : 'bg-amber-500'}`}
                                 style={{ width: `${attendedPct}%` }}
                               />
                             </div>
@@ -1586,7 +1586,7 @@ export default function PartnerSchoolDashboardPage() {
                             }
                             className={`w-full py-2 px-3 rounded-xl text-[11px] font-black text-white cursor-pointer transition-all ${
                               isFirst
-                                ? 'bg-violet-600 hover:bg-violet-700 shadow-sm shadow-violet-500/20'
+                                ? 'bg-slate-900 hover:bg-slate-700 shadow-sm shadow-slate-500/20'
                                 : 'bg-slate-900 dark:bg-slate-700 hover:opacity-90'
                             }`}
                           >
@@ -1606,7 +1606,7 @@ export default function PartnerSchoolDashboardPage() {
                   <button
                     type="button"
                     onClick={() => setActiveNav('library')}
-                    className="text-xs font-extrabold text-violet-600 dark:text-violet-400 hover:underline cursor-pointer"
+                    className="text-xs font-extrabold text-slate-700 dark:text-slate-300 hover:underline cursor-pointer"
                   >
                     + Share Note
                   </button>
@@ -1620,7 +1620,7 @@ export default function PartnerSchoolDashboardPage() {
                     <button
                       type="button"
                       onClick={() => setActiveNav('library')}
-                      className="px-3.5 py-2 rounded-xl bg-sky-600 text-white text-xs font-black cursor-pointer"
+                      className="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs font-black cursor-pointer"
                     >
                       Upload Study Note
                     </button>
@@ -1650,7 +1650,7 @@ export default function PartnerSchoolDashboardPage() {
                           <button
                             type="button"
                             onClick={() => handleOpenNote(note)}
-                            className="text-[11px] font-bold text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 shrink-0 cursor-pointer"
+                            className="text-[11px] font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 shrink-0 cursor-pointer"
                           >
                             Read now
                           </button>
@@ -1739,7 +1739,7 @@ export default function PartnerSchoolDashboardPage() {
                     <button
                       type="button"
                       onClick={() => setActiveNav('students')}
-                      className="text-xs font-extrabold text-violet-600 dark:text-violet-400 hover:underline cursor-pointer"
+                      className="text-xs font-extrabold text-slate-700 dark:text-slate-300 hover:underline cursor-pointer"
                     >
                       View All ({kpis.total_students})
                     </button>
@@ -1764,20 +1764,20 @@ export default function PartnerSchoolDashboardPage() {
                           {starStudents.map((st, idx) => (
                             <tr
                               key={st.user_id}
-                              className={idx === 0 ? 'bg-violet-50/60 dark:bg-violet-950/25' : ''}
+                              className={idx === 0 ? 'bg-slate-50/60 dark:bg-slate-950/25' : ''}
                             >
                               <td className="py-2.5 pr-2">
                                 <div className="flex items-center gap-2.5">
                                   <span
                                     className={`w-4 h-4 rounded-md flex items-center justify-center text-[10px] font-black ${
                                       idx === 0
-                                        ? 'bg-violet-600 text-white'
+                                        ? 'bg-slate-900 text-white'
                                         : 'border border-slate-300 dark:border-slate-700 text-transparent'
                                     }`}
                                   >
                                     ✓
                                   </span>
-                                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 text-white font-black text-[11px] flex items-center justify-center shrink-0">
+                                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 text-white font-black text-[11px] flex items-center justify-center shrink-0">
                                     {(st.full_name || st.username || 'S').slice(0, 1).toUpperCase()}
                                   </div>
                                   <span className="font-extrabold text-slate-900 dark:text-white truncate max-w-[130px]">
@@ -1791,7 +1791,7 @@ export default function PartnerSchoolDashboardPage() {
                               <td className="py-2.5 px-2 font-black text-slate-800 dark:text-slate-200">
                                 {st.best_score !== null ? `${st.best_score}/250` : '—'}
                               </td>
-                              <td className="py-2.5 pl-2 text-right font-black text-violet-600 dark:text-violet-400">
+                              <td className="py-2.5 pl-2 text-right font-black text-slate-700 dark:text-slate-300">
                                 {st.best_pct !== null ? `${st.best_pct}%` : '—'}
                               </td>
                             </tr>
@@ -1811,7 +1811,7 @@ export default function PartnerSchoolDashboardPage() {
                     <button
                       type="button"
                       onClick={() => setActiveNav('notices')}
-                      className="text-xs font-extrabold text-violet-600 dark:text-violet-400 hover:underline cursor-pointer"
+                      className="text-xs font-extrabold text-slate-700 dark:text-slate-300 hover:underline cursor-pointer"
                     >
                       + Post Notice
                     </button>
@@ -1836,7 +1836,7 @@ export default function PartnerSchoolDashboardPage() {
                                     ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300'
                                     : n.priority === 'important'
                                     ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
-                                    : 'bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300'
+                                    : 'bg-slate-100 text-slate-800 dark:bg-slate-950 dark:text-slate-300'
                                 }`}
                               >
                                 {n.priority}
@@ -1880,7 +1880,7 @@ export default function PartnerSchoolDashboardPage() {
                       <button
                         type="button"
                         onClick={() => setActiveNav('attempts')}
-                        className="font-extrabold text-violet-600 dark:text-violet-400 hover:underline cursor-pointer"
+                        className="font-extrabold text-slate-700 dark:text-slate-300 hover:underline cursor-pointer"
                       >
                         view details
                       </button>
@@ -1888,16 +1888,16 @@ export default function PartnerSchoolDashboardPage() {
                   </div>
 
                   {/* Smart Anti-Leak Gate Card */}
-                  <div className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-950/50 dark:to-indigo-950/50 border border-violet-200/70 dark:border-violet-800/70 rounded-3xl p-5 shadow-2xs flex flex-col justify-between space-y-3">
+                  <div className="bg-gradient-to-br from-slate-800 to-slate-800 dark:from-slate-900/50 dark:to-slate-900/50 border border-slate-200/70 dark:border-slate-800/70 rounded-3xl p-5 shadow-2xs flex flex-col justify-between space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-300">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
                         Smart Link Protection
                       </span>
-                      <ShieldCheck className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+                      <ShieldCheck className="w-4 h-4 text-slate-700 dark:text-slate-300" />
                     </div>
                     <div>
                       <div className="text-sm font-black text-slate-900 dark:text-white">
-                        Join PIN: <span className="font-mono text-violet-700 dark:text-violet-300">{school.join_code}</span>
+                        Join PIN: <span className="font-mono text-slate-800 dark:text-slate-300">{school.join_code}</span>
                       </div>
                       <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
                         Stop outsiders from using leaked student links.
@@ -1932,9 +1932,9 @@ export default function PartnerSchoolDashboardPage() {
                     <div className="space-y-3.5">
                       {batchPerformanceBars.map((item, idx) => {
                         const capsuleColors = [
-                          { track: 'bg-violet-100 dark:bg-violet-950/60', fill: 'bg-violet-600' },
+                          { track: 'bg-slate-100 dark:bg-slate-950/60', fill: 'bg-slate-900' },
                           { track: 'bg-amber-100 dark:bg-amber-950/60', fill: 'bg-amber-500' },
-                          { track: 'bg-sky-100 dark:bg-sky-950/60', fill: 'bg-sky-500' },
+                          { track: 'bg-slate-100 dark:bg-slate-950/60', fill: 'bg-slate-900' },
                           { track: 'bg-rose-100 dark:bg-rose-950/60', fill: 'bg-rose-500' },
                         ][idx % 4];
 
@@ -2017,7 +2017,7 @@ export default function PartnerSchoolDashboardPage() {
                       onClick={() => setStudentStatusFilter(stKey)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-extrabold capitalize cursor-pointer ${
                         studentStatusFilter === stKey
-                          ? 'bg-violet-600 text-white'
+                          ? 'bg-slate-900 text-white'
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                       }`}
                     >
@@ -2054,7 +2054,7 @@ export default function PartnerSchoolDashboardPage() {
                           </td>
                           <td className="py-3.5 px-4">
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="px-2 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950 text-violet-700 dark:text-violet-300 font-bold">
+                              <span className="px-2 py-0.5 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-300 font-bold">
                                 {st.batch || 'General'}
                               </span>
                               {st.student_roll_or_id && (
@@ -2168,7 +2168,7 @@ export default function PartnerSchoolDashboardPage() {
               className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 space-y-4 self-start"
             >
               <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                <Plus className="w-4 h-4 text-violet-600" />
+                <Plus className="w-4 h-4 text-slate-700" />
                 <span>Assign Mock Exam to Classroom</span>
               </h2>
 
@@ -2245,13 +2245,13 @@ export default function PartnerSchoolDashboardPage() {
                 />
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-violet-50/70 dark:bg-violet-950/40 border border-violet-200 dark:border-violet-800 space-y-2">
-                <label className="flex items-center gap-2 text-xs font-black text-violet-900 dark:text-violet-200 cursor-pointer">
+              <div className="p-3.5 rounded-2xl bg-slate-50/70 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 space-y-2">
+                <label className="flex items-center gap-2 text-xs font-black text-slate-900 dark:text-slate-200 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={assignRequirePin}
                     onChange={(e) => setAssignRequirePin(e.target.checked)}
-                    className="rounded text-violet-600"
+                    className="rounded text-slate-700"
                   />
                   <span>Require 4-Digit Live Exam Room Attendance PIN</span>
                 </label>
@@ -2262,7 +2262,7 @@ export default function PartnerSchoolDashboardPage() {
                     value={assignPin}
                     onChange={(e) => setAssignPin(e.target.value)}
                     placeholder="Auto-generate 4-digit PIN (or type e.g. 4821)"
-                    className="w-full px-3 py-2 rounded-xl border border-violet-300 dark:border-violet-700 bg-white dark:bg-slate-900 text-xs font-mono font-bold"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono font-bold"
                   />
                 )}
               </div>
@@ -2270,7 +2270,7 @@ export default function PartnerSchoolDashboardPage() {
               <button
                 type="submit"
                 disabled={actionBusy}
-                className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black shadow-md shadow-violet-500/20 cursor-pointer"
+                className="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-700 text-white text-xs font-black shadow-md shadow-slate-500/20 cursor-pointer"
               >
                 {actionBusy ? 'Assigning...' : 'Assign Exam to Classroom'}
               </button>
@@ -2304,7 +2304,7 @@ export default function PartnerSchoolDashboardPage() {
                           >
                             {ex.is_active ? 'ACTIVE' : 'PAUSED'}
                           </span>
-                          <span className="text-[11px] font-bold text-violet-600 dark:text-violet-400">
+                          <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
                             {ex.schedule_label || 'Ongoing'}
                           </span>
                           <span className="text-[11px] text-slate-400">
@@ -2330,7 +2330,7 @@ export default function PartnerSchoolDashboardPage() {
                                 'New 4-digit Exam PIN generated!'
                               )
                             }
-                            className="px-3 py-1.5 rounded-xl bg-violet-100 dark:bg-violet-950 text-violet-800 dark:text-violet-200 font-mono text-xs font-black cursor-pointer"
+                            className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-mono text-xs font-black cursor-pointer"
                             title="Click to rotate 4-digit PIN"
                           >
                             PIN: {ex.attendance_pin} ↻
@@ -2379,7 +2379,7 @@ export default function PartnerSchoolDashboardPage() {
               className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 space-y-4 self-start"
             >
               <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                <FileText className="w-4 h-4 text-sky-500" />
+                <FileText className="w-4 h-4 text-slate-700" />
                 <span>Share Study Note / PDF Link</span>
               </h2>
 
@@ -2466,7 +2466,7 @@ export default function PartnerSchoolDashboardPage() {
               <button
                 type="submit"
                 disabled={actionBusy}
-                className="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-black cursor-pointer"
+                className="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-700 text-white text-xs font-black cursor-pointer"
               >
                 {actionBusy ? 'Publishing...' : 'Publish Study Note'}
               </button>
@@ -2632,7 +2632,7 @@ export default function PartnerSchoolDashboardPage() {
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300 text-[10px] font-black uppercase">
+                          <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300 text-[10px] font-black uppercase">
                             {n.priority}
                           </span>
                           <span className="text-[11px] text-slate-400">
@@ -2775,7 +2775,7 @@ export default function PartnerSchoolDashboardPage() {
             >
               <div>
                 <h2 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-violet-600" />
+                  <ShieldCheck className="w-5 h-5 text-slate-700" />
                   <span>Anti-Link-Sharing &amp; Smart Enrollment Gate</span>
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -2784,9 +2784,9 @@ export default function PartnerSchoolDashboardPage() {
               </div>
 
               {/* Rotating 6-Digit Class Join PIN Box */}
-              <div className="p-4 rounded-2xl bg-violet-50/80 dark:bg-violet-950/50 border border-violet-200 dark:border-violet-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-300">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Active 6-Digit Class Join PIN
                   </span>
                   <div className="text-2xl font-black font-mono tracking-widest text-slate-900 dark:text-white mt-0.5">
@@ -2800,7 +2800,7 @@ export default function PartnerSchoolDashboardPage() {
                   <button
                     type="button"
                     onClick={() => handleCopy('pin')}
-                    className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-violet-200 dark:border-violet-700 text-xs font-black text-violet-700 dark:text-violet-300 cursor-pointer"
+                    className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-black text-slate-800 dark:text-slate-300 cursor-pointer"
                   >
                     Copy PIN
                   </button>
@@ -2813,7 +2813,7 @@ export default function PartnerSchoolDashboardPage() {
                         'Generated new 6-Digit Class Join PIN!'
                       )
                     }
-                    className="px-3.5 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black cursor-pointer"
+                    className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-700 text-white text-xs font-black cursor-pointer"
                   >
                     Rotate PIN ↻
                   </button>
@@ -2899,7 +2899,7 @@ export default function PartnerSchoolDashboardPage() {
             {/* Batch Invite Link & WhatsApp Builder */}
             <div className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 space-y-4 self-start">
               <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-violet-600" />
+                <Sparkles className="w-4 h-4 text-slate-700" />
                 <span>Batch Invite Link &amp; WhatsApp Pitch</span>
               </h2>
               <p className="text-xs text-slate-500">
@@ -2952,7 +2952,7 @@ export default function PartnerSchoolDashboardPage() {
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-2xl w-full p-6 space-y-4 max-h-[85vh] overflow-y-auto shadow-2xl">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
                   {NOTE_CATEGORY_META[activeNoteModal.category]?.label || 'Study Note'}
                 </span>
                 <h3 className="text-xl font-black text-slate-900 dark:text-white">
@@ -2977,7 +2977,7 @@ export default function PartnerSchoolDashboardPage() {
                 href={activeNoteModal.external_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-700 text-white text-xs font-black"
               >
                 <span>Open External PDF / Document</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -3041,7 +3041,7 @@ export default function PartnerSchoolDashboardPage() {
                   );
                   if (ok) setEditingStudent(null);
                 }}
-                className="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-700 text-white text-xs font-black cursor-pointer"
               >
                 Save Changes
               </button>

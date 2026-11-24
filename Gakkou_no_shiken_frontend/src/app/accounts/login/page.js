@@ -134,7 +134,7 @@ function LoginForm() {
           }}
           className={`py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
             isSchool
-              ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm'
+              ? 'bg-gradient-to-r from-slate-900 to-slate-900 text-white shadow-sm'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
@@ -173,7 +173,7 @@ function LoginForm() {
             }}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold cursor-pointer transition-all ${
               schoolAuthMethod === 'account'
-                ? 'bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300 border border-violet-300 dark:border-violet-700'
+                ? 'bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
                 : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
@@ -188,7 +188,7 @@ function LoginForm() {
             }}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-all ${
               schoolAuthMethod === 'key'
-                ? 'bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300 border border-violet-300 dark:border-violet-700'
+                ? 'bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
                 : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
@@ -231,7 +231,7 @@ function LoginForm() {
               </button>
               <Link
                 href="/accounts/signup?role=school"
-                className="flex-1 py-2 px-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black text-xs text-center flex items-center justify-center gap-1"
+                className="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-700 text-white font-black text-xs text-center flex items-center justify-center gap-1"
               >
                 <span>Register School Account</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -255,7 +255,7 @@ function LoginForm() {
                 onChange={(e) => setSchoolCodeInput(e.target.value)}
                 required
                 placeholder="e.g. lpk-sakura"
-                className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-violet-600 font-mono font-bold text-slate-800 dark:text-white text-sm"
+                className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-slate-600 font-mono font-bold text-slate-800 dark:text-white text-sm"
               />
             </div>
 
@@ -269,7 +269,7 @@ function LoginForm() {
                 onChange={(e) => setSenseiKeyInput(e.target.value)}
                 required
                 placeholder="Paste private Sensei access key..."
-                className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-violet-600 font-mono font-bold text-slate-800 dark:text-white text-sm"
+                className="w-full px-4 py-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-slate-600 font-mono font-bold text-slate-800 dark:text-white text-sm"
               />
             </div>
           </>
@@ -337,7 +337,7 @@ function LoginForm() {
           disabled={submitting}
           className={`w-full py-4 text-white font-extrabold rounded-2xl text-sm transition-all shadow-lg active:scale-95 mt-2 cursor-pointer disabled:opacity-50 ${
             isSchool
-              ? 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-violet-500/20'
+              ? 'bg-gradient-to-r from-slate-900 to-slate-900 hover:from-slate-900 hover:to-slate-900 shadow-slate-500/20'
               : 'bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 shadow-red-500/20'
           }`}
         >
@@ -359,7 +359,7 @@ function LoginForm() {
         <Link
           href={`/accounts/signup?role=${role}${next && next !== '/' ? `&next=${encodeURIComponent(next)}` : ''}`}
           className={`hover:underline font-bold transition-colors ml-1 ${
-            isSchool ? 'text-violet-600 dark:text-violet-400' : 'text-japan-red dark:text-rose-400'
+            isSchool ? 'text-slate-700 dark:text-slate-300' : 'text-japan-red dark:text-rose-400'
           }`}
         >
           {isSchool ? 'Register School Account →' : 'Register Free'}
