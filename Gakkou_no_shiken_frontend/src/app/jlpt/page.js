@@ -38,83 +38,86 @@ const EXPLANATION_LANGUAGES = [
   { code: 'hi', label: 'हिन्दी', flag: '🇮🇳' },
 ];
 
-// Cohesive Japanese Academic Palette: Slate -> Deep Navy -> Japan Red (#DC2626)
 const JLPT_LEVEL_GUIDE = [
   {
     level: 'N5',
     rank: 1,
     jaRank: '初級',
-    stepHeight: 'lg:min-h-[132px]',
+    stepHeight: 'lg:min-h-[128px]',
     label: 'Beginner',
-    difficultyTag: 'Level 1 of 5 • Entry Point',
+    difficultyTag: 'Level 1/5 • Entry Point',
     cefr: 'CEFR A1',
     kanji: '~100 Kanji',
-    kanjiPct: 10,
+    kanjiPct: 12,
     vocab: '~800 Words',
-    vocabPct: 10,
+    vocabPct: 12,
     hours: '150 hrs',
-    hoursPct: 16,
-    goal: 'Master Hiragana, Katakana, essential daily greetings, and simple everyday phrases.',
+    hoursPct: 18,
+    goal: 'Master Hiragana, Katakana, basic greetings, and simple everyday Japanese phrases.',
     career: 'Travel & Basic Daily Life in Japan',
+    stepAccent: 'border-t-[#FFD1D1]',
   },
   {
     level: 'N4',
     rank: 2,
     jaRank: '基礎',
-    stepHeight: 'lg:min-h-[164px]',
+    stepHeight: 'lg:min-h-[156px]',
     label: 'Elementary',
-    difficultyTag: 'Level 2 of 5 • SSW & JFT Equivalent',
+    difficultyTag: 'Level 2/5 • SSW & JFT Level',
     cefr: 'CEFR A2',
     kanji: '~300 Kanji',
-    kanjiPct: 20,
+    kanjiPct: 24,
     vocab: '~1,500 Words',
-    vocabPct: 20,
+    vocabPct: 24,
     hours: '300 hrs',
-    hoursPct: 33,
+    hoursPct: 35,
     goal: 'Handle everyday conversations, workplace instructions, and JFT-Basic / SSW visa requirements.',
     career: 'SSW Visa & Entry-Level Work in Japan',
+    stepAccent: 'border-t-[#FFB8B8]',
   },
   {
     level: 'N3',
     rank: 3,
     jaRank: '中級',
-    stepHeight: 'lg:min-h-[196px]',
+    stepHeight: 'lg:min-h-[184px]',
     label: 'Intermediate',
-    difficultyTag: 'Level 3 of 5 • Career Bridge',
+    difficultyTag: 'Level 3/5 • Career Bridge',
     cefr: 'CEFR B1',
     kanji: '~650 Kanji',
-    kanjiPct: 40,
+    kanjiPct: 45,
     vocab: '~3,750 Words',
-    vocabPct: 42,
+    vocabPct: 45,
     hours: '450 hrs',
-    hoursPct: 50,
+    hoursPct: 52,
     goal: 'Understand natural workplace Japanese, news summaries, and everyday written articles.',
     career: 'Vocational Schools & Japanese Workplaces',
+    stepAccent: 'border-t-[#FF9494]',
   },
   {
     level: 'N2',
     rank: 4,
     jaRank: '上級',
-    stepHeight: 'lg:min-h-[228px]',
+    stepHeight: 'lg:min-h-[212px]',
     label: 'Pre-Advanced',
-    difficultyTag: 'Level 4 of 5 • Business & University',
+    difficultyTag: 'Level 4/5 • Business & Uni',
     cefr: 'CEFR B2',
     kanji: '~1,000 Kanji',
-    kanjiPct: 65,
+    kanjiPct: 70,
     vocab: '~6,000 Words',
-    vocabPct: 65,
+    vocabPct: 70,
     hours: '600 hrs',
-    hoursPct: 68,
-    goal: 'Read newspapers, follow fast native discussions, and qualify for Japanese universities & corporate roles.',
+    hoursPct: 72,
+    goal: 'Read newspapers, follow fast native discussions, and qualify for Japanese universities & companies.',
     career: 'Japanese Companies & University Admission',
+    stepAccent: 'border-t-[#E66B77]',
   },
   {
     level: 'N1',
     rank: 5,
     jaRank: '最上級',
-    stepHeight: 'lg:min-h-[260px]',
+    stepHeight: 'lg:min-h-[240px]',
     label: 'Advanced Master',
-    difficultyTag: 'Level 5 of 5 • Near-Native Summit',
+    difficultyTag: 'Level 5/5 • Near-Native Summit',
     cefr: 'CEFR C1',
     kanji: '~2,000+ Kanji',
     kanjiPct: 100,
@@ -124,6 +127,7 @@ const JLPT_LEVEL_GUIDE = [
     hoursPct: 100,
     goal: 'Comprehend complex academic papers, legal/editorial Japanese, and nuanced native speech effortlessly.',
     career: 'Executive Roles, Translators & Graduate Study',
+    stepAccent: 'border-t-[#D94E5D]',
   },
 ];
 
@@ -139,7 +143,7 @@ function renderHighlightedQuestion(text, underline) {
         <React.Fragment key={idx}>
           {part}
           {idx < parts.length - 1 && (
-            <span className="underline decoration-2 decoration-japan-red underline-offset-4 font-black text-japan-red dark:text-red-400 px-0.5">
+            <span className="underline decoration-2 decoration-[#D94E5D] underline-offset-4 font-black text-[#D94E5D] dark:text-[#FF9494] px-0.5">
               {underline}
             </span>
           )}
@@ -156,7 +160,7 @@ export default function JlptHubPage() {
   const [overviewLoading, setOverviewLoading] = useState(true);
 
   // Section 1: Short Placement Test state
-  const [placementState, setPlacementState] = useState('idle'); // idle | taking | submitting | done
+  const [placementState, setPlacementState] = useState('idle');
   const [placementQuestions, setPlacementQuestions] = useState([]);
   const [placementIndex, setPlacementIndex] = useState(0);
   const [placementAnswers, setPlacementAnswers] = useState({});
@@ -187,6 +191,7 @@ export default function JlptHubPage() {
         const firstReady = levels.find((l) => l.ready_sets > 0);
         if (firstReady) {
           setSelectedLevel(firstReady.level);
+          setFocusedGuideLevel(firstReady.level);
         }
       })
       .catch(() => {})
@@ -224,6 +229,7 @@ export default function JlptHubPage() {
 
   const jumpToLevelMocks = (level) => {
     setSelectedLevel(level);
+    setFocusedGuideLevel(level);
     setSelectedCategory('all');
     setPage(1);
     setReadyOnly(false);
@@ -268,122 +274,139 @@ export default function JlptHubPage() {
   const activeCategories = activeLevelInfo?.categories || [];
   const currentPlacementQ = placementQuestions[placementIndex];
   const answeredPlacementCount = Object.keys(placementAnswers).length;
+  const focusedGuide =
+    JLPT_LEVEL_GUIDE.find((g) => g.level === focusedGuideLevel) || JLPT_LEVEL_GUIDE[4];
+  const focusedStats = levelMap[focusedGuide.level];
 
   return (
-    <div className="min-h-screen bg-[#FFF5E4] dark:bg-[#060913] text-slate-900 dark:text-slate-100 pb-20">
+    <div className="min-h-screen bg-[#FFF5E4] dark:bg-[#060913] text-slate-900 dark:text-slate-100 pb-24">
       {/* =====================================================================
-          SECTION 1 (TOP): HERO + SHORT JLPT LEVEL CHECKER MOCK TEST
+          SECTION 1 (TOP): MODERN LIGHT SAKURA HERO + 3-MIN LEVEL CHECKER
          ===================================================================== */}
-      <section className="relative overflow-hidden border-b border-[#FFD1D1] dark:border-slate-800 bg-[#171316] text-white">
-        <div className="absolute inset-0 opacity-25 pointer-events-none bg-[radial-gradient(circle_at_15%_20%,#FF9494,transparent_45%)]" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left Intro */}
-            <div className="lg:col-span-5 space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-extrabold tracking-wide uppercase text-slate-200">
-                <GraduationCap className="w-3.5 h-3.5 text-japan-red" />
+      <section className="relative overflow-hidden border-b border-[#FFD1D1] dark:border-slate-800 bg-gradient-to-b from-[#FFE3E1]/75 via-[#FFF5E4] to-[#FFF5E4] dark:from-[#120d14] dark:via-[#0a0d17] dark:to-[#060913]">
+        {/* Soft Sakura Ambient Orbs */}
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#FF9494]/20 dark:bg-[#FF9494]/10 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-[#FFD1D1]/40 dark:bg-[#D94E5D]/10 blur-3xl pointer-events-none" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-12 lg:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
+            {/* Left Editorial Intro */}
+            <div className="lg:col-span-5 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-700 text-[11px] font-black tracking-wide uppercase text-[#B83B4A] dark:text-[#FF9494] shadow-2xs">
+                <GraduationCap className="w-3.5 h-3.5 text-[#D94E5D]" />
                 <span>JLPT N5 – N1 Official Mock Hub</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
-                Find Your <span className="text-japan-red">JLPT Level</span> &amp; Master Real Mock Tests
+
+              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.12] text-slate-900 dark:text-white">
+                Find Your <span className="text-[#D94E5D]">JLPT Level</span> &amp; Master Real Mock Tests
               </h1>
-              <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                Not sure whether to start at <strong>N5, N4, N3, N2, or N1</strong>? Take our <strong>3-minute diagnostic test</strong>, compare every level&apos;s difficulty at a glance, and practice authentic JLPT mock tests with <strong>7-language explanations</strong>.
+
+              <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                Take our <strong>3-minute diagnostic test</strong>, compare <strong>N5 → N1</strong> difficulty at a glance, and practice authentic JLPT mock exams with <strong>7-language explanations</strong>.
               </p>
 
-              {/* Clean Monochrome Platform Totals */}
-              <div className="grid grid-cols-3 gap-3 pt-2">
-                <div className="rounded-2xl bg-white/5 border border-white/10 p-3.5">
-                  <div className="text-xl sm:text-2xl font-black text-white">
+              {/* Compact Modern Stats Bar (Single Clean Row on Mobile & Desktop) */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-1">
+                <div className="rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-[#FFD1D1] dark:border-slate-800 px-3 py-2.5 sm:p-3.5 shadow-2xs">
+                  <div className="text-base sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
                     {overview?.totals?.total_questions
                       ? overview.totals.total_questions.toLocaleString()
                       : '32,899'}
                   </div>
-                  <div className="text-[11px] font-semibold text-slate-400">JLPT Questions</div>
+                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                    Questions
+                  </div>
                 </div>
-                <div className="rounded-2xl bg-white/5 border border-white/10 p-3.5">
-                  <div className="text-xl sm:text-2xl font-black text-white">
+                <div className="rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-[#FFD1D1] dark:border-slate-800 px-3 py-2.5 sm:p-3.5 shadow-2xs">
+                  <div className="text-base sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
                     {overview?.totals?.total_sets
                       ? overview.totals.total_sets.toLocaleString()
                       : '1,935'}
                   </div>
-                  <div className="text-[11px] font-semibold text-slate-400">Mock Test Sets</div>
+                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                    Mock Sets
+                  </div>
                 </div>
-                <div className="rounded-2xl bg-white/5 border border-white/10 p-3.5">
-                  <div className="text-xl sm:text-2xl font-black text-white">7 Langs</div>
-                  <div className="text-[11px] font-semibold text-slate-400">Post-Exam Guide</div>
+                <div className="rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-[#FFD1D1] dark:border-slate-800 px-3 py-2.5 sm:p-3.5 shadow-2xs">
+                  <div className="text-base sm:text-2xl font-black text-[#D94E5D] leading-tight">
+                    7 Langs
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                    Explanations
+                  </div>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-3 pt-1">
+              {/* Action Buttons (2-column compact row on mobile) */}
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2.5 pt-1">
                 <a
                   href="#jlpt-level-guide"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs sm:text-sm font-bold text-white transition"
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 hover:bg-[#FFE3E1]/60 border border-[#FFD1D1] dark:border-slate-700 text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-200 transition"
                 >
-                  <span>Compare N5 → N1 Difficulty</span>
-                  <ArrowDown className="w-4 h-4" />
+                  <span>Level Guide</span>
+                  <ArrowDown className="w-3.5 h-3.5 text-[#D94E5D]" />
                 </a>
                 <button
                   type="button"
                   onClick={() => jumpToLevelMocks(selectedLevel)}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-japan-red hover:bg-japan-redhover text-white text-xs sm:text-sm font-extrabold shadow-lg shadow-red-950/40 transition cursor-pointer"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-[#D94E5D] dark:bg-[#D94E5D] dark:hover:bg-[#BE3B4A] text-white text-xs sm:text-sm font-extrabold shadow-sm transition cursor-pointer"
                 >
-                  <span>Browse Mock Tests</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>Mock Tests</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
 
             {/* Right Interactive Short Level Checker Card */}
             <div className="lg:col-span-7">
-              <div className="rounded-3xl bg-white dark:bg-[#0f1629] text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800 shadow-2xl p-6 sm:p-8">
+              <div className="rounded-3xl bg-white dark:bg-[#0f1629] text-slate-900 dark:text-slate-100 border border-[#FFD1D1] dark:border-slate-800 shadow-lg shadow-[#FF9494]/10 p-5 sm:p-7">
                 {/* IDLE STATE */}
                 {placementState === 'idle' && (
-                  <div className="space-y-5">
+                  <div className="space-y-4 sm:space-y-5">
                     <div>
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-950/50 text-japan-red dark:text-red-300 text-xs font-black uppercase">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#FFE3E1] dark:bg-slate-800 text-[#B83B4A] dark:text-[#FF9494] text-[10px] sm:text-xs font-black uppercase">
                         <Target className="w-3.5 h-3.5" /> Step 1 • Quick Level Check
                       </span>
-                      <h2 className="text-xl sm:text-2xl font-black mt-2 text-slate-900 dark:text-white">
+                      <h2 className="text-lg sm:text-2xl font-black mt-2 text-slate-900 dark:text-white leading-snug">
                         Check Your Current JLPT Level in 3 Minutes
                       </h2>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                        10 graded questions (2 from each level: N5, N4, N3, N2, N1). Instant level recommendation with 7-language explanations.
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        10 graded questions (2 per level: N5 → N1) with instant recommendation and 7-language explanations.
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
                       {JLPT_LEVEL_GUIDE.map((g) => (
                         <div
                           key={g.level}
-                          className="rounded-xl p-2.5 text-center border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60"
+                          className="rounded-xl py-2 px-1 sm:p-2.5 text-center border border-[#FFD1D1] dark:border-slate-800 bg-[#FFF5E4]/70 dark:bg-slate-900/60"
                         >
-                          <div className="text-sm font-black text-slate-900 dark:text-white">
+                          <div className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
                             {g.level}
                           </div>
-                          <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                          <div className="text-[9px] sm:text-[10px] font-bold text-slate-500 dark:text-slate-400">
                             2 Qs
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-200 dark:border-slate-800">
-                      <div className="flex items-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-[#FFE3E1] dark:border-slate-800">
+                      <div className="flex items-center justify-between sm:justify-start gap-3 text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400">
                         <span className="inline-flex items-center gap-1">
-                          <Clock className="w-4 h-4 text-slate-700 dark:text-slate-300" /> ~3 Mins
+                          <Clock className="w-3.5 h-3.5 text-[#D94E5D]" /> ~3 Mins
                         </span>
                         <span className="inline-flex items-center gap-1">
-                          <Globe className="w-4 h-4 text-slate-700 dark:text-slate-300" /> 7-Lang Review
+                          <Globe className="w-3.5 h-3.5 text-[#D94E5D]" /> 7 Langs
                         </span>
                         <span className="inline-flex items-center gap-1">
-                          <CheckCircle2 className="w-4 h-4 text-slate-700 dark:text-slate-300" /> Free &amp; Instant
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#D94E5D]" /> Free
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={handleStartPlacement}
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-japan-red hover:bg-japan-redhover text-white font-black text-sm shadow-md transition cursor-pointer"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#D94E5D] hover:bg-[#BE3B4A] text-white font-black text-xs sm:text-sm shadow-md shadow-[#D94E5D]/20 transition cursor-pointer"
                       >
                         <span>Start Level Check Now</span>
                         <ArrowRight className="w-4 h-4" />
@@ -394,41 +417,41 @@ export default function JlptHubPage() {
 
                 {/* TAKING / SUBMITTING STATE */}
                 {(placementState === 'taking' || placementState === 'submitting') && (
-                  <div className="space-y-5">
+                  <div className="space-y-4">
                     {!currentPlacementQ ? (
-                      <div className="py-12 text-center text-sm font-semibold text-slate-500">
+                      <div className="py-10 text-center text-sm font-semibold text-slate-500">
                         Loading diagnostic questions...
                       </div>
                     ) : (
                       <>
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
                             <span className="px-2.5 py-1 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-black">
-                              Q{placementIndex + 1} / {placementQuestions.length}
+                              Q{placementIndex + 1}/{placementQuestions.length}
                             </span>
-                            <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-extrabold">
+                            <span className="px-2.5 py-1 rounded-lg bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FFD1D1] text-xs font-extrabold">
                               {currentPlacementQ.level} • {currentPlacementQ.section}
                             </span>
                           </div>
-                          <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                            {answeredPlacementCount}/{placementQuestions.length} answered
+                          <span className="text-xs font-bold text-slate-500">
+                            {answeredPlacementCount}/{placementQuestions.length}
                           </span>
                         </div>
 
-                        <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                        <div className="w-full h-2 rounded-full bg-[#FFE3E1] dark:bg-slate-800 overflow-hidden">
                           <div
-                            className="h-full bg-japan-red transition-all duration-300"
+                            className="h-full bg-[#D94E5D] transition-all duration-300"
                             style={{
                               width: `${((placementIndex + 1) / placementQuestions.length) * 100}%`,
                             }}
                           />
                         </div>
 
-                        <div className="rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 p-5">
-                          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">
+                        <div className="rounded-2xl bg-[#FFF5E4]/70 dark:bg-slate-900/70 border border-[#FFD1D1] dark:border-slate-800 p-4 sm:p-5">
+                          <p className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                             {currentPlacementQ.instruction}
                           </p>
-                          <p className="text-lg sm:text-xl font-bold leading-relaxed">
+                          <p className="text-base sm:text-xl font-bold leading-relaxed">
                             {renderHighlightedQuestion(
                               currentPlacementQ.question,
                               currentPlacementQ.underline
@@ -436,7 +459,7 @@ export default function JlptHubPage() {
                           </p>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                           {(currentPlacementQ.options || []).map((opt, idx) => {
                             const optNum = idx + 1;
                             const isSelected = placementAnswers[currentPlacementQ.id] === optNum;
@@ -450,17 +473,17 @@ export default function JlptHubPage() {
                                     [currentPlacementQ.id]: optNum,
                                   }))
                                 }
-                                className={`flex items-center gap-3 p-3.5 rounded-xl border text-left font-bold text-sm transition cursor-pointer ${
+                                className={`flex items-center gap-3 p-3 rounded-xl border text-left font-bold text-sm transition cursor-pointer ${
                                   isSelected
-                                    ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-sm'
-                                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-slate-400'
+                                    ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white'
+                                    : 'bg-white dark:bg-slate-900 border-[#FFD1D1] dark:border-slate-700 hover:border-[#FF9494]'
                                 }`}
                               >
                                 <span
-                                  className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black shrink-0 ${
+                                  className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black shrink-0 ${
                                     isSelected
-                                      ? 'bg-japan-red text-white'
-                                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                                      ? 'bg-[#D94E5D] text-white'
+                                      : 'bg-[#FFE3E1] dark:bg-slate-800 text-slate-800 dark:text-slate-300'
                                   }`}
                                 >
                                   {optNum}
@@ -471,14 +494,14 @@ export default function JlptHubPage() {
                           })}
                         </div>
 
-                        <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800">
+                        <div className="flex items-center justify-between pt-2 border-t border-[#FFE3E1] dark:border-slate-800">
                           <button
                             type="button"
                             disabled={placementIndex === 0}
                             onClick={() => setPlacementIndex((i) => Math.max(0, i - 1))}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                            className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl border border-[#FFD1D1] dark:border-slate-700 text-xs font-bold disabled:opacity-40 hover:bg-[#FFF5E4] cursor-pointer"
                           >
-                            <ChevronLeft className="w-4 h-4" /> Previous
+                            <ChevronLeft className="w-4 h-4" /> Prev
                           </button>
 
                           {placementIndex < placementQuestions.length - 1 ? (
@@ -489,20 +512,18 @@ export default function JlptHubPage() {
                                   Math.min(placementQuestions.length - 1, i + 1)
                                 )
                               }
-                              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-black cursor-pointer"
+                              className="inline-flex items-center gap-1 px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-black cursor-pointer"
                             >
-                              Next Question <ChevronRight className="w-4 h-4" />
+                              Next <ChevronRight className="w-4 h-4" />
                             </button>
                           ) : (
                             <button
                               type="button"
                               disabled={placementState === 'submitting'}
                               onClick={handleSubmitPlacement}
-                              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-japan-red hover:bg-japan-redhover text-white text-xs font-black shadow-md cursor-pointer disabled:opacity-60"
+                              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#D94E5D] hover:bg-[#BE3B4A] text-white text-xs font-black shadow-md cursor-pointer disabled:opacity-60"
                             >
-                              {placementState === 'submitting'
-                                ? 'Calculating Level...'
-                                : 'See My JLPT Level →'}
+                              {placementState === 'submitting' ? 'Calculating...' : 'See My Level →'}
                             </button>
                           )}
                         </div>
@@ -513,15 +534,15 @@ export default function JlptHubPage() {
 
                 {/* DONE STATE */}
                 {placementState === 'done' && placementResult && (
-                  <div className="space-y-5">
-                    <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <span className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                          Diagnostic Complete • Score {placementResult.score}/{placementResult.total_questions}
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-500">
+                          Score {placementResult.score}/{placementResult.total_questions}
                         </span>
-                        <h3 className="text-2xl sm:text-3xl font-black mt-1">
-                          Recommended Level:{' '}
-                          <span className="text-japan-red">
+                        <h3 className="text-xl sm:text-3xl font-black mt-0.5">
+                          Recommended:{' '}
+                          <span className="text-[#D94E5D]">
                             JLPT {placementResult.recommended_level}
                           </span>
                         </h3>
@@ -529,36 +550,36 @@ export default function JlptHubPage() {
                       <button
                         type="button"
                         onClick={handleStartPlacement}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#FFD1D1] dark:border-slate-700 text-xs font-bold hover:bg-[#FFF5E4] cursor-pointer"
                       >
                         <RotateCcw className="w-3.5 h-3.5" /> Retake
                       </button>
                     </div>
 
-                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                       {placementResult.summary}
                     </p>
 
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
                       {(placementResult.breakdown || []).map((b) => {
                         const pct = b.total ? Math.round((b.correct / b.total) * 100) : 0;
                         const isRec = b.level === placementResult.recommended_level;
                         return (
                           <div
                             key={b.level}
-                            className={`rounded-xl p-2.5 border text-center ${
+                            className={`rounded-xl p-2 border text-center ${
                               isRec
-                                ? 'bg-red-50 dark:bg-red-950/40 border-japan-red ring-1 ring-japan-red/30'
-                                : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
+                                ? 'bg-[#FFE3E1] dark:bg-red-950/40 border-[#D94E5D]'
+                                : 'bg-[#FFF5E4]/60 dark:bg-slate-900 border-[#FFD1D1] dark:border-slate-800'
                             }`}
                           >
-                            <div className="text-xs font-black">{b.level}</div>
-                            <div className="text-lg font-black text-slate-900 dark:text-white">
+                            <div className="text-[11px] font-black">{b.level}</div>
+                            <div className="text-sm sm:text-lg font-black">
                               {b.correct}/{b.total}
                             </div>
-                            <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 mt-1 overflow-hidden">
+                            <div className="w-full h-1.5 rounded-full bg-white dark:bg-slate-700 mt-1 overflow-hidden">
                               <div
-                                className={`h-full ${isRec ? 'bg-japan-red' : 'bg-slate-700 dark:bg-slate-300'}`}
+                                className={`h-full ${isRec ? 'bg-[#D94E5D]' : 'bg-slate-800 dark:bg-slate-300'}`}
                                 style={{ width: `${pct}%` }}
                               />
                             </div>
@@ -567,40 +588,36 @@ export default function JlptHubPage() {
                       })}
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-[#FFE3E1] dark:border-slate-800">
                       <button
                         type="button"
                         onClick={() => setShowPlacementReview((v) => !v)}
-                        className="text-xs font-extrabold text-slate-700 dark:text-slate-300 hover:text-japan-red underline underline-offset-4 cursor-pointer"
+                        className="text-xs font-extrabold text-slate-700 dark:text-slate-300 hover:text-[#D94E5D] underline underline-offset-4 cursor-pointer text-left"
                       >
-                        {showPlacementReview
-                          ? 'Hide Answer Explanations ▲'
-                          : 'View 7-Language Answer Explanations ▼'}
+                        {showPlacementReview ? 'Hide Explanations ▲' : 'View 7-Language Explanations ▼'}
                       </button>
                       <button
                         type="button"
                         onClick={() => jumpToLevelMocks(placementResult.recommended_level)}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-japan-red hover:bg-japan-redhover text-white text-xs sm:text-sm font-black shadow-md cursor-pointer"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#D94E5D] hover:bg-[#BE3B4A] text-white text-xs sm:text-sm font-black shadow-md cursor-pointer"
                       >
-                        <span>
-                          Go to JLPT {placementResult.recommended_level} Mock Tests
-                        </span>
+                        <span>Go to JLPT {placementResult.recommended_level} Tests</span>
                         <ArrowDown className="w-4 h-4" />
                       </button>
                     </div>
 
                     {showPlacementReview && (
-                      <div className="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-800 max-h-80 overflow-y-auto pr-1">
-                        <div className="flex flex-wrap gap-1.5">
+                      <div className="space-y-3 pt-3 border-t border-[#FFE3E1] dark:border-slate-800 max-h-72 overflow-y-auto pr-1">
+                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                           {EXPLANATION_LANGUAGES.map((lang) => (
                             <button
                               key={lang.code}
                               type="button"
                               onClick={() => setPlacementLang(lang.code)}
-                              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition ${
+                              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer whitespace-nowrap transition ${
                                 placementLang === lang.code
                                   ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
-                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                                  : 'bg-[#FFF5E4] dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-[#FFD1D1] dark:border-slate-700'
                               }`}
                             >
                               {lang.flag} {lang.label}
@@ -610,20 +627,20 @@ export default function JlptHubPage() {
                         {(placementResult.review || []).map((item, idx) => (
                           <div
                             key={item.id}
-                            className="rounded-xl p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs space-y-1"
+                            className="rounded-xl p-3 bg-[#FFF5E4]/60 dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-800 text-xs space-y-1"
                           >
-                            <div className="flex items-center justify-between font-bold">
+                            <div className="flex items-center justify-between font-bold gap-2">
                               <span>
                                 Q{idx + 1} ({item.level}) — {item.question}
                               </span>
                               {item.is_correct ? (
                                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                               ) : (
-                                <XCircle className="w-4 h-4 text-japan-red shrink-0" />
+                                <XCircle className="w-4 h-4 text-[#D94E5D] shrink-0" />
                               )}
                             </div>
                             <div className="text-emerald-700 dark:text-emerald-400 font-bold">
-                              Correct Answer: {item.answer_index}. {item.answer_text}
+                              Answer: {item.answer_index}. {item.answer_text}
                             </div>
                             <p className="text-slate-600 dark:text-slate-300">
                               {item.explanation?.[placementLang] || item.explanation?.en}
@@ -641,37 +658,84 @@ export default function JlptHubPage() {
       </section>
 
       {/* =====================================================================
-          SECTION 2 (MIDDLE): ARCHITECTURAL JLPT ELEVATION STAIRCASE (N5 -> N1)
+          SECTION 2 (MIDDLE): SMART MOBILE PILL BAR + DESKTOP ELEVATION STAIRCASE
          ===================================================================== */}
       <section
         id="jlpt-level-guide"
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14"
       >
-        <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 shadow-xs overflow-hidden">
-          {/* Top Editorial Header */}
-          <div className="px-6 sm:px-10 pt-8 sm:pt-10 pb-6 border-b border-[#FFE3E1] dark:border-slate-800/80 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 shadow-sm overflow-hidden">
+          {/* Header */}
+          <div className="px-5 sm:px-8 pt-6 sm:pt-8 pb-5 border-b border-[#FFE3E1] dark:border-slate-800 flex flex-col lg:flex-row lg:items-end justify-between gap-3">
             <div className="max-w-2xl">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FFD1D1] text-[11px] font-black uppercase tracking-wider">
-                <BarChart3 className="w-3.5 h-3.5 text-japan-red" /> Step 2 • JLPT Difficulty Roadmap
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FFD1D1] text-[10px] sm:text-[11px] font-black uppercase tracking-wider">
+                <BarChart3 className="w-3.5 h-3.5 text-[#D94E5D]" /> Step 2 • JLPT Difficulty Roadmap
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black mt-3 tracking-tight text-slate-900 dark:text-white">
-                Understand Every Level at a Glance:{' '}
-                <span className="text-japan-red">N5 (Start) → N1 (Summit)</span>
+              <h2 className="text-xl sm:text-3xl font-black mt-2.5 tracking-tight text-slate-900 dark:text-white">
+                Which Level Is Harder?{' '}
+                <span className="text-[#D94E5D]">N5 (Start) → N1 (Summit)</span>
               </h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1.5">
-                JLPT counts backwards — each step up doubles the kanji and vocabulary required. <strong>Click any step</strong> to inspect its requirements or jump straight into its mock tests.
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                Tap any level to compare Kanji, Vocabulary, and study hours, then jump straight into its mock tests.
               </p>
             </div>
-            <div className="flex items-center gap-3 text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 shrink-0">
+            <div className="flex items-center gap-2.5 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 shrink-0">
               <span>N5 Easiest</span>
               <span className="w-20 h-2 rounded-full bg-gradient-to-r from-[#FFF5E4] via-[#FFD1D1] via-[#FF9494] to-[#D94E5D] border border-[#FFD1D1] inline-block" />
-              <span className="text-japan-red">N1 Hardest</span>
+              <span className="text-[#D94E5D]">N1 Hardest</span>
             </div>
           </div>
 
-          {/* Ascending Architectural Staircase (True Physical Elevation on Desktop) */}
-          <div className="px-6 sm:px-10 pt-8 pb-0 bg-[#FFF5E4]/65 dark:bg-[#090e1a] border-b border-[#FFD1D1] dark:border-slate-800">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+          {/* MOBILE & TABLET (< lg): ULTRA-CLEAN HORIZONTAL 5-LEVEL SEGMENTED BAR (No Vertical Stack!) */}
+          <div className="lg:hidden px-4 pt-4 pb-3 bg-[#FFF5E4]/70 dark:bg-[#090e1a] border-b border-[#FFE3E1] dark:border-slate-800">
+            <div className="grid grid-cols-5 gap-1.5">
+              {JLPT_LEVEL_GUIDE.map((item) => {
+                const isFocused = focusedGuideLevel === item.level;
+                return (
+                  <button
+                    key={item.level}
+                    type="button"
+                    onClick={() => setFocusedGuideLevel(item.level)}
+                    className={`rounded-2xl py-2.5 px-1 text-center transition-all cursor-pointer border flex flex-col items-center justify-center gap-1 ${
+                      isFocused
+                        ? 'bg-[#D94E5D] text-white border-[#D94E5D] shadow-md scale-[1.02]'
+                        : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#FFD1D1] dark:border-slate-800'
+                    }`}
+                  >
+                    <span className="text-sm font-black leading-none">{item.level}</span>
+                    <span
+                      className={`text-[9px] font-bold leading-none ${
+                        isFocused ? 'text-white/90' : 'text-slate-500 dark:text-slate-400'
+                      }`}
+                    >
+                      {item.cefr.replace('CEFR ', '')}
+                    </span>
+                    {/* Tiny 5-dot difficulty indicator */}
+                    <div className="flex items-center gap-0.5 mt-0.5">
+                      {[1, 2, 3, 4, 5].map((d) => (
+                        <span
+                          key={d}
+                          className={`w-1 h-1 rounded-full ${
+                            d <= item.rank
+                              ? isFocused
+                                ? 'bg-white'
+                                : 'bg-[#D94E5D]'
+                              : isFocused
+                              ? 'bg-white/30'
+                              : 'bg-[#FFD1D1] dark:bg-slate-700'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* DESKTOP (lg+): ARCHITECTURAL ASCENDING 5-STEP STAIRCASE */}
+          <div className="hidden lg:block px-8 pt-8 pb-0 bg-[#FFF5E4]/65 dark:bg-[#090e1a] border-b border-[#FFD1D1] dark:border-slate-800">
+            <div className="grid grid-cols-5 gap-3 items-end">
               {JLPT_LEVEL_GUIDE.map((item) => {
                 const stats = levelMap[item.level];
                 const isFocused = focusedGuideLevel === item.level;
@@ -681,40 +745,24 @@ export default function JlptHubPage() {
                     key={item.level}
                     type="button"
                     onMouseEnter={() => setFocusedGuideLevel(item.level)}
-                    onClick={() => {
-                      setFocusedGuideLevel(item.level);
-                      jumpToLevelMocks(item.level);
-                    }}
-                    className={`group relative text-left rounded-t-2xl rounded-b-xl lg:rounded-b-none p-5 transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden border-t-4 border-x border-b lg:border-b-0 ${item.stepHeight} ${
+                    onClick={() => jumpToLevelMocks(item.level)}
+                    className={`group relative text-left rounded-t-2xl p-5 transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden border-t-4 border-x ${item.stepHeight} ${
                       isFocused
-                        ? 'bg-[#0B1120] text-white border-t-japan-red border-x-slate-800 shadow-xl'
-                        : isSummit
-                        ? 'bg-white dark:bg-[#11192e] text-slate-900 dark:text-white border-t-japan-red border-x-slate-200 dark:border-x-slate-800 hover:bg-[#0B1120] hover:text-white'
-                        : 'bg-white dark:bg-[#11192e] text-slate-900 dark:text-white border-t-slate-300 dark:border-t-slate-700 border-x-slate-200 dark:border-x-slate-800 hover:border-t-japan-red'
+                        ? 'bg-[#171316] text-white border-t-[#D94E5D] border-x-[#171316] shadow-xl'
+                        : `bg-white dark:bg-[#11192e] text-slate-900 dark:text-white ${item.stepAccent} border-x-[#FFD1D1] dark:border-x-slate-800 hover:bg-[#FFF5E4]`
                     }`}
                   >
-                    {/* Subtle Japanese Kanji Watermark */}
-                    <span
-                      className={`absolute -right-2 -bottom-3 text-5xl font-black pointer-events-none select-none transition-opacity ${
-                        isFocused ? 'text-white/10' : 'text-slate-900/[0.04] dark:text-white/[0.05]'
-                      }`}
-                    >
-                      {item.jaRank}
-                    </span>
-
                     <div className="relative z-10 flex items-start justify-between gap-2">
                       <div>
                         <span
                           className={`text-[10px] font-extrabold uppercase tracking-widest block ${
-                            isFocused ? 'text-red-400' : 'text-slate-400 dark:text-slate-500'
+                            isFocused ? 'text-[#FF9494]' : 'text-slate-400 dark:text-slate-500'
                           }`}
                         >
                           Step {item.rank} • {item.cefr}
                         </span>
-                        <div className="flex items-baseline gap-2 mt-0.5">
-                          <span className="text-2xl sm:text-3xl font-black tracking-tight">
-                            {item.level}
-                          </span>
+                        <div className="flex items-baseline gap-2 mt-1">
+                          <span className="text-3xl font-black tracking-tight">{item.level}</span>
                           <span
                             className={`text-xs font-bold ${
                               isFocused ? 'text-slate-300' : 'text-slate-500 dark:text-slate-400'
@@ -725,26 +773,25 @@ export default function JlptHubPage() {
                         </div>
                       </div>
                       {isSummit && (
-                        <span className="px-2 py-0.5 rounded-md bg-japan-red text-white text-[9px] font-black uppercase">
+                        <span className="px-2 py-0.5 rounded-md bg-[#D94E5D] text-white text-[9px] font-black uppercase">
                           Peak
                         </span>
                       )}
                     </div>
 
-                    {/* 5-Dot Intensity Meter & Live Set Count */}
-                    <div className="relative z-10 mt-4 pt-3 border-t border-current/10 space-y-2">
+                    <div className="relative z-10 mt-4 pt-3 border-t border-[#FFE3E1]/40 dark:border-slate-800 space-y-2">
                       <div className="flex items-center gap-1">
                         {[1, 2, 3, 4, 5].map((dot) => (
                           <span
                             key={dot}
                             className={`h-1.5 flex-1 rounded-full ${
                               dot <= item.rank
-                                ? isSummit || isFocused
-                                  ? 'bg-japan-red'
-                                  : 'bg-slate-800 dark:bg-slate-300'
+                                ? isFocused || isSummit
+                                  ? 'bg-[#FF9494]'
+                                  : 'bg-[#D94E5D]'
                                 : isFocused
                                 ? 'bg-white/15'
-                                : 'bg-slate-200 dark:bg-slate-800'
+                                : 'bg-[#FFE3E1] dark:bg-slate-800'
                             }`}
                           />
                         ))}
@@ -753,7 +800,7 @@ export default function JlptHubPage() {
                         <span className={isFocused ? 'text-slate-300' : 'text-slate-500 dark:text-slate-400'}>
                           {overviewLoading ? '...' : `${(stats?.total_sets || 0).toLocaleString()} Sets`}
                         </span>
-                        <span className={isFocused ? 'text-white font-black' : 'text-japan-red font-black'}>
+                        <span className={isFocused ? 'text-[#FF9494] font-black' : 'text-[#D94E5D] font-black'}>
                           Open →
                         </span>
                       </div>
@@ -764,120 +811,114 @@ export default function JlptHubPage() {
             </div>
           </div>
 
-          {/* Connected Interactive Level Dossier Panel */}
-          {(() => {
-            const guide =
-              JLPT_LEVEL_GUIDE.find((g) => g.level === focusedGuideLevel) || JLPT_LEVEL_GUIDE[4];
-            const stats = levelMap[guide.level];
-            return (
-              <div className="p-6 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-6 space-y-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="px-3 py-1 rounded-lg bg-[#0B1120] dark:bg-white text-white dark:text-slate-900 text-sm font-black">
-                      JLPT {guide.level} — {guide.label}
-                    </span>
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold">
-                      {guide.difficultyTag}
-                    </span>
-                    {stats?.ready_sets > 0 && (
-                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-black">
-                        {stats.ready_sets} Graded Sets Live
-                      </span>
-                    )}
-                  </div>
+          {/* CONNECTED INTERACTIVE LEVEL DOSSIER (Always crisp & compact on both Mobile & Desktop) */}
+          <div className="p-5 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+            <div className="lg:col-span-6 space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="px-3 py-1 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs sm:text-sm font-black">
+                  JLPT {focusedGuide.level} — {focusedGuide.label}
+                </span>
+                <span className="px-2.5 py-1 rounded-lg bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FFD1D1] text-[11px] font-extrabold">
+                  {focusedGuide.difficultyTag}
+                </span>
+                {focusedStats?.ready_sets > 0 && (
+                  <span className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[11px] font-black">
+                    {focusedStats.ready_sets} Graded Live
+                  </span>
+                )}
+              </div>
 
-                  <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
-                    {guide.goal}
-                  </p>
+              <p className="text-xs sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
+                {focusedGuide.goal}
+              </p>
 
-                  <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                    Best For: <span className="text-slate-900 dark:text-white">{guide.career}</span>
-                  </div>
+              <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                Best For:{' '}
+                <span className="text-slate-900 dark:text-white">{focusedGuide.career}</span>
+              </div>
 
-                  <div className="pt-2">
-                    <button
-                      type="button"
-                      onClick={() => jumpToLevelMocks(guide.level)}
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-japan-red hover:bg-japan-redhover text-white text-xs sm:text-sm font-black shadow-md transition cursor-pointer"
-                    >
-                      <span>Start JLPT {guide.level} Mock Tests</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => jumpToLevelMocks(focusedGuide.level)}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#D94E5D] hover:bg-[#BE3B4A] text-white text-xs sm:text-sm font-black shadow-md shadow-[#D94E5D]/20 transition cursor-pointer"
+                >
+                  <span>Start JLPT {focusedGuide.level} Mock Tests</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Proportional Mastery Gauges */}
+            <div className="lg:col-span-6 space-y-3.5 rounded-2xl bg-[#FFF5E4]/70 dark:bg-slate-900/70 border border-[#FFD1D1] dark:border-slate-800 p-4 sm:p-5">
+              <div>
+                <div className="flex justify-between text-[11px] sm:text-xs font-extrabold mb-1.5">
+                  <span className="text-slate-600 dark:text-slate-400 uppercase">Required Kanji</span>
+                  <span className="text-slate-900 dark:text-white">{focusedGuide.kanji}</span>
                 </div>
-
-                {/* Proportional Mastery Gauges */}
-                <div className="lg:col-span-6 space-y-4 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 p-5">
-                  <div>
-                    <div className="flex justify-between text-xs font-extrabold mb-1.5">
-                      <span className="text-slate-600 dark:text-slate-400 uppercase">Required Kanji</span>
-                      <span className="text-slate-900 dark:text-white">{guide.kanji}</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-                      <div
-                        className="h-full bg-[#0B1120] dark:bg-white rounded-full transition-all duration-300"
-                        style={{ width: `${guide.kanjiPct}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs font-extrabold mb-1.5">
-                      <span className="text-slate-600 dark:text-slate-400 uppercase">Required Vocabulary</span>
-                      <span className="text-slate-900 dark:text-white">{guide.vocab}</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-                      <div
-                        className="h-full bg-slate-700 dark:bg-slate-300 rounded-full transition-all duration-300"
-                        style={{ width: `${guide.vocabPct}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs font-extrabold mb-1.5">
-                      <span className="text-slate-600 dark:text-slate-400 uppercase">Estimated Study Time</span>
-                      <span className="text-japan-red font-black">{guide.hours}</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-                      <div
-                        className="h-full bg-japan-red rounded-full transition-all duration-300"
-                        style={{ width: `${guide.hoursPct}%` }}
-                      />
-                    </div>
-                  </div>
+                <div className="h-2 rounded-full bg-white dark:bg-slate-800 border border-[#FFD1D1]/60 dark:border-slate-700 overflow-hidden">
+                  <div
+                    className="h-full bg-slate-900 dark:bg-white rounded-full transition-all duration-300"
+                    style={{ width: `${focusedGuide.kanjiPct}%` }}
+                  />
                 </div>
               </div>
-            );
-          })()}
+
+              <div>
+                <div className="flex justify-between text-[11px] sm:text-xs font-extrabold mb-1.5">
+                  <span className="text-slate-600 dark:text-slate-400 uppercase">Required Vocabulary</span>
+                  <span className="text-slate-900 dark:text-white">{focusedGuide.vocab}</span>
+                </div>
+                <div className="h-2 rounded-full bg-white dark:bg-slate-800 border border-[#FFD1D1]/60 dark:border-slate-700 overflow-hidden">
+                  <div
+                    className="h-full bg-[#FF9494] rounded-full transition-all duration-300"
+                    style={{ width: `${focusedGuide.vocabPct}%` }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-[11px] sm:text-xs font-extrabold mb-1.5">
+                  <span className="text-slate-600 dark:text-slate-400 uppercase">Estimated Study Time</span>
+                  <span className="text-[#D94E5D] font-black">{focusedGuide.hours}</span>
+                </div>
+                <div className="h-2 rounded-full bg-white dark:bg-slate-800 border border-[#FFD1D1]/60 dark:border-slate-700 overflow-hidden">
+                  <div
+                    className="h-full bg-[#D94E5D] rounded-full transition-all duration-300"
+                    style={{ width: `${focusedGuide.hoursPct}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* =====================================================================
-          SECTION 3 (BOTTOM): JLPT PROPER MOCK TEST SECTION
+          SECTION 3 (BOTTOM): JLPT PROPER MOCK TEST LIBRARY (SMART MOBILE UX)
          ===================================================================== */}
       <section
         id="jlpt-mock-tests"
         ref={mockSectionRef}
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 scroll-mt-20"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 scroll-mt-20"
       >
-        <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-slate-200 dark:border-slate-800 shadow-xs p-5 sm:p-8">
-          {/* Header & Level Pills */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
+        <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 shadow-sm p-4 sm:p-8">
+          {/* Header & Full-Width 5-Pill Level Selector */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-5 border-b border-[#FFE3E1] dark:border-slate-800">
             <div>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-950/50 text-japan-red dark:text-red-300 text-xs font-black uppercase">
-                <Trophy className="w-3.5 h-3.5" /> Step 3 • JLPT Proper Mock Tests
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FFD1D1] text-[10px] sm:text-xs font-black uppercase">
+                <Trophy className="w-3.5 h-3.5 text-[#D94E5D]" /> Step 3 • JLPT Proper Mock Tests
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black mt-2 text-slate-900 dark:text-white">
+              <h2 className="text-xl sm:text-3xl font-black mt-2 text-slate-900 dark:text-white">
                 JLPT {selectedLevel} Mock Test Library
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Complete timed mock sets and unlock detailed explanations in 7 languages right after submission.
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                Pick a category below and unlock 7-language explanations right after submitting.
               </p>
             </div>
 
-            {/* Clean Level Selector Tabs */}
-            <div className="flex flex-wrap gap-2">
+            {/* 5-Column Full-Width Segmented Level Bar on Mobile, Inline on Desktop */}
+            <div className="grid grid-cols-5 lg:flex gap-1.5 sm:gap-2">
               {JLPT_LEVEL_GUIDE.map((g) => {
                 const info = levelMap[g.level];
                 const active = selectedLevel === g.level;
@@ -887,26 +928,27 @@ export default function JlptHubPage() {
                     type="button"
                     onClick={() => {
                       setSelectedLevel(g.level);
+                      setFocusedGuideLevel(g.level);
                       setSelectedCategory('all');
                       setPage(1);
                       setReadyOnly(false);
                     }}
-                    className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition cursor-pointer flex items-center gap-2 ${
+                    className={`py-2 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-black transition cursor-pointer flex flex-col lg:flex-row items-center justify-center gap-0.5 lg:gap-1.5 border ${
                       active
-                        ? 'bg-japan-red text-white shadow-sm'
-                        : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'
+                        ? 'bg-[#D94E5D] text-white border-[#D94E5D] shadow-sm'
+                        : 'bg-[#FFF5E4]/80 dark:bg-slate-800 text-slate-800 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700 hover:bg-[#FFE3E1]'
                     }`}
                   >
                     <span>{g.level}</span>
                     {info?.ready_sets > 0 && (
                       <span
-                        className={`text-[10px] px-1.5 py-0.5 rounded-md font-extrabold ${
+                        className={`text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-md font-extrabold ${
                           active
                             ? 'bg-white/20 text-white'
                             : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
                         }`}
                       >
-                        {info.ready_sets} Ready
+                        {info.ready_sets}
                       </span>
                     )}
                   </button>
@@ -915,22 +957,23 @@ export default function JlptHubPage() {
             </div>
           </div>
 
-          {/* Filter Bar: Categories + Search + Ready-Only Toggle */}
-          <div className="py-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-2">
+          {/* Filter Bar: Horizontal Swipeable Category Strip on Mobile + Search & Toggle */}
+          <div className="py-4 space-y-3 md:space-y-0 md:flex md:items-center md:justify-between md:gap-4">
+            {/* Horizontal Swipeable Strip (No messy 4-row wrapping on mobile!) */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 md:flex-wrap scrollbar-none">
               <button
                 type="button"
                 onClick={() => {
                   setSelectedCategory('all');
                   setPage(1);
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition cursor-pointer whitespace-nowrap shrink-0 border ${
                   selectedCategory === 'all'
-                    ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white'
+                    : 'bg-[#FFF5E4]/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700 hover:bg-[#FFE3E1]'
                 }`}
               >
-                All Categories ({activeLevelInfo?.total_sets || 0})
+                All ({activeLevelInfo?.total_sets || 0})
               </button>
               {activeCategories.map((cat) => (
                 <button
@@ -940,10 +983,10 @@ export default function JlptHubPage() {
                     setSelectedCategory(cat.category);
                     setPage(1);
                   }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition cursor-pointer whitespace-nowrap shrink-0 border ${
                     selectedCategory === cat.category
-                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white'
+                      : 'bg-[#FFF5E4]/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700 hover:bg-[#FFE3E1]'
                   }`}
                 >
                   {cat.category} ({readyOnly ? cat.ready_sets : cat.total_sets})
@@ -951,8 +994,8 @@ export default function JlptHubPage() {
               ))}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <label className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer select-none bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-xl">
+            <div className="flex items-center gap-2 shrink-0">
+              <label className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer select-none bg-[#FFF5E4] dark:bg-slate-800 border border-[#FFD1D1] dark:border-slate-700 px-2.5 py-2 rounded-xl whitespace-nowrap">
                 <input
                   type="checkbox"
                   checked={readyOnly}
@@ -960,13 +1003,13 @@ export default function JlptHubPage() {
                     setReadyOnly(e.target.checked);
                     setPage(1);
                   }}
-                  className="rounded text-japan-red focus:ring-japan-red"
+                  className="rounded text-[#D94E5D] focus:ring-[#D94E5D]"
                 />
-                <span>Graded &amp; Explained Only</span>
+                <span>Graded Only</span>
               </label>
 
-              <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <div className="relative flex-1 sm:flex-none">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchTerm}
@@ -974,30 +1017,30 @@ export default function JlptHubPage() {
                     setSearchTerm(e.target.value);
                     setPage(1);
                   }}
-                  placeholder={`Search ${selectedLevel} sets...`}
-                  className="pl-9 pr-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-slate-400 focus:bg-white dark:focus:bg-slate-900 text-xs font-semibold outline-none w-48 sm:w-56"
+                  placeholder={`Search ${selectedLevel}...`}
+                  className="pl-8 pr-3 py-2 rounded-xl bg-[#FFF5E4]/70 dark:bg-slate-800 border border-[#FFD1D1] dark:border-slate-700 focus:border-[#D94E5D] focus:bg-white dark:focus:bg-slate-900 text-xs font-semibold outline-none w-full sm:w-44"
                 />
               </div>
             </div>
           </div>
 
-          {/* Grid of Mock Sets */}
+          {/* Mock Test List (Compact Vertical List on Mobile, Clean 3-Col Grid on Desktop) */}
           {setsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 py-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 py-4">
               {[1, 2, 3, 4, 5, 6].map((n) => (
                 <div
                   key={n}
-                  className="h-44 rounded-2xl bg-slate-100 dark:bg-slate-800/60 animate-pulse"
+                  className="h-32 sm:h-40 rounded-2xl bg-[#FFF5E4] dark:bg-slate-800/60 animate-pulse"
                 />
               ))}
             </div>
           ) : setsData.results.length === 0 ? (
-            <div className="py-14 text-center space-y-3">
-              <Layers className="w-10 h-10 text-slate-400 mx-auto" />
-              <h3 className="text-lg font-black">No matching JLPT {selectedLevel} sets found</h3>
+            <div className="py-12 text-center space-y-3">
+              <Layers className="w-10 h-10 text-[#FF9494] mx-auto" />
+              <h3 className="text-base sm:text-lg font-black">No matching JLPT {selectedLevel} sets</h3>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
                 {readyOnly
-                  ? `Translations and answer keys for ${selectedLevel} are being uploaded progressively. Turn off "Graded & Explained Only" to preview all ${activeLevelInfo?.total_sets || 0} ${selectedLevel} practice sets.`
+                  ? `Turn off "Graded Only" to browse all ${activeLevelInfo?.total_sets || 0} ${selectedLevel} practice sets.`
                   : 'Try clearing your search or switching category.'}
               </p>
               {readyOnly && (
@@ -1006,53 +1049,54 @@ export default function JlptHubPage() {
                   onClick={() => setReadyOnly(false)}
                   className="px-4 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-black cursor-pointer"
                 >
-                  Show All {selectedLevel} Practice Sets
+                  Show All {selectedLevel} Sets
                 </button>
               )}
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {setsData.results.map((s) => {
                   const mins = Math.max(1, Math.round((s.time_limit_seconds || 1080) / 60));
                   return (
-                    <div
+                    <Link
                       key={s.id}
-                      className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 hover:border-slate-400 dark:hover:border-slate-600 transition p-5 flex flex-col justify-between gap-4"
+                      href={`/jlpt/test/${s.id}`}
+                      className="group rounded-2xl border border-[#FFD1D1] dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-[#FF9494] hover:bg-[#FFF5E4]/40 dark:hover:border-slate-600 transition p-4 sm:p-5 flex flex-col justify-between gap-3.5 shadow-2xs hover:shadow-md"
                     >
                       <div className="space-y-2">
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-1.5">
-                            <span className="px-2 py-0.5 rounded-md bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-black">
+                            <span className="px-2 py-0.5 rounded-md bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black">
                               {s.level}
                             </span>
-                            <span className="px-2 py-0.5 rounded-md bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold">
+                            <span className="px-2 py-0.5 rounded-md bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-slate-300 text-[10px] font-extrabold">
                               {s.category}
                             </span>
                           </div>
                           {s.is_ready ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[10px] font-black">
-                              <CheckCircle2 className="w-3 h-3" /> Graded + 7 Langs
+                              <CheckCircle2 className="w-3 h-3" /> Graded
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold">
-                              Practice Preview
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FFF5E4] dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-[#FFD1D1] dark:border-slate-700 text-[10px] font-bold">
+                              Preview
                             </span>
                           )}
                         </div>
 
-                        <h3 className="text-base font-black text-slate-900 dark:text-white leading-snug">
+                        <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D] transition-colors leading-snug">
                           {s.title}
                         </h3>
 
-                        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                        <div className="flex flex-wrap items-center gap-3 text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400">
                           <span className="inline-flex items-center gap-1">
-                            <BookOpen className="w-3.5 h-3.5 text-slate-500" />
-                            {s.question_count} Questions
+                            <BookOpen className="w-3.5 h-3.5 text-[#D94E5D]" />
+                            {s.question_count} Qs
                           </span>
                           <span className="inline-flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-slate-500" />
-                            {mins} Mins
+                            <Clock className="w-3.5 h-3.5 text-slate-400" />
+                            {mins}m
                           </span>
                           {s.user_best_score !== null && (
                             <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-extrabold">
@@ -1063,33 +1107,32 @@ export default function JlptHubPage() {
                         </div>
                       </div>
 
-                      <Link
-                        href={`/jlpt/test/${s.id}`}
+                      <div
                         className={`w-full py-2.5 px-4 rounded-xl text-xs font-black text-center transition flex items-center justify-center gap-1.5 ${
                           s.is_ready
-                            ? 'bg-japan-red hover:bg-japan-redhover text-white shadow-xs'
-                            : 'bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white'
+                            ? 'bg-[#D94E5D] group-hover:bg-[#BE3B4A] text-white'
+                            : 'bg-slate-900 group-hover:bg-[#D94E5D] dark:bg-slate-800 text-white'
                         }`}
                       >
                         <span>{s.is_ready ? 'Start Mock Exam' : 'Preview Questions'}</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                      </div>
+                    </Link>
                   );
                 })}
               </div>
 
               {setsData.total_pages > 1 && (
-                <div className="mt-8 flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-5">
+                <div className="mt-6 flex items-center justify-between border-t border-[#FFE3E1] dark:border-slate-800 pt-4">
                   <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                    Page {setsData.page || page} of {setsData.total_pages} ({setsData.count} sets)
+                    Page {setsData.page || page} / {setsData.total_pages}
                   </span>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       disabled={page <= 1}
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-[#FFD1D1] dark:border-slate-700 text-xs font-bold disabled:opacity-40 hover:bg-[#FFF5E4] cursor-pointer"
                     >
                       <ChevronLeft className="w-4 h-4" /> Prev
                     </button>
@@ -1097,7 +1140,7 @@ export default function JlptHubPage() {
                       type="button"
                       disabled={page >= setsData.total_pages}
                       onClick={() => setPage((p) => Math.min(setsData.total_pages, p + 1))}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold disabled:opacity-40 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-[#FFD1D1] dark:border-slate-700 text-xs font-bold disabled:opacity-40 hover:bg-[#FFF5E4] cursor-pointer"
                     >
                       Next <ChevronRight className="w-4 h-4" />
                     </button>
