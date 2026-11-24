@@ -622,6 +622,46 @@ export async function postPartnerClassroomAction(slug, payload) {
   });
 }
 
+// --- JLPT Mock Test Hub (N5–N1) & Placement Level Checker ---
+
+export async function getJlptOverview() {
+  return apiRequest('/api/jlpt/overview/', { cache: 'no-store' });
+}
+
+export async function getJlptSets({ level = '', category = '', readyOnly = false, search = '', page = 1, pageSize = 24 } = {}) {
+  const params = new URLSearchParams();
+  if (level) params.set('level', level);
+  if (category && category !== 'all') params.set('category', category);
+  if (readyOnly) params.set('ready_only', '1');
+  if (search) params.set('search', search);
+  if (page) params.set('page', String(page));
+  if (pageSize) params.set('page_size', String(pageSize));
+  return apiRequest(`/api/jlpt/sets/?${params.toString()}`, { cache: 'no-store' });
+}
+
+export async function getJlptSetDetail(id) {
+  return apiRequest(`/api/jlpt/sets/${id}/`, { cache: 'no-store' });
+}
+
+export async function submitJlptSet(id, answers) {
+  return apiRequest(`/api/jlpt/sets/${id}/submit/`, {
+    method: 'POST',
+    body: JSON.stringify({ answers }),
+  });
+}
+
+export async function getJlptPlacementTest() {
+  return apiRequest('/api/jlpt/placement-test/', { cache: 'no-store' });
+}
+
+export async function submitJlptPlacementTest(answers) {
+  return apiRequest('/api/jlpt/placement-test/submit/', {
+    method: 'POST',
+    body: JSON.stringify({ answers }),
+  });
+}
+
+
 
 
 

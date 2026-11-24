@@ -6,7 +6,7 @@ from django.urls import path, reverse
 from django.utils.html import format_html, escape
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
-from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic, HeroBanner
+from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic, HeroBanner, JLPTSet, JLPTPassage, JLPTQuestion, JLPTAttempt
 from .utils import import_questions_from_csv, generate_sample_csv_string, generate_sample_ssw_csv_string, export_test_questions_to_csv, generate_test_missing_audio_worker
 from .audio_logger import get_audio_logs, clear_audio_logs, append_audio_log
 from .audio_generator import test_edge_tts_connection, generate_and_save_question_audio_with_details
@@ -1330,6 +1330,153 @@ class HeroBannerAdmin(admin.ModelAdmin):
             )
         return format_html('<span style="color:#94a3b8; font-size:11px;">No image</span>')
     image_preview_thumb.short_description = "Image Preview"
+
+
+# ─── JLPT Mock Test Hub Admin (with 1-Click JSON Upload & Translation Patcher) ───
+@admin.register(JLPTSet)
+class JLPTSetAdmin(admin.ModelAdmin):
+    change_list_template = "admin/jlpt_changelist.html"
+    list_display = (
+        'id',
+        'level_badge',
+        'category',
+        'set_number',
+        'title',
+        'progress_badge',
+        'is_ready',
+        'is_published',
+        'updated_at',
+    )
+    list_editable = ('is_published',)
+    list_filter = ('level', 'category', 'is_ready', 'is_published')
+    search_fields = ('title', 'category', 'external_test_id')
+    ordering = ('level', 'category', 'set_number')
+    list_per_page = 30
+
+    def level_badge(self, obj):
+        colors = {
+            'N5': '#10b981',
+            'N4': '#0ea5e9',
+            'N3': '#f59e0b',
+            'N2': '#f97316',
+            'N1': '#e11d48',
+        }
+        bg = colors.get(obj.level, '#64748b')
+        return format_html(
+            '<span style="background:{};color:#fff;padding:2px 8px;border-radius:6px;font-weight:800;font-size:11px;">{}</span>',
+            bg, obj.level
+        )
+    level_badge.short_description = 'Level'
+    level_badge.admin_order_field = 'level'
+
+    def progress_badge(self, obj):
+        if obj.is_ready:
+            return format_html(
+                '<span style="color:#16a34a;font-weight:700;">✅ {}/{} graded ({} explained)</span>',
+                obj.answered_count, obj.question_count, obj.translated_count
+            )
+        return format_html(
+            '<span style="color:#d97706;font-weight:600;">⏳ {}/{} graded ({} explained)</span>',
+            obj.answered_count, obj.question_count, obj.translated_count
+        )
+    progress_badge.short_description = 'Translation & Answer Status'
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom = [
+            path('import-json/', self.admin_site.admin_view(self.admin_import_jlpt_json_view), name='jlpt_import_json'),
+        ]
+        return custom + urls
+
+    def admin_import_jlpt_json_view(self, request):
+        import json
+        from .jlpt_importer import import_jlpt_json_data
+
+        result_summary = None
+        error_msg = None
+
+        if request.method == 'POST':
+            files = request.FILES.getlist('json_files')
+            level_override = (request.POST.get('level_override') or '').strip().upper() or None
+            if not files:
+                error_msg = "Please select one or more JLPT JSON files to upload."
+            else:
+                totals = {
+                    'files_processed': 0,
+                    'sets_created': 0,
+                    'sets_updated': 0,
+                    'questions_created': 0,
+                    'questions_updated': 0,
+                    'unmatched_keys': 0,
+                }
+                try:
+                    for f in files:
+                        raw = f.read().decode('utf-8-sig')
+                        payload = json.loads(raw)
+                        part = import_jlpt_json_data(payload, level_override=level_override)
+                        totals['files_processed'] += 1
+                        for k in ('sets_created', 'sets_updated', 'questions_created', 'questions_updated', 'unmatched_keys'):
+                            totals[k] += part.get(k, 0)
+                    result_summary = totals
+                    self.message_user(
+                        request,
+                        f"Uploaded {totals['files_processed']} file(s): "
+                        f"+{totals['sets_created']} sets created, {totals['sets_updated']} sets updated, "
+                        f"+{totals['questions_created']} questions created, {totals['questions_updated']} questions patched.",
+                        messages.SUCCESS,
+                    )
+                except Exception as exc:
+                    error_msg = f"Import failed: {exc}"
+
+        level_stats = []
+        for lvl in ['N5', 'N4', 'N3', 'N2', 'N1']:
+            level_stats.append({
+                'level': lvl,
+                'total_sets': JLPTSet.objects.filter(level=lvl).count(),
+                'ready_sets': JLPTSet.objects.filter(level=lvl, is_ready=True).count(),
+                'total_questions': JLPTQuestion.objects.filter(jlpt_set__level=lvl).count(),
+                'answered_questions': JLPTQuestion.objects.filter(jlpt_set__level=lvl, answer_index__isnull=False).count(),
+            })
+
+        context = {
+            **self.admin_site.each_context(request),
+            'title': 'Upload / Patch JLPT Mock Tests & Translations (JSON)',
+            'opts': self.model._meta,
+            'result_summary': result_summary,
+            'error_msg': error_msg,
+            'level_stats': level_stats,
+        }
+        return render(request, 'admin/jlpt_json_import.html', context)
+
+
+@admin.register(JLPTQuestion)
+class JLPTQuestionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'jlpt_set', 'external_key', 'order_index', 'section', 'answer_index', 'has_explanations', 'short_question')
+    list_filter = ('jlpt_set__level', 'jlpt_set__category', 'question_type')
+    search_fields = ('external_key', 'question', 'underline', 'answer_text')
+    raw_id_fields = ('jlpt_set', 'passage')
+    list_per_page = 30
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('jlpt_set')
+
+    def has_explanations(self, obj):
+        return bool(obj.explanation and any(str(v).strip() for v in obj.explanation.values()))
+    has_explanations.boolean = True
+    has_explanations.short_description = 'Explained'
+
+    def short_question(self, obj):
+        return (obj.question or '')[:70]
+    short_question.short_description = 'Question'
+
+
+@admin.register(JLPTAttempt)
+class JLPTAttemptAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'jlpt_set', 'score', 'total_questions', 'completed_at')
+    list_filter = ('jlpt_set__level', 'completed_at')
+    search_fields = ('user__username', 'jlpt_set__title')
+    raw_id_fields = ('jlpt_set', 'user')
+    list_per_page = 30
 
 
 # ─── Admin site branding ──────────────────────────────────────────────

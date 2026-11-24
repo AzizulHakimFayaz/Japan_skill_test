@@ -313,6 +313,72 @@ def ensure_schema_synced():
         except Exception as e:
             logs.append(f"Note on partner school tables: {e}")
 
+        # 5b. Ensure JLPT Mock Test Hub tables exist (N5-N1)
+        try:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS tests_jlptset (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    level varchar(4) NOT NULL,
+                    category varchar(64) NOT NULL,
+                    external_test_id integer unsigned NOT NULL,
+                    set_number integer unsigned NOT NULL DEFAULT 1,
+                    title varchar(255) NOT NULL,
+                    time_limit_seconds integer unsigned NOT NULL DEFAULT 1200,
+                    question_count integer unsigned NOT NULL DEFAULT 0,
+                    answered_count integer unsigned NOT NULL DEFAULT 0,
+                    translated_count integer unsigned NOT NULL DEFAULT 0,
+                    is_published bool NOT NULL DEFAULT 1,
+                    is_ready bool NOT NULL DEFAULT 0,
+                    created_at datetime NOT NULL,
+                    updated_at datetime NOT NULL,
+                    UNIQUE (level, external_test_id)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS tests_jlptpassage (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    order_index integer unsigned NOT NULL DEFAULT 1,
+                    body_ja text NOT NULL,
+                    translations text NOT NULL DEFAULT '{}',
+                    jlpt_set_id bigint NOT NULL REFERENCES tests_jlptset (id) DEFERRABLE INITIALLY DEFERRED,
+                    UNIQUE (jlpt_set_id, order_index)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS tests_jlptquestion (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    external_key varchar(64) NOT NULL,
+                    order_index integer unsigned NOT NULL DEFAULT 1,
+                    question_type varchar(24) NOT NULL DEFAULT 'mcq',
+                    section varchar(64) NOT NULL DEFAULT '',
+                    instruction text NOT NULL DEFAULT '',
+                    question text NOT NULL,
+                    underline varchar(255) NOT NULL DEFAULT '',
+                    options text NOT NULL DEFAULT '[]',
+                    answer_index smallint unsigned NULL,
+                    answer_text varchar(255) NOT NULL DEFAULT '',
+                    hints text NOT NULL DEFAULT '{}',
+                    explanation text NOT NULL DEFAULT '{}',
+                    jlpt_set_id bigint NOT NULL REFERENCES tests_jlptset (id) DEFERRABLE INITIALLY DEFERRED,
+                    passage_id bigint NULL REFERENCES tests_jlptpassage (id) DEFERRABLE INITIALLY DEFERRED,
+                    UNIQUE (jlpt_set_id, external_key)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS tests_jlptattempt (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    score integer unsigned NOT NULL DEFAULT 0,
+                    total_questions integer unsigned NOT NULL DEFAULT 0,
+                    answers text NOT NULL DEFAULT '{}',
+                    completed_at datetime NOT NULL,
+                    jlpt_set_id bigint NOT NULL REFERENCES tests_jlptset (id) DEFERRABLE INITIALLY DEFERRED,
+                    user_id integer NULL REFERENCES auth_user (id) DEFERRABLE INITIALLY DEFERRED
+                )
+            """)
+            logs.append("Verified JLPT Mock Test Hub tables (tests_jlptset, tests_jlptpassage, tests_jlptquestion, tests_jlptattempt).")
+        except Exception as e:
+            logs.append(f"Note on JLPT tables: {e}")
+
         # 6. Synchronize django_migrations table
         try:
             required_migrations = [
@@ -327,6 +393,7 @@ def ensure_schema_synced():
                 ('tests', '0015_notice'),
                 ('tests', '0016_test_scheduled_release_at'),
                 ('tests', '0021_test_partner_school'),
+                ('tests', '0022_jlptset_jlptpassage_jlptattempt_jlptquestion'),
             ]
             for app, name in required_migrations:
                 cursor.execute("SELECT id FROM django_migrations WHERE app = %s AND name = %s", [app, name])

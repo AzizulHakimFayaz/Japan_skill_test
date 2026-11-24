@@ -703,4 +703,146 @@ class HeroBanner(models.Model):
         return f"[{self.order}] {self.title} ({self.badge_text})"
 
 
+# ─── JLPT Mock Test Hub Models (N5–N1, 7-Language Explanations) ──────────
+class JLPTSet(models.Model):
+    class Level(models.TextChoices):
+        N5 = "N5", "JLPT N5 (Beginner)"
+        N4 = "N4", "JLPT N4 (Elementary)"
+        N3 = "N3", "JLPT N3 (Intermediate)"
+        N2 = "N2", "JLPT N2 (Pre-Advanced)"
+        N1 = "N1", "JLPT N1 (Advanced)"
+
+    level = models.CharField(max_length=4, choices=Level.choices, db_index=True)
+    category = models.CharField(
+        max_length=64,
+        db_index=True,
+        help_text="e.g. Vocabulary, Grammar, Kanji, Reading, Mini Test: Vocabulary, Mini Test: Grammar, Mini Test: Mixed",
+    )
+    external_test_id = models.PositiveIntegerField(
+        db_index=True,
+        help_text="Original test_id from JLPT JSON dataset for idempotent upserts",
+    )
+    set_number = models.PositiveIntegerField(default=1)
+    title = models.CharField(max_length=255)
+    time_limit_seconds = models.PositiveIntegerField(default=1200, help_text="Default 20 minutes per JLPT mock set")
+    question_count = models.PositiveIntegerField(default=0)
+    answered_count = models.PositiveIntegerField(default=0)
+    translated_count = models.PositiveIntegerField(default=0)
+    is_published = models.BooleanField(default=True, db_index=True)
+    is_ready = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text="Auto-set to True once all questions in this set have a valid answer_index",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = (("level", "external_test_id"),)
+        ordering = ["level", "category", "set_number", "id"]
+        indexes = [
+            models.Index(fields=["level", "category", "is_ready"]),
+            models.Index(fields=["level", "is_ready", "set_number"]),
+        ]
+        verbose_name = "JLPT Mock Set"
+        verbose_name_plural = "JLPT Mock Sets"
+
+    def __str__(self):
+        status = "READY" if self.is_ready else "DRAFT"
+        return f"[{self.level}] {self.category} — Set {self.set_number} ({status})"
+
+
+class JLPTPassage(models.Model):
+    jlpt_set = models.ForeignKey(JLPTSet, on_delete=models.CASCADE, related_name="passages")
+    order_index = models.PositiveIntegerField(default=1)
+    body_ja = models.TextField()
+    translations = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        unique_together = (("jlpt_set", "order_index"),)
+        ordering = ["order_index", "id"]
+        verbose_name = "JLPT Reading Passage"
+        verbose_name_plural = "JLPT Reading Passages"
+
+    def __str__(self):
+        return f"{self.jlpt_set} — Passage #{self.order_index}"
+
+
+class JLPTQuestion(models.Model):
+    jlpt_set = models.ForeignKey(JLPTSet, on_delete=models.CASCADE, related_name="questions")
+    passage = models.ForeignKey(
+        JLPTPassage,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="questions",
+    )
+    external_key = models.CharField(
+        max_length=64,
+        db_index=True,
+        help_text="Stable key from JSON (e.g. q_25279 or rs_177) used for zero-breakage translation patching",
+    )
+    order_index = models.PositiveIntegerField(default=1)
+    question_type = models.CharField(max_length=24, default="mcq")
+    section = models.CharField(max_length=64, blank=True, default="")
+    instruction = models.TextField(blank=True, default="")
+    question = models.TextField()
+    underline = models.CharField(max_length=255, blank=True, default="")
+    options = models.JSONField(default=list)
+    answer_index = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="1-based correct option index (1..4)",
+    )
+    answer_text = models.CharField(max_length=255, blank=True, default="")
+    hints = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Multi-language hints dict: {"en": "...", "bn": "...", "id": "...", "ne": "...", "vi": "...", "tl": "...", "hi": "..."}',
+    )
+    explanation = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Multi-language post-exam explanation dict: {"en": "...", "bn": "...", "id": "...", "ne": "...", "vi": "...", "tl": "...", "hi": "..."}',
+    )
+
+    class Meta:
+        unique_together = (("jlpt_set", "external_key"),)
+        ordering = ["order_index", "id"]
+        indexes = [
+            models.Index(fields=["jlpt_set", "order_index"]),
+            models.Index(fields=["external_key"]),
+        ]
+        verbose_name = "JLPT Question"
+        verbose_name_plural = "JLPT Questions"
+
+    def __str__(self):
+        return f"[{self.jlpt_set.level}] {self.external_key}: {self.question[:48]}"
+
+
+class JLPTAttempt(models.Model):
+    jlpt_set = models.ForeignKey(JLPTSet, on_delete=models.CASCADE, related_name="attempts")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="jlpt_attempts",
+    )
+    score = models.PositiveIntegerField(default=0)
+    total_questions = models.PositiveIntegerField(default=0)
+    answers = models.JSONField(default=dict, blank=True)
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-completed_at"]
+        verbose_name = "JLPT Attempt"
+        verbose_name_plural = "JLPT Attempts"
+
+    def __str__(self):
+        who = self.user.username if self.user else "Guest"
+        return f"{who} — {self.jlpt_set} ({self.score}/{self.total_questions})"
+
+
+
 

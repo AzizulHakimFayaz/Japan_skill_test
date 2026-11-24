@@ -1,0 +1,92 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div style="max-width: 920px; margin: 16px auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 28px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+      <div>
+        <h2 style="margin: 0; font-size: 1.45rem; color: #0f172a;">📤 Upload / Patch JLPT Mock Tests &amp; Translations (JSON)</h2>
+        <p style="margin: 6px 0 0; color: #475569; font-size: 0.92rem;">
+          Safe idempotent upsert: upload full category files (e.g. <code>N5/json/Vocabulary.json</code>), level bundles (<code>N1_all.json</code>), or partial translation patch JSONs anytime. Existing student attempts are never deleted, and sets automatically become <strong>Ready</strong> once all answers are present.
+        </p>
+      </div>
+      <a href="{% url 'admin:tests_jlptset_changelist' %}" style="padding: 8px 14px; border-radius: 8px; background: #f1f5f9; color: #334155; font-weight: 600; text-decoration: none;">
+        ← Back to JLPT Sets
+      </a>
+    </div>
+
+    {% if error_msg %}
+      <div style="padding: 14px 16px; border-radius: 10px; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; margin-bottom: 18px; font-weight: 600;">
+        ❌ {{ error_msg }}
+      </div>
+    {% endif %}
+
+    {% if result_summary %}
+      <div style="padding: 16px 18px; border-radius: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; margin-bottom: 18px;">
+        <strong>✅ Import / Patch Complete!</strong>
+        <ul style="margin: 8px 0 0 18px; padding: 0;">
+          <li>Files processed: <strong>{{ result_summary.files_processed }}</strong></li>
+          <li>Sets created: <strong>{{ result_summary.sets_created }}</strong> | Sets updated: <strong>{{ result_summary.sets_updated }}</strong></li>
+          <li>Questions created: <strong>{{ result_summary.questions_created }}</strong> | Questions updated/patched: <strong>{{ result_summary.questions_updated }}</strong></li>
+          {% if result_summary.unmatched_keys %}
+            <li>Unmatched keys (skipped): <strong>{{ result_summary.unmatched_keys }}</strong></li>
+          {% endif %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 22px; margin-bottom: 24px;">
+      {% csrf_token %}
+      <div style="margin-bottom: 16px;">
+        <label for="json_files" style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 6px;">
+          Select JLPT JSON File(s) (multiple selection supported)
+        </label>
+        <input id="json_files" type="file" name="json_files" accept=".json" multiple required style="display: block; width: 100%; padding: 10px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px;" />
+      </div>
+
+      <div style="margin-bottom: 18px;">
+        <label for="level_override" style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 6px;">
+          Optional Level Override (leave blank to auto-detect from JSON)
+        </label>
+        <select id="level_override" name="level_override" style="padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; min-width: 220px;">
+          <option value="">Auto-detect from JSON</option>
+          <option value="N5">N5 (Beginner)</option>
+          <option value="N4">N4 (Elementary)</option>
+          <option value="N3">N3 (Intermediate)</option>
+          <option value="N2">N2 (Pre-Advanced)</option>
+          <option value="N1">N1 (Advanced)</option>
+        </select>
+      </div>
+
+      <button type="submit" style="background: #2563eb; color: #fff; border: none; padding: 11px 22px; border-radius: 9px; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
+        🚀 Upload &amp; Merge JSON Now
+      </button>
+    </form>
+
+    <h3 style="margin: 0 0 12px; font-size: 1.05rem; color: #0f172a;">📊 Live JLPT Database Coverage</h3>
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+      <thead>
+        <tr style="background: #f1f5f9; text-align: left;">
+          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">Level</th>
+          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">Total Sets</th>
+          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">Ready Graded Sets</th>
+          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">Total Questions</th>
+          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">Answered &amp; Explained</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in level_stats %}
+        <tr>
+          <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-weight: 800;">{{ row.level }}</td>
+          <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">{{ row.total_sets }}</td>
+          <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #16a34a; font-weight: 700;">{{ row.ready_sets }}</td>
+          <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">{{ row.total_questions }}</td>
+          <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">{{ row.answered_questions }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

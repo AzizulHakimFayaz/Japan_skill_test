@@ -1,6 +1,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
+from . import jlpt_views
 
 urlpatterns = [
     # Tests & Quiz
@@ -86,6 +87,14 @@ urlpatterns = [
     path('setup-database/', views.SetupDatabaseAPIView.as_view(), name='api_setup_database'),
     path('run-migration/', views.RunMigrationAPIView.as_view(), name='api_run_migration'),
     path('admin/auto-upload/', views.AdminAutoUploadAPIView.as_view(), name='api_admin_auto_upload'),
+
+    # JLPT Mock Test Hub (N5–N1) & Short Placement Level Checker
+    path('jlpt/overview/', jlpt_views.JLPTOverviewAPIView.as_view(), name='api_jlpt_overview'),
+    path('jlpt/sets/', jlpt_views.JLPTSetListAPIView.as_view(), name='api_jlpt_sets'),
+    path('jlpt/sets/<int:pk>/', jlpt_views.JLPTSetDetailAPIView.as_view(), name='api_jlpt_set_detail'),
+    path('jlpt/sets/<int:pk>/submit/', jlpt_views.JLPTSetSubmitAPIView.as_view(), name='api_jlpt_set_submit'),
+    path('jlpt/placement-test/', jlpt_views.JLPTPlacementTestAPIView.as_view(), name='api_jlpt_placement_test'),
+    path('jlpt/placement-test/submit/', jlpt_views.JLPTPlacementTestAPIView.as_view(), name='api_jlpt_placement_submit'),
 
 ]
 

@@ -47,6 +47,7 @@ export default function Navbar() {
   const isExamsActive =
     isActive('/jft-basic') ||
     isActive('/ssw-skill-test') ||
+    pathname.startsWith('/jlpt') ||
     isActive('/leaderboard') ||
     pathname.startsWith('/ssw-test') ||
     pathname.startsWith('/test') ||
@@ -191,6 +192,31 @@ export default function Navbar() {
                         </div>
                         <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
                           Realistic CBT exam interface with listening audio
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/jlpt"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
+                        pathname.startsWith('/jlpt')
+                          ? 'bg-rose-50/80 dark:bg-rose-950/40 text-japan-red'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-rose-500/10 text-japan-red flex items-center justify-center shrink-0 mt-0.5">
+                        <GraduationCap className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black leading-tight">JLPT Mock Tests</span>
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-rose-100 dark:bg-rose-950 text-japan-red dark:text-rose-300">
+                            N5–N1
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                          Level checker, N5–N1 guide &amp; 32,000+ mock questions
                         </p>
                       </div>
                     </Link>
@@ -747,6 +773,20 @@ export default function Navbar() {
                   <span>{t('jft_basic')}</span>
                 </span>
                 <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              </Link>
+
+              <Link
+                href="/jlpt"
+                onClick={() => setOpen(false)}
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+              >
+                <span className="flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4 text-japan-red shrink-0" />
+                  <span>JLPT Mock Tests (N5–N1)</span>
+                </span>
+                <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-rose-50 text-japan-red dark:bg-rose-950/60 dark:text-rose-300">
+                  New
+                </span>
               </Link>
 
               <Link
