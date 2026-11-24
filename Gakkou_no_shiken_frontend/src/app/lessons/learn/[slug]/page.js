@@ -3,7 +3,7 @@
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { getLearnTopicDetail } from '@/lib/api';
+import { getLearnTopicDetail, getLearnTopics } from '@/lib/api';
 import {
   ArrowLeft,
   ChevronRight,
@@ -32,6 +32,7 @@ export default function LearnTopicDetailPage({ params }) {
   const searchParams = useSearchParams();
 
   const [topic, setTopic] = useState(null);
+  const [allTopics, setAllTopics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePartIdx, setActivePartIdx] = useState(null); // null = Day/Part list, number = studying that part
   const [lang, setLang] = useState(searchParams?.get('lang') || 'en');
@@ -43,6 +44,12 @@ export default function LearnTopicDetailPage({ params }) {
     if (!slug) return;
     let active = true;
     setLoading(true);
+    getLearnTopics()
+      .then((res) => {
+        if (active && Array.isArray(res?.topics)) setAllTopics(res.topics);
+      })
+      .catch(() => {});
+
     getLearnTopicDetail(slug)
       .then((data) => {
         if (!active) return;
@@ -183,13 +190,61 @@ export default function LearnTopicDetailPage({ params }) {
               <button
                 type="button"
                 onClick={() => setShowRomaji((v) => !v)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FFF5E4] dark:bg-slate-800 border border-[#FFD1D1] text-xs font-bold cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FFF5E4] dark:bg-slate-800 border border-[#FFD1D1] dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold cursor-pointer"
               >
                 {showRomaji ? <Eye className="w-3.5 h-3.5 text-[#D94E5D]" /> : <EyeOff className="w-3.5 h-3.5" />}
                 <span>Romaji</span>
               </button>
             )}
           </div>
+
+          {/* 1-TAP HORIZONTAL PART/DAY SWITCHER (when inside a lesson) + QUICK TOPIC SWITCHER */}
+          {currentLesson && lessons.length > 1 && (
+            <div className="pt-3 border-t border-[#FFE3E1] dark:border-slate-800 space-y-1.5">
+              <div className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Switch {isDayCourse ? 'Day' : 'Part'} ({lessons.length})
+              </div>
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                {lessons.map((l, idx) => (
+                  <button
+                    key={l.id}
+                    type="button"
+                    onClick={() => setActivePartIdx(idx)}
+                    className={`px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold transition whitespace-nowrap shrink-0 border cursor-pointer ${
+                      idx === activePartIdx
+                        ? 'bg-[#D94E5D] text-white border-[#D94E5D]'
+                        : 'bg-[#FFF5E4] dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700 hover:bg-[#FFE3E1] dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {isDayCourse ? `Day ${l.part_number}` : `Part ${l.part_number}`}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {allTopics.length > 1 && (
+            <div className="pt-3 border-t border-[#FFE3E1] dark:border-slate-800 space-y-1.5">
+              <div className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Jump to Another Topic
+              </div>
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                {allTopics.map((t) => (
+                  <Link
+                    key={t.slug}
+                    href={`/lessons/learn/${t.slug}?lang=${lang}`}
+                    className={`px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold transition whitespace-nowrap shrink-0 border ${
+                      t.slug === slug
+                        ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white'
+                        : 'bg-[#FFF5E4]/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700 hover:bg-[#FFE3E1] dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {t.icon_text} {t.title}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* =================================================================

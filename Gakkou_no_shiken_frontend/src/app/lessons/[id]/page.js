@@ -28,7 +28,7 @@ import {
   Play,
   Pause,
 } from 'lucide-react';
-import { getCurriculumLessonDetail } from '@/lib/api';
+import { getCurriculumLessonDetail, getCurriculumLessons } from '@/lib/api';
 
 export default function LessonStudyPage() {
   const params = useParams();
@@ -36,6 +36,7 @@ export default function LessonStudyPage() {
   const lessonId = params?.id;
 
   const [lesson, setLesson] = useState(null);
+  const [allSiblingLessons, setAllSiblingLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -109,6 +110,15 @@ export default function LessonStudyPage() {
           setLesson(data);
           setFlashcardIndex(0);
           setIsFlipped(false);
+          if (data?.lesson_type) {
+            getCurriculumLessons({ type: data.lesson_type })
+              .then((listRes) => {
+                if (isMounted && Array.isArray(listRes?.lessons)) {
+                  setAllSiblingLessons(listRes.lessons);
+                }
+              })
+              .catch(() => {});
+          }
         }
       } catch (err) {
         if (isMounted) setError('Unable to load lesson details. Please try again.');
@@ -220,36 +230,37 @@ export default function LessonStudyPage() {
   const currentFlashcard = items[flashcardIndex] || null;
 
   return (
-    <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-6 sm:space-y-8 animate-fade-in">
-      {/* Top Breadcrumb & Back Navigation */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 dark:border-slate-800 pb-4">
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
-          <Link href="/" className="hover:text-japan-red transition-colors flex items-center gap-1">
+    <div className="min-h-screen bg-[#FFF5E4] dark:bg-[#060913] text-slate-900 dark:text-slate-100 pb-24">
+    <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-5 sm:space-y-6 animate-fade-in">
+      {/* Top Breadcrumb & Prev/Next Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-[#FFD1D1] dark:border-slate-800 pb-3.5">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400">
+          <Link href="/" className="hover:text-[#D94E5D] transition-colors flex items-center gap-1">
             <Home className="w-3.5 h-3.5" />
-            <span>Home</span>
+            <span className="hidden sm:inline">Home</span>
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <Link href="/lessons" className="hover:text-japan-red transition-colors">
-            Curriculum
+          <Link href="/lessons" className="hover:text-[#D94E5D] transition-colors">
+            Lessons Hub
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-900 dark:text-white font-bold truncate max-w-[200px] sm:max-w-none">
+          <span className="text-slate-900 dark:text-white font-black truncate max-w-[160px] sm:max-w-none">
             {lesson.level} Lesson {lesson.lesson_number}
           </span>
         </nav>
 
         {/* Previous & Next Lesson Quick Jump Buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {lesson.prev_lesson_id ? (
             <Link
               href={`/lessons/${lesson.prev_lesson_id}`}
-              className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-japan-red hover:border-japan-red text-xs font-bold transition-all flex items-center gap-1 shadow-2xs"
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-[#D94E5D] hover:border-[#FF9494] text-xs font-bold transition-all flex items-center gap-1"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
-              <span>Prev Lesson</span>
+              <span>Prev</span>
             </Link>
           ) : (
-            <span className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/40 text-slate-400 text-xs font-bold opacity-50 cursor-not-allowed flex items-center gap-1">
+            <span className="px-2.5 py-1.5 rounded-xl bg-white/50 dark:bg-slate-900/40 border border-[#FFD1D1]/50 dark:border-slate-800 text-slate-400 text-xs font-bold opacity-50 cursor-not-allowed flex items-center gap-1">
               <ChevronLeft className="w-3.5 h-3.5" />
               <span>Prev</span>
             </span>
@@ -258,13 +269,13 @@ export default function LessonStudyPage() {
           {lesson.next_lesson_id ? (
             <Link
               href={`/lessons/${lesson.next_lesson_id}`}
-              className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-japan-red hover:border-japan-red text-xs font-bold transition-all flex items-center gap-1 shadow-2xs"
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#D94E5D] hover:bg-[#BE3B4A] text-white text-xs font-black transition-all flex items-center gap-1 shadow-xs"
             >
-              <span>Next Lesson</span>
+              <span>Next</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           ) : (
-            <span className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/40 text-slate-400 text-xs font-bold opacity-50 cursor-not-allowed flex items-center gap-1">
+            <span className="px-2.5 py-1.5 rounded-xl bg-white/50 dark:bg-slate-900/40 border border-[#FFD1D1]/50 dark:border-slate-800 text-slate-400 text-xs font-bold opacity-50 cursor-not-allowed flex items-center gap-1">
               <span>Next</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </span>
@@ -272,130 +283,156 @@ export default function LessonStudyPage() {
         </div>
       </div>
 
-      {/* Lesson Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-slate-900 via-slate-850 to-slate-950 dark:from-black dark:via-[#0b1022] dark:to-black text-white p-5 sm:p-8 border border-slate-800 shadow-xl">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className={`px-2.5 py-0.5 rounded-lg text-xs font-black tracking-wider uppercase ${
-                lesson.level === 'N5'
-                  ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
-                  : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-              }`}>
+      {/* Light Sakura / Rich Dark Mode Header Card + 1-Tap Lesson Switcher */}
+      <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 p-4 sm:p-7 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-2.5 py-0.5 rounded-lg text-[11px] font-black tracking-wider uppercase bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FF9494] border border-[#FFD1D1] dark:border-slate-700">
                 {lesson.level} • {isVocab ? 'Vocabulary' : 'Kanji'}
               </span>
-              <span className="text-xs font-mono text-slate-400">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
                 Lesson #{lesson.lesson_number}
               </span>
             </div>
-            <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight">
+            <h1 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
               {lesson.title}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
               {isVocab
-                ? `Containing ${items.length} words with Furigana, native Japanese audio, English, and Bengali meanings.`
-                : `Containing ${items.length} Kanji characters with Onyomi, Kunyomi, Romaji, and Bengali translations.`}
+                ? `${items.length} words with Furigana, native Japanese audio & 7-language meanings.`
+                : `${items.length} Kanji with Onyomi, Kunyomi, Romaji & 7-language meanings.`}
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="px-4 py-2.5 rounded-2xl bg-white/10 border border-white/10 backdrop-blur-md text-center">
-              <div className="text-xs text-slate-300 font-medium">Total Items</div>
-              <div className="text-xl sm:text-2xl font-black text-white">
-                {items.length} <span className="text-xs font-normal text-rose-300">{isVocab ? 'words' : 'kanji'}</span>
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="px-4 py-2 rounded-2xl bg-[#FFF5E4] dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-700 text-center">
+              <div className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400">Total</div>
+              <div className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
+                {items.length}{' '}
+                <span className="text-xs font-bold text-[#D94E5D]">{isVocab ? 'words' : 'kanji'}</span>
               </div>
             </div>
           </div>
         </div>
+
+        {/* 1-TAP HORIZONTAL LESSON SWITCHER (Jump directly to any lesson from here!) */}
+        {allSiblingLessons.length > 1 && (
+          <div className="pt-3 border-t border-[#FFE3E1] dark:border-slate-800 space-y-1.5">
+            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <span>Jump to Any Lesson ({allSiblingLessons.length})</span>
+              <Link href="/lessons" className="text-[#D94E5D] hover:underline">
+                View All Hub →
+              </Link>
+            </div>
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              {allSiblingLessons.map((sib) => {
+                const isCurrent = String(sib.id) === String(lesson.id);
+                return (
+                  <Link
+                    key={sib.id}
+                    href={`/lessons/${sib.id}`}
+                    className={`px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold transition whitespace-nowrap shrink-0 border ${
+                      isCurrent
+                        ? 'bg-[#D94E5D] text-white border-[#D94E5D] shadow-xs'
+                        : 'bg-[#FFF5E4]/80 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700 hover:bg-[#FFE3E1] dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {sib.level} L{sib.lesson_number}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Interactive Study Controls & Toggles Toolbar */}
-      <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          {/* View Modes */}
-          <div className="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-slate-850 border border-slate-200 dark:border-slate-800">
+      {/* Mobile-Friendly & Dark-Mode Crisp Study Controls Toolbar */}
+      <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 shadow-xs space-y-3">
+        {/* Row 1: View Mode + Reading Toggles */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="inline-flex p-1 rounded-xl bg-[#FFF5E4] dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-800">
             <button
               onClick={() => setViewMode('grid')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
                 viewMode === 'grid'
-                  ? 'bg-white dark:bg-slate-800 text-japan-red shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white dark:bg-slate-800 text-[#D94E5D] dark:text-[#FF9494] shadow-2xs'
+                  : 'text-slate-600 dark:text-slate-400'
               }`}
             >
               <Grid className="w-3.5 h-3.5" />
-              <span>Card Grid</span>
+              <span>Cards</span>
             </button>
             <button
               onClick={() => setViewMode('flashcards')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
                 viewMode === 'flashcards'
-                  ? 'bg-white dark:bg-slate-800 text-japan-red shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  ? 'bg-white dark:bg-slate-800 text-[#D94E5D] dark:text-[#FF9494] shadow-2xs'
+                  : 'text-slate-600 dark:text-slate-400'
               }`}
             >
               <RotateCw className="w-3.5 h-3.5" />
-              <span>Flashcard Mode</span>
+              <span>Flashcards</span>
             </button>
           </div>
 
-          {/* Furigana & Romaji Toggles */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {isVocab && (
               <button
                 onClick={() => setShowFurigana(!showFurigana)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                   showFurigana
-                    ? 'bg-rose-50 dark:bg-rose-950/50 text-japan-red dark:text-rose-300 border-rose-200 dark:border-rose-900/60'
-                    : 'bg-slate-50 dark:bg-slate-850 text-slate-500 border-slate-200 dark:border-slate-800'
+                    ? 'bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FF9494] border-[#FFD1D1] dark:border-slate-700'
+                    : 'bg-slate-50 dark:bg-slate-900 text-slate-500 border-slate-200 dark:border-slate-800'
                 }`}
-                title="Toggle Furigana reading above words"
               >
                 {showFurigana ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                <span>Furigana: {showFurigana ? 'ON' : 'OFF'}</span>
+                <span>Furigana</span>
               </button>
             )}
 
             <button
               onClick={() => setShowRomaji(!showRomaji)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                 showRomaji
-                  ? 'bg-rose-50 dark:bg-rose-950/50 text-japan-red dark:text-rose-300 border-rose-200 dark:border-rose-900/60'
-                  : 'bg-slate-50 dark:bg-slate-850 text-slate-500 border-slate-200 dark:border-slate-800'
+                  ? 'bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FF9494] border-[#FFD1D1] dark:border-slate-700'
+                  : 'bg-slate-50 dark:bg-slate-900 text-slate-500 border-slate-200 dark:border-slate-800'
               }`}
             >
-              <span>Romaji: {showRomaji ? 'ON' : 'OFF'}</span>
+              <span>Romaji</span>
             </button>
-
-            {/* 7-Language Meaning Filter */}
-            <div className="flex items-center gap-1 overflow-x-auto p-1 rounded-xl bg-[#FFF5E4] dark:bg-slate-850 border border-[#FFD1D1] dark:border-slate-800 text-xs font-bold">
-              {STUDY_LANGS.map((l) => (
-                <button
-                  key={l.code}
-                  type="button"
-                  onClick={() => setLanguageMode(l.code)}
-                  className={`px-2 py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                    languageMode === l.code
-                      ? 'bg-[#D94E5D] text-white shadow-xs'
-                      : 'text-slate-700 dark:text-slate-300 hover:bg-[#FFE3E1]'
-                  }`}
-                >
-                  {l.flag} {l.label}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
 
-        {/* In-lesson search filter */}
-        <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            value={searchFilter}
-            onChange={(e) => setSearchFilter(e.target.value)}
-            placeholder={`Filter ${items.length} words in this lesson (Japanese, English, or বাংলা)...`}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-japan-red/40"
-          />
+        {/* Row 2: Horizontal Swipeable 7-Language Switcher + Search */}
+        <div className="flex flex-col md:flex-row md:items-center gap-2.5">
+          <div className="flex items-center gap-1 overflow-x-auto p-1 rounded-xl bg-[#FFF5E4] dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-800 text-xs font-bold scrollbar-none">
+            {STUDY_LANGS.map((l) => (
+              <button
+                key={l.code}
+                type="button"
+                onClick={() => setLanguageMode(l.code)}
+                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                  languageMode === l.code
+                    ? 'bg-[#D94E5D] text-white shadow-xs'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-[#FFE3E1] dark:hover:bg-slate-800'
+                }`}
+              >
+                {l.flag} {l.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+              placeholder={`Search ${items.length} items...`}
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#FFF5E4]/60 dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-800 text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#D94E5D]"
+            />
+          </div>
         </div>
       </div>
 
@@ -576,7 +613,7 @@ export default function LessonStudyPage() {
               return (
                 <div
                   key={item.id}
-                  className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-japan-red/60 dark:hover:border-rose-500/60 transition-all duration-200 shadow-2xs hover:shadow-lg flex flex-col justify-between gap-2.5 sm:gap-4 group"
+                  className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 hover:border-[#FF9494] dark:hover:border-slate-600 transition-all duration-200 shadow-2xs hover:shadow-md flex flex-col justify-between gap-2.5 sm:gap-4 group"
                 >
                   {/* Top card row: order number, audio button, bookmark */}
                   <div className="flex items-start justify-between">
@@ -683,7 +720,7 @@ export default function LessonStudyPage() {
       )}
 
       {/* Bottom Navigation: Return to Hub or Go to Next Lesson */}
-      <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="pt-6 border-t border-[#FFD1D1] dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <Link
           href="/lessons"
           className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-japan-red transition-colors"
@@ -695,13 +732,14 @@ export default function LessonStudyPage() {
         {lesson.next_lesson_id && (
           <Link
             href={`/lessons/${lesson.next_lesson_id}`}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-japan-red text-white text-xs font-bold shadow-md hover:bg-red-700 transition-all self-start sm:self-auto"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#D94E5D] hover:bg-[#BE3B4A] text-white text-xs font-black shadow-sm transition-all self-start sm:self-auto"
           >
             <span>Proceed to Next Lesson</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         )}
       </div>
+    </div>
     </div>
   );
 }
