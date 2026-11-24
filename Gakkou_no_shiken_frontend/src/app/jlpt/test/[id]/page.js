@@ -165,9 +165,9 @@ export default function JlptTestRunnerPage({ params }) {
   );
 
   return (
-    <div className="min-h-screen bg-[#F9F5F6] dark:bg-[#060913] text-slate-900 dark:text-slate-100 pb-24">
+    <div className="min-h-screen bg-[#FFFFFF] dark:bg-[#060913] text-slate-900 dark:text-slate-100 pb-24">
       {/* Sticky Exam Topbar */}
-      <div className="sticky top-14 sm:top-16 z-30 bg-[#F9F5F6]/95 dark:bg-[#0c1222]/95 backdrop-blur-md border-b border-[#FDCEDF] dark:border-slate-800">
+      <div className="sticky top-14 sm:top-16 z-30 bg-[#FFFFFF]/95 dark:bg-[#0c1222]/95 backdrop-blur-md border-b border-[#CBE5E3] dark:border-slate-800">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <Link
