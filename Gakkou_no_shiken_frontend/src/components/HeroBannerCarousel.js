@@ -169,17 +169,17 @@ export default function HeroBannerCarousel() {
             type: b.primary_btn_url?.includes('game')
               ? 'game'
               : b.primary_btn_url?.includes('lesson')
-              ? 'lessons'
-              : b.primary_btn_url?.includes('book')
-              ? 'books'
-              : b.primary_btn_url?.includes('ssw')
-              ? 'ssw'
-              : 'cbt',
+                ? 'lessons'
+                : b.primary_btn_url?.includes('book')
+                  ? 'books'
+                  : b.primary_btn_url?.includes('ssw')
+                    ? 'ssw'
+                    : 'cbt',
           }));
           setSlides(formatted);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
 
     // Fetch leaderboard
     getLeaderboard()
@@ -195,7 +195,7 @@ export default function HeroBannerCarousel() {
           setTopThree(formatted);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
 
     return () => {
       isMounted = false;
@@ -323,7 +323,7 @@ export default function HeroBannerCarousel() {
           - On mobile: Exact proportions and card layout from user reference photo
           - On desktop: Rich glassmorphic wide layout with interactive widgets
           ============================================================ */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#090d16] text-white shadow-2xl shadow-slate-950/60 border border-slate-800/80 group select-none">
+      <div className="relative overflow-hidden -mx-2.5 sm:mx-0 rounded-none sm:rounded-3xl bg-[#090d16] text-white shadow-lg sm:shadow-2xl shadow-slate-950/30 border-y sm:border border-slate-800/80 group select-none">
         {slides.map((slide, idx) => {
           const isActive = idx === currentSlide;
           const slideTheme = getThemeStyles(slide.theme_color);
@@ -331,9 +331,8 @@ export default function HeroBannerCarousel() {
           return (
             <div
               key={slide.id || idx}
-              className={`transition-opacity duration-700 ease-in-out ${
-                isActive ? 'opacity-100 relative z-10' : 'opacity-0 absolute inset-0 pointer-events-none z-0'
-              }`}
+              className={`transition-opacity duration-700 ease-in-out ${isActive ? 'opacity-100 relative z-10' : 'opacity-0 absolute inset-0 pointer-events-none z-0'
+                }`}
             >
               {/* ──────────────────────────────────────────────────────────
                   DESKTOP BACKGROUND ARTWORK (Rich wide art from backend)
@@ -346,59 +345,57 @@ export default function HeroBannerCarousel() {
               <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-black/50 pointer-events-none" />
 
               {/* ──────────────────────────────────────────────────────────
-                  MOBILE BANNER VIEW: Exact Card Proportions from User Photo
-                  (Aspect ratio ~16:9, bold stacked headline, badge, pill button,
-                  and picture positioned on right with high-contrast gradient)
+                  MOBILE BANNER VIEW: Full-bleed edge-to-edge modern card
                   ────────────────────────────────────────────────────────── */}
-              <div className="block sm:hidden relative w-full aspect-[16/9] min-h-[200px] max-h-[245px] overflow-hidden rounded-2xl bg-slate-950 text-white">
+              <div className="block sm:hidden relative w-full min-h-[235px] overflow-hidden bg-slate-950 text-white">
                 {/* Background Picture from Backend */}
                 <div
                   className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
                   style={{ backgroundImage: `url('${slide.mobile_image_display || slide.image_display}')` }}
                 />
 
-                {/* High contrast gradient overlay: solid black on left for crystal-clear readability, fading to reveal picture on right */}
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-transparent pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-black/40 pointer-events-none" />
+                {/* Clean directional gradient overlay for crisp text legibility */}
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/75 to-slate-950/30 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/20 to-black/35 pointer-events-none" />
 
-                {/* Foreground Mobile Card Content */}
-                <div className="relative z-10 h-full p-4 flex flex-col justify-between">
-                  {/* Top Badge */}
-                  <div className="flex items-center justify-between">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/60 border border-white/20 backdrop-blur-md text-[9px] font-black uppercase tracking-wider text-rose-300">
-                      <Sparkles className="w-2.5 h-2.5 text-amber-300 animate-pulse" />
-                      <span className="truncate max-w-[190px]">{slide.badge_text}</span>
+                {/* Foreground Mobile Content */}
+                <div className="relative z-10 min-h-[235px] px-4 pt-4 pb-9 flex flex-col justify-between gap-3">
+                  {/* Top Row: Badge + Slide Counter */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/55 border border-white/20 backdrop-blur-md text-[10px] font-black uppercase tracking-wider text-white">
+                      <Sparkles className="w-2.5 h-2.5 text-[#8CC7C4]" />
+                      <span className="truncate max-w-[210px]">{slide.badge_text}</span>
                     </div>
 
-                    <span className="text-[9px] font-extrabold text-slate-300 bg-black/50 px-2 py-0.5 rounded-full border border-white/10">
+                    <span className="text-[10px] font-extrabold text-white/90 bg-black/50 px-2 py-0.5 rounded-full border border-white/15 shrink-0">
                       {idx + 1}/{totalSlides}
                     </span>
                   </div>
 
-                  {/* Middle Content: Stacked Bold Headline like Reference Photo */}
-                  <div className="space-y-1 pr-14">
-                    <h2 className="text-base font-black tracking-tight leading-tight text-white drop-shadow-md">
+                  {/* Middle: Crisp Headline & 2-Line Subtitle */}
+                  <div className="space-y-1.5 max-w-[92%]">
+                    <h2 className="text-xl font-black tracking-tight leading-snug text-white drop-shadow-md">
                       {slide.title}
                     </h2>
-                    <p className="text-[10px] text-slate-300 font-medium line-clamp-1 drop-shadow-sm">
+                    <p className="text-xs text-slate-200/90 font-medium line-clamp-2 leading-relaxed">
                       {slide.subtitle}
                     </p>
                   </div>
 
-                  {/* Bottom Action: High-Contrast Pill Button like Reference Photo */}
-                  <div className="flex items-center justify-between pt-1">
+                  {/* Action Buttons Row */}
+                  <div className="flex items-center gap-2.5 pt-1">
                     <Link
                       href={slide.primary_btn_url}
-                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-japan-red hover:bg-red-700 text-white font-black text-xs shadow-lg shadow-red-600/40 active:scale-95 transition-all cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#DB1A1A] hover:bg-[#B81515] text-white font-black text-xs shadow-md active:scale-95 transition-all cursor-pointer"
                     >
                       <span>{slide.primary_btn_text}</span>
-                      <ArrowRight className="w-3 h-3" />
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
 
                     {slide.secondary_btn_text && (
                       <Link
                         href={slide.secondary_btn_url}
-                        className="text-[10px] font-bold text-slate-300 hover:text-white underline decoration-dotted transition-colors"
+                        className="inline-flex items-center px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/25 text-white font-bold text-xs transition-all"
                       >
                         {slide.secondary_btn_text}
                       </Link>
@@ -406,19 +403,18 @@ export default function HeroBannerCarousel() {
                   </div>
                 </div>
 
-                {/* Mobile Bottom Centered Pagination Dots (Exact style as Reference Photo) */}
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 pointer-events-auto">
+                {/* Mobile Bottom Centered Pagination Dots (Own dedicated lane) */}
+                <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 pointer-events-auto">
                   {slides.map((_, dotIdx) => (
                     <button
                       key={dotIdx}
                       type="button"
                       onClick={() => setCurrentSlide(dotIdx)}
                       aria-label={`Go to slide ${dotIdx + 1}`}
-                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                        currentSlide === dotIdx
-                          ? 'w-5 bg-japan-red shadow-sm'
+                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${currentSlide === dotIdx
+                          ? 'w-6 bg-[#DB1A1A]'
                           : 'w-1.5 bg-white/40 hover:bg-white/70'
-                      }`}
+                        }`}
                     />
                   ))}
                 </div>
@@ -838,41 +834,40 @@ export default function HeroBannerCarousel() {
               type="button"
               onClick={() => setCurrentSlide(idx)}
               aria-label={`Go to slide ${idx + 1}`}
-              className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                currentSlide === idx
+              className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 cursor-pointer ${currentSlide === idx
                   ? 'w-8 sm:w-10 bg-gradient-to-r from-japan-red to-amber-400 shadow-md shadow-red-500/50'
                   : 'w-2 sm:w-2.5 bg-white/30 hover:bg-white/60'
-              }`}
+                }`}
             />
           ))}
         </div>
 
         {/* ──────────────────────────────────────────────────────────
-            BOTTOM COMMUNITY CHANNELS STRIP
+            BOTTOM COMMUNITY CHANNELS STRIP (Single clean row on mobile)
             ────────────────────────────────────────────────────────── */}
-        <div className="relative z-10 bg-slate-950/90 border-t border-slate-800/80 px-3 sm:px-8 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 text-[10px] sm:text-xs">
-          <div className="flex items-center gap-1.5 sm:gap-2 text-slate-300 font-semibold">
-            <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-              <MessageSquare className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+        <div className="relative z-10 bg-slate-950/95 border-t border-slate-800/80 px-3 sm:px-8 py-2.5 flex items-center justify-between gap-2 text-[10px] sm:text-xs">
+          <div className="hidden sm:flex items-center gap-2 text-slate-300 font-semibold">
+            <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+              <MessageSquare className="w-3 h-3" />
             </div>
-            <span className="text-[10px] sm:text-xs">OFFICIAL WHATSAPP CHANNEL</span>
+            <span>OFFICIAL WHATSAPP CHANNEL</span>
             <a
               href="https://whatsapp.com/channel/0029Vb8f5nVGOj9mKhSBbp3m"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-emerald-400 hover:underline flex items-center gap-1 font-bold ml-0.5 sm:ml-1"
+              className="text-emerald-400 hover:underline flex items-center gap-1 font-bold ml-1"
             >
               <span>Follow Channel</span>
-              <ExternalLink className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              <ExternalLink className="w-3 h-3" />
             </a>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="grid grid-cols-3 sm:flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
             <a
               href="https://www.facebook.com/Gakkou.No.Shiken"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-2 sm:px-2.5 py-1 rounded-lg bg-slate-900/20 hover:bg-slate-900/30 text-slate-300 border border-slate-500/30 font-bold flex items-center gap-1 transition-colors text-[10px] sm:text-xs"
+              className="px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-bold flex items-center justify-center gap-1 transition-colors text-[10px] sm:text-xs"
             >
               <span>Facebook</span>
               <ExternalLink className="w-2.5 h-2.5" />
@@ -881,7 +876,7 @@ export default function HeroBannerCarousel() {
               href="https://www.instagram.com/gakkou.no.shiken/"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-2 sm:px-2.5 py-1 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-600/30 font-bold flex items-center gap-1 transition-colors text-[10px] sm:text-xs"
+              className="px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-bold flex items-center justify-center gap-1 transition-colors text-[10px] sm:text-xs"
             >
               <span>Instagram</span>
               <ExternalLink className="w-2.5 h-2.5" />
@@ -890,12 +885,10 @@ export default function HeroBannerCarousel() {
               href="https://whatsapp.com/channel/0029Vb8f5nVGOj9mKhSBbp3m"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-2 sm:px-3 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-bold flex items-center gap-1 transition-colors text-[10px] sm:text-xs"
+              className="px-2 sm:px-3 py-1.5 sm:py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-bold flex items-center justify-center gap-1 transition-colors text-[10px] sm:text-xs"
             >
-              <MessageSquare className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-              <span className="hidden xs:inline">COMMUNITY</span>
-              <span>CHANNEL</span>
-              <ExternalLink className="w-2.5 h-2.5" />
+              <MessageSquare className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
+              <span>WhatsApp</span>
             </a>
           </div>
         </div>

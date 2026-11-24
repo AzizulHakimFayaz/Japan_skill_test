@@ -20,7 +20,7 @@ export default function AppLayout({ children }) {
     <>
       <Navbar />
 
-      <main className="flex-grow pt-4 sm:pt-8 pb-24 sm:pb-12 max-w-[1850px] 2xl:max-w-[1920px] w-full mx-auto px-4 sm:px-8 lg:px-12 2xl:px-16 relative z-10">
+      <main className="flex-grow pt-0 sm:pt-8 pb-24 sm:pb-12 max-w-[1850px] 2xl:max-w-[1920px] w-full mx-auto px-2.5 sm:px-8 lg:px-12 2xl:px-16 relative z-10">
         {children}
       </main>
 
