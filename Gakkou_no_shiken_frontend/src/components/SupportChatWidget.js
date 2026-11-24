@@ -284,22 +284,22 @@ export default function SupportChatWidget() {
   // ============================================================================
   if (viewMode === 'closed') {
     return (
-      <div className="fixed bottom-20 right-3.5 sm:bottom-6 sm:right-6 z-40">
+      <div className="fixed bottom-[70px] right-3 sm:bottom-6 sm:right-6 z-40">
         <button
           type="button"
           onClick={handleOpenPopup}
           aria-label="Open Candidate Support Chat"
-          className="group relative flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#E11D48] via-[#BE123C] to-[#9F1239] text-white pl-3.5 pr-4 py-3 sm:px-4 sm:py-3.5 shadow-[0_10px_30px_rgba(225,29,72,0.45)] hover:shadow-[0_14px_36px_rgba(225,29,72,0.65)] hover:scale-[1.03] active:scale-95 transition-all duration-200 border border-white/20"
+          className="group relative flex items-center justify-center sm:gap-2 rounded-full bg-[#DB1A1A] hover:bg-[#B81515] text-white w-11 h-11 sm:w-auto sm:h-auto sm:px-4 sm:py-3 shadow-lg shadow-[#DB1A1A]/30 hover:scale-[1.03] active:scale-95 transition-all duration-200 border border-white/25 cursor-pointer"
         >
           {/* Live Online Dot */}
-          <span className="relative flex h-2.5 w-2.5">
+          <span className="absolute -top-0.5 -left-0.5 sm:static flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400 ring-2 ring-white sm:ring-0" />
           </span>
 
           {/* Chat Icon */}
           <svg
-            className="w-5 h-5 sm:w-5 sm:h-5 shrink-0 transition-transform duration-200 group-hover:-rotate-6"
+            className="w-5 h-5 shrink-0 transition-transform duration-200 group-hover:-rotate-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -312,13 +312,13 @@ export default function SupportChatWidget() {
             />
           </svg>
 
-          <span className="text-xs sm:text-sm font-extrabold tracking-tight">
+          <span className="hidden sm:inline text-sm font-extrabold tracking-tight">
             Support Chat
           </span>
 
           {/* Unread Admin Reply Badge */}
           {unreadCount > 0 && (
-            <span className="absolute -top-2 -right-1.5 min-w-[22px] h-[22px] px-1.5 rounded-full bg-amber-400 text-slate-950 font-black text-[11px] flex items-center justify-center shadow-lg ring-2 ring-white dark:ring-slate-900 animate-bounce">
+            <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 rounded-full bg-[#2C687B] text-white font-black text-[10px] flex items-center justify-center shadow-lg ring-2 ring-white dark:ring-slate-900">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}

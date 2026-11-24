@@ -74,10 +74,10 @@ export default function LearningHubShowcase() {
         </div>
       </div>
 
-      {/* ROW 1: 3 PRIMARY EXAM PILLARS (1. JFT-Basic, 2. JLPT, 3. SSW) */}
-      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-3 sm:mb-4">
+      {/* ROW 1: 3 PRIMARY EXAM PILLARS (Horizontal swipeable strip on mobile, 3-col grid on tablet/desktop) */}
+      <div className="relative z-10 flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 -mx-1 px-1 scrollbar-none sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:pb-0 sm:mx-0 sm:px-0 mb-3 sm:mb-4">
         {/* 1. JFT-BASIC */}
-        <ScrollReveal variant="up" delay={0} duration={400} className="h-full">
+        <ScrollReveal variant="up" delay={0} duration={400} className="w-[265px] sm:w-auto shrink-0 snap-start h-auto">
           <Link href="/jft-basic" className={cardBase}>
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
@@ -90,7 +90,7 @@ export default function LearningHubShowcase() {
                 <h3 className="text-sm sm:text-lg font-black text-slate-900 dark:text-white group-hover:text-[#DB1A1A] transition-colors leading-tight">
                   JFT-Basic Mock Tests
                 </h3>
-                <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium mt-1 leading-relaxed">
+                <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium mt-1 leading-relaxed line-clamp-2">
                   Authentic Prometric CBT simulator with native listening audio &amp; instant 250-point CEFR score.
                 </p>
               </div>
@@ -106,7 +106,7 @@ export default function LearningHubShowcase() {
         </ScrollReveal>
 
         {/* 2. JLPT (N5–N1) */}
-        <ScrollReveal variant="up" delay={50} duration={400} className="h-full">
+        <ScrollReveal variant="up" delay={50} duration={400} className="w-[265px] sm:w-auto shrink-0 snap-start h-auto">
           <Link href="/jlpt" className={cardBase}>
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
@@ -119,7 +119,7 @@ export default function LearningHubShowcase() {
                 <h3 className="text-sm sm:text-lg font-black text-slate-900 dark:text-white group-hover:text-[#DB1A1A] transition-colors leading-tight">
                   JLPT Mock Hub
                 </h3>
-                <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium mt-1 leading-relaxed">
+                <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium mt-1 leading-relaxed line-clamp-2">
                   3-min level checker, N5–N1 difficulty guide &amp; 32,800+ questions with 7-language explanations.
                 </p>
               </div>
@@ -135,7 +135,7 @@ export default function LearningHubShowcase() {
         </ScrollReveal>
 
         {/* 3. SSW SKILL TESTS */}
-        <ScrollReveal variant="up" delay={100} duration={400} className="h-full">
+        <ScrollReveal variant="up" delay={100} duration={400} className="w-[265px] sm:w-auto shrink-0 snap-start h-auto">
           <Link href="/ssw-skill-test" className={cardBase}>
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
@@ -148,7 +148,7 @@ export default function LearningHubShowcase() {
                 <h3 className="text-sm sm:text-lg font-black text-slate-900 dark:text-white group-hover:text-[#DB1A1A] transition-colors leading-tight">
                   SSW Skill Tests
                 </h3>
-                <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium mt-1 leading-relaxed">
+                <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium mt-1 leading-relaxed line-clamp-2">
                   Sector-specific CBT mock exams for Caregiving, Food Service, Agriculture &amp; Construction.
                 </p>
               </div>

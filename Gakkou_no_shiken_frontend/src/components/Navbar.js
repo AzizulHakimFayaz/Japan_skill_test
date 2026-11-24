@@ -104,7 +104,7 @@ export default function Navbar() {
             {open ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
           </button>
 
-          <Link href="/" className="flex items-center gap-1.5 sm:gap-2 group btn-touch-active shrink-0 min-w-0">
+          <Link href="/" className="flex items-center gap-1.5 sm:gap-2 group btn-touch-active shrink-0 min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2C687B]/40 rounded-lg">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/img/logo.png"
