@@ -471,22 +471,45 @@ export default function JlptTestRunnerPage({ params }) {
 
                   {/* Post-Submission Explanation Box */}
                   {result && (
-                    <div className="mt-4 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200/80 dark:border-indigo-800/60 p-4 space-y-1.5 text-xs sm:text-sm">
-                      <div className="flex items-center justify-between gap-2 font-black text-indigo-800 dark:text-indigo-300">
+                    <div className="mt-4 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200/80 dark:border-indigo-800/60 p-4 space-y-2 text-xs sm:text-sm">
+                      <div className="flex flex-wrap items-center justify-between gap-2 font-black text-indigo-800 dark:text-indigo-300">
                         <span>
                           📖 Explanation (
                           {EXPLANATION_LANGUAGES.find((l) => l.code === expLang)?.label})
                         </span>
-                        {q.answer_index && (
+                        {q.answer_index ? (
                           <span className="text-emerald-700 dark:text-emerald-400">
-                            Answer: #{q.answer_index} {q.answer_text}
+                            Correct Answer: #{q.answer_index}{' '}
+                            {q.answer_text || q.options?.[q.answer_index - 1] || ''}
+                          </span>
+                        ) : (
+                          <span className="text-amber-700 dark:text-amber-300 font-bold">
+                            Answer key coming soon
                           </span>
                         )}
                       </div>
-                      <p className="text-slate-700 dark:text-slate-200 leading-relaxed">
-                        {explanationText ||
-                          'Detailed translation explanation for this question is being added soon.'}
-                      </p>
+
+                      {explanationText ? (
+                        <p className="text-slate-700 dark:text-slate-200 leading-relaxed">
+                          {explanationText}
+                        </p>
+                      ) : (
+                        <div className="space-y-1.5">
+                          {hintText && (
+                            <p className="text-slate-800 dark:text-slate-200 leading-relaxed">
+                              <strong className="text-indigo-700 dark:text-indigo-300">
+                                Sentence Meaning:
+                              </strong>{' '}
+                              {hintText}
+                            </p>
+                          )}
+                          <p className="text-slate-500 dark:text-slate-400 italic text-xs">
+                            {q.answer_index
+                              ? 'Detailed explanation for this question is not uploaded yet — check back soon!'
+                              : 'Official answer key & detailed explanation for this question are being updated soon.'}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

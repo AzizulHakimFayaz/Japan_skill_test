@@ -187,12 +187,11 @@ export default function JlptHubPage() {
       .then((data) => {
         if (!active) return;
         setOverview(data);
-        // Default to N1 if N1 has ready sets so visitors can immediately take a graded test
+        // Default to N1 if N1 has ready sets, while showing all sets (ready sets sorted first!)
         const levels = data?.levels || [];
         const firstReady = levels.find((l) => l.ready_sets > 0);
         if (firstReady) {
           setSelectedLevel(firstReady.level);
-          setReadyOnly(true);
         }
       })
       .catch(() => {})
@@ -233,9 +232,7 @@ export default function JlptHubPage() {
     setSelectedLevel(level);
     setSelectedCategory('all');
     setPage(1);
-    // If this level has ready sets, show readyOnly by default; otherwise show all sets so it's never empty
-    const lvlInfo = overview?.levels?.find((l) => l.level === level);
-    setReadyOnly(Boolean(lvlInfo && lvlInfo.ready_sets > 0));
+    setReadyOnly(false);
     setTimeout(() => {
       mockSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 60);
@@ -829,7 +826,7 @@ export default function JlptHubPage() {
                       setSelectedLevel(g.level);
                       setSelectedCategory('all');
                       setPage(1);
-                      setReadyOnly(Boolean(info && info.ready_sets > 0));
+                      setReadyOnly(false);
                     }}
                     className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition cursor-pointer flex items-center gap-2 ${
                       active
