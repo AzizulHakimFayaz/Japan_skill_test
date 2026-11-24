@@ -5,15 +5,15 @@
 
 @theme {
   --font-sans: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
-  --color-japan-red: #D94E5D;
-  --color-japan-redhover: #BE3B4A;
+  --color-japan-red: #C23B6B;
+  --color-japan-redhover: #A32D58;
   --color-japan-navy: #141218;
   --color-japan-gold: #D97706;
-  --color-japan-soft: #FFF5E4;
-  --color-sakura-cream: #FFF5E4;
-  --color-sakura-mist: #FFE3E1;
-  --color-sakura-blush: #FFD1D1;
-  --color-sakura-coral: #FF9494;
+  --color-japan-soft: #F9F5F6;
+  --color-sakura-cream: #F9F5F6;
+  --color-sakura-mist: #F8E8EE;
+  --color-sakura-blush: #FDCEDF;
+  --color-sakura-coral: #F2BED1;
 }
 
 /* --- Keyframe Animations --- */

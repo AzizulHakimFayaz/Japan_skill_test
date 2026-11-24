@@ -230,17 +230,17 @@ export default function LessonStudyPage() {
   const currentFlashcard = items[flashcardIndex] || null;
 
   return (
-    <div className="min-h-screen bg-[#FFF5E4] dark:bg-[#060913] text-slate-900 dark:text-slate-100 pb-24">
+    <div className="min-h-screen bg-[#F9F5F6] dark:bg-[#060913] text-slate-900 dark:text-slate-100 pb-24">
     <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-5 sm:space-y-6 animate-fade-in">
       {/* Top Breadcrumb & Prev/Next Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-[#FFD1D1] dark:border-slate-800 pb-3.5">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-[#FDCEDF] dark:border-slate-800 pb-3.5">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400">
-          <Link href="/" className="hover:text-[#D94E5D] transition-colors flex items-center gap-1">
+          <Link href="/" className="hover:text-[#C23B6B] transition-colors flex items-center gap-1">
             <Home className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Home</span>
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <Link href="/lessons" className="hover:text-[#D94E5D] transition-colors">
+          <Link href="/lessons" className="hover:text-[#C23B6B] transition-colors">
             Lessons Hub
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
@@ -254,13 +254,13 @@ export default function LessonStudyPage() {
           {lesson.prev_lesson_id ? (
             <Link
               href={`/lessons/${lesson.prev_lesson_id}`}
-              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-[#D94E5D] hover:border-[#FF9494] text-xs font-bold transition-all flex items-center gap-1"
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-[#FDCEDF] dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-[#C23B6B] hover:border-[#F2BED1] text-xs font-bold transition-all flex items-center gap-1"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
               <span>Prev</span>
             </Link>
           ) : (
-            <span className="px-2.5 py-1.5 rounded-xl bg-white/50 dark:bg-slate-900/40 border border-[#FFD1D1]/50 dark:border-slate-800 text-slate-400 text-xs font-bold opacity-50 cursor-not-allowed flex items-center gap-1">
+            <span className="px-2.5 py-1.5 rounded-xl bg-white/50 dark:bg-slate-900/40 border border-[#FDCEDF]/50 dark:border-slate-800 text-slate-400 text-xs font-bold opacity-50 cursor-not-allowed flex items-center gap-1">
               <ChevronLeft className="w-3.5 h-3.5" />
               <span>Prev</span>
             </span>
@@ -269,13 +269,13 @@ export default function LessonStudyPage() {
           {lesson.next_lesson_id ? (
             <Link
               href={`/lessons/${lesson.next_lesson_id}`}
-              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#D94E5D] hover:bg-[#BE3B4A] text-white text-xs font-black transition-all flex items-center gap-1 shadow-xs"
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#C23B6B] hover:bg-[#A32D58] text-white text-xs font-black transition-all flex items-center gap-1 shadow-xs"
             >
               <span>Next</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           ) : (
-            <span className="px-2.5 py-1.5 rounded-xl bg-white/50 dark:bg-slate-900/40 border border-[#FFD1D1]/50 dark:border-slate-800 text-slate-400 text-xs font-bold opacity-50 cursor-not-allowed flex items-center gap-1">
+            <span className="px-2.5 py-1.5 rounded-xl bg-white/50 dark:bg-slate-900/40 border border-[#FDCEDF]/50 dark:border-slate-800 text-slate-400 text-xs font-bold opacity-50 cursor-not-allowed flex items-center gap-1">
               <span>Next</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </span>
@@ -284,11 +284,11 @@ export default function LessonStudyPage() {
       </div>
 
       {/* Light Sakura / Rich Dark Mode Header Card + 1-Tap Lesson Switcher */}
-      <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 p-4 sm:p-7 shadow-xs space-y-4">
+      <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#FDCEDF] dark:border-slate-800 p-4 sm:p-7 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-lg text-[11px] font-black tracking-wider uppercase bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FF9494] border border-[#FFD1D1] dark:border-slate-700">
+              <span className="px-2.5 py-0.5 rounded-lg text-[11px] font-black tracking-wider uppercase bg-[#F8E8EE] dark:bg-slate-800 text-[#8A2247] dark:text-[#F2BED1] border border-[#FDCEDF] dark:border-slate-700">
                 {lesson.level} • {isVocab ? 'Vocabulary' : 'Kanji'}
               </span>
               <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
@@ -306,11 +306,11 @@ export default function LessonStudyPage() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <div className="px-4 py-2 rounded-2xl bg-[#FFF5E4] dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-700 text-center">
+            <div className="px-4 py-2 rounded-2xl bg-[#F9F5F6] dark:bg-slate-900 border border-[#FDCEDF] dark:border-slate-700 text-center">
               <div className="text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400">Total</div>
               <div className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
                 {items.length}{' '}
-                <span className="text-xs font-bold text-[#D94E5D]">{isVocab ? 'words' : 'kanji'}</span>
+                <span className="text-xs font-bold text-[#C23B6B]">{isVocab ? 'words' : 'kanji'}</span>
               </div>
             </div>
           </div>
@@ -318,10 +318,10 @@ export default function LessonStudyPage() {
 
         {/* 1-TAP HORIZONTAL LESSON SWITCHER (Jump directly to any lesson from here!) */}
         {allSiblingLessons.length > 1 && (
-          <div className="pt-3 border-t border-[#FFE3E1] dark:border-slate-800 space-y-1.5">
+          <div className="pt-3 border-t border-[#F8E8EE] dark:border-slate-800 space-y-1.5">
             <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
               <span>Jump to Any Lesson ({allSiblingLessons.length})</span>
-              <Link href="/lessons" className="text-[#D94E5D] hover:underline">
+              <Link href="/lessons" className="text-[#C23B6B] hover:underline">
                 View All Hub →
               </Link>
             </div>
@@ -334,8 +334,8 @@ export default function LessonStudyPage() {
                     href={`/lessons/${sib.id}`}
                     className={`px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold transition whitespace-nowrap shrink-0 border ${
                       isCurrent
-                        ? 'bg-[#D94E5D] text-white border-[#D94E5D] shadow-xs'
-                        : 'bg-[#FFF5E4]/80 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700 hover:bg-[#FFE3E1] dark:hover:bg-slate-700'
+                        ? 'bg-[#C23B6B] text-white border-[#C23B6B] shadow-xs'
+                        : 'bg-[#F9F5F6]/80 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border-[#FDCEDF] dark:border-slate-700 hover:bg-[#F8E8EE] dark:hover:bg-slate-700'
                     }`}
                   >
                     {sib.level} L{sib.lesson_number}
@@ -348,15 +348,15 @@ export default function LessonStudyPage() {
       </div>
 
       {/* Mobile-Friendly & Dark-Mode Crisp Study Controls Toolbar */}
-      <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 shadow-xs space-y-3">
+      <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FDCEDF] dark:border-slate-800 shadow-xs space-y-3">
         {/* Row 1: View Mode + Reading Toggles */}
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="inline-flex p-1 rounded-xl bg-[#FFF5E4] dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-800">
+          <div className="inline-flex p-1 rounded-xl bg-[#F9F5F6] dark:bg-slate-900 border border-[#FDCEDF] dark:border-slate-800">
             <button
               onClick={() => setViewMode('grid')}
               className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
                 viewMode === 'grid'
-                  ? 'bg-white dark:bg-slate-800 text-[#D94E5D] dark:text-[#FF9494] shadow-2xs'
+                  ? 'bg-white dark:bg-slate-800 text-[#C23B6B] dark:text-[#F2BED1] shadow-2xs'
                   : 'text-slate-600 dark:text-slate-400'
               }`}
             >
@@ -367,7 +367,7 @@ export default function LessonStudyPage() {
               onClick={() => setViewMode('flashcards')}
               className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
                 viewMode === 'flashcards'
-                  ? 'bg-white dark:bg-slate-800 text-[#D94E5D] dark:text-[#FF9494] shadow-2xs'
+                  ? 'bg-white dark:bg-slate-800 text-[#C23B6B] dark:text-[#F2BED1] shadow-2xs'
                   : 'text-slate-600 dark:text-slate-400'
               }`}
             >
@@ -382,7 +382,7 @@ export default function LessonStudyPage() {
                 onClick={() => setShowFurigana(!showFurigana)}
                 className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                   showFurigana
-                    ? 'bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FF9494] border-[#FFD1D1] dark:border-slate-700'
+                    ? 'bg-[#F8E8EE] dark:bg-slate-800 text-[#8A2247] dark:text-[#F2BED1] border-[#FDCEDF] dark:border-slate-700'
                     : 'bg-slate-50 dark:bg-slate-900 text-slate-500 border-slate-200 dark:border-slate-800'
                 }`}
               >
@@ -395,7 +395,7 @@ export default function LessonStudyPage() {
               onClick={() => setShowRomaji(!showRomaji)}
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                 showRomaji
-                  ? 'bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FF9494] border-[#FFD1D1] dark:border-slate-700'
+                  ? 'bg-[#F8E8EE] dark:bg-slate-800 text-[#8A2247] dark:text-[#F2BED1] border-[#FDCEDF] dark:border-slate-700'
                   : 'bg-slate-50 dark:bg-slate-900 text-slate-500 border-slate-200 dark:border-slate-800'
               }`}
             >
@@ -406,7 +406,7 @@ export default function LessonStudyPage() {
 
         {/* Row 2: Horizontal Swipeable 7-Language Switcher + Search */}
         <div className="flex flex-col md:flex-row md:items-center gap-2.5">
-          <div className="flex items-center gap-1 overflow-x-auto p-1 rounded-xl bg-[#FFF5E4] dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-800 text-xs font-bold scrollbar-none">
+          <div className="flex items-center gap-1 overflow-x-auto p-1 rounded-xl bg-[#F9F5F6] dark:bg-slate-900 border border-[#FDCEDF] dark:border-slate-800 text-xs font-bold scrollbar-none">
             {STUDY_LANGS.map((l) => (
               <button
                 key={l.code}
@@ -414,8 +414,8 @@ export default function LessonStudyPage() {
                 onClick={() => setLanguageMode(l.code)}
                 className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                   languageMode === l.code
-                    ? 'bg-[#D94E5D] text-white shadow-xs'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-[#FFE3E1] dark:hover:bg-slate-800'
+                    ? 'bg-[#C23B6B] text-white shadow-xs'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-[#F8E8EE] dark:hover:bg-slate-800'
                 }`}
               >
                 {l.flag} {l.label}
@@ -430,7 +430,7 @@ export default function LessonStudyPage() {
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
               placeholder={`Search ${items.length} items...`}
-              className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#FFF5E4]/60 dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-800 text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#D94E5D]"
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#F9F5F6]/60 dark:bg-slate-900 border border-[#FDCEDF] dark:border-slate-800 text-slate-900 dark:text-white text-xs font-semibold focus:outline-none focus:border-[#C23B6B]"
             />
           </div>
         </div>
@@ -547,7 +547,7 @@ export default function LessonStudyPage() {
                   </div>
 
                   {languageMode !== 'en' && getLocalizedMeaning(currentFlashcard) && (
-                    <div className="inline-block px-4 py-2 rounded-2xl bg-[#FFE3E1] dark:bg-slate-800 border border-[#FFD1D1] dark:border-slate-700 text-[#9F2B39] dark:text-[#FFD1D1] font-bold text-base">
+                    <div className="inline-block px-4 py-2 rounded-2xl bg-[#F8E8EE] dark:bg-slate-800 border border-[#FDCEDF] dark:border-slate-700 text-[#8A2247] dark:text-[#FDCEDF] font-bold text-base">
                       {getLocalizedMeaning(currentFlashcard)}
                     </div>
                   )}
@@ -613,7 +613,7 @@ export default function LessonStudyPage() {
               return (
                 <div
                   key={item.id}
-                  className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 hover:border-[#FF9494] dark:hover:border-slate-600 transition-all duration-200 shadow-2xs hover:shadow-md flex flex-col justify-between gap-2.5 sm:gap-4 group"
+                  className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-[#0f1629] border border-[#FDCEDF] dark:border-slate-800 hover:border-[#F2BED1] dark:hover:border-slate-600 transition-all duration-200 shadow-2xs hover:shadow-md flex flex-col justify-between gap-2.5 sm:gap-4 group"
                 >
                   {/* Top card row: order number, audio button, bookmark */}
                   <div className="flex items-start justify-between">
@@ -696,12 +696,12 @@ export default function LessonStudyPage() {
                   </div>
 
                   {/* Meanings: English + Selected Language */}
-                  <div className="pt-2 sm:pt-3 border-t border-[#FFE3E1] dark:border-slate-800/80 space-y-1">
+                  <div className="pt-2 sm:pt-3 border-t border-[#F8E8EE] dark:border-slate-800/80 space-y-1">
                     <div className="text-[11px] sm:text-xs font-semibold text-slate-800 dark:text-slate-200 leading-snug">
                       {item.meaning_en}
                     </div>
                     {languageMode !== 'en' && getLocalizedMeaning(item) && (
-                      <div className="text-[11px] sm:text-xs font-bold text-[#B83B4A] dark:text-[#FF9494] leading-snug">
+                      <div className="text-[11px] sm:text-xs font-bold text-[#9E2B54] dark:text-[#F2BED1] leading-snug">
                         {getLocalizedMeaning(item)}
                       </div>
                     )}
@@ -720,7 +720,7 @@ export default function LessonStudyPage() {
       )}
 
       {/* Bottom Navigation: Return to Hub or Go to Next Lesson */}
-      <div className="pt-6 border-t border-[#FFD1D1] dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="pt-6 border-t border-[#FDCEDF] dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <Link
           href="/lessons"
           className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-japan-red transition-colors"
@@ -732,7 +732,7 @@ export default function LessonStudyPage() {
         {lesson.next_lesson_id && (
           <Link
             href={`/lessons/${lesson.next_lesson_id}`}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#D94E5D] hover:bg-[#BE3B4A] text-white text-xs font-black shadow-sm transition-all self-start sm:self-auto"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#C23B6B] hover:bg-[#A32D58] text-white text-xs font-black shadow-sm transition-all self-start sm:self-auto"
           >
             <span>Proceed to Next Lesson</span>
             <ArrowRight className="w-4 h-4" />

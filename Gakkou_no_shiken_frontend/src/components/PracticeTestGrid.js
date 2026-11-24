@@ -211,33 +211,33 @@ export default function PracticeTestGrid({
     if (isFree) {
       return {
         isFree: true,
-        topBar: 'bg-gradient-to-r from-[#FFD1D1] via-[#FF9494] to-[#D94E5D]',
-        cardBorderHover: 'hover:border-[#FF9494] dark:hover:border-[#FF9494]/60',
+        topBar: 'bg-gradient-to-r from-[#FDCEDF] via-[#F2BED1] to-[#C23B6B]',
+        cardBorderHover: 'hover:border-[#F2BED1] dark:hover:border-[#F2BED1]/60',
         cardGlowHover: 'hover:shadow-md',
-        titleHover: 'group-hover:text-[#D94E5D] dark:group-hover:text-[#FF9494]',
-        button: 'bg-slate-900 hover:bg-[#D94E5D] text-white shadow-sm',
-        badge: 'bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FFD1D1] border-[#FFD1D1] dark:border-slate-700 shadow-2xs',
+        titleHover: 'group-hover:text-[#C23B6B] dark:group-hover:text-[#F2BED1]',
+        button: 'bg-slate-900 hover:bg-[#C23B6B] text-white shadow-sm',
+        badge: 'bg-[#F8E8EE] dark:bg-slate-800 text-[#8A2247] dark:text-[#FDCEDF] border-[#FDCEDF] dark:border-slate-700 shadow-2xs',
       };
     }
     if (catKey === 'skill') {
       return {
         isFree: false,
-        topBar: 'bg-gradient-to-r from-[#FF9494] to-[#D94E5D]',
-        cardBorderHover: 'hover:border-[#FF9494] dark:hover:border-[#FF9494]/60',
+        topBar: 'bg-gradient-to-r from-[#F2BED1] to-[#C23B6B]',
+        cardBorderHover: 'hover:border-[#F2BED1] dark:hover:border-[#F2BED1]/60',
         cardGlowHover: 'hover:shadow-md',
-        titleHover: 'group-hover:text-[#D94E5D] dark:group-hover:text-[#FF9494]',
-        button: 'bg-[#D94E5D] hover:bg-[#BE3B4A] text-white shadow-sm',
-        badge: 'bg-[#FFF5E4] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FFD1D1] border-[#FFD1D1] dark:border-slate-700',
+        titleHover: 'group-hover:text-[#C23B6B] dark:group-hover:text-[#F2BED1]',
+        button: 'bg-[#C23B6B] hover:bg-[#A32D58] text-white shadow-sm',
+        badge: 'bg-[#F9F5F6] dark:bg-slate-800 text-[#8A2247] dark:text-[#FDCEDF] border-[#FDCEDF] dark:border-slate-700',
       };
     }
     return {
       isFree: false,
-      topBar: 'bg-gradient-to-r from-[#FF9494] to-[#D94E5D]',
-      cardBorderHover: 'hover:border-[#FF9494] dark:hover:border-[#FF9494]/60',
+      topBar: 'bg-gradient-to-r from-[#F2BED1] to-[#C23B6B]',
+      cardBorderHover: 'hover:border-[#F2BED1] dark:hover:border-[#F2BED1]/60',
       cardGlowHover: 'hover:shadow-md',
-      titleHover: 'group-hover:text-[#D94E5D] dark:group-hover:text-[#FF9494]',
-      button: 'bg-[#D94E5D] hover:bg-[#BE3B4A] text-white shadow-sm',
-      badge: 'bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FFD1D1] border-[#FFD1D1] dark:border-slate-700',
+      titleHover: 'group-hover:text-[#C23B6B] dark:group-hover:text-[#F2BED1]',
+      button: 'bg-[#C23B6B] hover:bg-[#A32D58] text-white shadow-sm',
+      badge: 'bg-[#F8E8EE] dark:bg-slate-800 text-[#8A2247] dark:text-[#FDCEDF] border-[#FDCEDF] dark:border-slate-700',
     };
   };
 

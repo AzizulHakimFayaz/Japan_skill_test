@@ -227,20 +227,20 @@ export default function LessonsHubPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#FFF5E4] dark:bg-[#060913] text-slate-900 dark:text-slate-100 pb-24">
+    <div className="min-h-screen bg-[#F9F5F6] dark:bg-[#060913] text-slate-900 dark:text-slate-100 pb-24">
       {/* =====================================================================
           HERO & 3-PILLAR SWITCHER (Learn Japanese | JFT Lessons & Notes | SSW)
          ===================================================================== */}
-      <section className="border-b border-[#FFD1D1] dark:border-slate-800 bg-gradient-to-b from-[#FFE3E1]/75 via-[#FFF5E4] to-[#FFF5E4] dark:from-[#120d14] dark:to-[#060913]">
+      <section className="border-b border-[#FDCEDF] dark:border-slate-800 bg-gradient-to-b from-[#F8E8EE]/75 via-[#F9F5F6] to-[#F9F5F6] dark:from-[#120d14] dark:to-[#060913]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-10 space-y-6">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
             <div className="space-y-2 max-w-2xl">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-700 text-[11px] font-black uppercase tracking-wider text-[#B83B4A] dark:text-[#FF9494]">
-                <Sparkles className="w-3.5 h-3.5 text-[#D94E5D]" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-900 border border-[#FDCEDF] dark:border-slate-700 text-[11px] font-black uppercase tracking-wider text-[#9E2B54] dark:text-[#F2BED1]">
+                <Sparkles className="w-3.5 h-3.5 text-[#C23B6B]" />
                 <span>Structured Japanese Curriculum • 7 Languages</span>
               </div>
               <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-                Gakkou <span className="text-[#D94E5D]">Lessons Hub</span>
+                Gakkou <span className="text-[#C23B6B]">Lessons Hub</span>
               </h1>
               <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300">
                 Learn Japanese step-by-step by topic and day, master JFT-Basic Minna no Nihongo lessons &amp; study notes, or prepare for SSW sector exams.
@@ -250,7 +250,7 @@ export default function LessonsHubPage() {
             {/* 7-Language Meaning Selector */}
             <div className="flex flex-col gap-1.5">
               <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
-                <Globe className="w-3 h-3 text-[#D94E5D]" /> Preferred Meaning Language
+                <Globe className="w-3 h-3 text-[#C23B6B]" /> Preferred Meaning Language
               </span>
               <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
                 {STUDY_LANGUAGES.map((lang) => (
@@ -261,7 +261,7 @@ export default function LessonsHubPage() {
                     className={`px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold transition cursor-pointer whitespace-nowrap border ${
                       studyLang === lang.code
                         ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white'
-                        : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700 hover:bg-[#FFE3E1]'
+                        : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#FDCEDF] dark:border-slate-700 hover:bg-[#F8E8EE]'
                     }`}
                   >
                     {lang.flag} {lang.label}
@@ -278,15 +278,15 @@ export default function LessonsHubPage() {
               onClick={() => setActivePillar('learn')}
               className={`rounded-2xl p-3 sm:p-4 text-left border-2 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 ${
                 activePillar === 'learn'
-                  ? 'bg-[#D94E5D] text-white border-[#D94E5D] shadow-md'
-                  : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#FFD1D1] dark:border-slate-800 hover:border-[#FF9494]'
+                  ? 'bg-[#C23B6B] text-white border-[#C23B6B] shadow-md'
+                  : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#FDCEDF] dark:border-slate-800 hover:border-[#F2BED1]'
               }`}
             >
               <div
                 className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${
                   activePillar === 'learn'
                     ? 'bg-white/20 text-white'
-                    : 'bg-[#FFE3E1] dark:bg-slate-800 text-[#D94E5D]'
+                    : 'bg-[#F8E8EE] dark:bg-slate-800 text-[#C23B6B]'
                 }`}
               >
                 <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -310,15 +310,15 @@ export default function LessonsHubPage() {
               onClick={() => setActivePillar('jft')}
               className={`rounded-2xl p-3 sm:p-4 text-left border-2 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 ${
                 activePillar === 'jft'
-                  ? 'bg-[#D94E5D] text-white border-[#D94E5D] shadow-md'
-                  : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#FFD1D1] dark:border-slate-800 hover:border-[#FF9494]'
+                  ? 'bg-[#C23B6B] text-white border-[#C23B6B] shadow-md'
+                  : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#FDCEDF] dark:border-slate-800 hover:border-[#F2BED1]'
               }`}
             >
               <div
                 className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${
                   activePillar === 'jft'
                     ? 'bg-white/20 text-white'
-                    : 'bg-[#FFE3E1] dark:bg-slate-800 text-[#D94E5D]'
+                    : 'bg-[#F8E8EE] dark:bg-slate-800 text-[#C23B6B]'
                 }`}
               >
                 <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -342,15 +342,15 @@ export default function LessonsHubPage() {
               onClick={() => setActivePillar('ssw')}
               className={`rounded-2xl p-3 sm:p-4 text-left border-2 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 ${
                 activePillar === 'ssw'
-                  ? 'bg-[#D94E5D] text-white border-[#D94E5D] shadow-md'
-                  : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#FFD1D1] dark:border-slate-800 hover:border-[#FF9494]'
+                  ? 'bg-[#C23B6B] text-white border-[#C23B6B] shadow-md'
+                  : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#FDCEDF] dark:border-slate-800 hover:border-[#F2BED1]'
               }`}
             >
               <div
                 className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${
                   activePillar === 'ssw'
                     ? 'bg-white/20 text-white'
-                    : 'bg-[#FFE3E1] dark:bg-slate-800 text-[#D94E5D]'
+                    : 'bg-[#F8E8EE] dark:bg-slate-800 text-[#C23B6B]'
                 }`}
               >
                 <Briefcase className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -389,7 +389,7 @@ export default function LessonsHubPage() {
                     className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition cursor-pointer whitespace-nowrap border ${
                       learnCategory === cat.id
                         ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white'
-                        : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700 hover:bg-[#FFE3E1]'
+                        : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#FDCEDF] dark:border-slate-700 hover:bg-[#F8E8EE]'
                     }`}
                   >
                     {cat.label}
@@ -404,7 +404,7 @@ export default function LessonsHubPage() {
                   value={learnSearch}
                   onChange={(e) => setLearnSearch(e.target.value)}
                   placeholder="Search topics (Hiragana, Food...)"
-                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-700 focus:border-[#D94E5D] text-xs font-semibold outline-none"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-[#FDCEDF] dark:border-slate-700 focus:border-[#C23B6B] text-xs font-semibold outline-none"
                 />
               </div>
             </div>
@@ -412,12 +412,12 @@ export default function LessonsHubPage() {
             {learnLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3, 4, 5, 6].map((n) => (
-                  <div key={n} className="h-32 rounded-2xl bg-white/80 dark:bg-slate-900 animate-pulse border border-[#FFD1D1]" />
+                  <div key={n} className="h-32 rounded-2xl bg-white/80 dark:bg-slate-900 animate-pulse border border-[#FDCEDF]" />
                 ))}
               </div>
             ) : learnTopics.length === 0 ? (
-              <div className="rounded-3xl bg-white dark:bg-slate-900 border border-[#FFD1D1] p-12 text-center space-y-2">
-                <Layers className="w-10 h-10 text-[#FF9494] mx-auto" />
+              <div className="rounded-3xl bg-white dark:bg-slate-900 border border-[#FDCEDF] p-12 text-center space-y-2">
+                <Layers className="w-10 h-10 text-[#F2BED1] mx-auto" />
                 <h3 className="text-base font-black">No topics found</h3>
                 <p className="text-xs text-slate-500">Try clearing your search or selecting All Topics.</p>
               </div>
@@ -427,25 +427,25 @@ export default function LessonsHubPage() {
                   <Link
                     key={topic.slug}
                     href={`/lessons/learn/${topic.slug}?lang=${studyLang}`}
-                    className="group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 hover:border-[#FF9494] hover:bg-[#FFF5E4]/40 p-4 sm:p-5 shadow-2xs hover:shadow-md transition-all flex items-start gap-4"
+                    className="group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FDCEDF] dark:border-slate-800 hover:border-[#F2BED1] hover:bg-[#F9F5F6]/40 p-4 sm:p-5 shadow-2xs hover:shadow-md transition-all flex items-start gap-4"
                   >
                     {/* Japanese Glyph Tile */}
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FFE3E1] dark:bg-slate-800 border border-[#FFD1D1] dark:border-slate-700 flex items-center justify-center text-xl sm:text-2xl font-black text-[#C94A5A] dark:text-[#FF9494] shrink-0 group-hover:bg-[#D94E5D] group-hover:text-white transition-colors">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#F8E8EE] dark:bg-slate-800 border border-[#FDCEDF] dark:border-slate-700 flex items-center justify-center text-xl sm:text-2xl font-black text-[#B53562] dark:text-[#F2BED1] shrink-0 group-hover:bg-[#C23B6B] group-hover:text-white transition-colors">
                       {topic.icon_text || '日'}
                     </div>
 
                     <div className="min-w-0 flex-1 space-y-1">
                       <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D] transition-colors truncate">
+                        <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[#C23B6B] transition-colors truncate">
                           {topic.title}
                         </h3>
-                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#D94E5D] group-hover:translate-x-0.5 transition shrink-0" />
+                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#C23B6B] group-hover:translate-x-0.5 transition shrink-0" />
                       </div>
                       <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-snug">
                         {topic.description}
                       </p>
                       <div className="flex items-center gap-2 pt-1.5 text-[10px] sm:text-[11px] font-extrabold text-slate-500 dark:text-slate-400">
-                        <span className="px-2 py-0.5 rounded-md bg-[#FFF5E4] dark:bg-slate-800 border border-[#FFD1D1] dark:border-slate-700 text-[#9F2B39] dark:text-[#FFD1D1]">
+                        <span className="px-2 py-0.5 rounded-md bg-[#F9F5F6] dark:bg-slate-800 border border-[#FDCEDF] dark:border-slate-700 text-[#8A2247] dark:text-[#FDCEDF]">
                           {topic.lesson_count} {topic.lesson_count === 1 ? 'Part' : 'Parts / Days'}
                         </span>
                         <span>•</span>
@@ -473,7 +473,7 @@ export default function LessonsHubPage() {
                   className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition cursor-pointer border ${
                     jftSubTab === 'vocabulary'
                       ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900'
-                      : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700'
+                      : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#FDCEDF] dark:border-slate-700'
                   }`}
                 >
                   Minna Vocab (50)
@@ -484,7 +484,7 @@ export default function LessonsHubPage() {
                   className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition cursor-pointer border ${
                     jftSubTab === 'kanji'
                       ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900'
-                      : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700'
+                      : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#FDCEDF] dark:border-slate-700'
                   }`}
                 >
                   Kanji Units (30)
@@ -495,7 +495,7 @@ export default function LessonsHubPage() {
                   className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition cursor-pointer border ${
                     jftSubTab === 'notes'
                       ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900'
-                      : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700'
+                      : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#FDCEDF] dark:border-slate-700'
                   }`}
                 >
                   Grammar &amp; Notes
@@ -509,7 +509,7 @@ export default function LessonsHubPage() {
                   value={jftSearch}
                   onChange={(e) => setJftSearch(e.target.value)}
                   placeholder="Search word, kanji, or meaning..."
-                  className="w-full pl-9 pr-8 py-2 rounded-xl bg-white dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-700 focus:border-[#D94E5D] text-xs font-semibold outline-none"
+                  className="w-full pl-9 pr-8 py-2 rounded-xl bg-white dark:bg-slate-900 border border-[#FDCEDF] dark:border-slate-700 focus:border-[#C23B6B] text-xs font-semibold outline-none"
                 />
                 {jftSearch && (
                   <button
@@ -525,7 +525,7 @@ export default function LessonsHubPage() {
 
             {/* Instant Word Search Results */}
             {searchResults && (
-              <div className="rounded-2xl bg-white dark:bg-slate-900 border border-[#FF9494] p-4 sm:p-5 space-y-3">
+              <div className="rounded-2xl bg-white dark:bg-slate-900 border border-[#F2BED1] p-4 sm:p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-black">
                     Search Results for &ldquo;{searchResults.query}&rdquo; ({(searchResults.vocab_count || 0) + (searchResults.kanji_count || 0)})
@@ -535,14 +535,14 @@ export default function LessonsHubPage() {
                   {(searchResults.vocabularies || []).slice(0, 12).map((v) => (
                     <div
                       key={`v-${v.id}`}
-                      className="rounded-xl bg-[#FFF5E4]/70 dark:bg-slate-800 border border-[#FFD1D1] dark:border-slate-700 p-3 flex items-center justify-between gap-2"
+                      className="rounded-xl bg-[#F9F5F6]/70 dark:bg-slate-800 border border-[#FDCEDF] dark:border-slate-700 p-3 flex items-center justify-between gap-2"
                     >
                       <div className="min-w-0">
                         <div className="text-sm font-black text-slate-900 dark:text-white truncate">
                           {v.word}{' '}
                           <span className="text-xs font-semibold text-slate-500">({v.furigana})</span>
                         </div>
-                        <div className="text-xs text-[#9F2B39] dark:text-[#FFD1D1] font-bold truncate">
+                        <div className="text-xs text-[#8A2247] dark:text-[#FDCEDF] font-bold truncate">
                           {v.meaning_en} {v.meaning_bn ? `• ${v.meaning_bn}` : ''}
                         </div>
                       </div>
@@ -551,8 +551,8 @@ export default function LessonsHubPage() {
                         onClick={() => playSpeech(v.word, `sv-${v.id}`)}
                         className={`p-2 rounded-lg border shrink-0 cursor-pointer ${
                           speakingId === `sv-${v.id}`
-                            ? 'bg-[#D94E5D] text-white border-[#D94E5D]'
-                            : 'bg-white dark:bg-slate-900 text-slate-700 border-[#FFD1D1]'
+                            ? 'bg-[#C23B6B] text-white border-[#C23B6B]'
+                            : 'bg-white dark:bg-slate-900 text-slate-700 border-[#FDCEDF]'
                         }`}
                       >
                         <Volume2 className="w-3.5 h-3.5" />
@@ -570,28 +570,28 @@ export default function LessonsHubPage() {
                   <Link
                     key={note.href}
                     href={note.href}
-                    className="group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 hover:border-[#FF9494] p-5 flex items-start gap-4 shadow-2xs hover:shadow-md transition"
+                    className="group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FDCEDF] dark:border-slate-800 hover:border-[#F2BED1] p-5 flex items-start gap-4 shadow-2xs hover:shadow-md transition"
                   >
-                    <div className="w-12 h-12 rounded-2xl bg-[#FFE3E1] dark:bg-slate-800 border border-[#FFD1D1] flex items-center justify-center text-xl font-black text-[#C94A5A] shrink-0">
+                    <div className="w-12 h-12 rounded-2xl bg-[#F8E8EE] dark:bg-slate-800 border border-[#FDCEDF] flex items-center justify-center text-xl font-black text-[#B53562] shrink-0">
                       {note.icon}
                     </div>
                     <div className="flex-1 space-y-1">
-                      <span className="inline-block px-2 py-0.5 rounded-md bg-[#FFF5E4] border border-[#FFD1D1] text-[10px] font-black text-[#9F2B39]">
+                      <span className="inline-block px-2 py-0.5 rounded-md bg-[#F9F5F6] border border-[#FDCEDF] text-[10px] font-black text-[#8A2247]">
                         {note.badge}
                       </span>
-                      <h3 className="text-base font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D]">
+                      <h3 className="text-base font-black text-slate-900 dark:text-white group-hover:text-[#C23B6B]">
                         {note.title}
                       </h3>
                       <p className="text-xs text-slate-600 dark:text-slate-400">{note.desc}</p>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#D94E5D] shrink-0 mt-1" />
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#C23B6B] shrink-0 mt-1" />
                   </Link>
                 ))}
               </div>
             ) : curriculumLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                 {[1, 2, 3, 4, 5, 6].map((n) => (
-                  <div key={n} className="h-28 rounded-2xl bg-white/80 dark:bg-slate-900 animate-pulse border border-[#FFD1D1]" />
+                  <div key={n} className="h-28 rounded-2xl bg-white/80 dark:bg-slate-900 animate-pulse border border-[#FDCEDF]" />
                 ))}
               </div>
             ) : (
@@ -612,13 +612,13 @@ export default function LessonsHubPage() {
                         <Link
                           key={lesson.id}
                           href={`/lessons/${lesson.id}`}
-                          className="group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 hover:border-[#FF9494] p-4 shadow-2xs hover:shadow-md transition flex items-start gap-3.5"
+                          className="group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FDCEDF] dark:border-slate-800 hover:border-[#F2BED1] p-4 shadow-2xs hover:shadow-md transition flex items-start gap-3.5"
                         >
-                          <div className="w-10 h-10 rounded-xl bg-[#FFE3E1] dark:bg-slate-800 text-[#B83B4A] dark:text-[#FF9494] font-black text-sm flex items-center justify-center shrink-0 group-hover:bg-[#D94E5D] group-hover:text-white transition">
+                          <div className="w-10 h-10 rounded-xl bg-[#F8E8EE] dark:bg-slate-800 text-[#9E2B54] dark:text-[#F2BED1] font-black text-sm flex items-center justify-center shrink-0 group-hover:bg-[#C23B6B] group-hover:text-white transition">
                             {lesson.lesson_number}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <div className="text-sm font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D] truncate">
+                            <div className="text-sm font-black text-slate-900 dark:text-white group-hover:text-[#C23B6B] truncate">
                               {lesson.title}
                             </div>
                             {lesson.title_ja && (
@@ -630,7 +630,7 @@ export default function LessonsHubPage() {
                               <span className="text-slate-500">
                                 {lesson.items_count || 0} {jftSubTab === 'vocabulary' ? 'words' : 'kanji'}
                               </span>
-                              <span className="text-[#D94E5D] font-black">Study →</span>
+                              <span className="text-[#C23B6B] font-black">Study →</span>
                             </div>
                           </div>
                         </Link>
@@ -646,7 +646,7 @@ export default function LessonsHubPage() {
                       <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
                         {jftSubTab === 'vocabulary' ? 'Book II • Minna no Nihongo (Lessons 26–50)' : 'N4 Essential Kanji (Lessons 11–30)'}
                       </h2>
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FFD1D1] border border-[#FFD1D1] text-[10px] font-black">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#F8E8EE] dark:bg-slate-800 text-[#8A2247] dark:text-[#FDCEDF] border border-[#FDCEDF] text-[10px] font-black">
                         JLPT N4 • SSW Ready
                       </span>
                     </div>
@@ -655,13 +655,13 @@ export default function LessonsHubPage() {
                         <Link
                           key={lesson.id}
                           href={`/lessons/${lesson.id}`}
-                          className="group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 hover:border-[#FF9494] p-4 shadow-2xs hover:shadow-md transition flex items-start gap-3.5"
+                          className="group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FDCEDF] dark:border-slate-800 hover:border-[#F2BED1] p-4 shadow-2xs hover:shadow-md transition flex items-start gap-3.5"
                         >
-                          <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-slate-800 text-white font-black text-sm flex items-center justify-center shrink-0 group-hover:bg-[#D94E5D] transition">
+                          <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-slate-800 text-white font-black text-sm flex items-center justify-center shrink-0 group-hover:bg-[#C23B6B] transition">
                             {lesson.lesson_number}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <div className="text-sm font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D] truncate">
+                            <div className="text-sm font-black text-slate-900 dark:text-white group-hover:text-[#C23B6B] truncate">
                               {lesson.title}
                             </div>
                             {lesson.title_ja && (
@@ -673,7 +673,7 @@ export default function LessonsHubPage() {
                               <span className="text-slate-500">
                                 {lesson.items_count || 0} {jftSubTab === 'vocabulary' ? 'words' : 'kanji'}
                               </span>
-                              <span className="text-[#D94E5D] font-black">Study →</span>
+                              <span className="text-[#C23B6B] font-black">Study →</span>
                             </div>
                           </div>
                         </Link>
@@ -701,25 +701,25 @@ export default function LessonsHubPage() {
                   <Link
                     key={g.href}
                     href={g.href}
-                    className="group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 hover:border-[#FF9494] p-4 flex flex-col justify-between gap-3 shadow-2xs hover:shadow-md transition"
+                    className="group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FDCEDF] dark:border-slate-800 hover:border-[#F2BED1] p-4 flex flex-col justify-between gap-3 shadow-2xs hover:shadow-md transition"
                   >
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <div className="w-10 h-10 rounded-xl bg-[#FFE3E1] dark:bg-slate-800 text-[#C94A5A] font-black text-lg flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-[#F8E8EE] dark:bg-slate-800 text-[#B53562] font-black text-lg flex items-center justify-center">
                           {g.icon}
                         </div>
-                        <span className="px-2 py-0.5 rounded-md bg-[#FFF5E4] border border-[#FFD1D1] text-[10px] font-black text-[#9F2B39]">
+                        <span className="px-2 py-0.5 rounded-md bg-[#F9F5F6] border border-[#FDCEDF] text-[10px] font-black text-[#8A2247]">
                           {g.badge}
                         </span>
                       </div>
-                      <h3 className="text-sm font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D]">
+                      <h3 className="text-sm font-black text-slate-900 dark:text-white group-hover:text-[#C23B6B]">
                         {g.title}
                       </h3>
                       <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
                         {g.desc}
                       </p>
                     </div>
-                    <span className="text-xs font-black text-[#D94E5D]">Read Guide →</span>
+                    <span className="text-xs font-black text-[#C23B6B]">Read Guide →</span>
                   </Link>
                 ))}
               </div>
@@ -750,7 +750,7 @@ export default function LessonsHubPage() {
                       className={`px-3 py-1.5 rounded-xl text-xs font-extrabold cursor-pointer whitespace-nowrap border ${
                         sswCategory === c.id
                           ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 border-[#FFD1D1]'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 border-[#FDCEDF]'
                       }`}
                     >
                       {c.label}
@@ -762,7 +762,7 @@ export default function LessonsHubPage() {
               {sswLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                   {[1, 2, 3, 4, 5, 6].map((n) => (
-                    <div key={n} className="h-32 rounded-2xl bg-white/80 animate-pulse border border-[#FFD1D1]" />
+                    <div key={n} className="h-32 rounded-2xl bg-white/80 animate-pulse border border-[#FDCEDF]" />
                   ))}
                 </div>
               ) : (
@@ -771,30 +771,30 @@ export default function LessonsHubPage() {
                     <Link
                       key={book.id}
                       href={`/books/${book.id}`}
-                      className="group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 hover:border-[#FF9494] p-4 flex flex-col justify-between gap-3 shadow-2xs hover:shadow-md transition"
+                      className="group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FDCEDF] dark:border-slate-800 hover:border-[#F2BED1] p-4 flex flex-col justify-between gap-3 shadow-2xs hover:shadow-md transition"
                     >
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between gap-2">
-                          <span className="px-2 py-0.5 rounded-md bg-[#FFE3E1] text-[#9F2B39] text-[10px] font-black uppercase">
+                          <span className="px-2 py-0.5 rounded-md bg-[#F8E8EE] text-[#8A2247] text-[10px] font-black uppercase">
                             {book.language_flag} {book.language_name || book.language}
                           </span>
                           <span className="text-[10px] font-bold text-slate-500 uppercase">
                             {book.category}
                           </span>
                         </div>
-                        <h3 className="text-sm font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D] line-clamp-2">
+                        <h3 className="text-sm font-black text-slate-900 dark:text-white group-hover:text-[#C23B6B] line-clamp-2">
                           {book.title}
                         </h3>
                         {book.title_ja && (
                           <p className="text-[11px] text-slate-500 truncate">{book.title_ja}</p>
                         )}
                       </div>
-                      <div className="flex items-center justify-between pt-2 border-t border-[#FFE3E1] dark:border-slate-800 text-xs font-black">
+                      <div className="flex items-center justify-between pt-2 border-t border-[#F8E8EE] dark:border-slate-800 text-xs font-black">
                         <span className="text-slate-500 text-[11px]">
                           <FileText className="w-3.5 h-3.5 inline mr-1" />
                           {book.total_pages || 'PDF'} pages
                         </span>
-                        <span className="text-[#D94E5D]">Open Reader →</span>
+                        <span className="text-[#C23B6B]">Open Reader →</span>
                       </div>
                     </Link>
                   ))}

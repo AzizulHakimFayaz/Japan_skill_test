@@ -100,18 +100,18 @@ export default function LearnTopicDetailPage({ params }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FFF5E4] dark:bg-[#060913] flex items-center justify-center p-6">
-        <div className="w-10 h-10 border-4 border-[#D94E5D] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#F9F5F6] dark:bg-[#060913] flex items-center justify-center p-6">
+        <div className="w-10 h-10 border-4 border-[#C23B6B] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   if (!topic) {
     return (
-      <div className="min-h-screen bg-[#FFF5E4] dark:bg-[#060913] flex items-center justify-center p-6">
-        <div className="rounded-3xl bg-white dark:bg-slate-900 border border-[#FFD1D1] p-8 text-center space-y-4">
+      <div className="min-h-screen bg-[#F9F5F6] dark:bg-[#060913] flex items-center justify-center p-6">
+        <div className="rounded-3xl bg-white dark:bg-slate-900 border border-[#FDCEDF] p-8 text-center space-y-4">
           <h1 className="text-xl font-black">Topic Not Found</h1>
-          <Link href="/lessons" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#D94E5D] text-white text-sm font-black">
+          <Link href="/lessons" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#C23B6B] text-white text-sm font-black">
             <ArrowLeft className="w-4 h-4" /> Back to Lessons Hub
           </Link>
         </div>
@@ -124,26 +124,26 @@ export default function LearnTopicDetailPage({ params }) {
   const isDayCourse = slug === 'hiragana' || slug === 'katakana' || slug.includes('20-days');
 
   return (
-    <div className="min-h-screen bg-[#FFF5E4] dark:bg-[#060913] text-slate-900 dark:text-slate-100 pb-24">
+    <div className="min-h-screen bg-[#F9F5F6] dark:bg-[#060913] text-slate-900 dark:text-slate-100 pb-24">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 space-y-6">
         {/* Top Breadcrumb Header Card */}
-        <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 p-5 sm:p-8 shadow-xs space-y-4">
+        <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#FDCEDF] dark:border-slate-800 p-5 sm:p-8 shadow-xs space-y-4">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
-            <Link href="/lessons" className="hover:text-[#D94E5D] transition">
+            <Link href="/lessons" className="hover:text-[#C23B6B] transition">
               Learn Japanese
             </Link>
             <ChevronRight className="w-3.5 h-3.5" />
             <button
               type="button"
               onClick={() => setActivePartIdx(null)}
-              className="hover:text-[#D94E5D] transition cursor-pointer font-extrabold text-slate-800 dark:text-slate-200"
+              className="hover:text-[#C23B6B] transition cursor-pointer font-extrabold text-slate-800 dark:text-slate-200"
             >
               {topic.title}
             </button>
             {currentLesson && (
               <>
                 <ChevronRight className="w-3.5 h-3.5" />
-                <span className="text-[#D94E5D] truncate">
+                <span className="text-[#C23B6B] truncate">
                   {isDayCourse ? `Day ${currentLesson.part_number}` : `Part ${currentLesson.part_number}`}
                 </span>
               </>
@@ -161,15 +161,15 @@ export default function LearnTopicDetailPage({ params }) {
                   : `${lessons.length} ${lessons.length === 1 ? 'lesson' : 'lessons'}. Select a ${isDayCourse ? 'day' : 'part'} to start learning.`}
               </p>
             </div>
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FFE3E1] dark:bg-slate-800 border border-[#FFD1D1] flex items-center justify-center text-2xl font-black text-[#C94A5A] shrink-0">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#F8E8EE] dark:bg-slate-800 border border-[#FDCEDF] flex items-center justify-center text-2xl font-black text-[#B53562] shrink-0">
               {topic.icon_text || '日'}
             </div>
           </div>
 
           {/* 7-Language Switcher Bar */}
-          <div className="pt-3 border-t border-[#FFE3E1] dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <div className="pt-3 border-t border-[#F8E8EE] dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-              <Globe className="w-4 h-4 text-[#D94E5D] shrink-0 mr-1" />
+              <Globe className="w-4 h-4 text-[#C23B6B] shrink-0 mr-1" />
               {STUDY_LANGUAGES.map((l) => (
                 <button
                   key={l.code}
@@ -178,7 +178,7 @@ export default function LearnTopicDetailPage({ params }) {
                   className={`px-2.5 py-1 rounded-xl text-[11px] font-extrabold transition cursor-pointer whitespace-nowrap border ${
                     lang === l.code
                       ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900'
-                      : 'bg-[#FFF5E4] dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700 hover:bg-[#FFE3E1]'
+                      : 'bg-[#F9F5F6] dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-[#FDCEDF] dark:border-slate-700 hover:bg-[#F8E8EE]'
                   }`}
                 >
                   {l.flag} {l.label}
@@ -190,9 +190,9 @@ export default function LearnTopicDetailPage({ params }) {
               <button
                 type="button"
                 onClick={() => setShowRomaji((v) => !v)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FFF5E4] dark:bg-slate-800 border border-[#FFD1D1] dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F9F5F6] dark:bg-slate-800 border border-[#FDCEDF] dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold cursor-pointer"
               >
-                {showRomaji ? <Eye className="w-3.5 h-3.5 text-[#D94E5D]" /> : <EyeOff className="w-3.5 h-3.5" />}
+                {showRomaji ? <Eye className="w-3.5 h-3.5 text-[#C23B6B]" /> : <EyeOff className="w-3.5 h-3.5" />}
                 <span>Romaji</span>
               </button>
             )}
@@ -200,7 +200,7 @@ export default function LearnTopicDetailPage({ params }) {
 
           {/* 1-TAP HORIZONTAL PART/DAY SWITCHER (when inside a lesson) + QUICK TOPIC SWITCHER */}
           {currentLesson && lessons.length > 1 && (
-            <div className="pt-3 border-t border-[#FFE3E1] dark:border-slate-800 space-y-1.5">
+            <div className="pt-3 border-t border-[#F8E8EE] dark:border-slate-800 space-y-1.5">
               <div className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 Switch {isDayCourse ? 'Day' : 'Part'} ({lessons.length})
               </div>
@@ -212,8 +212,8 @@ export default function LearnTopicDetailPage({ params }) {
                     onClick={() => setActivePartIdx(idx)}
                     className={`px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold transition whitespace-nowrap shrink-0 border cursor-pointer ${
                       idx === activePartIdx
-                        ? 'bg-[#D94E5D] text-white border-[#D94E5D]'
-                        : 'bg-[#FFF5E4] dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700 hover:bg-[#FFE3E1] dark:hover:bg-slate-700'
+                        ? 'bg-[#C23B6B] text-white border-[#C23B6B]'
+                        : 'bg-[#F9F5F6] dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-[#FDCEDF] dark:border-slate-700 hover:bg-[#F8E8EE] dark:hover:bg-slate-700'
                     }`}
                   >
                     {isDayCourse ? `Day ${l.part_number}` : `Part ${l.part_number}`}
@@ -224,7 +224,7 @@ export default function LearnTopicDetailPage({ params }) {
           )}
 
           {allTopics.length > 1 && (
-            <div className="pt-3 border-t border-[#FFE3E1] dark:border-slate-800 space-y-1.5">
+            <div className="pt-3 border-t border-[#F8E8EE] dark:border-slate-800 space-y-1.5">
               <div className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 Jump to Another Topic
               </div>
@@ -236,7 +236,7 @@ export default function LearnTopicDetailPage({ params }) {
                     className={`px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold transition whitespace-nowrap shrink-0 border ${
                       t.slug === slug
                         ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white'
-                        : 'bg-[#FFF5E4]/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700 hover:bg-[#FFE3E1] dark:hover:bg-slate-700'
+                        : 'bg-[#F9F5F6]/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-[#FDCEDF] dark:border-slate-700 hover:bg-[#F8E8EE] dark:hover:bg-slate-700'
                     }`}
                   >
                     {t.icon_text} {t.title}
@@ -262,14 +262,14 @@ export default function LearnTopicDetailPage({ params }) {
                     setActivePartIdx(idx);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="w-full text-left group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 hover:border-[#FF9494] hover:bg-[#FFF5E4]/40 p-4 sm:p-5 shadow-2xs hover:shadow-md transition flex items-center justify-between gap-4 cursor-pointer"
+                  className="w-full text-left group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FDCEDF] dark:border-slate-800 hover:border-[#F2BED1] hover:bg-[#F9F5F6]/40 p-4 sm:p-5 shadow-2xs hover:shadow-md transition flex items-center justify-between gap-4 cursor-pointer"
                 >
                   <div className="flex items-center gap-4 min-w-0">
                     <div
                       className={`w-12 h-12 rounded-2xl flex flex-col items-center justify-center shrink-0 border ${
                         isDone
                           ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                          : 'bg-[#FFE3E1] dark:bg-slate-800 border-[#FFD1D1] text-[#B83B4A] dark:text-[#FF9494]'
+                          : 'bg-[#F8E8EE] dark:bg-slate-800 border-[#FDCEDF] text-[#9E2B54] dark:text-[#F2BED1]'
                       }`}
                     >
                       <span className="text-[9px] font-black uppercase leading-none">
@@ -280,7 +280,7 @@ export default function LearnTopicDetailPage({ params }) {
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D] truncate">
+                        <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[#C23B6B] truncate">
                           {lesson.title}
                         </h2>
                         {isDone && <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />}
@@ -295,7 +295,7 @@ export default function LearnTopicDetailPage({ params }) {
                     <span className="hidden sm:inline text-xs font-bold text-slate-500">
                       {lesson.word_count} items
                     </span>
-                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#D94E5D] group-hover:translate-x-0.5 transition" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#C23B6B] group-hover:translate-x-0.5 transition" />
                   </div>
                 </button>
               );
@@ -314,14 +314,14 @@ export default function LearnTopicDetailPage({ params }) {
                 <button
                   type="button"
                   onClick={() => setActivePartIdx(null)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-[#FFD1D1] text-xs font-extrabold hover:bg-[#FFE3E1] cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-[#FDCEDF] text-xs font-extrabold hover:bg-[#F8E8EE] cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" /> All {lessons.length} {isDayCourse ? 'Days' : 'Parts'}
                 </button>
               ) : (
                 <Link
                   href="/lessons"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-[#FFD1D1] text-xs font-extrabold hover:bg-[#FFE3E1]"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-[#FDCEDF] text-xs font-extrabold hover:bg-[#F8E8EE]"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" /> Back to Topics
                 </Link>
@@ -333,7 +333,7 @@ export default function LearnTopicDetailPage({ params }) {
                 className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer border ${
                   completedParts[currentLesson.part_number]
                     ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#FFD1D1] hover:border-emerald-500'
+                    : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#FDCEDF] hover:border-emerald-500'
                 }`}
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
@@ -351,7 +351,7 @@ export default function LearnTopicDetailPage({ params }) {
                 return (
                   <div
                     key={w.id}
-                    className="rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 p-4 flex items-start justify-between gap-3 shadow-2xs hover:border-[#FF9494] transition"
+                    className="rounded-2xl bg-white dark:bg-[#0f1629] border border-[#FDCEDF] dark:border-slate-800 p-4 flex items-start justify-between gap-3 shadow-2xs hover:border-[#F2BED1] transition"
                   >
                     <div className="min-w-0 space-y-1">
                       <div className="flex items-baseline gap-2 flex-wrap">
@@ -359,7 +359,7 @@ export default function LearnTopicDetailPage({ params }) {
                           {w.kanji}
                         </span>
                         {w.furigana && w.furigana !== w.kanji && (
-                          <span className="text-xs font-bold text-[#B83B4A] dark:text-[#FF9494]">
+                          <span className="text-xs font-bold text-[#9E2B54] dark:text-[#F2BED1]">
                             ({w.furigana})
                           </span>
                         )}
@@ -381,8 +381,8 @@ export default function LearnTopicDetailPage({ params }) {
                       aria-label="Listen pronunciation"
                       className={`p-2.5 rounded-xl border shrink-0 transition cursor-pointer ${
                         speakingId === w.id
-                          ? 'bg-[#D94E5D] text-white border-[#D94E5D] animate-pulse'
-                          : 'bg-[#FFF5E4] dark:bg-slate-800 text-[#B83B4A] dark:text-[#FF9494] border-[#FFD1D1] hover:bg-[#FFE3E1]'
+                          ? 'bg-[#C23B6B] text-white border-[#C23B6B] animate-pulse'
+                          : 'bg-[#F9F5F6] dark:bg-slate-800 text-[#9E2B54] dark:text-[#F2BED1] border-[#FDCEDF] hover:bg-[#F8E8EE]'
                       }`}
                     >
                       <Volume2 className="w-4 h-4" />
@@ -402,7 +402,7 @@ export default function LearnTopicDetailPage({ params }) {
                     setActivePartIdx((i) => Math.max(0, i - 1));
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-[#FFD1D1] text-xs font-black disabled:opacity-40 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-[#FDCEDF] text-xs font-black disabled:opacity-40 cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4" /> Previous {isDayCourse ? 'Day' : 'Part'}
                 </button>
@@ -413,7 +413,7 @@ export default function LearnTopicDetailPage({ params }) {
                     setActivePartIdx((i) => Math.min(lessons.length - 1, i + 1));
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#D94E5D] hover:bg-[#BE3B4A] text-white text-xs font-black disabled:opacity-40 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#C23B6B] hover:bg-[#A32D58] text-white text-xs font-black disabled:opacity-40 cursor-pointer"
                 >
                   Next {isDayCourse ? 'Day' : 'Part'} <ChevronRight className="w-4 h-4" />
                 </button>

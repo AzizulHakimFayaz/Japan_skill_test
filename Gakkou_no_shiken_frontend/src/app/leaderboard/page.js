@@ -455,7 +455,7 @@ export default function LeaderboardPage() {
 
       {/* ═══════════ 3. Your Standing ═══════════ */}
       {me && (
-        <section className="rounded-3xl border border-slate-200/70 dark:border-slate-500/20 bg-gradient-to-r from-[#FFF5E4]/80 via-white to-white dark:from-slate-900/40 dark:via-slate-900 dark:to-slate-900 p-4 sm:p-5">
+        <section className="rounded-3xl border border-slate-200/70 dark:border-slate-500/20 bg-gradient-to-r from-[#F9F5F6]/80 via-white to-white dark:from-slate-900/40 dark:via-slate-900 dark:to-slate-900 p-4 sm:p-5">
           <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
               <div className="flex h-14 min-w-[3.75rem] px-2.5 shrink-0 flex-col items-center justify-center rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900">
