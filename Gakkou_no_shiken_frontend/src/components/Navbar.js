@@ -91,7 +91,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white/90 dark:bg-[#060913]/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 shadow-xs transition-colors duration-300">
+      <header className="sticky top-0 z-40 bg-[#FFF5E4]/90 dark:bg-[#060913]/90 backdrop-blur-md border-b border-[#FFD1D1] dark:border-slate-800/80 shadow-xs transition-colors duration-300">
         <nav className="max-w-[1920px] mx-auto px-2.5 sm:px-4 lg:px-6 xl:px-8 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-3">
         {/* Brand Logo & Mobile Left Extended Menu Button */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 min-w-0">

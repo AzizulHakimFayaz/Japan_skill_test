@@ -211,33 +211,33 @@ export default function PracticeTestGrid({
     if (isFree) {
       return {
         isFree: true,
-        topBar: 'bg-gradient-to-r from-emerald-500 via-slate-800 to-emerald-600',
-        cardBorderHover: 'hover:border-emerald-500/40 dark:hover:border-emerald-400/50',
-        cardGlowHover: 'hover:shadow-emerald-500/10 dark:hover:shadow-[0_0_25px_rgba(16,185,129,0.15)]',
-        titleHover: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400',
-        button: 'bg-gradient-to-r from-emerald-600 via-slate-900 to-emerald-600 hover:from-emerald-700 hover:to-slate-900 text-white shadow-emerald-500/25',
-        badge: 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 shadow-2xs',
+        topBar: 'bg-gradient-to-r from-[#FFD1D1] via-[#FF9494] to-[#D94E5D]',
+        cardBorderHover: 'hover:border-[#FF9494] dark:hover:border-[#FF9494]/60',
+        cardGlowHover: 'hover:shadow-md',
+        titleHover: 'group-hover:text-[#D94E5D] dark:group-hover:text-[#FF9494]',
+        button: 'bg-slate-900 hover:bg-[#D94E5D] text-white shadow-sm',
+        badge: 'bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FFD1D1] border-[#FFD1D1] dark:border-slate-700 shadow-2xs',
       };
     }
     if (catKey === 'skill') {
       return {
         isFree: false,
-        topBar: 'bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600',
-        cardBorderHover: 'hover:border-amber-500/40 dark:hover:border-amber-400/50',
-        cardGlowHover: 'hover:shadow-amber-500/10 dark:hover:shadow-[0_0_25px_rgba(245,158,11,0.15)]',
-        titleHover: 'group-hover:text-amber-600 dark:group-hover:text-amber-400',
-        button: 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 shadow-amber-500/20',
-        badge: 'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+        topBar: 'bg-gradient-to-r from-[#FF9494] to-[#D94E5D]',
+        cardBorderHover: 'hover:border-[#FF9494] dark:hover:border-[#FF9494]/60',
+        cardGlowHover: 'hover:shadow-md',
+        titleHover: 'group-hover:text-[#D94E5D] dark:group-hover:text-[#FF9494]',
+        button: 'bg-[#D94E5D] hover:bg-[#BE3B4A] text-white shadow-sm',
+        badge: 'bg-[#FFF5E4] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FFD1D1] border-[#FFD1D1] dark:border-slate-700',
       };
     }
     return {
       isFree: false,
-      topBar: 'bg-gradient-to-r from-japan-red via-rose-500 to-rose-600',
-      cardBorderHover: 'hover:border-japan-red/40 dark:hover:border-rose-500/50',
-      cardGlowHover: 'hover:shadow-red-500/10 dark:hover:shadow-[0_0_25px_rgba(220,38,38,0.12)]',
-      titleHover: 'group-hover:text-japan-red dark:group-hover:text-rose-400',
-      button: 'bg-gradient-to-r from-japan-red via-rose-600 to-japan-red hover:from-japan-redhover hover:to-red-700 text-white shadow-red-500/20',
-      badge: 'bg-rose-50 dark:bg-rose-950/70 text-japan-red dark:text-rose-300 border-rose-200/80 dark:border-rose-800/80',
+      topBar: 'bg-gradient-to-r from-[#FF9494] to-[#D94E5D]',
+      cardBorderHover: 'hover:border-[#FF9494] dark:hover:border-[#FF9494]/60',
+      cardGlowHover: 'hover:shadow-md',
+      titleHover: 'group-hover:text-[#D94E5D] dark:group-hover:text-[#FF9494]',
+      button: 'bg-[#D94E5D] hover:bg-[#BE3B4A] text-white shadow-sm',
+      badge: 'bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FFD1D1] border-[#FFD1D1] dark:border-slate-700',
     };
   };
 

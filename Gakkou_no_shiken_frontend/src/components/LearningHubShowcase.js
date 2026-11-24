@@ -3,10 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import {
-  Gamepad2,
-  GraduationCap,
   Sparkles,
-  BookOpen,
   Volume2,
   RotateCw,
   ArrowRight,
@@ -18,15 +15,11 @@ import {
   Library,
   BellRing,
   ShieldCheck,
-  FileText,
-  Building2,
-  Layers,
   Award,
   Trophy,
 } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
-// Curated daily high-frequency Japanese vocabulary for quick interactive learning
 const DAILY_VOCAB_LIST = [
   {
     word: '約束',
@@ -102,17 +95,28 @@ export default function LearningHubShowcase() {
     }
   };
 
+  // Unified Sakura Cream Card Styling (#FFF5E4, #FFE3E1, #FFD1D1, #FF9494 + Crisp White & Deep Ink)
+  const cardBase =
+    'group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-white dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-800 hover:border-[#FF9494] hover:bg-[#FFF5E4]/45 dark:hover:bg-slate-800/80 p-3 sm:p-4 shadow-2xs hover:shadow-md active:scale-[0.99] transition-all duration-200 cursor-pointer text-left';
+  const badgeBase =
+    'inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FFE3E1] dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-[#FFD1D1] dark:border-slate-700';
+  const ctaPrimary =
+    'inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-[#D94E5D] group-hover:bg-[#BE3B4A] shadow-2xs transition-colors';
+  const ctaInk =
+    'inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-slate-900 group-hover:bg-[#D94E5D] dark:bg-slate-800 dark:group-hover:bg-[#D94E5D] shadow-2xs transition-colors';
+  const pillNav =
+    'text-[10px] sm:text-xs font-extrabold text-slate-800 dark:text-slate-200 bg-[#FFF5E4] hover:bg-[#FFE3E1] dark:bg-slate-800 dark:hover:bg-slate-700 px-2.5 py-1 rounded-lg border border-[#FFD1D1] dark:border-slate-700 transition-colors whitespace-nowrap';
+
   return (
-    <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800/90 p-3 sm:p-6 lg:p-7 shadow-lg shadow-slate-200/40 dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] transition-all">
-      {/* Background Subtle Ambient Glows */}
-      <div className="absolute -top-24 -left-24 w-72 h-72 bg-slate-900/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
+    <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-slate-900 border border-[#FFD1D1] dark:border-slate-800/90 p-3.5 sm:p-6 lg:p-7 shadow-sm transition-all">
+      {/* Subtle Sakura Corner Tint */}
+      <div className="absolute -top-24 -right-24 w-72 h-72 bg-[#FFE3E1]/60 dark:bg-[#FF9494]/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-3 mb-3.5 sm:mb-5">
-        <div className="space-y-0.5 sm:space-y-1 min-w-0">
-          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/70 border border-rose-200 dark:border-rose-800 text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-japan-red dark:text-rose-400">
-            <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-500" />
+      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#FFE3E1] dark:border-slate-800/80 pb-3.5 mb-4 sm:mb-5">
+        <div className="space-y-1 min-w-0">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FFE3E1] dark:bg-slate-800 border border-[#FFD1D1] dark:border-slate-700 text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#B83B4A] dark:text-[#FF9494]">
+            <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#D94E5D]" />
             <span>Interactive Learning &amp; Resource Suite</span>
           </div>
           <h2 className="text-base sm:text-xl font-black text-slate-900 dark:text-white tracking-tight truncate">
@@ -120,365 +124,281 @@ export default function LearningHubShowcase() {
           </h2>
         </div>
 
-        {/* Quick Navigation Pills with Horizontal Scroll on Mobile */}
+        {/* Unified Quick Navigation Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none shrink-0">
           <Link
             href="/leaderboard"
-            className="text-[10px] sm:text-xs font-black text-amber-700 dark:text-amber-300 hover:text-amber-800 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-300 dark:border-amber-700 transition-colors whitespace-nowrap flex items-center gap-1 shadow-2xs hover:scale-105 active:scale-95"
+            className="text-[10px] sm:text-xs font-black text-[#9F2B39] dark:text-[#FFD1D1] bg-[#FFE3E1] hover:bg-[#FFD1D1] dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-[#FF9494] dark:border-slate-700 transition-colors whitespace-nowrap flex items-center gap-1"
           >
-            <Trophy className="w-3 h-3 text-amber-500" />
-            <span>Check Leaderboard! ↗</span>
+            <Trophy className="w-3 h-3 text-[#D94E5D]" />
+            <span>Leaderboard ↗</span>
           </Link>
-          <Link
-            href="/guides"
-            className="text-[10px] sm:text-xs font-black text-amber-600 dark:text-amber-400 hover:text-amber-700 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-800 transition-colors whitespace-nowrap"
-          >
+          <Link href="/jlpt" className={pillNav}>
+            <span>JLPT N5–N1 ↗</span>
+          </Link>
+          <Link href="/guides" className={pillNav}>
             <span>Guides ↗</span>
           </Link>
-          <Link
-            href="/books"
-            className="text-[10px] sm:text-xs font-black text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800 transition-colors whitespace-nowrap"
-          >
+          <Link href="/books" className={pillNav}>
             <span>Materials ↗</span>
           </Link>
-          <Link
-            href="/notices"
-            className="text-[10px] sm:text-xs font-black text-slate-700 dark:text-slate-300 hover:text-slate-800 bg-slate-50 dark:bg-slate-950/60 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 transition-colors whitespace-nowrap"
-          >
+          <Link href="/notices" className={pillNav}>
             <span>Notices ↗</span>
           </Link>
-          <Link
-            href="/about"
-            className="text-[10px] sm:text-xs font-black text-rose-600 dark:text-rose-400 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/60 px-2.5 py-1 rounded-lg border border-rose-200 dark:border-rose-800 transition-colors whitespace-nowrap"
-          >
-            <span>About Us ↗</span>
-          </Link>
-          <Link
-            href="/game-zone"
-            className="text-[10px] sm:text-xs font-black text-slate-700 dark:text-slate-300 hover:text-slate-800 bg-slate-50 dark:bg-slate-950/60 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 transition-colors whitespace-nowrap"
-          >
+          <Link href="/game-zone" className={pillNav}>
             <span>Arcade ↗</span>
           </Link>
-          <Link
-            href="/lessons"
-            className="text-[10px] sm:text-xs font-black text-slate-700 dark:text-slate-300 hover:text-slate-800 bg-slate-50 dark:bg-slate-950/60 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 transition-colors whitespace-nowrap"
-          >
+          <Link href="/lessons" className={pillNav}>
             <span>Lessons ↗</span>
           </Link>
         </div>
       </div>
 
-      {/* ============================================================
-          RESPONSIVE 8-TILE LAYOUT:
-          - Horizontal scrollable strip on Mobile/Tablet (< lg)
-          - 4 Columns on Desktop Screens (2 rows of 4 balanced tiles)
-          - Covering: Guides, Materials, Notices, About Us, Game Zone,
-            Lessons Hub, Study Tools, and Daily Vocab!
-          ============================================================ */}
-      <div className="flex overflow-x-auto snap-x snap-mandatory gap-2.5 pb-1.5 scrollbar-none lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:pb-0">
-        {/* ─── CARD 1: EXAM GUIDES ─── */}
-        <ScrollReveal variant="up" delay={0} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
-          <Link
-            href="/guides"
-            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-amber-50/80 via-white to-amber-50/40 dark:from-amber-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-amber-200/90 dark:border-amber-900/60 hover:border-amber-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-amber-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
-          >
-            <div className="space-y-1.5 sm:space-y-2.5">
+      {/* 8-Tile Responsive Grid */}
+      <div className="relative z-10 flex overflow-x-auto snap-x snap-mandatory gap-2.5 pb-1.5 scrollbar-none lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:pb-0">
+        {/* 1. EXAM GUIDES */}
+        <ScrollReveal variant="up" delay={0} duration={400} className="w-[162px] sm:w-[198px] lg:w-auto shrink-0 snap-start h-auto">
+          <Link href="/guides" className={cardBase}>
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-amber-600/30 group-hover:scale-110 transition-transform shrink-0 border border-amber-300/60 dark:border-amber-800 bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white">
-                  <BookOpenCheck className="w-5 h-5 sm:w-6 sm:h-6" />
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#FFE3E1] dark:bg-slate-800 border border-[#FFD1D1] dark:border-slate-700 flex items-center justify-center text-[#C94A5A] dark:text-[#FF9494] group-hover:scale-105 transition-transform shrink-0">
+                  <BookOpenCheck className="w-5 h-5" />
                 </div>
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-amber-200/80 dark:border-amber-800">
-                  <Sparkles className="w-2.5 h-2.5 text-amber-500" />
-                  <span>12 Guides</span>
-                </span>
+                <span className={badgeBase}>12 Guides</span>
               </div>
-
               <div>
-                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors leading-tight">
+                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D] transition-colors leading-tight">
                   Exam Guides
                 </h3>
-                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
+                <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
                   30-day study plan, scoring &amp; SSW guides
                 </p>
               </div>
             </div>
-
-            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-amber-100 dark:border-amber-950/80 flex items-center justify-between">
-              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-amber-600 group-hover:bg-amber-700 shadow-xs transition-colors">
+            <div className="pt-2.5 mt-2 border-t border-[#FFE3E1] dark:border-slate-800 flex items-center justify-between">
+              <span className={ctaInk}>
                 <span>Read Guides</span>
-                <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
-              <span className="hidden sm:inline text-[10px] font-bold text-amber-600 dark:text-amber-400">Plans</span>
+              <span className="hidden sm:inline text-[10px] font-bold text-slate-500">Plans</span>
             </div>
           </Link>
         </ScrollReveal>
 
-        {/* ─── CARD 2: STUDY MATERIALS & JAC TEXTBOOKS ─── */}
-        <ScrollReveal variant="up" delay={50} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
-          <Link
-            href="/books"
-            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-emerald-50/80 via-white to-emerald-50/40 dark:from-emerald-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-emerald-200/90 dark:border-emerald-900/60 hover:border-emerald-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-emerald-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
-          >
-            <div className="space-y-1.5 sm:space-y-2.5">
+        {/* 2. STUDY MATERIALS */}
+        <ScrollReveal variant="up" delay={40} duration={400} className="w-[162px] sm:w-[198px] lg:w-auto shrink-0 snap-start h-auto">
+          <Link href="/books" className={cardBase}>
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-emerald-600/30 group-hover:scale-110 transition-transform shrink-0 border border-emerald-300/60 dark:border-emerald-800 bg-gradient-to-br from-emerald-500 to-slate-900 flex items-center justify-center text-white">
-                  <Library className="w-5 h-5 sm:w-6 sm:h-6" />
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#FFE3E1] dark:bg-slate-800 border border-[#FFD1D1] dark:border-slate-700 flex items-center justify-center text-[#C94A5A] dark:text-[#FF9494] group-hover:scale-105 transition-transform shrink-0">
+                  <Library className="w-5 h-5" />
                 </div>
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-emerald-200/80 dark:border-emerald-800">
-                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-500" />
+                <span className={badgeBase}>
+                  <CheckCircle2 className="w-2.5 h-2.5 text-[#D94E5D]" />
                   <span>26 Books</span>
                 </span>
               </div>
-
               <div>
-                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors leading-tight">
+                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D] transition-colors leading-tight">
                   Study Materials
                 </h3>
-                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
+                <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
                   Official JAC textbooks, PDFs &amp; audio
                 </p>
               </div>
             </div>
-
-            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-emerald-100 dark:border-emerald-950/80 flex items-center justify-between">
-              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-emerald-600 group-hover:bg-emerald-700 shadow-xs transition-colors">
+            <div className="pt-2.5 mt-2 border-t border-[#FFE3E1] dark:border-slate-800 flex items-center justify-between">
+              <span className={ctaInk}>
                 <span>Browse Books</span>
-                <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
-              <span className="hidden sm:inline text-[10px] font-bold text-emerald-600 dark:text-emerald-400">JAC PDF</span>
+              <span className="hidden sm:inline text-[10px] font-bold text-slate-500">JAC PDF</span>
             </div>
           </Link>
         </ScrollReveal>
 
-        {/* ─── CARD 3: EXAM NOTICES & CIRCULARS ─── */}
-        <ScrollReveal variant="up" delay={100} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
-          <Link
-            href="/notices"
-            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-slate-800/80 via-white to-slate-800/40 dark:from-slate-900/30 dark:via-slate-900 dark:to-slate-900/90 border border-slate-200/90 dark:border-slate-900/60 hover:border-slate-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-slate-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
-          >
-            <div className="space-y-1.5 sm:space-y-2.5">
+        {/* 3. EXAM NOTICES */}
+        <ScrollReveal variant="up" delay={80} duration={400} className="w-[162px] sm:w-[198px] lg:w-auto shrink-0 snap-start h-auto">
+          <Link href="/notices" className={cardBase}>
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-slate-600/30 group-hover:scale-110 transition-transform shrink-0 border border-slate-300/60 dark:border-slate-800 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-white">
-                  <BellRing className="w-5 h-5 sm:w-6 sm:h-6" />
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#FFE3E1] dark:bg-slate-800 border border-[#FFD1D1] dark:border-slate-700 flex items-center justify-center text-[#C94A5A] dark:text-[#FF9494] group-hover:scale-105 transition-transform shrink-0">
+                  <BellRing className="w-5 h-5" />
                 </div>
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-slate-200/80 dark:border-slate-800">
-                  <Zap className="w-2.5 h-2.5 text-slate-700" />
+                <span className={badgeBase}>
+                  <Zap className="w-2.5 h-2.5 text-[#D94E5D]" />
                   <span>Circulars</span>
                 </span>
               </div>
-
               <div>
-                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors leading-tight">
+                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D] transition-colors leading-tight">
                   Exam Notices
                 </h3>
-                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
+                <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
                   Prometric booking dates, venues &amp; news
                 </p>
               </div>
             </div>
-
-            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-slate-100 dark:border-slate-950/80 flex items-center justify-between">
-              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-slate-900 group-hover:bg-slate-700 shadow-xs transition-colors">
+            <div className="pt-2.5 mt-2 border-t border-[#FFE3E1] dark:border-slate-800 flex items-center justify-between">
+              <span className={ctaInk}>
                 <span>View Notices</span>
-                <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
-              <span className="hidden sm:inline text-[10px] font-bold text-slate-700 dark:text-slate-300">Updates</span>
+              <span className="hidden sm:inline text-[10px] font-bold text-slate-500">Updates</span>
             </div>
           </Link>
         </ScrollReveal>
 
-        {/* ─── CARD 4: ABOUT OUR CBT SIMULATOR ─── */}
-        <ScrollReveal variant="up" delay={150} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
-          <Link
-            href="/about"
-            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-rose-50/80 via-white to-rose-50/40 dark:from-rose-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-rose-200/90 dark:border-rose-900/60 hover:border-rose-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-rose-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
-          >
-            <div className="space-y-1.5 sm:space-y-2.5">
+        {/* 4. ABOUT US */}
+        <ScrollReveal variant="up" delay={120} duration={400} className="w-[162px] sm:w-[198px] lg:w-auto shrink-0 snap-start h-auto">
+          <Link href="/about" className={cardBase}>
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-rose-600/30 group-hover:scale-110 transition-transform shrink-0 border border-rose-300/60 dark:border-rose-800 bg-gradient-to-br from-japan-red to-rose-600 flex items-center justify-center text-white">
-                  <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#D94E5D] flex items-center justify-center text-white group-hover:scale-105 transition-transform shrink-0">
+                  <ShieldCheck className="w-5 h-5" />
                 </div>
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-rose-100 dark:bg-rose-950 text-japan-red dark:text-rose-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-rose-200/80 dark:border-rose-800">
-                  <Award className="w-2.5 h-2.5 text-amber-500" />
+                <span className={badgeBase}>
+                  <Award className="w-2.5 h-2.5 text-[#D94E5D]" />
                   <span>100% Match</span>
                 </span>
               </div>
-
               <div>
-                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-japan-red dark:group-hover:text-rose-400 transition-colors leading-tight">
+                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D] transition-colors leading-tight">
                   About Us
                 </h3>
-                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
+                <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
                   Prometric fidelity, audio engine &amp; mission
                 </p>
               </div>
             </div>
-
-            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-rose-100 dark:border-rose-950/80 flex items-center justify-between">
-              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-japan-red group-hover:bg-japan-redhover shadow-xs transition-colors">
+            <div className="pt-2.5 mt-2 border-t border-[#FFE3E1] dark:border-slate-800 flex items-center justify-between">
+              <span className={ctaPrimary}>
                 <span>Learn More</span>
-                <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
-              <span className="hidden sm:inline text-[10px] font-bold text-japan-red dark:text-rose-400">Verified</span>
+              <span className="hidden sm:inline text-[10px] font-bold text-[#C94A5A]">Verified</span>
             </div>
           </Link>
         </ScrollReveal>
 
-        {/* ─── CARD 5: GAME ZONE ─── */}
-        <ScrollReveal variant="up" delay={200} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
-          <Link
-            href="/game-zone"
-            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-slate-800/80 via-white to-slate-800/40 dark:from-slate-900/30 dark:via-slate-900 dark:to-slate-900/90 border border-slate-200/90 dark:border-slate-900/60 hover:border-slate-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-slate-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
-          >
-            <div className="space-y-1.5 sm:space-y-2.5">
+        {/* 5. GAME ZONE */}
+        <ScrollReveal variant="up" delay={160} duration={400} className="w-[162px] sm:w-[198px] lg:w-auto shrink-0 snap-start h-auto">
+          <Link href="/game-zone" className={cardBase}>
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-slate-600/30 group-hover:scale-110 transition-transform shrink-0 border border-slate-300/60 dark:border-slate-800 bg-slate-100">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden border border-[#FFD1D1] dark:border-slate-700 bg-[#FFF5E4] group-hover:scale-105 transition-transform shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/img/game_zone_icon.png"
-                    alt="Japanese Game Zone"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src="/img/game_zone_icon.png" alt="Japanese Game Zone" className="w-full h-full object-cover" />
                 </div>
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-slate-200/80 dark:border-slate-800">
-                  <Flame className="w-2.5 h-2.5 text-amber-500" />
+                <span className={badgeBase}>
+                  <Flame className="w-2.5 h-2.5 text-[#D94E5D]" />
                   <span>8 Games</span>
                 </span>
               </div>
-
               <div>
-                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors leading-tight">
+                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D] transition-colors leading-tight">
                   Game Zone
                 </h3>
-                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
+                <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
                   Kanji Hunter, Word Match &amp; 3 Lives
                 </p>
               </div>
             </div>
-
-            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-slate-100 dark:border-slate-950/80 flex items-center justify-between">
-              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-slate-900 group-hover:bg-slate-700 shadow-xs transition-colors">
+            <div className="pt-2.5 mt-2 border-t border-[#FFE3E1] dark:border-slate-800 flex items-center justify-between">
+              <span className={ctaInk}>
                 <span>Play Now</span>
-                <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
-              <span className="hidden sm:inline text-[10px] font-bold text-slate-700 dark:text-slate-300">Arcade</span>
+              <span className="hidden sm:inline text-[10px] font-bold text-slate-500">Arcade</span>
             </div>
           </Link>
         </ScrollReveal>
 
-        {/* ─── CARD 6: STRUCTURED LESSONS ─── */}
-        <ScrollReveal variant="up" delay={250} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
-          <Link
-            href="/lessons"
-            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-slate-800/80 via-white to-slate-800/40 dark:from-slate-900/30 dark:via-slate-900 dark:to-slate-900/90 border border-slate-200/90 dark:border-slate-900/60 hover:border-slate-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-slate-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
-          >
-            <div className="space-y-1.5 sm:space-y-2.5">
+        {/* 6. LESSONS HUB */}
+        <ScrollReveal variant="up" delay={200} duration={400} className="w-[162px] sm:w-[198px] lg:w-auto shrink-0 snap-start h-auto">
+          <Link href="/lessons" className={cardBase}>
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-slate-600/30 group-hover:scale-110 transition-transform shrink-0 border border-slate-300/60 dark:border-slate-800 bg-slate-100">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden border border-[#FFD1D1] dark:border-slate-700 bg-[#FFF5E4] group-hover:scale-105 transition-transform shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/img/lessons_hub_icon.png"
-                    alt="Lessons Hub"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src="/img/lessons_hub_icon.png" alt="Lessons Hub" className="w-full h-full object-cover" />
                 </div>
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-slate-200/80 dark:border-slate-800">
-                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-500" />
-                  <span>N5 • N4</span>
-                </span>
+                <span className={badgeBase}>N5 • N4</span>
               </div>
-
               <div>
-                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors leading-tight">
+                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D] transition-colors leading-tight">
                   Lessons Hub
                 </h3>
-                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
+                <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
                   50 Vocab &amp; 30 Kanji units with audio
                 </p>
               </div>
             </div>
-
-            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-slate-100 dark:border-slate-950/80 flex items-center justify-between">
-              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-slate-900 group-hover:bg-slate-700 shadow-xs transition-colors">
+            <div className="pt-2.5 mt-2 border-t border-[#FFE3E1] dark:border-slate-800 flex items-center justify-between">
+              <span className={ctaInk}>
                 <span>Start</span>
-                <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
-              <span className="hidden sm:inline text-[10px] font-bold text-slate-700 dark:text-slate-300">80 Units</span>
+              <span className="hidden sm:inline text-[10px] font-bold text-slate-500">80 Units</span>
             </div>
           </Link>
         </ScrollReveal>
 
-        {/* ─── CARD 7: INTERACTIVE STUDY TOOLS ─── */}
-        <ScrollReveal variant="up" delay={300} duration={400} className="w-[158px] sm:w-[195px] lg:w-auto shrink-0 snap-start h-auto">
-          <Link
-            href="/tools"
-            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-slate-800/80 via-white to-slate-800/40 dark:from-slate-900/30 dark:via-slate-900 dark:to-slate-900/90 border border-slate-200/90 dark:border-slate-900/60 hover:border-slate-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-slate-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
-          >
-            <div className="space-y-1.5 sm:space-y-2.5">
+        {/* 7. STUDY TOOLS */}
+        <ScrollReveal variant="up" delay={240} duration={400} className="w-[162px] sm:w-[198px] lg:w-auto shrink-0 snap-start h-auto">
+          <Link href="/tools" className={cardBase}>
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-slate-600/30 group-hover:scale-110 transition-transform shrink-0 border border-slate-300/60 dark:border-slate-800 bg-slate-100">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden border border-[#FFD1D1] dark:border-slate-700 bg-[#FFF5E4] group-hover:scale-105 transition-transform shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/img/study_tools_icon.png"
-                    alt="Study Tools"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src="/img/study_tools_icon.png" alt="Study Tools" className="w-full h-full object-cover" />
                 </div>
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-300 text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-slate-200/80 dark:border-slate-800">
-                  <Compass className="w-2.5 h-2.5 text-slate-700" />
+                <span className={badgeBase}>
+                  <Compass className="w-2.5 h-2.5 text-[#D94E5D]" />
                   <span>Free Tools</span>
                 </span>
               </div>
-
               <div>
-                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors leading-tight">
+                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[#D94E5D] transition-colors leading-tight">
                   Study Tools
                 </h3>
-                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
+                <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium line-clamp-1 sm:line-clamp-2 mt-0.5">
                   Flashcards, Particle Drills &amp; JAC Books
                 </p>
               </div>
             </div>
-
-            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-slate-100 dark:border-slate-950/80 flex items-center justify-between">
-              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-slate-900 group-hover:bg-slate-700 shadow-xs transition-colors">
+            <div className="pt-2.5 mt-2 border-t border-[#FFE3E1] dark:border-slate-800 flex items-center justify-between">
+              <span className={ctaInk}>
                 <span>Explore</span>
-                <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
-              <span className="hidden sm:inline text-[10px] font-bold text-slate-700 dark:text-slate-300">Drills</span>
+              <span className="hidden sm:inline text-[10px] font-bold text-slate-500">Drills</span>
             </div>
           </Link>
         </ScrollReveal>
 
-        {/* ─── CARD 8: DAILY VOCABULARY & WORD OF THE DAY (INTERACTIVE) ─── */}
-        <ScrollReveal variant="up" delay={350} duration={400} className="w-[168px] sm:w-[205px] lg:w-auto shrink-0 snap-start h-auto">
+        {/* 8. DAILY VOCABULARY */}
+        <ScrollReveal variant="up" delay={280} duration={400} className="w-[168px] sm:w-[205px] lg:w-auto shrink-0 snap-start h-auto">
           <Link
             href="/lessons"
-            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-gradient-to-b from-rose-50/80 via-white to-rose-50/40 dark:from-rose-950/30 dark:via-slate-900 dark:to-slate-900/90 border border-rose-200/90 dark:border-rose-900/60 hover:border-rose-500 p-2.5 sm:p-4 shadow-2xs hover:shadow-lg hover:shadow-rose-500/15 active:scale-95 transition-all duration-200 cursor-pointer text-left"
+            className="group relative h-full flex flex-col justify-between rounded-xl sm:rounded-2xl bg-[#FFF5E4]/80 dark:bg-slate-900 border border-[#FF9494]/70 dark:border-slate-700 hover:border-[#D94E5D] p-3 sm:p-4 shadow-2xs hover:shadow-md active:scale-[0.99] transition-all duration-200 cursor-pointer text-left"
           >
-            <div className="space-y-1.5 sm:space-y-2.5">
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl overflow-hidden shadow-md shadow-rose-600/30 group-hover:scale-110 transition-transform shrink-0 border border-rose-300/60 dark:border-rose-800 bg-rose-100">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden border border-[#FFD1D1] dark:border-slate-700 bg-white shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/img/daily_vocab_icon.png"
-                    alt="Daily Vocabulary"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src="/img/daily_vocab_icon.png" alt="Daily Vocabulary" className="w-full h-full object-cover" />
                 </div>
                 <div className="flex items-center gap-1">
-                  {/* Shuffle Button */}
                   <button
                     type="button"
                     onClick={handleNextWord}
                     aria-label="Next Word"
                     title="Next Word"
-                    className="p-1 rounded-md text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                    className="p-1 rounded-md text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-[#FFE3E1] dark:hover:bg-white/10 transition-colors"
                   >
                     <RotateCw className="w-3 h-3" />
                   </button>
-
-                  {/* Audio Speaker Button */}
                   <button
                     type="button"
                     onClick={(e) => handleSpeakJapanese(e, currentWord.word)}
@@ -486,8 +406,8 @@ export default function LearningHubShowcase() {
                     title="Pronounce Japanese Word"
                     className={`p-1 rounded-md border transition-all ${
                       isSpeaking
-                        ? 'bg-rose-500 text-white border-rose-600 animate-pulse'
-                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                        ? 'bg-[#D94E5D] text-white border-[#D94E5D] animate-pulse'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-[#FFD1D1] dark:border-slate-700'
                     }`}
                   >
                     <Volume2 className="w-3 h-3" />
@@ -497,28 +417,28 @@ export default function LearningHubShowcase() {
 
               <div>
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-xs sm:text-base font-black text-japan-red dark:text-rose-400 leading-tight">
+                  <span className="text-xs sm:text-base font-black text-[#C94A5A] dark:text-[#FF9494] leading-tight">
                     {currentWord.word}
                   </span>
-                  <span className="text-[10px] text-slate-400 font-semibold truncate">
+                  <span className="text-[10px] text-slate-500 font-semibold truncate">
                     ({currentWord.furigana})
                   </span>
                 </div>
-                <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-300 font-medium line-clamp-1 mt-0.5">
+                <p className="text-[10px] sm:text-xs text-slate-700 dark:text-slate-300 font-medium line-clamp-1 mt-0.5">
                   {currentWord.meaning_en}
                 </p>
-                <p className="text-[9px] sm:text-[10px] text-rose-600 dark:text-rose-400 font-semibold font-bengali line-clamp-1">
+                <p className="text-[9px] sm:text-[10px] text-[#B83B4A] dark:text-[#FF9494] font-semibold font-bengali line-clamp-1">
                   বাংলা: {currentWord.meaning_bn}
                 </p>
               </div>
             </div>
 
-            <div className="pt-2 sm:pt-3 mt-1.5 border-t border-rose-100 dark:border-rose-950/80 flex items-center justify-between">
-              <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-black text-white px-2.5 py-1 rounded-lg bg-japan-red group-hover:bg-japan-redhover shadow-xs transition-colors">
+            <div className="pt-2.5 mt-2 border-t border-[#FFD1D1] dark:border-slate-800 flex items-center justify-between">
+              <span className={ctaPrimary}>
                 <span>Study</span>
-                <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
-              <span className="hidden sm:inline text-[10px] font-bold text-rose-600 dark:text-rose-400">2,690+ Words</span>
+              <span className="hidden sm:inline text-[10px] font-bold text-[#B83B4A]">2,690+ Words</span>
             </div>
           </Link>
         </ScrollReveal>

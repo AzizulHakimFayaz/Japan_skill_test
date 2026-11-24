@@ -270,12 +270,12 @@ export default function JlptHubPage() {
   const answeredPlacementCount = Object.keys(placementAnswers).length;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#060913] text-slate-900 dark:text-slate-100 pb-20">
+    <div className="min-h-screen bg-[#FFF5E4] dark:bg-[#060913] text-slate-900 dark:text-slate-100 pb-20">
       {/* =====================================================================
           SECTION 1 (TOP): HERO + SHORT JLPT LEVEL CHECKER MOCK TEST
          ===================================================================== */}
-      <section className="relative overflow-hidden border-b border-slate-800 bg-[#0B1120] text-white">
-        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(circle_at_15%_20%,#DC2626,transparent_40%)]" />
+      <section className="relative overflow-hidden border-b border-[#FFD1D1] dark:border-slate-800 bg-[#171316] text-white">
+        <div className="absolute inset-0 opacity-25 pointer-events-none bg-[radial-gradient(circle_at_15%_20%,#FF9494,transparent_45%)]" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             {/* Left Intro */}
@@ -647,11 +647,11 @@ export default function JlptHubPage() {
         id="jlpt-level-guide"
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14"
       >
-        <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#FFD1D1] dark:border-slate-800 shadow-xs overflow-hidden">
           {/* Top Editorial Header */}
-          <div className="px-6 sm:px-10 pt-8 sm:pt-10 pb-6 border-b border-slate-100 dark:border-slate-800/80 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+          <div className="px-6 sm:px-10 pt-8 sm:pt-10 pb-6 border-b border-[#FFE3E1] dark:border-slate-800/80 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
             <div className="max-w-2xl">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-black uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFE3E1] dark:bg-slate-800 text-[#9F2B39] dark:text-[#FFD1D1] text-[11px] font-black uppercase tracking-wider">
                 <BarChart3 className="w-3.5 h-3.5 text-japan-red" /> Step 2 • JLPT Difficulty Roadmap
               </span>
               <h2 className="text-2xl sm:text-3xl font-black mt-3 tracking-tight text-slate-900 dark:text-white">
@@ -664,13 +664,13 @@ export default function JlptHubPage() {
             </div>
             <div className="flex items-center gap-3 text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 shrink-0">
               <span>N5 Easiest</span>
-              <span className="w-16 h-1.5 rounded-full bg-gradient-to-r from-slate-300 via-slate-700 to-japan-red inline-block" />
+              <span className="w-20 h-2 rounded-full bg-gradient-to-r from-[#FFF5E4] via-[#FFD1D1] via-[#FF9494] to-[#D94E5D] border border-[#FFD1D1] inline-block" />
               <span className="text-japan-red">N1 Hardest</span>
             </div>
           </div>
 
           {/* Ascending Architectural Staircase (True Physical Elevation on Desktop) */}
-          <div className="px-6 sm:px-10 pt-8 pb-0 bg-slate-50/80 dark:bg-[#090e1a] border-b border-slate-200 dark:border-slate-800">
+          <div className="px-6 sm:px-10 pt-8 pb-0 bg-[#FFF5E4]/65 dark:bg-[#090e1a] border-b border-[#FFD1D1] dark:border-slate-800">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
               {JLPT_LEVEL_GUIDE.map((item) => {
                 const stats = levelMap[item.level];

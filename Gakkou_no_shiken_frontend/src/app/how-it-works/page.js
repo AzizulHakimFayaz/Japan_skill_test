@@ -168,7 +168,7 @@ export default function HowItWorksPage() {
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-20 bg-slate-900/30 rounded-full blur-2xl pointer-events-none"></div>
 
               <div className="space-y-1 relative z-10">
-                <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-white to-slate-800 font-mono tracking-tight">
+                <div className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFF5E4]/80 via-white to-[#FFE3E1]/40 font-mono tracking-tight">
                   200+ Pts
                 </div>
                 <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">

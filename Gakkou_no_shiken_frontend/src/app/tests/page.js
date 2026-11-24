@@ -282,7 +282,7 @@ function AllTestsContent() {
 
       {/* School-Exclusive Mock Tests Section */}
       {schoolExclusiveTests.length > 0 && (
-        <section className="rounded-3xl bg-gradient-to-br from-slate-800 via-white to-rose-50/60 dark:from-slate-900/35 dark:via-slate-900 dark:to-slate-950 border-2 border-slate-200/90 dark:border-slate-800/70 p-4 sm:p-6 shadow-lg space-y-4">
+        <section className="rounded-3xl bg-gradient-to-br from-[#FFF5E4]/80 via-white to-rose-50/60 dark:from-slate-900/35 dark:via-slate-900 dark:to-slate-950 border-2 border-slate-200/90 dark:border-slate-800/70 p-4 sm:p-6 shadow-lg space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider mb-1.5">

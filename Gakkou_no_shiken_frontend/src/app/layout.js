@@ -67,7 +67,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="h-full bg-slate-50 dark:bg-[#060913]">
+    <html lang="en" className="h-full bg-[#FFF5E4] dark:bg-[#060913]">
       <head>
         <link rel="icon" type="image/png" href="/img/logo.png?v=5" />
         <link rel="shortcut icon" href="/favicon.ico?v=5" />
@@ -152,7 +152,7 @@ export default function RootLayout({ children }) {
         <meta name="google-adsense-account" content="ca-pub-8435487820435842" />
       </head>
 
-      <body className="flex flex-col min-h-full text-slate-800 dark:text-slate-100 bg-transparent antialiased font-sans selection:bg-red-500 selection:text-white relative overflow-x-hidden transition-colors duration-500">
+      <body className="flex flex-col min-h-full text-slate-900 dark:text-slate-100 bg-transparent antialiased font-sans selection:bg-[#FF9494] selection:text-slate-900 relative overflow-x-hidden transition-colors duration-500">
         <GoogleAdsense />
         <Providers>{children}</Providers>
       </body>
