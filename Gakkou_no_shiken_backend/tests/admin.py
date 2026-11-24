@@ -6,7 +6,7 @@ from django.urls import path, reverse
 from django.utils.html import format_html, escape
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
-from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic, HeroBanner, JLPTSet, JLPTPassage, JLPTQuestion, JLPTAttempt
+from .models import Test, Question, QuestionGroup, AnswerOption, Attempt, Notice, CurriculumLesson, CurriculumVocabulary, CurriculumKanji, ExamBook, BookTopic, HeroBanner, JLPTSet, JLPTPassage, JLPTQuestion, JLPTAttempt, LearnTopic, LearnLesson, LearnWord
 from .utils import import_questions_from_csv, generate_sample_csv_string, generate_sample_ssw_csv_string, export_test_questions_to_csv, generate_test_missing_audio_worker
 from .audio_logger import get_audio_logs, clear_audio_logs, append_audio_log
 from .audio_generator import test_edge_tts_connection, generate_and_save_question_audio_with_details
@@ -1476,6 +1476,93 @@ class JLPTAttemptAdmin(admin.ModelAdmin):
     list_filter = ('jlpt_set__level', 'completed_at')
     search_fields = ('user__username', 'jlpt_set__title')
     raw_id_fields = ('jlpt_set', 'user')
+    list_per_page = 30
+
+
+# ─── Learn Japanese Topics & 7-Language Translation Patcher Admin ───────
+@admin.register(LearnTopic)
+class LearnTopicAdmin(admin.ModelAdmin):
+    change_list_template = "admin/learn_changelist.html"
+    list_display = ('id', 'order_index', 'icon_text', 'title', 'title_ja', 'category', 'lesson_count', 'word_count', 'is_published')
+    list_editable = ('order_index', 'is_published')
+    list_filter = ('category', 'is_published')
+    search_fields = ('title', 'title_ja', 'slug')
+    ordering = ('order_index', 'title')
+    list_per_page = 30
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom = [
+            path('import-json/', self.admin_site.admin_view(self.admin_import_learn_json_view), name='learn_import_json'),
+        ]
+        return custom + urls
+
+    def admin_import_learn_json_view(self, request):
+        import json
+        from .learn_importer import import_learn_json_data
+
+        result_summary = None
+        error_msg = None
+
+        if request.method == 'POST':
+            files = request.FILES.getlist('json_files')
+            if not files:
+                error_msg = "Please select one or more Learn Japanese topic JSON files or a 7-language translation bundle."
+            else:
+                totals = {
+                    'files_processed': 0,
+                    'topics_created': 0,
+                    'topics_updated': 0,
+                    'lessons_created': 0,
+                    'words_created': 0,
+                    'learn_words_updated': 0,
+                    'vocab_updated': 0,
+                    'kanji_updated': 0,
+                }
+                try:
+                    for f in files:
+                        payload = json.loads(f.read().decode('utf-8-sig'))
+                        part = import_learn_json_data(payload)
+                        totals['files_processed'] += 1
+                        for k in totals:
+                            if k != 'files_processed':
+                                totals[k] += part.get(k, 0)
+                    result_summary = totals
+                    self.message_user(
+                        request,
+                        f"Processed {totals['files_processed']} file(s) cleanly!",
+                        messages.SUCCESS,
+                    )
+                except Exception as exc:
+                    error_msg = f"Import failed: {exc}"
+
+        context = {
+            **self.admin_site.each_context(request),
+            'title': 'Upload Learn Japanese Topics / 7-Language Translations (JSON)',
+            'opts': self.model._meta,
+            'result_summary': result_summary,
+            'error_msg': error_msg,
+            'topic_count': LearnTopic.objects.count(),
+            'lesson_count': LearnLesson.objects.count(),
+            'word_count': LearnWord.objects.count(),
+        }
+        return render(request, 'admin/learn_json_import.html', context)
+
+
+@admin.register(LearnLesson)
+class LearnLessonAdmin(admin.ModelAdmin):
+    list_display = ('id', 'topic', 'part_number', 'title', 'word_count')
+    list_filter = ('topic',)
+    search_fields = ('title', 'topic__title')
+    ordering = ('topic', 'part_number')
+
+
+@admin.register(LearnWord)
+class LearnWordAdmin(admin.ModelAdmin):
+    list_display = ('id', 'lesson', 'order_index', 'kanji', 'furigana', 'meaning_en')
+    list_filter = ('lesson__topic',)
+    search_fields = ('kanji', 'furigana', 'romaji', 'meaning_en')
+    raw_id_fields = ('lesson',)
     list_per_page = 30
 
 

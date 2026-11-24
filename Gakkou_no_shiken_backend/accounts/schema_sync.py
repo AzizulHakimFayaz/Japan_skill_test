@@ -379,6 +379,64 @@ def ensure_schema_synced():
         except Exception as e:
             logs.append(f"Note on JLPT tables: {e}")
 
+        # 5c. Ensure Learn Japanese Topics tables + Curriculum translations columns exist
+        try:
+            cursor.execute("PRAGMA table_info(tests_curriculumvocabulary)")
+            cv_cols = {row[1] for row in cursor.fetchall()}
+            if cv_cols and 'translations' not in cv_cols:
+                cursor.execute("ALTER TABLE tests_curriculumvocabulary ADD COLUMN translations text NOT NULL DEFAULT '{}'")
+                logs.append("Added translations column to tests_curriculumvocabulary.")
+
+            cursor.execute("PRAGMA table_info(tests_curriculumkanji)")
+            ck_cols = {row[1] for row in cursor.fetchall()}
+            if ck_cols and 'translations' not in ck_cols:
+                cursor.execute("ALTER TABLE tests_curriculumkanji ADD COLUMN translations text NOT NULL DEFAULT '{}'")
+                logs.append("Added translations column to tests_curriculumkanji.")
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS tests_learntopic (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    slug varchar(120) NOT NULL UNIQUE,
+                    title varchar(255) NOT NULL,
+                    title_ja varchar(120) NOT NULL DEFAULT '',
+                    description text NOT NULL DEFAULT '',
+                    category varchar(40) NOT NULL DEFAULT 'basics',
+                    icon_text varchar(12) NOT NULL DEFAULT 'あ',
+                    order_index integer unsigned NOT NULL DEFAULT 100,
+                    lesson_count integer unsigned NOT NULL DEFAULT 0,
+                    word_count integer unsigned NOT NULL DEFAULT 0,
+                    is_published bool NOT NULL DEFAULT 1,
+                    updated_at datetime NOT NULL
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS tests_learnlesson (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    external_lesson_id integer unsigned NOT NULL DEFAULT 0,
+                    part_number integer unsigned NOT NULL DEFAULT 1,
+                    title varchar(255) NOT NULL,
+                    description text NOT NULL DEFAULT '',
+                    word_count integer unsigned NOT NULL DEFAULT 0,
+                    topic_id bigint NOT NULL REFERENCES tests_learntopic (id) DEFERRABLE INITIALLY DEFERRED,
+                    UNIQUE (topic_id, part_number)
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS tests_learnword (
+                    id integer PRIMARY KEY AUTOINCREMENT,
+                    order_index integer unsigned NOT NULL DEFAULT 1,
+                    kanji varchar(255) NOT NULL,
+                    furigana varchar(255) NOT NULL DEFAULT '',
+                    romaji varchar(255) NOT NULL DEFAULT '',
+                    meaning_en varchar(400) NOT NULL DEFAULT '',
+                    translations text NOT NULL DEFAULT '{}',
+                    lesson_id bigint NOT NULL REFERENCES tests_learnlesson (id) DEFERRABLE INITIALLY DEFERRED
+                )
+            """)
+            logs.append("Verified Learn Japanese tables (tests_learntopic, tests_learnlesson, tests_learnword).")
+        except Exception as e:
+            logs.append(f"Note on Learn Japanese tables: {e}")
+
         # 6. Synchronize django_migrations table
         try:
             required_migrations = [
@@ -394,6 +452,7 @@ def ensure_schema_synced():
                 ('tests', '0016_test_scheduled_release_at'),
                 ('tests', '0021_test_partner_school'),
                 ('tests', '0022_jlptset_jlptpassage_jlptattempt_jlptquestion'),
+                ('tests', '0023_learntopic_curriculumkanji_translations_and_more'),
             ]
             for app, name in required_migrations:
                 cursor.execute("SELECT id FROM django_migrations WHERE app = %s AND name = %s", [app, name])

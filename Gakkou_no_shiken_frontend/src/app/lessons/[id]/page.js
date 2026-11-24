@@ -42,7 +42,22 @@ export default function LessonStudyPage() {
   // Study Display Options
   const [showFurigana, setShowFurigana] = useState(true);
   const [showRomaji, setShowRomaji] = useState(true);
-  const [languageMode, setLanguageMode] = useState('both'); // 'both' | 'en' | 'bn'
+  const [languageMode, setLanguageMode] = useState('bn'); // 'en' | 'id' | 'bn' | 'ne' | 'vi' | 'tl' | 'hi'
+  const STUDY_LANGS = [
+    { code: 'en', label: 'EN', flag: '🇺🇸' },
+    { code: 'id', label: 'ID', flag: '🇮🇩' },
+    { code: 'bn', label: 'বাংলা', flag: '🇧🇩' },
+    { code: 'ne', label: 'नेपाली', flag: '🇳🇵' },
+    { code: 'vi', label: 'VI', flag: '🇻🇳' },
+    { code: 'tl', label: 'TL', flag: '🇵🇭' },
+    { code: 'hi', label: 'हिन्दी', flag: '🇮🇳' },
+  ];
+  const getLocalizedMeaning = (item) => {
+    if (!item) return '';
+    if (languageMode === 'en') return item.translations?.en || item.meaning_en || '';
+    if (languageMode === 'bn') return item.translations?.bn || item.meaning_bn || item.meaning_en || '';
+    return item.translations?.[languageMode] || item.meaning_en || '';
+  };
   const [viewMode, setViewMode] = useState('grid');         // 'grid' | 'table' | 'flashcards'
   const [speechRate, setSpeechRate] = useState(0.85);        // 0.85 or 1.0
   const [searchFilter, setSearchFilter] = useState('');
@@ -351,32 +366,22 @@ export default function LessonStudyPage() {
               <span>Romaji: {showRomaji ? 'ON' : 'OFF'}</span>
             </button>
 
-            {/* Language Meaning Filter */}
-            <div className="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-xs font-bold">
-              <button
-                onClick={() => setLanguageMode('both')}
-                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                  languageMode === 'both' ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs' : 'text-slate-500'
-                }`}
-              >
-                Both EN + বাংলা
-              </button>
-              <button
-                onClick={() => setLanguageMode('bn')}
-                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                  languageMode === 'bn' ? 'bg-emerald-500 text-white shadow-xs' : 'text-slate-500'
-                }`}
-              >
-                বাংলা Only
-              </button>
-              <button
-                onClick={() => setLanguageMode('en')}
-                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                  languageMode === 'en' ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs' : 'text-slate-500'
-                }`}
-              >
-                English Only
-              </button>
+            {/* 7-Language Meaning Filter */}
+            <div className="flex items-center gap-1 overflow-x-auto p-1 rounded-xl bg-[#FFF5E4] dark:bg-slate-850 border border-[#FFD1D1] dark:border-slate-800 text-xs font-bold">
+              {STUDY_LANGS.map((l) => (
+                <button
+                  key={l.code}
+                  type="button"
+                  onClick={() => setLanguageMode(l.code)}
+                  className={`px-2 py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                    languageMode === l.code
+                      ? 'bg-[#D94E5D] text-white shadow-xs'
+                      : 'text-slate-700 dark:text-slate-300 hover:bg-[#FFE3E1]'
+                  }`}
+                >
+                  {l.flag} {l.label}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -500,15 +505,13 @@ export default function LessonStudyPage() {
                 </div>
 
                 <div className="space-y-3 pt-2">
-                  {(languageMode === 'both' || languageMode === 'en') && (
-                    <div className="text-lg font-bold text-slate-800 dark:text-slate-100">
-                      {currentFlashcard.meaning_en}
-                    </div>
-                  )}
+                  <div className="text-lg font-bold text-slate-800 dark:text-slate-100">
+                    {currentFlashcard.meaning_en}
+                  </div>
 
-                  {(languageMode === 'both' || languageMode === 'bn') && currentFlashcard.meaning_bn && (
-                    <div className="inline-block px-4 py-2 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 font-bold text-base font-bengali">
-                      {currentFlashcard.meaning_bn}
+                  {languageMode !== 'en' && getLocalizedMeaning(currentFlashcard) && (
+                    <div className="inline-block px-4 py-2 rounded-2xl bg-[#FFE3E1] dark:bg-slate-800 border border-[#FFD1D1] dark:border-slate-700 text-[#9F2B39] dark:text-[#FFD1D1] font-bold text-base">
+                      {getLocalizedMeaning(currentFlashcard)}
                     </div>
                   )}
 
@@ -655,16 +658,14 @@ export default function LessonStudyPage() {
                     )}
                   </div>
 
-                  {/* Meanings: English & Bengali */}
-                  <div className="pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-1">
-                    {(languageMode === 'both' || languageMode === 'en') && (
-                      <div className="text-[11px] sm:text-xs font-semibold text-slate-800 dark:text-slate-200 leading-snug">
-                        {item.meaning_en}
-                      </div>
-                    )}
-                    {(languageMode === 'both' || languageMode === 'bn') && item.meaning_bn && (
-                      <div className="text-[11px] sm:text-xs font-bold text-emerald-600 dark:text-emerald-400 font-bengali leading-snug">
-                        {item.meaning_bn}
+                  {/* Meanings: English + Selected Language */}
+                  <div className="pt-2 sm:pt-3 border-t border-[#FFE3E1] dark:border-slate-800/80 space-y-1">
+                    <div className="text-[11px] sm:text-xs font-semibold text-slate-800 dark:text-slate-200 leading-snug">
+                      {item.meaning_en}
+                    </div>
+                    {languageMode !== 'en' && getLocalizedMeaning(item) && (
+                      <div className="text-[11px] sm:text-xs font-bold text-[#B83B4A] dark:text-[#FF9494] leading-snug">
+                        {getLocalizedMeaning(item)}
                       </div>
                     )}
                   </div>

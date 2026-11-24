@@ -557,6 +557,7 @@ class CurriculumVocabulary(models.Model):
     romaji = models.CharField(max_length=120, blank=True)
     meaning_en = models.CharField(max_length=300)
     meaning_bn = models.CharField(max_length=300, blank=True)
+    translations = models.JSONField(default=dict, blank=True, help_text="7-language meanings: en, id, bn, ne, vi, tl, hi")
     speech = models.CharField(max_length=120, blank=True)
     part_of_speech = models.CharField(max_length=60, blank=True)
 
@@ -578,6 +579,7 @@ class CurriculumKanji(models.Model):
     romaji = models.CharField(max_length=150, blank=True)
     meaning_en = models.CharField(max_length=300)
     meaning_bn = models.CharField(max_length=300, blank=True)
+    translations = models.JSONField(default=dict, blank=True, help_text="7-language meanings: en, id, bn, ne, vi, tl, hi")
     speech = models.CharField(max_length=120, blank=True)
     stroke_count = models.PositiveIntegerField(null=True, blank=True)
 
@@ -842,6 +844,75 @@ class JLPTAttempt(models.Model):
     def __str__(self):
         who = self.user.username if self.user else "Guest"
         return f"{who} — {self.jlpt_set} ({self.score}/{self.total_questions})"
+
+
+# ─── Learn Japanese Topics (Structured by Topic -> Day/Part -> 7-Lang Words) ───
+class LearnTopic(models.Model):
+    slug = models.SlugField(max_length=120, unique=True)
+    title = models.CharField(max_length=255)
+    title_ja = models.CharField(max_length=120, blank=True, default="")
+    description = models.TextField(blank=True, default="")
+    category = models.CharField(
+        max_length=40,
+        default="basics",
+        db_index=True,
+        help_text="basics, kanji, daily_life, travel, conversation",
+    )
+    icon_text = models.CharField(max_length=12, blank=True, default="あ")
+    order_index = models.PositiveIntegerField(default=100)
+    lesson_count = models.PositiveIntegerField(default=0)
+    word_count = models.PositiveIntegerField(default=0)
+    is_published = models.BooleanField(default=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["order_index", "title"]
+        verbose_name = "Learn Japanese Topic"
+        verbose_name_plural = "Learn Japanese Topics"
+
+    def __str__(self):
+        return f"{self.title} ({self.lesson_count} parts, {self.word_count} words)"
+
+
+class LearnLesson(models.Model):
+    topic = models.ForeignKey(LearnTopic, on_delete=models.CASCADE, related_name="lessons")
+    external_lesson_id = models.PositiveIntegerField(default=0)
+    part_number = models.PositiveIntegerField(default=1)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, default="")
+    word_count = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = (("topic", "part_number"),)
+        ordering = ["part_number", "id"]
+        verbose_name = "Learn Japanese Lesson (Day/Part)"
+        verbose_name_plural = "Learn Japanese Lessons (Days/Parts)"
+
+    def __str__(self):
+        return f"{self.topic.title} — Part {self.part_number}: {self.title}"
+
+
+class LearnWord(models.Model):
+    lesson = models.ForeignKey(LearnLesson, on_delete=models.CASCADE, related_name="words")
+    order_index = models.PositiveIntegerField(default=1)
+    kanji = models.CharField(max_length=255)
+    furigana = models.CharField(max_length=255, blank=True, default="")
+    romaji = models.CharField(max_length=255, blank=True, default="")
+    meaning_en = models.CharField(max_length=400, blank=True, default="")
+    translations = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='7-language meanings: {"en": "...", "id": "...", "bn": "...", "ne": "...", "vi": "...", "tl": "...", "hi": "..."}',
+    )
+
+    class Meta:
+        ordering = ["order_index", "id"]
+        verbose_name = "Learn Japanese Word"
+        verbose_name_plural = "Learn Japanese Words"
+
+    def __str__(self):
+        return f"{self.kanji} ({self.meaning_en})"
+
 
 
 

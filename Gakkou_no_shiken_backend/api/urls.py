@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
 from . import jlpt_views
+from . import learn_views
 
 urlpatterns = [
     # Tests & Quiz
@@ -95,6 +96,10 @@ urlpatterns = [
     path('jlpt/sets/<int:pk>/submit/', jlpt_views.JLPTSetSubmitAPIView.as_view(), name='api_jlpt_set_submit'),
     path('jlpt/placement-test/', jlpt_views.JLPTPlacementTestAPIView.as_view(), name='api_jlpt_placement_test'),
     path('jlpt/placement-test/submit/', jlpt_views.JLPTPlacementTestAPIView.as_view(), name='api_jlpt_placement_submit'),
+
+    # Learn Japanese Topics (23 Topics -> Day/Part Lessons -> 7-Language Words)
+    path('learn/topics/', learn_views.LearnTopicListAPIView.as_view(), name='api_learn_topics'),
+    path('learn/topics/<slug:slug>/', learn_views.LearnTopicDetailAPIView.as_view(), name='api_learn_topic_detail'),
 
 ]
 

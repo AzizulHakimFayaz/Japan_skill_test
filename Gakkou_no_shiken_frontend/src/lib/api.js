@@ -661,6 +661,21 @@ export async function submitJlptPlacementTest(answers) {
   });
 }
 
+// --- Learn Japanese Topics (23 Topics -> Day/Part -> 7-Language Words) ---
+
+export async function getLearnTopics({ category = 'all', search = '' } = {}) {
+  const params = new URLSearchParams();
+  if (category && category !== 'all') params.set('category', category);
+  if (search) params.set('search', search);
+  const qs = params.toString();
+  return apiRequest(`/api/learn/topics/${qs ? `?${qs}` : ''}`, { cache: 'no-store' });
+}
+
+export async function getLearnTopicDetail(slug) {
+  return apiRequest(`/api/learn/topics/${encodeURIComponent(slug)}/`, { cache: 'no-store' });
+}
+
+
 
 
 

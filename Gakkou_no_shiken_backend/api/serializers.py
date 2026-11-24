@@ -533,6 +533,8 @@ class NoticeSerializer(serializers.ModelSerializer):
 # ─── Curriculum Serializers ──────────────────────────────────────────
 
 class CurriculumVocabularySerializer(serializers.ModelSerializer):
+    translations = serializers.SerializerMethodField()
+
     class Meta:
         model = CurriculumVocabulary
         fields = [
@@ -543,12 +545,23 @@ class CurriculumVocabularySerializer(serializers.ModelSerializer):
             'romaji',
             'meaning_en',
             'meaning_bn',
+            'translations',
             'speech',
             'part_of_speech',
         ]
 
+    def get_translations(self, obj):
+        tr = dict(obj.translations or {})
+        if obj.meaning_en and 'en' not in tr:
+            tr['en'] = obj.meaning_en
+        if obj.meaning_bn and 'bn' not in tr:
+            tr['bn'] = obj.meaning_bn
+        return tr
+
 
 class CurriculumKanjiSerializer(serializers.ModelSerializer):
+    translations = serializers.SerializerMethodField()
+
     class Meta:
         model = CurriculumKanji
         fields = [
@@ -560,9 +573,18 @@ class CurriculumKanjiSerializer(serializers.ModelSerializer):
             'romaji',
             'meaning_en',
             'meaning_bn',
+            'translations',
             'speech',
             'stroke_count',
         ]
+
+    def get_translations(self, obj):
+        tr = dict(obj.translations or {})
+        if obj.meaning_en and 'en' not in tr:
+            tr['en'] = obj.meaning_en
+        if obj.meaning_bn and 'bn' not in tr:
+            tr['bn'] = obj.meaning_bn
+        return tr
 
 
 class CurriculumLessonListSerializer(serializers.ModelSerializer):
