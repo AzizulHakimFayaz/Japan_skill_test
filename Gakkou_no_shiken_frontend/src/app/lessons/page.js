@@ -24,6 +24,7 @@ import {
   searchCurriculum,
   getBooks,
 } from '@/lib/api';
+import { getLessonsHubText, getLocalizedTopic } from '@/lib/lessonsHubI18n';
 
 const STUDY_LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇺🇸' },
@@ -110,6 +111,18 @@ export default function LessonsHubPage() {
   // 3 Main Pillars: null (selector) | 'learn' | 'jft' | 'ssw'
   const [activePillar, setActivePillar] = useState(null);
   const [studyLang, setStudyLang] = useState('en');
+  const ui = useMemo(() => getLessonsHubText(studyLang), [studyLang]);
+
+  const changeStudyLang = (code) => {
+    setStudyLang(code);
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.setItem('gns_study_lang', code);
+      } catch {
+        // ignore storage errors
+      }
+    }
+  };
 
   const selectPillar = (pillar) => {
     setActivePillar(pillar);
@@ -124,13 +137,27 @@ export default function LessonsHubPage() {
     }
   };
 
-  // Support deep linking via ?tab=jft, ?tab=ssw, or ?tab=learn
+  // Support deep linking via ?tab=jft|ssw|learn and ?lang=bn|hi|... + saved preference
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const sp = new URLSearchParams(window.location.search);
     const tab = (sp.get('tab') || '').toLowerCase();
     if (tab === 'jft' || tab === 'ssw' || tab === 'learn') {
       setActivePillar(tab);
+    }
+    const urlLang = (sp.get('lang') || '').toLowerCase();
+    const validCodes = STUDY_LANGUAGES.map((l) => l.code);
+    if (validCodes.includes(urlLang)) {
+      setStudyLang(urlLang);
+    } else {
+      try {
+        const saved = window.localStorage.getItem('gns_study_lang');
+        if (saved && validCodes.includes(saved)) {
+          setStudyLang(saved);
+        }
+      } catch {
+        // ignore
+      }
     }
   }, []);
 
@@ -262,27 +289,27 @@ export default function LessonsHubPage() {
             <div className="space-y-2 max-w-2xl">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-700 text-[11px] font-black uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
                 <Sparkles className="w-3.5 h-3.5 text-[#DB1A1A]" />
-                <span>Structured Japanese Curriculum • 7 Languages</span>
+                <span>{ui.heroBadge}</span>
               </div>
               <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-                Gakkou <span className="text-[#DB1A1A]">Lessons Hub</span>
+                {ui.heroTitlePrefix} <span className="text-[#DB1A1A]">{ui.heroTitleAccent}</span>
               </h1>
               <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300">
-                Learn Japanese step-by-step by topic and day, master JFT-Basic Minna no Nihongo lessons &amp; study notes, or prepare for SSW sector exams.
+                {ui.heroSubtitle}
               </p>
             </div>
 
             {/* 7-Language Meaning Selector */}
             <div className="flex flex-col gap-1.5">
               <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
-                <Globe className="w-3 h-3 text-[#DB1A1A]" /> Preferred Meaning Language
+                <Globe className="w-3 h-3 text-[#DB1A1A]" /> {ui.prefLangLabel}
               </span>
               <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
                 {STUDY_LANGUAGES.map((lang) => (
                   <button
                     key={lang.code}
                     type="button"
-                    onClick={() => setStudyLang(lang.code)}
+                    onClick={() => changeStudyLang(lang.code)}
                     className={`px-2.5 py-1.5 rounded-xl text-[11px] font-extrabold transition cursor-pointer whitespace-nowrap border ${
                       studyLang === lang.code
                         ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white'
@@ -305,7 +332,7 @@ export default function LessonsHubPage() {
                 className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#2C687B] dark:text-[#8CC7C4] hover:text-[#DB1A1A] transition cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>All Learning Tracks</span>
+                <span>{ui.allTracksBack}</span>
               </button>
 
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -329,14 +356,14 @@ export default function LessonsHubPage() {
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs sm:text-base font-black leading-tight truncate">
-                      Learn Japanese
+                      {ui.learnTitle}
                     </div>
                     <div
                       className={`text-[10px] sm:text-xs font-semibold truncate ${
                         activePillar === 'learn' ? 'text-white/85' : 'text-slate-500'
                       }`}
                     >
-                      {learnTotals.topics} Topics • {learnTotals.lessons} Parts
+                      {ui.learnStats(learnTotals.topics, learnTotals.lessons)}
                     </div>
                   </div>
                 </button>
@@ -361,14 +388,14 @@ export default function LessonsHubPage() {
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs sm:text-base font-black leading-tight truncate">
-                      JFT Lessons &amp; Notes
+                      {ui.jftTitle}
                     </div>
                     <div
                       className={`text-[10px] sm:text-xs font-semibold truncate ${
                         activePillar === 'jft' ? 'text-white/85' : 'text-slate-500'
                       }`}
                     >
-                      80 Units • Grammar Notes
+                      {ui.jftStats}
                     </div>
                   </div>
                 </button>
@@ -393,14 +420,14 @@ export default function LessonsHubPage() {
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs sm:text-base font-black leading-tight truncate">
-                      SSW Lessons
+                      {ui.sswTitle}
                     </div>
                     <div
                       className={`text-[10px] sm:text-xs font-semibold truncate ${
                         activePillar === 'ssw' ? 'text-white/85' : 'text-slate-500'
                       }`}
                     >
-                      26 Textbooks &amp; Guides
+                      {ui.sswStats}
                     </div>
                   </div>
                 </button>
@@ -418,13 +445,13 @@ export default function LessonsHubPage() {
           <div className="space-y-6">
             <div className="text-center max-w-2xl mx-auto space-y-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EAF4F4] dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-700 text-[11px] font-black uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
-                Step 1 • Choose Your Track
+                {ui.stepBadge}
               </span>
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                What would you like to learn today?
+                {ui.chooseHeading}
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                Select a study track below to open its dedicated lessons, vocabulary, and study guides.
+                {ui.chooseSubheading}
               </p>
             </div>
 
@@ -441,19 +468,19 @@ export default function LessonsHubPage() {
                       <BookOpen className="w-6 h-6" />
                     </div>
                     <span className="px-2.5 py-1 rounded-lg bg-[#EAF4F4] dark:bg-slate-800 text-[11px] font-black text-[#2C687B] dark:text-[#8CC7C4]">
-                      {learnTotals.topics} Topics • {learnTotals.lessons} Parts
+                      {ui.learnStats(learnTotals.topics, learnTotals.lessons)}
                     </span>
                   </div>
                   <div className="space-y-1.5">
                     <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white group-hover:text-[#DB1A1A] transition-colors">
-                      Learn Japanese
+                      {ui.learnTitle}
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Step-by-step daily lessons from Hiragana &amp; Katakana to 20-Day Kanji, Greetings, Eating Out, and Daily Life with 7-language meanings.
+                      {ui.learnDesc}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {['Hiragana', 'Katakana', '20-Day Kanji', 'Daily Life'].map((tag) => (
+                    {[ui.cats.basics, ui.cats.kanji, ui.cats.conversation, ui.cats.daily_life].map((tag) => (
                       <span
                         key={tag}
                         className="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-600 dark:text-slate-300"
@@ -464,7 +491,7 @@ export default function LessonsHubPage() {
                   </div>
                 </div>
                 <div className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#DB1A1A] group-hover:bg-[#B81515] text-white text-sm font-black transition-colors">
-                  <span>Open Learn Japanese</span>
+                  <span>{ui.learnCta}</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </button>
@@ -481,19 +508,19 @@ export default function LessonsHubPage() {
                       <GraduationCap className="w-6 h-6" />
                     </div>
                     <span className="px-2.5 py-1 rounded-lg bg-[#EAF4F4] dark:bg-slate-800 text-[11px] font-black text-[#2C687B] dark:text-[#8CC7C4]">
-                      80 Units • Grammar Notes
+                      {ui.jftStats}
                     </span>
                   </div>
                   <div className="space-y-1.5">
                     <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white group-hover:text-[#DB1A1A] transition-colors">
-                      JFT Lessons &amp; Notes
+                      {ui.jftTitle}
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Complete Minna no Nihongo N5 &amp; N4 Vocabulary and Kanji units, plus essential A2 grammar notes, listening strategies, and particle drills.
+                      {ui.jftDesc}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {['N5–N4 Vocab', 'Kanji Units', 'A2 Particles', '30-Day Plan'].map((tag) => (
+                    {[ui.minnaVocabTab, ui.kanjiUnitsTab, ui.grammarNotesTab].map((tag) => (
                       <span
                         key={tag}
                         className="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-600 dark:text-slate-300"
@@ -504,7 +531,7 @@ export default function LessonsHubPage() {
                   </div>
                 </div>
                 <div className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#DB1A1A] group-hover:bg-[#B81515] text-white text-sm font-black transition-colors">
-                  <span>Open JFT Lessons &amp; Notes</span>
+                  <span>{ui.jftCta}</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </button>
@@ -521,15 +548,15 @@ export default function LessonsHubPage() {
                       <Briefcase className="w-6 h-6" />
                     </div>
                     <span className="px-2.5 py-1 rounded-lg bg-[#EAF4F4] dark:bg-slate-800 text-[11px] font-black text-[#2C687B] dark:text-[#8CC7C4]">
-                      26 Textbooks &amp; Guides
+                      {ui.sswStats}
                     </span>
                   </div>
                   <div className="space-y-1.5">
                     <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white group-hover:text-[#DB1A1A] transition-colors">
-                      SSW Lessons
+                      {ui.sswTitle}
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Official Specified Skilled Worker (Tokutei Ginou) textbooks, audio guides, and sector prep for Nursing Care, Food Service, Agriculture &amp; more.
+                      {ui.sswDesc}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -544,7 +571,7 @@ export default function LessonsHubPage() {
                   </div>
                 </div>
                 <div className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#DB1A1A] group-hover:bg-[#B81515] text-white text-sm font-black transition-colors">
-                  <span>Open SSW Lessons</span>
+                  <span>{ui.sswCta}</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </button>
@@ -570,7 +597,7 @@ export default function LessonsHubPage() {
                         : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#CBE5E3] dark:border-slate-700 hover:bg-[#EAF4F4]'
                     }`}
                   >
-                    {cat.label}
+                    {ui.cats[cat.id] || cat.label}
                   </button>
                 ))}
               </div>
@@ -581,7 +608,7 @@ export default function LessonsHubPage() {
                   type="text"
                   value={learnSearch}
                   onChange={(e) => setLearnSearch(e.target.value)}
-                  placeholder="Search topics (Hiragana, Food...)"
+                  placeholder={ui.searchTopicsPlaceholder}
                   className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-700 focus:border-[#DB1A1A] text-xs font-semibold outline-none"
                 />
               </div>
@@ -596,12 +623,14 @@ export default function LessonsHubPage() {
             ) : learnTopics.length === 0 ? (
               <div className="rounded-3xl bg-white dark:bg-slate-900 border border-[#CBE5E3] p-12 text-center space-y-2">
                 <Layers className="w-10 h-10 text-[#8CC7C4] mx-auto" />
-                <h3 className="text-base font-black">No topics found</h3>
-                <p className="text-xs text-slate-500">Try clearing your search or selecting All Topics.</p>
+                <h3 className="text-base font-black">{ui.noTopicsTitle}</h3>
+                <p className="text-xs text-slate-500">{ui.noTopicsDesc}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
-                {learnTopics.map((topic) => (
+                {learnTopics.map((topic) => {
+                  const loc = getLocalizedTopic(topic, studyLang);
+                  return (
                   <Link
                     key={topic.slug}
                     href={`/lessons/learn/${topic.slug}?lang=${studyLang}`}
@@ -615,23 +644,24 @@ export default function LessonsHubPage() {
                     <div className="min-w-0 flex-1 space-y-1">
                       <div className="flex items-center justify-between gap-2">
                         <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white group-hover:text-[#DB1A1A] transition-colors truncate">
-                          {topic.title}
+                          {loc.title}
                         </h3>
                         <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#DB1A1A] group-hover:translate-x-0.5 transition shrink-0" />
                       </div>
                       <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-snug">
-                        {topic.description}
+                        {loc.description}
                       </p>
                       <div className="flex items-center gap-2 pt-1.5 text-[10px] sm:text-[11px] font-extrabold text-slate-500 dark:text-slate-400">
                         <span className="px-2 py-0.5 rounded-md bg-[#FFFFFF] dark:bg-slate-800 border border-[#CBE5E3] dark:border-slate-700 text-[#2C687B] dark:text-[#CBE5E3]">
-                          {topic.lesson_count} {topic.lesson_count === 1 ? 'Part' : 'Parts / Days'}
+                          {topic.lesson_count} {topic.lesson_count === 1 ? ui.partSingular : ui.partsPlural}
                         </span>
                         <span>•</span>
-                        <span>{topic.word_count} words</span>
+                        <span>{topic.word_count} {ui.wordsLabel}</span>
                       </div>
                     </div>
                   </Link>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -654,7 +684,7 @@ export default function LessonsHubPage() {
                       : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#CBE5E3] dark:border-slate-700'
                   }`}
                 >
-                  Minna Vocab (50)
+                  {ui.minnaVocabTab}
                 </button>
                 <button
                   type="button"
@@ -665,7 +695,7 @@ export default function LessonsHubPage() {
                       : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#CBE5E3] dark:border-slate-700'
                   }`}
                 >
-                  Kanji Units (30)
+                  {ui.kanjiUnitsTab}
                 </button>
                 <button
                   type="button"
@@ -676,7 +706,7 @@ export default function LessonsHubPage() {
                       : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#CBE5E3] dark:border-slate-700'
                   }`}
                 >
-                  Grammar &amp; Notes
+                  {ui.grammarNotesTab}
                 </button>
               </div>
 
@@ -686,7 +716,7 @@ export default function LessonsHubPage() {
                   type="text"
                   value={jftSearch}
                   onChange={(e) => setJftSearch(e.target.value)}
-                  placeholder="Search word, kanji, or meaning..."
+                  placeholder={ui.searchJftPlaceholder}
                   className="w-full pl-9 pr-8 py-2 rounded-xl bg-white dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-700 focus:border-[#DB1A1A] text-xs font-semibold outline-none"
                 />
                 {jftSearch && (
@@ -779,7 +809,7 @@ export default function LessonsHubPage() {
                   <div className="space-y-3">
                     <div className="flex items-center gap-2.5">
                       <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
-                        {jftSubTab === 'vocabulary' ? 'Book I • Minna no Nihongo (Lessons 1–25)' : 'N5 Essential Kanji (Lessons 1–10)'}
+                        {jftSubTab === 'vocabulary' ? ui.book1Vocab : ui.book1Kanji}
                       </h2>
                       <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 text-[10px] font-black">
                         JLPT N5 • JFT-Basic
@@ -789,7 +819,7 @@ export default function LessonsHubPage() {
                       {n5Lessons.map((lesson) => (
                         <Link
                           key={lesson.id}
-                          href={`/lessons/${lesson.id}`}
+                          href={`/lessons/${lesson.id}?lang=${studyLang}`}
                           className="group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 hover:border-[#8CC7C4] p-4 shadow-2xs hover:shadow-md transition flex items-start gap-3.5"
                         >
                           <div className="w-10 h-10 rounded-xl bg-[#EAF4F4] dark:bg-slate-800 text-[#2C687B] dark:text-[#8CC7C4] font-black text-sm flex items-center justify-center shrink-0 group-hover:bg-[#DB1A1A] group-hover:text-white transition">
@@ -806,9 +836,9 @@ export default function LessonsHubPage() {
                             )}
                             <div className="flex items-center justify-between mt-2 text-[11px] font-bold">
                               <span className="text-slate-500">
-                                {lesson.items_count || 0} {jftSubTab === 'vocabulary' ? 'words' : 'kanji'}
+                                {lesson.items_count || 0} {jftSubTab === 'vocabulary' ? ui.wordsLabel : ui.kanjiLabel}
                               </span>
-                              <span className="text-[#DB1A1A] font-black">Study →</span>
+                              <span className="text-[#DB1A1A] font-black">{ui.studyBtn}</span>
                             </div>
                           </div>
                         </Link>
@@ -822,7 +852,7 @@ export default function LessonsHubPage() {
                   <div className="space-y-3">
                     <div className="flex items-center gap-2.5">
                       <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
-                        {jftSubTab === 'vocabulary' ? 'Book II • Minna no Nihongo (Lessons 26–50)' : 'N4 Essential Kanji (Lessons 11–30)'}
+                        {jftSubTab === 'vocabulary' ? ui.book2Vocab : ui.book2Kanji}
                       </h2>
                       <span className="px-2.5 py-0.5 rounded-full bg-[#EAF4F4] dark:bg-slate-800 text-[#2C687B] dark:text-[#CBE5E3] border border-[#CBE5E3] text-[10px] font-black">
                         JLPT N4 • SSW Ready
@@ -832,7 +862,7 @@ export default function LessonsHubPage() {
                       {n4Lessons.map((lesson) => (
                         <Link
                           key={lesson.id}
-                          href={`/lessons/${lesson.id}`}
+                          href={`/lessons/${lesson.id}?lang=${studyLang}`}
                           className="group rounded-2xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 hover:border-[#8CC7C4] p-4 shadow-2xs hover:shadow-md transition flex items-start gap-3.5"
                         >
                           <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-slate-800 text-white font-black text-sm flex items-center justify-center shrink-0 group-hover:bg-[#DB1A1A] transition">
@@ -849,9 +879,9 @@ export default function LessonsHubPage() {
                             )}
                             <div className="flex items-center justify-between mt-2 text-[11px] font-bold">
                               <span className="text-slate-500">
-                                {lesson.items_count || 0} {jftSubTab === 'vocabulary' ? 'words' : 'kanji'}
+                                {lesson.items_count || 0} {jftSubTab === 'vocabulary' ? ui.wordsLabel : ui.kanjiLabel}
                               </span>
-                              <span className="text-[#DB1A1A] font-black">Study →</span>
+                              <span className="text-[#DB1A1A] font-black">{ui.studyBtn}</span>
                             </div>
                           </div>
                         </Link>
@@ -872,7 +902,7 @@ export default function LessonsHubPage() {
             {/* SSW Sector Study Guides */}
             <div className="space-y-3">
               <h2 className="text-lg font-black text-slate-900 dark:text-white">
-                SSW Sector Study Guides
+                {ui.sswGuidesHeading}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
                 {SSW_SECTOR_GUIDES.map((g) => (
@@ -897,7 +927,7 @@ export default function LessonsHubPage() {
                         {g.desc}
                       </p>
                     </div>
-                    <span className="text-xs font-black text-[#DB1A1A]">Read Guide →</span>
+                    <span className="text-xs font-black text-[#DB1A1A]">{ui.readGuideBtn}</span>
                   </Link>
                 ))}
               </div>
@@ -908,15 +938,15 @@ export default function LessonsHubPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-black text-slate-900 dark:text-white">
-                    Official SSW / JAC Study Textbooks &amp; Audio Reader
+                    {ui.sswBooksHeading}
                   </h2>
                   <p className="text-xs text-slate-500">
-                    Interactive PDF textbooks with Japanese audio explanations across multiple languages.
+                    {ui.sswBooksDesc}
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                   {[
-                    { id: 'all', label: 'All Books' },
+                    { id: 'all', label: ui.allBooks },
                     { id: 'civil', label: 'Civil Eng.' },
                     { id: 'architecture', label: 'Architecture' },
                     { id: 'lifeline', label: 'Lifeline' },
