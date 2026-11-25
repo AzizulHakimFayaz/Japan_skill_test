@@ -9,6 +9,7 @@ import {
   Search,
   ChevronRight,
   ArrowRight,
+  ArrowLeft,
   Volume2,
   Globe,
   Layers,
@@ -106,11 +107,24 @@ const SSW_SECTOR_GUIDES = [
 ];
 
 export default function LessonsHubPage() {
-  // 3 Main Pillars: 'learn' | 'jft' | 'ssw'
-  const [activePillar, setActivePillar] = useState('learn');
+  // 3 Main Pillars: null (selector) | 'learn' | 'jft' | 'ssw'
+  const [activePillar, setActivePillar] = useState(null);
   const [studyLang, setStudyLang] = useState('en');
 
-  // Support deep linking via ?tab=jft or ?tab=ssw
+  const selectPillar = (pillar) => {
+    setActivePillar(pillar);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (pillar) {
+        url.searchParams.set('tab', pillar);
+      } else {
+        url.searchParams.delete('tab');
+      }
+      window.history.replaceState({}, '', url.toString());
+    }
+  };
+
+  // Support deep linking via ?tab=jft, ?tab=ssw, or ?tab=learn
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const sp = new URLSearchParams(window.location.search);
@@ -125,7 +139,7 @@ export default function LessonsHubPage() {
   const [learnTotals, setLearnTotals] = useState({ topics: 23, lessons: 115, words: 2237 });
   const [learnCategory, setLearnCategory] = useState('all');
   const [learnSearch, setLearnSearch] = useState('');
-  const [learnLoading, setLearnLoading] = useState(true);
+  const [learnLoading, setLearnLoading] = useState(false);
 
   // Pillar 2: JFT-Basic Lessons & Notes (Minna no Nihongo Vocab + Kanji)
   const [jftSubTab, setJftSubTab] = useState('vocabulary'); // 'vocabulary' | 'kanji' | 'notes'
@@ -141,8 +155,9 @@ export default function LessonsHubPage() {
   const [sswCategory, setSswCategory] = useState('all');
   const [sswLoading, setSswLoading] = useState(false);
 
-  // Load Pillar 1 (Learn Japanese Topics)
+  // Load Pillar 1 (Learn Japanese Topics) only when user selects 'learn'
   useEffect(() => {
+    if (activePillar !== 'learn') return;
     let active = true;
     setLearnLoading(true);
     getLearnTopics({ category: learnCategory, search: learnSearch.trim() })
@@ -158,7 +173,7 @@ export default function LessonsHubPage() {
     return () => {
       active = false;
     };
-  }, [learnCategory, learnSearch]);
+  }, [activePillar, learnCategory, learnSearch]);
 
   // Load Pillar 2 (JFT Curriculum Lessons) when switched to JFT
   useEffect(() => {
@@ -281,108 +296,261 @@ export default function LessonsHubPage() {
             </div>
           </div>
 
-          {/* 3 MAIN PILLAR TABS */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            <button
-              type="button"
-              onClick={() => setActivePillar('learn')}
-              className={`rounded-2xl p-3 sm:p-4 text-left border-2 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 ${
-                activePillar === 'learn'
-                  ? 'bg-[#DB1A1A] text-white border-[#DB1A1A] shadow-md'
-                  : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#CBE5E3] dark:border-slate-800 hover:border-[#8CC7C4]'
-              }`}
-            >
-              <div
-                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                  activePillar === 'learn'
-                    ? 'bg-white/20 text-white'
-                    : 'bg-[#EAF4F4] dark:bg-slate-800 text-[#DB1A1A]'
-                }`}
+          {/* 3 MAIN PILLAR TABS (Shown once user picks a learning track) */}
+          {activePillar && (
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => selectPillar(null)}
+                className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#2C687B] dark:text-[#8CC7C4] hover:text-[#DB1A1A] transition cursor-pointer"
               >
-                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-xs sm:text-base font-black leading-tight truncate">
-                  Learn Japanese
-                </div>
-                <div
-                  className={`text-[10px] sm:text-xs font-semibold truncate ${
-                    activePillar === 'learn' ? 'text-white/85' : 'text-slate-500'
-                  }`}
-                >
-                  {learnTotals.topics} Topics • {learnTotals.lessons} Parts
-                </div>
-              </div>
-            </button>
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>All Learning Tracks</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setActivePillar('jft')}
-              className={`rounded-2xl p-3 sm:p-4 text-left border-2 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 ${
-                activePillar === 'jft'
-                  ? 'bg-[#DB1A1A] text-white border-[#DB1A1A] shadow-md'
-                  : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#CBE5E3] dark:border-slate-800 hover:border-[#8CC7C4]'
-              }`}
-            >
-              <div
-                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                  activePillar === 'jft'
-                    ? 'bg-white/20 text-white'
-                    : 'bg-[#EAF4F4] dark:bg-slate-800 text-[#DB1A1A]'
-                }`}
-              >
-                <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-xs sm:text-base font-black leading-tight truncate">
-                  JFT Lessons &amp; Notes
-                </div>
-                <div
-                  className={`text-[10px] sm:text-xs font-semibold truncate ${
-                    activePillar === 'jft' ? 'text-white/85' : 'text-slate-500'
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <button
+                  type="button"
+                  onClick={() => selectPillar('learn')}
+                  className={`rounded-2xl p-3 sm:p-4 text-left border-2 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 ${
+                    activePillar === 'learn'
+                      ? 'bg-[#DB1A1A] text-white border-[#DB1A1A] shadow-md'
+                      : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#CBE5E3] dark:border-slate-800 hover:border-[#8CC7C4]'
                   }`}
                 >
-                  80 Units • Grammar Notes
-                </div>
-              </div>
-            </button>
+                  <div
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                      activePillar === 'learn'
+                        ? 'bg-white/20 text-white'
+                        : 'bg-[#EAF4F4] dark:bg-slate-800 text-[#DB1A1A]'
+                    }`}
+                  >
+                    <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs sm:text-base font-black leading-tight truncate">
+                      Learn Japanese
+                    </div>
+                    <div
+                      className={`text-[10px] sm:text-xs font-semibold truncate ${
+                        activePillar === 'learn' ? 'text-white/85' : 'text-slate-500'
+                      }`}
+                    >
+                      {learnTotals.topics} Topics • {learnTotals.lessons} Parts
+                    </div>
+                  </div>
+                </button>
 
-            <button
-              type="button"
-              onClick={() => setActivePillar('ssw')}
-              className={`rounded-2xl p-3 sm:p-4 text-left border-2 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 ${
-                activePillar === 'ssw'
-                  ? 'bg-[#DB1A1A] text-white border-[#DB1A1A] shadow-md'
-                  : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#CBE5E3] dark:border-slate-800 hover:border-[#8CC7C4]'
-              }`}
-            >
-              <div
-                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                  activePillar === 'ssw'
-                    ? 'bg-white/20 text-white'
-                    : 'bg-[#EAF4F4] dark:bg-slate-800 text-[#DB1A1A]'
-                }`}
-              >
-                <Briefcase className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-xs sm:text-base font-black leading-tight truncate">
-                  SSW Lessons
-                </div>
-                <div
-                  className={`text-[10px] sm:text-xs font-semibold truncate ${
-                    activePillar === 'ssw' ? 'text-white/85' : 'text-slate-500'
+                <button
+                  type="button"
+                  onClick={() => selectPillar('jft')}
+                  className={`rounded-2xl p-3 sm:p-4 text-left border-2 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 ${
+                    activePillar === 'jft'
+                      ? 'bg-[#DB1A1A] text-white border-[#DB1A1A] shadow-md'
+                      : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#CBE5E3] dark:border-slate-800 hover:border-[#8CC7C4]'
                   }`}
                 >
-                  26 Textbooks &amp; Guides
-                </div>
+                  <div
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                      activePillar === 'jft'
+                        ? 'bg-white/20 text-white'
+                        : 'bg-[#EAF4F4] dark:bg-slate-800 text-[#DB1A1A]'
+                    }`}
+                  >
+                    <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs sm:text-base font-black leading-tight truncate">
+                      JFT Lessons &amp; Notes
+                    </div>
+                    <div
+                      className={`text-[10px] sm:text-xs font-semibold truncate ${
+                        activePillar === 'jft' ? 'text-white/85' : 'text-slate-500'
+                      }`}
+                    >
+                      80 Units • Grammar Notes
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => selectPillar('ssw')}
+                  className={`rounded-2xl p-3 sm:p-4 text-left border-2 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 ${
+                    activePillar === 'ssw'
+                      ? 'bg-[#DB1A1A] text-white border-[#DB1A1A] shadow-md'
+                      : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-[#CBE5E3] dark:border-slate-800 hover:border-[#8CC7C4]'
+                  }`}
+                >
+                  <div
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                      activePillar === 'ssw'
+                        ? 'bg-white/20 text-white'
+                        : 'bg-[#EAF4F4] dark:bg-slate-800 text-[#DB1A1A]'
+                    }`}
+                  >
+                    <Briefcase className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs sm:text-base font-black leading-tight truncate">
+                      SSW Lessons
+                    </div>
+                    <div
+                      className={`text-[10px] sm:text-xs font-semibold truncate ${
+                        activePillar === 'ssw' ? 'text-white/85' : 'text-slate-500'
+                      }`}
+                    >
+                      26 Textbooks &amp; Guides
+                    </div>
+                  </div>
+                </button>
               </div>
-            </button>
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+        {/* ===================================================================
+            INITIAL LEARNING TRACK SELECTOR (User chooses what to study first)
+           =================================================================== */}
+        {!activePillar && (
+          <div className="space-y-6">
+            <div className="text-center max-w-2xl mx-auto space-y-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EAF4F4] dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-700 text-[11px] font-black uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
+                Step 1 • Choose Your Track
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                What would you like to learn today?
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                Select a study track below to open its dedicated lessons, vocabulary, and study guides.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+              {/* Track 1: Learn Japanese */}
+              <button
+                type="button"
+                onClick={() => selectPillar('learn')}
+                className="group text-left rounded-3xl bg-white dark:bg-[#0f1629] border-2 border-[#CBE5E3] dark:border-slate-800 hover:border-[#DB1A1A] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between gap-6"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-13 h-13 rounded-2xl bg-[#EAF4F4] dark:bg-slate-800 border border-[#CBE5E3] dark:border-slate-700 flex items-center justify-center text-[#DB1A1A] group-hover:bg-[#DB1A1A] group-hover:text-white transition-colors">
+                      <BookOpen className="w-6 h-6" />
+                    </div>
+                    <span className="px-2.5 py-1 rounded-lg bg-[#EAF4F4] dark:bg-slate-800 text-[11px] font-black text-[#2C687B] dark:text-[#8CC7C4]">
+                      {learnTotals.topics} Topics • {learnTotals.lessons} Parts
+                    </span>
+                  </div>
+                  <div className="space-y-1.5">
+                    <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white group-hover:text-[#DB1A1A] transition-colors">
+                      Learn Japanese
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Step-by-step daily lessons from Hiragana &amp; Katakana to 20-Day Kanji, Greetings, Eating Out, and Daily Life with 7-language meanings.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {['Hiragana', 'Katakana', '20-Day Kanji', 'Daily Life'].map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-600 dark:text-slate-300"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#DB1A1A] group-hover:bg-[#B81515] text-white text-sm font-black transition-colors">
+                  <span>Open Learn Japanese</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </button>
+
+              {/* Track 2: JFT Lessons & Notes */}
+              <button
+                type="button"
+                onClick={() => selectPillar('jft')}
+                className="group text-left rounded-3xl bg-white dark:bg-[#0f1629] border-2 border-[#CBE5E3] dark:border-slate-800 hover:border-[#DB1A1A] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between gap-6"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-13 h-13 rounded-2xl bg-[#EAF4F4] dark:bg-slate-800 border border-[#CBE5E3] dark:border-slate-700 flex items-center justify-center text-[#DB1A1A] group-hover:bg-[#DB1A1A] group-hover:text-white transition-colors">
+                      <GraduationCap className="w-6 h-6" />
+                    </div>
+                    <span className="px-2.5 py-1 rounded-lg bg-[#EAF4F4] dark:bg-slate-800 text-[11px] font-black text-[#2C687B] dark:text-[#8CC7C4]">
+                      80 Units • Grammar Notes
+                    </span>
+                  </div>
+                  <div className="space-y-1.5">
+                    <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white group-hover:text-[#DB1A1A] transition-colors">
+                      JFT Lessons &amp; Notes
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Complete Minna no Nihongo N5 &amp; N4 Vocabulary and Kanji units, plus essential A2 grammar notes, listening strategies, and particle drills.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {['N5–N4 Vocab', 'Kanji Units', 'A2 Particles', '30-Day Plan'].map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-600 dark:text-slate-300"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#DB1A1A] group-hover:bg-[#B81515] text-white text-sm font-black transition-colors">
+                  <span>Open JFT Lessons &amp; Notes</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </button>
+
+              {/* Track 3: SSW Lessons */}
+              <button
+                type="button"
+                onClick={() => selectPillar('ssw')}
+                className="group text-left rounded-3xl bg-white dark:bg-[#0f1629] border-2 border-[#CBE5E3] dark:border-slate-800 hover:border-[#DB1A1A] p-6 sm:p-7 shadow-xs hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between gap-6"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-13 h-13 rounded-2xl bg-[#EAF4F4] dark:bg-slate-800 border border-[#CBE5E3] dark:border-slate-700 flex items-center justify-center text-[#DB1A1A] group-hover:bg-[#DB1A1A] group-hover:text-white transition-colors">
+                      <Briefcase className="w-6 h-6" />
+                    </div>
+                    <span className="px-2.5 py-1 rounded-lg bg-[#EAF4F4] dark:bg-slate-800 text-[11px] font-black text-[#2C687B] dark:text-[#8CC7C4]">
+                      26 Textbooks &amp; Guides
+                    </span>
+                  </div>
+                  <div className="space-y-1.5">
+                    <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white group-hover:text-[#DB1A1A] transition-colors">
+                      SSW Lessons
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Official Specified Skilled Worker (Tokutei Ginou) textbooks, audio guides, and sector prep for Nursing Care, Food Service, Agriculture &amp; more.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {['Nursing Care', 'Food Service', 'Agriculture', 'JAC Books'].map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-600 dark:text-slate-300"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#DB1A1A] group-hover:bg-[#B81515] text-white text-sm font-black transition-colors">
+                  <span>Open SSW Lessons</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </button>
+            </div>
+          </div>
+        )}
         {/* ===================================================================
             PILLAR 1: LEARN JAPANESE (23 TOPICS -> DAY/PART LESSONS)
            =================================================================== */}
