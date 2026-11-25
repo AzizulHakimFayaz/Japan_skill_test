@@ -9,6 +9,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from api import views as api_views
 from accounts import admin_views as accounts_admin_views
+from config.media_views import serve_media_with_range
 
 def ads_txt_view(request):
     return HttpResponse("google.com, pub-8435487820435842, DIRECT, f08c47fec0942fa0\n", content_type="text/plain")
@@ -34,7 +35,7 @@ urlpatterns = [
     path('run-migration', api_views.RunMigrationAPIView.as_view(), name='root_run_migration_no_slash'),
     path('run-migration/', api_views.RunMigrationAPIView.as_view(), name='root_run_migration'),
 
-    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^media/(?P<path>.*)$', serve_media_with_range, {'document_root': settings.MEDIA_ROOT}),
     re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
 
     # Catch-all: Automatically forward any student pages to the live frontend

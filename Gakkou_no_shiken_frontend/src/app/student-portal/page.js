@@ -1160,6 +1160,8 @@ export default function StudentPortalPage() {
                               key={activeLesson.id}
                               src={activeLesson.embed_url}
                               controls
+                              playsInline
+                              preload="metadata"
                               className="w-full h-full object-contain"
                             />
                           ) : activeLesson.video_type === 'youtube' ||
