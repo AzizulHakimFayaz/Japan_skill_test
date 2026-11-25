@@ -6,15 +6,20 @@ from tests.models import Test, QuestionGroup, Question, AnswerOption, Attempt, N
 
 
 def get_absolute_media_url(file_field, request=None):
-    """Returns absolute URL for FileField or None."""
+    """Returns absolute URL for FileField or None (always root-relative + HTTPS in production)."""
     if not file_field:
         return None
     try:
         url = file_field.url
         if url.startswith('http://') or url.startswith('https://'):
             return url
+        if not url.startswith('/'):
+            url = '/' + url
         if request:
-            return request.build_absolute_uri(url)
+            abs_url = request.build_absolute_uri(url)
+            if 'gakkounoshiken.site' in abs_url and abs_url.startswith('http://'):
+                abs_url = 'https://' + abs_url[len('http://'):]
+            return abs_url
         return url
     except Exception:
         return None
