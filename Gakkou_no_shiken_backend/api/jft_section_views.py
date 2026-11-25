@@ -8,15 +8,16 @@ Endpoints:
 """
 
 import random
+from typing import Any
 
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from tests.models import AnswerOption, Question, Test
+from tests.models import Question, Test
 from .serializers import get_absolute_media_url
 
-JFT_SECTIONS_META = [
+JFT_SECTIONS_META: list[dict[str, Any]] = [
     {
         "key": "script_vocab",
         "name": "Script & Vocabulary",
@@ -55,7 +56,7 @@ JFT_SECTIONS_META = [
     },
 ]
 
-SECTION_META_BY_KEY = {s["key"]: s for s in JFT_SECTIONS_META}
+SECTION_META_BY_KEY: dict[str, dict[str, Any]] = {str(s["key"]): s for s in JFT_SECTIONS_META}
 
 
 def _get_section_pool_queryset(section_key):
