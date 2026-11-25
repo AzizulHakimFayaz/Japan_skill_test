@@ -654,23 +654,19 @@ export default function StudentPortalPage() {
         {/* ===================================================================
             MAIN CONTENT AREA
            =================================================================== */}
-        <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 space-y-6">
+        <main className="flex-1 min-w-0 px-3.5 pt-4 pb-24 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
           {/* Top Portal Header */}
-          <header className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setMobileMenuOpen(true)}
-                className="lg:hidden p-2 rounded-xl bg-white dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-800 text-slate-700"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+          <header className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <div className="text-[10px] font-black uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4] lg:hidden truncate">
+                {isEnrolled && school ? school.name : 'Gakkou Student Portal'}
+              </div>
+              <h1 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white leading-tight truncate">
                 {SIDEBAR_ITEMS.find((i) => i.id === activeTab)?.label || 'Dashboard'}
               </h1>
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2 shrink-0">
               <div className="relative hidden sm:block w-56">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -685,7 +681,7 @@ export default function StudentPortalPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab('notices')}
-                className="relative p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-[#DB1A1A] cursor-pointer"
+                className="hidden sm:inline-flex relative p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-[#DB1A1A] cursor-pointer"
                 title="Academy Notices"
               >
                 <Bell className="w-4 h-4" />
@@ -697,9 +693,9 @@ export default function StudentPortalPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab('profile')}
-                className="flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-800 cursor-pointer"
+                className="flex items-center gap-2 p-1 sm:pl-1.5 sm:pr-3 sm:py-1 rounded-full bg-white dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-800 cursor-pointer"
               >
-                <div className="w-7 h-7 rounded-full bg-[#2C687B] text-white text-[11px] font-black flex items-center justify-center">
+                <div className="w-7 h-7 rounded-full bg-[#2C687B] text-white text-[11px] font-black flex items-center justify-center shrink-0">
                   {initials}
                 </div>
                 <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 max-w-[110px] truncate hidden sm:inline">
@@ -708,6 +704,41 @@ export default function StudentPortalPage() {
               </button>
             </div>
           </header>
+
+          {/* Mobile 1-Tap Horizontal Portal Tabs (replaces duplicate hamburger on mobile) */}
+          <nav className="flex lg:hidden items-center gap-1.5 overflow-x-auto pb-1 -mx-3.5 px-3.5 scrollbar-none">
+            {SIDEBAR_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const active = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    if (item.id !== 'courses') setSelectedCourseId(null);
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap border transition cursor-pointer shrink-0 ${
+                    active
+                      ? 'bg-[#DB1A1A] text-white border-[#DB1A1A] shadow-xs'
+                      : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-[#CBE5E3] dark:border-slate-800'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                  <span>{item.label}</span>
+                  {item.id === 'notices' && (portal.notices || []).length > 0 && (
+                    <span
+                      className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                        active ? 'bg-white text-[#DB1A1A]' : 'bg-[#DB1A1A] text-white'
+                      }`}
+                    >
+                      {portal.notices.length}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
 
           {/* Pending Academy Approval Banner (if student applied to a school) */}
           {portal.partner_status === 'pending' && school && (

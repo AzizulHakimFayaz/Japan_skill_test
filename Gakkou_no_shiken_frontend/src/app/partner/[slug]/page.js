@@ -1231,45 +1231,44 @@ export default function PartnerSchoolDashboardPage() {
   ];
 
   return (
-    <div className="min-h-[85vh] bg-[#F8F7FC] dark:bg-slate-950 rounded-[32px] border border-slate-200/80 dark:border-slate-800/90 shadow-xl overflow-hidden flex flex-col lg:flex-row animate-fade-in mb-10">
+    <div className="min-h-[85vh] bg-[#F7FAFA] dark:bg-slate-950 rounded-none sm:rounded-[32px] border-y sm:border border-[#CBE5E3] dark:border-slate-800/90 shadow-none sm:shadow-xl overflow-hidden flex flex-col lg:flex-row animate-fade-in mb-24 lg:mb-10">
       {/* Toast feedback */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-black shadow-2xl flex items-center gap-2 animate-fade-in">
+        <div className="fixed bottom-20 lg:bottom-6 right-4 sm:right-6 z-50 px-4 py-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-black shadow-2xl flex items-center gap-2 animate-fade-in">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 dark:text-emerald-600" />
           <span>{toast}</span>
         </div>
       )}
 
-      {/* LEFT SIDEBAR (Schoooli Design) */}
-      <aside className="w-full lg:w-64 bg-white dark:bg-slate-900 border-b lg:border-b-0 lg:border-r border-slate-200/70 dark:border-slate-800 p-4 sm:p-5 flex flex-col justify-between shrink-0">
-        <div className="space-y-6">
-          {/* Schoooli Brand Header */}
-          <div className="flex items-center justify-between lg:justify-start gap-3 px-2">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900 text-white flex items-center justify-center shadow-md shadow-slate-500/25">
-                <GraduationCap className="w-5 h-5" />
+      {/* LEFT SIDEBAR */}
+      <aside className="w-full lg:w-64 bg-white dark:bg-slate-900 border-b lg:border-b-0 lg:border-r border-[#CBE5E3] dark:border-slate-800 px-3.5 py-3.5 sm:p-5 flex flex-col justify-between shrink-0">
+        <div className="space-y-3.5 lg:space-y-6">
+          {/* Academy Brand Header */}
+          <div className="flex items-center justify-between lg:justify-start gap-2 sm:gap-3 px-0.5 sm:px-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-[#DB1A1A] text-white flex items-center justify-center shadow-sm shrink-0">
+                <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div className="min-w-0">
-                <div className="text-base font-black tracking-tight text-slate-800 dark:text-slate-300 truncate">
+                <div className="text-sm sm:text-base font-black tracking-tight text-slate-900 dark:text-white truncate">
                   {school.flag || '🏫'} {school.name}
                 </div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
                   Sensei LMS Portal
                 </div>
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setViewMode('classroom')}
-              className="lg:hidden px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-300 text-[11px] font-black cursor-pointer"
+            <Link
+              href="/student-portal"
+              className="lg:hidden px-3 py-1.5 rounded-xl bg-[#EAF4F4] dark:bg-slate-800 text-[#2C687B] dark:text-[#8CC7C4] border border-[#CBE5E3] dark:border-slate-700 text-[11px] font-black shrink-0"
             >
-              Student View
-            </button>
+              Student Portal
+            </Link>
           </div>
 
           {/* Sidebar Nav List */}
-          <nav className="flex lg:flex-col gap-1.5 overflow-x-auto pb-1 lg:pb-0">
+          <nav className="flex lg:flex-col gap-1.5 overflow-x-auto pb-1 lg:pb-0 -mx-3.5 px-3.5 lg:mx-0 lg:px-0 scrollbar-none">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeNav === item.id;
@@ -1278,24 +1277,24 @@ export default function PartnerSchoolDashboardPage() {
                   key={item.id}
                   type="button"
                   onClick={() => setActiveNav(item.id)}
-                  className={`flex items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-2xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
+                  className={`flex items-center justify-between gap-2 px-3 py-2 lg:px-3.5 lg:py-2.5 rounded-xl lg:rounded-2xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap shrink-0 border lg:border-0 ${
                     isActive
-                      ? 'bg-[#EDE9FE] dark:bg-slate-950/80 text-slate-800 dark:text-slate-300 shadow-2xs'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      ? 'bg-[#DB1A1A] text-white border-[#DB1A1A] shadow-xs'
+                      : 'bg-white dark:bg-slate-900 lg:bg-transparent text-slate-600 dark:text-slate-400 border-[#CBE5E3] dark:border-slate-800 hover:bg-[#EAF4F4]/60 dark:hover:bg-slate-800/60'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400'}`} />
+                  <div className="flex items-center gap-2">
+                    <Icon className={`w-3.5 h-3.5 lg:w-4 lg:h-4 ${isActive ? 'text-white' : 'text-[#2C687B] dark:text-slate-400'}`} />
                     <span>{item.label}</span>
                   </div>
                   {item.badge > 0 ? (
-                    <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black">
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${isActive ? 'bg-white text-[#DB1A1A]' : 'bg-[#DB1A1A] text-white'}`}>
                       {item.badge}
                     </span>
                   ) : item.count !== undefined ? (
-                    <span className="text-[10px] font-bold text-slate-400">{item.count}</span>
+                    <span className={`text-[10px] font-bold ${isActive ? 'text-white/90' : 'text-slate-400'}`}>{item.count}</span>
                   ) : (
-                    <ChevronRight className={`w-3.5 h-3.5 hidden lg:block ${isActive ? 'text-slate-700' : 'text-slate-300 dark:text-slate-700'}`} />
+                    <ChevronRight className={`w-3.5 h-3.5 hidden lg:block ${isActive ? 'text-white' : 'text-slate-300 dark:text-slate-700'}`} />
                   )}
                 </button>
               );

@@ -578,7 +578,7 @@ export default function SenseiCourseStudio({ slug, accessKey, mode = 'courses', 
                                 onClick={() =>
                                   setExpandedModules((prev) => ({ ...prev, [mod.id]: !isOpen }))
                                 }
-                                className="px-4 py-3 bg-[#EAF4F4]/60 dark:bg-slate-800/70 flex items-center justify-between gap-2 cursor-pointer"
+                                className="px-3.5 py-3 bg-[#EAF4F4]/60 dark:bg-slate-800/70 flex flex-wrap items-center justify-between gap-2 cursor-pointer"
                               >
                                 <div className="flex items-center gap-2 min-w-0">
                                   {isOpen ? (
