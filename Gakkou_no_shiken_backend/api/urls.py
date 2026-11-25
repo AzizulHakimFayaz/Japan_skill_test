@@ -4,6 +4,7 @@ from . import views
 from . import jlpt_views
 from . import learn_views
 from . import jft_section_views
+from . import portal_views
 
 urlpatterns = [
     # Tests & Quiz
@@ -107,6 +108,12 @@ urlpatterns = [
     path('jft/sections/<str:section>/start/', jft_section_views.JftSectionStartAPIView.as_view(), name='api_jft_section_start'),
     path('jft/sections/<str:section>/submit/', jft_section_views.JftSectionSubmitAPIView.as_view(), name='api_jft_section_submit'),
 
+    # Student Portal & Sensei Course/Video Studio
+    path('student/portal/', portal_views.StudentPortalOverviewAPIView.as_view(), name='api_student_portal'),
+    path('student/portal/lessons/<int:lesson_id>/progress/', portal_views.StudentLessonProgressAPIView.as_view(), name='api_student_lesson_progress'),
+    path('student/portal/courses/<int:course_id>/discussions/', portal_views.StudentCourseDiscussionAPIView.as_view(), name='api_student_course_discussions'),
+    path('partners/<slug:slug>/studio/', portal_views.SenseiStudioAPIView.as_view(), name='api_sensei_studio'),
+    path('partners/<slug:slug>/studio/action/', portal_views.SenseiStudioActionAPIView.as_view(), name='api_sensei_studio_action'),
 ]
 
 

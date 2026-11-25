@@ -855,3 +855,55 @@ class PartnerNotificationAdmin(admin.ModelAdmin):
     list_filter = ('school', 'priority', 'is_active', 'created_at')
     search_fields = ('title', 'message', 'school__name', 'target_batch')
     list_per_page = 25
+
+
+from .models import (
+    PartnerCourse,
+    PartnerCourseDiscussion,
+    PartnerCourseLesson,
+    PartnerCourseModule,
+    PartnerScheduleEvent,
+    StudentLessonProgress,
+)
+
+
+@admin.register(PartnerCourse)
+class PartnerCourseAdmin(admin.ModelAdmin):
+    list_display = ('title', 'school', 'category', 'level_badge', 'target_batch', 'is_published', 'created_at')
+    list_filter = ('school', 'category', 'is_published')
+    search_fields = ('title', 'description', 'school__name', 'target_batch')
+
+
+@admin.register(PartnerCourseModule)
+class PartnerCourseModuleAdmin(admin.ModelAdmin):
+    list_display = ('title', 'course', 'order_index', 'created_at')
+    list_filter = ('course__school',)
+    search_fields = ('title', 'course__title')
+
+
+@admin.register(PartnerCourseLesson)
+class PartnerCourseLessonAdmin(admin.ModelAdmin):
+    list_display = ('title', 'module', 'duration_minutes', 'order_index', 'is_published', 'created_at')
+    list_filter = ('module__course__school', 'is_published')
+    search_fields = ('title', 'module__title')
+
+
+@admin.register(StudentLessonProgress)
+class StudentLessonProgressAdmin(admin.ModelAdmin):
+    list_display = ('user', 'lesson', 'is_completed', 'updated_at')
+    list_filter = ('is_completed', 'lesson__module__course__school')
+    search_fields = ('user__username', 'lesson__title')
+
+
+@admin.register(PartnerCourseDiscussion)
+class PartnerCourseDiscussionAdmin(admin.ModelAdmin):
+    list_display = ('author_name', 'author_role', 'course', 'created_at')
+    list_filter = ('author_role', 'course__school')
+    search_fields = ('author_name', 'message', 'course__title')
+
+
+@admin.register(PartnerScheduleEvent)
+class PartnerScheduleEventAdmin(admin.ModelAdmin):
+    list_display = ('title', 'school', 'event_type', 'event_date', 'start_time_label', 'target_batch')
+    list_filter = ('school', 'event_type', 'event_date')
+    search_fields = ('title', 'school__name', 'target_batch')

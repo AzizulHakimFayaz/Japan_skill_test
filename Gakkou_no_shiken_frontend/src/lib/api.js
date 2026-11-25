@@ -52,8 +52,9 @@ async function apiRequest(endpoint, options = {}) {
   const url = endpoint.startsWith('http') ? endpoint : `${apiBase}${endpoint}`;
   const token = getAuthToken();
 
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const headers = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     'Accept': 'application/json, text/plain, */*',
     ...(options.headers || {}),
   };
@@ -692,6 +693,48 @@ export async function submitJftSectionMock(section, { questionIds, answers }) {
   return apiRequest(`/api/jft/sections/${encodeURIComponent(section)}/submit/`, {
     method: 'POST',
     body: JSON.stringify({ question_ids: questionIds, answers }),
+  });
+}
+
+// --- Student Portal & Sensei Course/Video Studio ---
+
+export async function getStudentPortal() {
+  return apiRequest('/api/student/portal/', { cache: 'no-store' });
+}
+
+export async function updateStudentLessonProgress(lessonId, { isCompleted = true, watchedSeconds = 0 } = {}) {
+  return apiRequest(`/api/student/portal/lessons/${lessonId}/progress/`, {
+    method: 'POST',
+    body: JSON.stringify({ is_completed: isCompleted, watched_seconds: watchedSeconds }),
+  });
+}
+
+export async function getCourseDiscussions(courseId) {
+  return apiRequest(`/api/student/portal/courses/${courseId}/discussions/`, { cache: 'no-store' });
+}
+
+export async function postCourseDiscussion(courseId, { message, lessonId = null }) {
+  return apiRequest(`/api/student/portal/courses/${courseId}/discussions/`, {
+    method: 'POST',
+    body: JSON.stringify({ message, lesson_id: lessonId }),
+  });
+}
+
+export async function getSenseiStudio(slug, { key = '' } = {}) {
+  const qs = key ? `?key=${encodeURIComponent(key)}` : '';
+  return apiRequest(`/api/partners/${encodeURIComponent(slug)}/studio/${qs}`, {
+    cache: 'no-store',
+    headers: key ? { 'X-Sensei-Key': key } : {},
+  });
+}
+
+export async function postSenseiStudioAction(slug, payloadOrFormData, { key = '' } = {}) {
+  const qs = key ? `?key=${encodeURIComponent(key)}` : '';
+  const isFormData = typeof FormData !== 'undefined' && payloadOrFormData instanceof FormData;
+  return apiRequest(`/api/partners/${encodeURIComponent(slug)}/studio/action/${qs}`, {
+    method: 'POST',
+    body: isFormData ? payloadOrFormData : JSON.stringify(payloadOrFormData),
+    headers: key ? { 'X-Sensei-Key': key } : {},
   });
 }
 

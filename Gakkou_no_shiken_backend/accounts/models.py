@@ -533,5 +533,177 @@ class PartnerNotification(models.Model):
         return f"[{self.school.name}] {self.title}"
 
 
+class PartnerCourse(models.Model):
+    """Structured video course created by a Partner School / Sensei for enrolled students."""
+
+    class Category(models.TextChoices):
+        JFT_BASIC = 'jft_basic', 'JFT-Basic (A2)'
+        JLPT = 'jlpt', 'JLPT (N5–N1)'
+        SSW = 'ssw', 'SSW / Tokutei Ginou'
+        CONVERSATION = 'conversation', 'Japanese Conversation'
+        KANJI = 'kanji', 'Kanji & Vocabulary'
+        GENERAL = 'general', 'General Course'
+
+    school = models.ForeignKey(PartnerSchool, on_delete=models.CASCADE, related_name='courses')
+    title = models.CharField(max_length=220)
+    category = models.CharField(max_length=32, choices=Category.choices, default=Category.JFT_BASIC)
+    level_badge = models.CharField(max_length=32, blank=True, default='N5 • A2')
+    instructor_name = models.CharField(max_length=150, blank=True, default='')
+    description = models.TextField(blank=True, default='')
+    outcomes_text = models.TextField(
+        blank=True,
+        default='',
+        help_text="One learning outcome per line.",
+    )
+    audience_text = models.TextField(blank=True, default='')
+    target_batch = models.CharField(max_length=64, blank=True, default='', db_index=True)
+    order_index = models.PositiveIntegerField(default=1)
+    is_published = models.BooleanField(default=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order_index', '-created_at']
+        verbose_name = 'Academy Course'
+        verbose_name_plural = 'Academy Courses'
+
+    def __str__(self):
+        return f"[{self.school.name}] {self.title}"
+
+
+class PartnerCourseModule(models.Model):
+    """Ordered module inside a PartnerCourse (e.g. Module 1: Hiragana & Greetings)."""
+
+    course = models.ForeignKey(PartnerCourse, on_delete=models.CASCADE, related_name='modules')
+    title = models.CharField(max_length=220)
+    description = models.CharField(max_length=400, blank=True, default='')
+    order_index = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order_index', 'id']
+        verbose_name = 'Course Module'
+        verbose_name_plural = 'Course Modules'
+
+    def __str__(self):
+        return f"{self.course.title} — {self.title}"
+
+
+class PartnerCourseLesson(models.Model):
+    """Individual video lesson inside a PartnerCourseModule (supports URL embed or direct upload)."""
+
+    module = models.ForeignKey(PartnerCourseModule, on_delete=models.CASCADE, related_name='lessons')
+    title = models.CharField(max_length=220)
+    description = models.TextField(blank=True, default='')
+    video_url = models.URLField(
+        max_length=600,
+        blank=True,
+        default='',
+        help_text="YouTube, Vimeo, Google Drive share link, or direct MP4 URL.",
+    )
+    video_file = models.FileField(
+        upload_to='partner_videos/%Y/%m/',
+        blank=True,
+        null=True,
+        help_text="Optional direct MP4/WebM video file upload.",
+    )
+    resource_url = models.URLField(
+        max_length=600,
+        blank=True,
+        default='',
+        help_text="Optional downloadable PDF, slide deck, or worksheet link.",
+    )
+    duration_minutes = models.PositiveIntegerField(default=15)
+    order_index = models.PositiveIntegerField(default=1)
+    is_published = models.BooleanField(default=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order_index', 'id']
+        verbose_name = 'Course Video Lesson'
+        verbose_name_plural = 'Course Video Lessons'
+
+    def __str__(self):
+        return f"{self.module.title} — {self.title}"
+
+
+class StudentLessonProgress(models.Model):
+    """Tracks per-student completion & watch progress for each academy video lesson."""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='partner_lesson_progress')
+    lesson = models.ForeignKey(PartnerCourseLesson, on_delete=models.CASCADE, related_name='student_progress')
+    is_completed = models.BooleanField(default=True)
+    watched_seconds = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'lesson')
+        verbose_name = 'Student Lesson Progress'
+        verbose_name_plural = 'Student Lesson Progress'
+
+    def __str__(self):
+        return f"{self.user.username} -> {self.lesson.title} ({'Done' if self.is_completed else 'In Progress'})"
+
+
+class PartnerCourseDiscussion(models.Model):
+    """Course Q&A / discussion message between students and Sensei."""
+
+    class AuthorRole(models.TextChoices):
+        STUDENT = 'student', 'Student'
+        SENSEI = 'sensei', 'Sensei'
+
+    course = models.ForeignKey(PartnerCourse, on_delete=models.CASCADE, related_name='discussions')
+    lesson = models.ForeignKey(
+        PartnerCourseLesson,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='discussions',
+    )
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    author_name = models.CharField(max_length=150, blank=True, default='')
+    author_role = models.CharField(max_length=16, choices=AuthorRole.choices, default=AuthorRole.STUDENT)
+    message = models.TextField(max_length=1500)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Course Discussion'
+        verbose_name_plural = 'Course Discussions'
+
+    def __str__(self):
+        return f"[{self.author_role}] {self.author_name}: {self.message[:40]}"
+
+
+class PartnerScheduleEvent(models.Model):
+    """Live class, mock exam, or study reminder scheduled by a Partner School / Sensei."""
+
+    class EventType(models.TextChoices):
+        LIVE_CLASS = 'live_class', 'Live Class'
+        MOCK_EXAM = 'mock_exam', 'Mock Exam'
+        ASSIGNMENT = 'assignment', 'Assignment / Homework'
+        REMINDER = 'reminder', 'Academy Reminder'
+
+    school = models.ForeignKey(PartnerSchool, on_delete=models.CASCADE, related_name='schedule_events')
+    title = models.CharField(max_length=200)
+    event_type = models.CharField(max_length=24, choices=EventType.choices, default=EventType.LIVE_CLASS)
+    event_date = models.DateField(db_index=True)
+    start_time_label = models.CharField(max_length=32, blank=True, default='08:00 PM')
+    end_time_label = models.CharField(max_length=32, blank=True, default='')
+    meeting_url = models.URLField(max_length=500, blank=True, default='')
+    target_batch = models.CharField(max_length=64, blank=True, default='')
+    notes = models.CharField(max_length=400, blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['event_date', 'start_time_label', 'id']
+        verbose_name = 'Academy Schedule Event'
+        verbose_name_plural = 'Academy Schedule Events'
+
+    def __str__(self):
+        return f"[{self.school.name}] {self.event_date} — {self.title}"
+
+
+
 
 

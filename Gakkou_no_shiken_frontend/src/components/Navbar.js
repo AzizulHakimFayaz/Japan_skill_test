@@ -54,6 +54,7 @@ export default function Navbar() {
     pathname.startsWith('/attempt');
 
   const isLearningActive =
+    pathname.startsWith('/student-portal') ||
     pathname.startsWith('/lessons') ||
     pathname.startsWith('/game-zone') ||
     pathname.startsWith('/books');
@@ -302,6 +303,31 @@ export default function Navbar() {
               {activeDropdown === 'learning' && (
                 <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150">
                   <div className="w-[315px] rounded-2xl bg-white/95 dark:bg-[#0c1222]/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 p-2 shadow-xl shadow-slate-900/10 dark:shadow-[0_12px_40px_rgba(0,0,0,0.6)] space-y-1">
+                    <Link
+                      href="/student-portal"
+                      onClick={() => setActiveDropdown(null)}
+                      className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
+                        isActive('/student-portal')
+                          ? 'bg-[#EAF4F4] dark:bg-slate-800 text-japan-red'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-[#DB1A1A] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                        <GraduationCap className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black leading-tight">Student Portal</span>
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-[#EAF4F4] dark:bg-slate-800 text-[#2C687B] dark:text-[#8CC7C4]">
+                            LMS
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                          Academy video courses, schedule &amp; study dashboard
+                        </p>
+                      </div>
+                    </Link>
+
                     <Link
                       href="/game-zone"
                       onClick={() => setActiveDropdown(null)}
@@ -799,6 +825,20 @@ export default function Navbar() {
                   <span>{t('ssw_skills')}</span>
                 </span>
                 <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              </Link>
+
+              <Link
+                href="/student-portal"
+                onClick={() => setOpen(false)}
+                className="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-red-50 dark:hover:bg-slate-900 hover:text-japan-red dark:hover:text-rose-400 transition-all flex items-center justify-between"
+              >
+                <span className="flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4 text-japan-red shrink-0" />
+                  <span>Student Portal</span>
+                </span>
+                <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-[#EAF4F4] text-[#2C687B] dark:bg-slate-800 dark:text-[#8CC7C4]">
+                  LMS
+                </span>
               </Link>
 
               <Link

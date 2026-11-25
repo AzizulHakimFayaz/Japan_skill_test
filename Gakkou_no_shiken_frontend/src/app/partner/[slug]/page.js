@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthContext';
+import SenseiCourseStudio from '@/components/SenseiCourseStudio';
 import {
   getPartnerDashboard,
   getPartnerDashboardCsvUrl,
@@ -45,6 +46,8 @@ import {
   X,
   Edit3,
   LogIn,
+  Video,
+  Calendar,
 } from 'lucide-react';
 
 const NOTE_CATEGORY_META = {
@@ -156,7 +159,7 @@ export default function PartnerSchoolDashboardPage() {
     if (modeParam === 'classroom') {
       setViewMode('classroom');
     }
-    if (['dashboard', 'students', 'exams', 'library', 'notices', 'attempts', 'security'].includes(tabParam)) {
+    if (['dashboard', 'courses', 'schedule', 'students', 'exams', 'library', 'notices', 'attempts', 'security'].includes(tabParam)) {
       setActiveNav(tabParam);
     }
     setAccessKey(resolvedKey);
@@ -1217,6 +1220,8 @@ export default function PartnerSchoolDashboardPage() {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'courses', label: 'Courses & Videos', icon: Video },
+    { id: 'schedule', label: 'Class Schedule', icon: Calendar },
     { id: 'students', label: 'Students & Gate', icon: Users, badge: kpis.pending_students || 0 },
     { id: 'exams', label: 'Exam & Routine', icon: ClipboardCheck, count: assigned_exams.length },
     { id: 'library', label: 'Library & Notes', icon: BookOpen, count: study_notes.length },
@@ -2761,6 +2766,30 @@ export default function PartnerSchoolDashboardPage() {
               </div>
             )}
           </div>
+        )}
+
+        {/* ============================================================ */}
+        {/* TAB: COURSES & VIDEOS STUDIO (Syncs to Student Portal)       */}
+        {/* ============================================================ */}
+        {activeNav === 'courses' && (
+          <SenseiCourseStudio
+            slug={slug}
+            accessKey={accessKey}
+            mode="courses"
+            onToast={showToast}
+          />
+        )}
+
+        {/* ============================================================ */}
+        {/* TAB: CLASS & EXAM SCHEDULE (Syncs to Student Portal)         */}
+        {/* ============================================================ */}
+        {activeNav === 'schedule' && (
+          <SenseiCourseStudio
+            slug={slug}
+            accessKey={accessKey}
+            mode="schedule"
+            onToast={showToast}
+          />
         )}
 
         {/* ============================================================ */}
