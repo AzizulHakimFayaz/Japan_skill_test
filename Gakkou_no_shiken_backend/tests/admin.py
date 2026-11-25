@@ -1390,43 +1390,80 @@ class JLPTSetAdmin(admin.ModelAdmin):
 
     def admin_import_jlpt_json_view(self, request):
         import json
+        from django.db import transaction
         from .jlpt_importer import import_jlpt_json_data
 
         result_summary = None
+        clear_summary = None
         error_msg = None
 
         if request.method == 'POST':
-            files = request.FILES.getlist('json_files')
-            level_override = (request.POST.get('level_override') or '').strip().upper() or None
-            if not files:
-                error_msg = "Please select one or more JLPT JSON files to upload."
+            action = (request.POST.get('action') or 'import').strip()
+
+            if action == 'clear_level':
+                clear_lvl = (request.POST.get('clear_level') or '').strip().upper()
+                if clear_lvl not in ('N5', 'N4', 'N3', 'N2', 'N1'):
+                    error_msg = f"Invalid JLPT level '{clear_lvl}'."
+                else:
+                    try:
+                        with transaction.atomic():
+                            sets_qs = JLPTSet.objects.filter(level=clear_lvl)
+                            set_count = sets_qs.count()
+                            q_count = JLPTQuestion.objects.filter(jlpt_set__level=clear_lvl).count()
+                            # Fast cascade delete without rendering 10k+ HTML confirmation rows
+                            sets_qs.delete()
+                        clear_summary = {
+                            'level': clear_lvl,
+                            'sets_deleted': set_count,
+                            'questions_deleted': q_count,
+                        }
+                        self.message_user(
+                            request,
+                            f"Cleared {clear_lvl}: deleted {set_count} set(s) and {q_count} question(s).",
+                            messages.SUCCESS,
+                        )
+                    except Exception as exc:
+                        error_msg = f"Failed to clear {clear_lvl}: {exc}"
             else:
-                totals = {
-                    'files_processed': 0,
-                    'sets_created': 0,
-                    'sets_updated': 0,
-                    'questions_created': 0,
-                    'questions_updated': 0,
-                    'unmatched_keys': 0,
-                }
-                try:
-                    for f in files:
-                        raw = f.read().decode('utf-8-sig')
-                        payload = json.loads(raw)
-                        part = import_jlpt_json_data(payload, level_override=level_override)
-                        totals['files_processed'] += 1
-                        for k in ('sets_created', 'sets_updated', 'questions_created', 'questions_updated', 'unmatched_keys'):
-                            totals[k] += part.get(k, 0)
-                    result_summary = totals
-                    self.message_user(
-                        request,
-                        f"Uploaded {totals['files_processed']} file(s): "
-                        f"+{totals['sets_created']} sets created, {totals['sets_updated']} sets updated, "
-                        f"+{totals['questions_created']} questions created, {totals['questions_updated']} questions patched.",
-                        messages.SUCCESS,
-                    )
-                except Exception as exc:
-                    error_msg = f"Import failed: {exc}"
+                files = request.FILES.getlist('json_files')
+                level_override = (request.POST.get('level_override') or '').strip().upper() or None
+                if not files:
+                    error_msg = "Please select one or more JLPT JSON files to upload."
+                else:
+                    totals = {
+                        'files_processed': 0,
+                        'sets_created': 0,
+                        'sets_updated': 0,
+                        'questions_created': 0,
+                        'questions_updated': 0,
+                        'unmatched_keys': 0,
+                    }
+                    try:
+                        for f in files:
+                            raw = f.read().decode('utf-8-sig')
+                            payload = json.loads(raw)
+                            # Safety guard: prevent accidentally importing e.g. N1_all.json into N5
+                            if level_override and isinstance(payload, dict):
+                                file_lvl = str(payload.get('level') or '').strip().upper()
+                                if file_lvl in ('N5', 'N4', 'N3', 'N2', 'N1') and file_lvl != level_override:
+                                    raise ValueError(
+                                        f"Level mismatch in '{f.name}': file is {file_lvl}, but Level Override was set to {level_override}. "
+                                        f"Leave Level Override on 'Auto-detect from JSON' to avoid mixing levels."
+                                    )
+                            part = import_jlpt_json_data(payload, level_override=level_override)
+                            totals['files_processed'] += 1
+                            for k in ('sets_created', 'sets_updated', 'questions_created', 'questions_updated', 'unmatched_keys'):
+                                totals[k] += part.get(k, 0)
+                        result_summary = totals
+                        self.message_user(
+                            request,
+                            f"Uploaded {totals['files_processed']} file(s): "
+                            f"+{totals['sets_created']} sets created, {totals['sets_updated']} sets updated, "
+                            f"+{totals['questions_created']} questions created, {totals['questions_updated']} questions patched.",
+                            messages.SUCCESS,
+                        )
+                    except Exception as exc:
+                        error_msg = f"Import failed: {exc}"
 
         level_stats = []
         for lvl in ['N5', 'N4', 'N3', 'N2', 'N1']:
@@ -1443,6 +1480,7 @@ class JLPTSetAdmin(admin.ModelAdmin):
             'title': 'Upload / Patch JLPT Mock Tests & Translations (JSON)',
             'opts': self.model._meta,
             'result_summary': result_summary,
+            'clear_summary': clear_summary,
             'error_msg': error_msg,
             'level_stats': level_stats,
         }

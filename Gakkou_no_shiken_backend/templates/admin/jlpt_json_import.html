@@ -22,6 +22,12 @@
       </div>
     {% endif %}
 
+    {% if clear_summary %}
+      <div style="padding: 14px 18px; border-radius: 10px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; margin-bottom: 18px; font-weight: 600;">
+        🗑️ Cleared <strong>{{ clear_summary.level }}</strong>: deleted <strong>{{ clear_summary.sets_deleted }}</strong> set(s) and <strong>{{ clear_summary.questions_deleted }}</strong> question(s). You can now re-upload a clean <code>{{ clear_summary.level }}_all.json</code> below.
+      </div>
+    {% endif %}
+
     {% if result_summary %}
       <div style="padding: 16px 18px; border-radius: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; margin-bottom: 18px;">
         <strong>✅ Import / Patch Complete!</strong>
@@ -65,24 +71,39 @@
     </form>
 
     <h3 style="margin: 0 0 12px; font-size: 1.05rem; color: #0f172a;">📊 Live JLPT Database Coverage</h3>
-    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; color: #0f172a;">
       <thead>
-        <tr style="background: #f1f5f9; text-align: left;">
-          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">Level</th>
-          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">Total Sets</th>
-          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">Ready Graded Sets</th>
-          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">Total Questions</th>
-          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">Answered &amp; Explained</th>
+        <tr style="background: #f1f5f9; text-align: left; color: #334155;">
+          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #334155;">Level</th>
+          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #334155;">Total Sets</th>
+          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #334155;">Ready Graded Sets</th>
+          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #334155;">Total Questions</th>
+          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #334155;">Answered &amp; Explained</th>
+          <th style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #334155; text-align: right;">Fast Reset</th>
         </tr>
       </thead>
       <tbody>
         {% for row in level_stats %}
-        <tr>
-          <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-weight: 800;">{{ row.level }}</td>
-          <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">{{ row.total_sets }}</td>
+        <tr style="color: #0f172a;">
+          <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-weight: 800; color: #0f172a;">{{ row.level }}</td>
+          <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600;">{{ row.total_sets }}</td>
           <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #16a34a; font-weight: 700;">{{ row.ready_sets }}</td>
-          <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">{{ row.total_questions }}</td>
-          <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0;">{{ row.answered_questions }}</td>
+          <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600;">{{ row.total_questions }}</td>
+          <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: 600;">{{ row.answered_questions }}</td>
+          <td style="padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: right;">
+            {% if row.total_sets > 0 %}
+            <form method="post" style="display: inline;" onsubmit="return confirm('Delete ALL {{ row.total_sets }} sets and {{ row.total_questions }} questions in {{ row.level }}? Other levels will NOT be touched.');">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="clear_level" />
+              <input type="hidden" name="clear_level" value="{{ row.level }}" />
+              <button type="submit" style="background: #dc2626; color: #fff; border: none; padding: 6px 12px; border-radius: 7px; font-weight: 700; font-size: 0.78rem; cursor: pointer;">
+                🗑️ Clear {{ row.level }}
+              </button>
+            </form>
+            {% else %}
+            <span style="color: #94a3b8; font-size: 0.8rem;">Empty</span>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
