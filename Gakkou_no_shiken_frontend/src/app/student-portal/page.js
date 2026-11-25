@@ -847,6 +847,45 @@ export default function StudentPortalPage() {
                   </div>
                 </div>
 
+                {/* Assigned Academy Mock Exams (if Sensei assigned exams) */}
+                {isEnrolled && (portal.assigned_exams || []).length > 0 && (
+                  <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-black text-slate-900 dark:text-white">
+                        Assigned Academy Mock Exams ({portal.assigned_exams.length})
+                      </h3>
+                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#EAF4F4] text-[#2C687B]">
+                        From Sensei
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {portal.assigned_exams.map((ex) => (
+                        <div
+                          key={ex.id}
+                          className="p-3.5 rounded-2xl bg-[#EAF4F4]/45 dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-800 flex items-center justify-between gap-3"
+                        >
+                          <div className="min-w-0">
+                            <div className="text-xs font-black text-slate-900 dark:text-white truncate">
+                              {ex.title}
+                            </div>
+                            {ex.scheduled_date_label && (
+                              <div className="text-[10px] font-semibold text-slate-500">
+                                {ex.scheduled_date_label}
+                              </div>
+                            )}
+                          </div>
+                          <Link
+                            href={`/test/${ex.test_id}`}
+                            className="px-3 py-1.5 rounded-xl bg-[#DB1A1A] hover:bg-[#B81515] text-white text-[11px] font-black shrink-0"
+                          >
+                            Start Exam →
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* My Courses List Card */}
                 <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-5 space-y-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">

@@ -645,17 +645,20 @@ export default function Navbar() {
                     <GraduationCap className="w-3.5 h-3.5 shrink-0" />
                     <span>Sensei LMS</span>
                   </Link>
-                ) : user.profile?.partner_school?.slug &&
-                  (user.profile?.partner_status || 'approved') === 'approved' ? (
+                ) : (
                   <Link
-                    href={`/partner/${encodeURIComponent(user.profile.partner_school.slug)}?mode=classroom`}
-                    className="text-xs font-extrabold text-slate-800 dark:text-slate-300 bg-slate-50 dark:bg-slate-950/70 hover:bg-slate-100 border border-slate-200 dark:border-slate-800 transition-all py-1.5 px-2.5 rounded-xl flex items-center gap-1 whitespace-nowrap shrink-0"
-                    title="Open My School Classroom"
+                    href="/student-portal"
+                    className={`text-xs font-extrabold transition-all py-1.5 px-2.5 rounded-xl flex items-center gap-1 whitespace-nowrap shrink-0 border ${
+                      isActive('/student-portal')
+                        ? 'bg-[#DB1A1A] text-white border-[#DB1A1A]'
+                        : 'text-[#2C687B] dark:text-[#8CC7C4] bg-[#EAF4F4]/80 dark:bg-slate-900 hover:bg-[#EAF4F4] border-[#CBE5E3] dark:border-slate-700'
+                    }`}
+                    title="Open Student Portal"
                   >
                     <GraduationCap className="w-3.5 h-3.5 shrink-0" />
-                    <span>My Classroom</span>
+                    <span>Student Portal</span>
                   </Link>
-                ) : null}
+                )}
                 {user.is_staff && (
                   <a
                     href={`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/admin/`}
