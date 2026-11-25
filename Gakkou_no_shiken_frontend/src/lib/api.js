@@ -738,6 +738,59 @@ export async function postSenseiStudioAction(slug, payloadOrFormData, { key = ''
   });
 }
 
+export function uploadSenseiStudioWithProgress(slug, formData, { key = '', onProgress } = {}) {
+  return new Promise((resolve, reject) => {
+    const apiBase = getApiBase();
+    const qs = key ? `?key=${encodeURIComponent(key)}` : '';
+    const url = `${apiBase}/api/partners/${encodeURIComponent(slug)}/studio/action/${qs}`;
+    const token = getAuthToken();
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Accept', 'application/json, text/plain, */*');
+    if (token) {
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.setRequestHeader('X-Auth-Token', token);
+    }
+    if (key) {
+      xhr.setRequestHeader('X-Sensei-Key', key);
+    }
+
+    xhr.upload.onprogress = (evt) => {
+      if (evt.lengthComputable && typeof onProgress === 'function') {
+        const percent = Math.min(100, Math.round((evt.loaded / evt.total) * 100));
+        onProgress({
+          percent,
+          loadedMb: (evt.loaded / (1024 * 1024)).toFixed(1),
+          totalMb: (evt.total / (1024 * 1024)).toFixed(1),
+        });
+      }
+    };
+
+    xhr.onload = () => {
+      let data = {};
+      try {
+        data = JSON.parse(xhr.responseText || '{}');
+      } catch {
+        data = { detail: xhr.responseText || 'Upload completed.' };
+      }
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(data);
+      } else {
+        const err = new Error(data?.detail || `Upload failed (${xhr.status})`);
+        err.status = xhr.status;
+        err.data = data;
+        reject(err);
+      }
+    };
+
+    xhr.onerror = () => reject(new Error('Network error while uploading video. Please check your connection.'));
+    xhr.onabort = () => reject(new Error('Upload cancelled.'));
+
+    xhr.send(formData);
+  });
+}
+
 
 
 

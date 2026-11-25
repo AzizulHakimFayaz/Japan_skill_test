@@ -22,7 +22,7 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react';
-import { getSenseiStudio, postSenseiStudioAction } from '@/lib/api';
+import { getSenseiStudio, postSenseiStudioAction, uploadSenseiStudioWithProgress } from '@/lib/api';
 
 const COURSE_CATEGORIES = [
   { value: 'jft_basic', label: 'JFT-Basic (A2)' },
@@ -73,6 +73,7 @@ export default function SenseiCourseStudio({ slug, accessKey, mode = 'courses', 
   const [lVideoUrl, setLVideoUrl] = useState('');
   const [lVideoFile, setLVideoFile] = useState(null);
   const [lResourceUrl, setLResourceUrl] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(null); // { percent, loadedMb, totalMb }
 
   // Schedule form
   const [evTitle, setEvTitle] = useState('');
@@ -221,6 +222,7 @@ export default function SenseiCourseStudio({ slug, accessKey, mode = 'courses', 
     if (!lTitle.trim()) return;
     setBusy(true);
     setError('');
+    setUploadProgress({ percent: 0, loadedMb: '0.0', totalMb: lVideoFile ? (lVideoFile.size / (1024 * 1024)).toFixed(1) : '0.0' });
     try {
       const fd = new FormData();
       fd.append('action', 'create_lesson');
@@ -234,7 +236,11 @@ export default function SenseiCourseStudio({ slug, accessKey, mode = 'courses', 
       } else {
         fd.append('video_url', lVideoUrl.trim());
       }
-      await postSenseiStudioAction(slug, fd, { key: accessKey });
+      await uploadSenseiStudioWithProgress(slug, fd, {
+        key: accessKey,
+        onProgress: (info) => setUploadProgress(info),
+      });
+      setUploadProgress({ percent: 100, loadedMb: '100%', totalMb: '' });
       setLTitle('');
       setLDesc('');
       setLVideoUrl('');
@@ -247,6 +253,7 @@ export default function SenseiCourseStudio({ slug, accessKey, mode = 'courses', 
       setError(err?.message || 'Failed to add video lesson.');
     } finally {
       setBusy(false);
+      setUploadProgress(null);
     }
   };
 
@@ -709,18 +716,58 @@ export default function SenseiCourseStudio({ slug, accessKey, mode = 'courses', 
                                         className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-[#CBE5E3] dark:border-slate-700 text-xs font-semibold outline-none"
                                       />
 
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex flex-wrap items-center gap-2.5">
                                         <button
                                           type="submit"
                                           disabled={busy}
-                                          className="px-4 py-2 rounded-xl bg-[#DB1A1A] hover:bg-[#B81515] text-white text-xs font-black cursor-pointer disabled:opacity-50"
+                                          className={`relative overflow-hidden min-w-[165px] px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer ${
+                                            busy && uploadProgress
+                                              ? 'bg-[#FEE2E2] dark:bg-rose-950/60 text-[#991B1B] dark:text-white border border-[#DB1A1A]/40'
+                                              : 'bg-[#DB1A1A] hover:bg-[#B81515] text-white'
+                                          }`}
                                         >
-                                          {busy ? 'Uploading...' : 'Save Video Lesson'}
+                                          {busy && uploadProgress && (
+                                            <span
+                                              className="absolute inset-y-0 left-0 bg-[#DB1A1A] transition-all duration-200 ease-out"
+                                              style={{ width: `${uploadProgress.percent}%` }}
+                                            />
+                                          )}
+                                          <span
+                                            className={`relative z-10 inline-flex items-center gap-1.5 ${
+                                              busy && uploadProgress && uploadProgress.percent >= 45
+                                                ? 'text-white'
+                                                : ''
+                                            }`}
+                                          >
+                                            {busy && uploadProgress ? (
+                                              uploadProgress.percent >= 100 ? (
+                                                <>
+                                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                  <span>Saving... 100%</span>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <Upload className="w-3.5 h-3.5 animate-pulse" />
+                                                  <span>Uploading {uploadProgress.percent}%</span>
+                                                </>
+                                              )
+                                            ) : (
+                                              'Save Video Lesson'
+                                            )}
+                                          </span>
                                         </button>
+
+                                        {busy && uploadProgress && lVideoMode === 'file' && lVideoFile && (
+                                          <span className="text-[11px] font-bold text-[#2C687B] dark:text-[#8CC7C4]">
+                                            {uploadProgress.loadedMb} / {uploadProgress.totalMb} MB
+                                          </span>
+                                        )}
+
                                         <button
                                           type="button"
+                                          disabled={busy}
                                           onClick={() => setAddingLessonForModule(null)}
-                                          className="px-3 py-2 rounded-xl bg-white dark:bg-slate-800 text-slate-600 text-xs font-bold cursor-pointer"
+                                          className="px-3 py-2 rounded-xl bg-white dark:bg-slate-800 text-slate-600 text-xs font-bold cursor-pointer disabled:opacity-40"
                                         >
                                           Cancel
                                         </button>
