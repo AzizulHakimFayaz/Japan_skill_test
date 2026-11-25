@@ -774,10 +774,10 @@ export default function StudentPortalPage() {
                   </div>
                 </div>
 
-                {/* Stats Row: Learning Time Donut + My Activity Wave */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {/* Stats Row: Horizontal Swipe Carousel on Mobile, 2-Col Grid on Desktop */}
+                <div className="flex overflow-x-auto snap-x snap-mandatory gap-3.5 -mx-3.5 px-3.5 pb-1 md:grid md:grid-cols-2 md:gap-5 md:mx-0 md:px-0 md:overflow-visible scrollbar-none">
                   {/* Learning Time Donut */}
-                  <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-5 space-y-4">
+                  <div className="min-w-[82vw] sm:min-w-[300px] md:min-w-0 snap-center rounded-2xl sm:rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-4 sm:p-5 space-y-3 sm:space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-black text-slate-900 dark:text-white">Learning Time</h3>
                       <span className="text-[11px] font-bold text-[#2C687B] dark:text-[#8CC7C4]">All Time</span>
@@ -839,7 +839,7 @@ export default function StudentPortalPage() {
                   </div>
 
                   {/* My Activity Weekly Wave Chart */}
-                  <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-5 space-y-3">
+                  <div className="min-w-[82vw] sm:min-w-[300px] md:min-w-0 snap-center rounded-2xl sm:rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-4 sm:p-5 space-y-3">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-black text-slate-900 dark:text-white">My Activity</h3>
                       <span className="text-[11px] font-bold text-[#2C687B] dark:text-[#8CC7C4]">Last 7 Days</span>

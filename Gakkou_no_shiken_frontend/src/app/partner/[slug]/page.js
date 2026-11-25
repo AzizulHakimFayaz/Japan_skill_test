@@ -1300,6 +1300,21 @@ export default function PartnerSchoolDashboardPage() {
               );
             })}
           </nav>
+
+          {/* Mobile Compact Quick PIN Strip */}
+          <div className="flex lg:hidden items-center justify-between gap-2 px-3 py-2 rounded-xl bg-slate-900 text-white text-xs">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-[10px] font-bold uppercase text-[#8CC7C4] shrink-0">Join PIN:</span>
+              <span className="font-mono font-black tracking-widest text-sm">{school.join_code || '------'}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleCopy('whatsapp')}
+              className="px-2.5 py-1 rounded-lg bg-[#DB1A1A] text-white text-[11px] font-black shrink-0 cursor-pointer"
+            >
+              {copiedType === 'whatsapp' ? 'Copied!' : 'Copy PIN'}
+            </button>
+          </div>
         </div>
 
         {/* Bottom Schoooli Purple Rocket Card: Smart Anti-Leak Class PIN */}
@@ -1443,60 +1458,60 @@ export default function PartnerSchoolDashboardPage() {
         {/* TAB 1: SCHOOOLI BENTO DASHBOARD                              */}
         {/* ============================================================ */}
         {activeNav === 'dashboard' && (
-          <div className="space-y-6">
-            {/* ROW 1: 3 Pastel KPI Cards (Schoooli Students / Teachers-Exams / Awards) */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Lavender Card: Students */}
-              <div className="rounded-3xl bg-[#F3EEFF] dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-800/50 p-5 sm:p-6 flex items-center justify-between">
-                <div className="space-y-1">
-                  <span className="text-xs font-bold text-slate-500 dark:text-slate-300">
+          <div className="space-y-5 sm:space-y-6">
+            {/* ROW 1: Horizontal Swipeable KPI Strip on Mobile, 3-Col Grid on Desktop */}
+            <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 -mx-3.5 px-3.5 pb-1 md:grid md:grid-cols-3 md:mx-0 md:px-0 md:overflow-visible scrollbar-none">
+              {/* Students KPI */}
+              <div className="min-w-[215px] sm:min-w-[240px] md:min-w-0 snap-start rounded-2xl sm:rounded-3xl bg-[#EAF4F4]/80 dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-800 p-4 sm:p-6 flex items-center justify-between gap-3">
+                <div className="space-y-0.5 sm:space-y-1">
+                  <span className="text-[11px] sm:text-xs font-bold text-[#2C687B] dark:text-[#8CC7C4]">
                     Students
                   </span>
-                  <div className="text-3xl font-black text-slate-900 dark:text-white">
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
                     {kpis.total_students}
                   </div>
-                  <p className="text-[11px] font-semibold text-slate-800 dark:text-slate-300">
+                  <p className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
                     {kpis.tested_students} tested • {kpis.pending_students || 0} pending
                   </p>
                 </div>
-                <div className="w-13 h-13 rounded-2xl bg-slate-900/15 flex items-center justify-center text-slate-700 dark:text-slate-300">
-                  <GraduationCap className="w-7 h-7" />
+                <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-white dark:bg-slate-800 border border-[#CBE5E3] dark:border-slate-700 flex items-center justify-center text-[#2C687B] dark:text-[#8CC7C4] shrink-0">
+                  <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7" />
                 </div>
               </div>
 
-              {/* Sky Blue Card: Assigned Exams & Attempts */}
-              <div className="rounded-3xl bg-[#EAF6FF] dark:bg-slate-950/40 border border-slate-200/60 dark:border-slate-800/50 p-5 sm:p-6 flex items-center justify-between">
-                <div className="space-y-1">
-                  <span className="text-xs font-bold text-slate-500 dark:text-slate-300">
+              {/* Assigned Exams KPI */}
+              <div className="min-w-[215px] sm:min-w-[240px] md:min-w-0 snap-start rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-800 p-4 sm:p-6 flex items-center justify-between gap-3">
+                <div className="space-y-0.5 sm:space-y-1">
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-300">
                     Assigned Exams
                   </span>
-                  <div className="text-3xl font-black text-slate-900 dark:text-white">
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
                     {assigned_exams.length}
                   </div>
-                  <p className="text-[11px] font-semibold text-slate-800 dark:text-slate-300">
+                  <p className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
                     {kpis.total_attempts} completed attempts
                   </p>
                 </div>
-                <div className="w-13 h-13 rounded-2xl bg-slate-900/15 flex items-center justify-center text-slate-700 dark:text-slate-300">
-                  <ClipboardCheck className="w-7 h-7" />
+                <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-[#EAF4F4] dark:bg-slate-800 flex items-center justify-center text-[#DB1A1A] shrink-0">
+                  <ClipboardCheck className="w-6 h-6 sm:w-7 sm:h-7" />
                 </div>
               </div>
 
-              {/* Soft Peach Card: Awards / CEFR A2 Pass Rate */}
-              <div className="rounded-3xl bg-[#FFF3E8] dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/50 p-5 sm:p-6 flex items-center justify-between">
-                <div className="space-y-1">
-                  <span className="text-xs font-bold text-slate-500 dark:text-amber-300">
-                    Awards &amp; Pass Rate
+              {/* Pass Rate KPI */}
+              <div className="min-w-[215px] sm:min-w-[240px] md:min-w-0 snap-start rounded-2xl sm:rounded-3xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200/70 dark:border-rose-800/50 p-4 sm:p-6 flex items-center justify-between gap-3">
+                <div className="space-y-0.5 sm:space-y-1">
+                  <span className="text-[11px] sm:text-xs font-bold text-[#DB1A1A] dark:text-rose-300">
+                    Pass Rate
                   </span>
-                  <div className="text-3xl font-black text-slate-900 dark:text-white">
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
                     {kpis.pass_rate_pct}%
                   </div>
-                  <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-300">
-                    Avg Scaled Score: {kpis.avg_scaled_score}/250
+                  <p className="text-[11px] font-semibold text-slate-700 dark:text-rose-200">
+                    Avg Score: {kpis.avg_scaled_score}/250
                   </p>
                 </div>
-                <div className="w-13 h-13 rounded-2xl bg-amber-500/15 flex items-center justify-center text-amber-600 dark:text-amber-300">
-                  <Award className="w-7 h-7" />
+                <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-[#DB1A1A]/10 flex items-center justify-center text-[#DB1A1A] shrink-0">
+                  <Award className="w-6 h-6 sm:w-7 sm:h-7" />
                 </div>
               </div>
             </div>

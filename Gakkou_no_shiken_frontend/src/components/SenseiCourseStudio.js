@@ -485,15 +485,15 @@ export default function SenseiCourseStudio({ slug, accessKey, mode = 'courses', 
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-              {/* Left: Course List */}
-              <div className="lg:col-span-4 space-y-2.5">
+              {/* Left: Course List (Horizontal Swipe Strip on Mobile, Vertical Stack on Desktop) */}
+              <div className="lg:col-span-4 flex lg:flex-col overflow-x-auto snap-x snap-mandatory gap-2.5 pb-1 lg:pb-0 lg:overflow-visible scrollbar-none">
                 {studio.courses.map((course) => {
                   const isSel = activeCourse?.id === course.id;
                   return (
                     <div
                       key={course.id}
                       onClick={() => setSelectedCourseId(course.id)}
-                      className={`rounded-2xl p-4 border-2 transition cursor-pointer ${
+                      className={`min-w-[235px] lg:min-w-0 snap-start rounded-2xl p-3.5 sm:p-4 border-2 transition cursor-pointer ${
                         isSel
                           ? 'bg-[#EAF4F4]/70 dark:bg-slate-800/80 border-[#DB1A1A]'
                           : 'bg-white dark:bg-[#0f1629] border-[#CBE5E3] dark:border-slate-800 hover:border-[#8CC7C4]'
