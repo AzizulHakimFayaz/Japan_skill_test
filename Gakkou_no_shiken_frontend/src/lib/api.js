@@ -675,6 +675,27 @@ export async function getLearnTopicDetail(slug) {
   return apiRequest(`/api/learn/topics/${encodeURIComponent(slug)}/`, { cache: 'no-store' });
 }
 
+// --- JFT-Basic Section-Wise Randomized Mock Tests (Anti-Repeat) ---
+
+export async function getJftSectionsSummary() {
+  return apiRequest('/api/jft/sections/summary/', { cache: 'no-store' });
+}
+
+export async function startJftSectionMock(section, { excludeIds = [], count = 10 } = {}) {
+  return apiRequest(`/api/jft/sections/${encodeURIComponent(section)}/start/`, {
+    method: 'POST',
+    body: JSON.stringify({ exclude_ids: excludeIds, count }),
+  });
+}
+
+export async function submitJftSectionMock(section, { questionIds, answers }) {
+  return apiRequest(`/api/jft/sections/${encodeURIComponent(section)}/submit/`, {
+    method: 'POST',
+    body: JSON.stringify({ question_ids: questionIds, answers }),
+  });
+}
+
+
 
 
 

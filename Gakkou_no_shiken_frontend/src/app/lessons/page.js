@@ -110,6 +110,16 @@ export default function LessonsHubPage() {
   const [activePillar, setActivePillar] = useState('learn');
   const [studyLang, setStudyLang] = useState('en');
 
+  // Support deep linking via ?tab=jft or ?tab=ssw
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const sp = new URLSearchParams(window.location.search);
+    const tab = (sp.get('tab') || '').toLowerCase();
+    if (tab === 'jft' || tab === 'ssw' || tab === 'learn') {
+      setActivePillar(tab);
+    }
+  }, []);
+
   // Pillar 1: Learn Japanese Topics
   const [learnTopics, setLearnTopics] = useState([]);
   const [learnTotals, setLearnTotals] = useState({ topics: 23, lessons: 115, words: 2237 });

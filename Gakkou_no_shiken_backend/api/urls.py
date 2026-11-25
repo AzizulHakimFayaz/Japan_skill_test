@@ -3,6 +3,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
 from . import jlpt_views
 from . import learn_views
+from . import jft_section_views
 
 urlpatterns = [
     # Tests & Quiz
@@ -100,6 +101,11 @@ urlpatterns = [
     # Learn Japanese Topics (23 Topics -> Day/Part Lessons -> 7-Language Words)
     path('learn/topics/', learn_views.LearnTopicListAPIView.as_view(), name='api_learn_topics'),
     path('learn/topics/<slug:slug>/', learn_views.LearnTopicDetailAPIView.as_view(), name='api_learn_topic_detail'),
+
+    # JFT-Basic Section-Wise Randomized Mock Tests (Anti-Repeat)
+    path('jft/sections/summary/', jft_section_views.JftSectionSummaryAPIView.as_view(), name='api_jft_sections_summary'),
+    path('jft/sections/<str:section>/start/', jft_section_views.JftSectionStartAPIView.as_view(), name='api_jft_section_start'),
+    path('jft/sections/<str:section>/submit/', jft_section_views.JftSectionSubmitAPIView.as_view(), name='api_jft_section_submit'),
 
 ]
 

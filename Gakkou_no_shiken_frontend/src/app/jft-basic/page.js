@@ -1,27 +1,28 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { getJftInfo } from '@/lib/api';
+import { getJftInfo, getJftSectionsSummary } from '@/lib/api';
 import PracticeTestGrid from '@/components/PracticeTestGrid';
 import AdsterraNativeBanner from '@/components/AdsterraNativeBanner';
-
-const JftCenterMap = dynamic(() => import('@/components/JftCenterMap'), { ssr: false });
 import {
   Laptop,
   Clock,
   CheckCircle2,
   Award,
-  MapPin,
   Download,
   ExternalLink,
   ChevronDown,
   ChevronUp,
   ArrowRight,
-  ShieldCheck,
   BookOpen,
   FileCheck2,
+  GraduationCap,
+  Shuffle,
+  Headphones,
+  MessageCircle,
+  FileText,
+  Languages,
 } from 'lucide-react';
 
 export default function JftBasicPage() {
@@ -29,6 +30,8 @@ export default function JftBasicPage() {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('script_vocab');
   const [openFaq, setOpenFaq] = useState(null);
+  const [sectionSummary, setSectionSummary] = useState([]);
+  const [savedSectionScores, setSavedSectionScores] = useState({});
 
   useEffect(() => {
     getJftInfo()
@@ -41,12 +44,42 @@ export default function JftBasicPage() {
       .finally(() => {
         setLoading(false);
       });
+
+    getJftSectionsSummary()
+      .then((res) => {
+        if (Array.isArray(res?.sections)) setSectionSummary(res.sections);
+      })
+      .catch(() => {});
+
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('gns_jft_section_scores');
+        if (raw) setSavedSectionScores(JSON.parse(raw));
+      } catch {}
+    }
   }, []);
 
   const jftInfo = data?.jft_info || {};
-  const testCenters = data?.test_centers || [];
   const resources = data?.jft_resources || [];
   const practiceTests = data?.practice_tests || [];
+
+  const FALLBACK_SECTIONS = [
+    { key: 'script_vocab', name: 'Script & Vocabulary', name_ja: '文字と語彙', description: 'Kanji readings, katakana words, and everyday A2 vocabulary.', max_points: 62.5, questions_per_mock: 10 },
+    { key: 'conversation', name: 'Conversation & Expression', name_ja: '会話と表現', description: 'Daily dialogues, polite responses, and grammar expressions.', max_points: 62.5, questions_per_mock: 10 },
+    { key: 'listening', name: 'Listening Comprehension', name_ja: '聴解', description: 'Everyday Japanese audio dialogues & workplace announcements.', max_points: 62.5, questions_per_mock: 10 },
+    { key: 'reading', name: 'Reading Comprehension', name_ja: '読解', description: 'Signs, notices, emails, and short workplace memos.', max_points: 62.5, questions_per_mock: 10 },
+  ];
+  const fourSections = sectionSummary.length > 0 ? sectionSummary : FALLBACK_SECTIONS;
+  const totalCombinedPoints = fourSections.reduce(
+    (sum, s) => sum + Number(savedSectionScores[s.key]?.latest_points || 0),
+    0
+  );
+  const sectionIcons = {
+    script_vocab: Languages,
+    conversation: MessageCircle,
+    listening: Headphones,
+    reading: FileText,
+  };
 
   return (
     <div className="space-y-12 animate-fade-in">
@@ -71,21 +104,29 @@ export default function JftBasicPage() {
               'Computer-Based Testing (CBT) measuring everyday Japanese communicative proficiency for foreign workers.'}
           </p>
 
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4 pt-2 sm:pt-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-2 sm:pt-4">
+            <Link
+              href="/lessons?tab=jft"
+              className="inline-flex items-center gap-2 bg-[#DB1A1A] hover:bg-[#B81515] text-white font-extrabold px-5 py-3 sm:px-6 sm:py-3.5 rounded-2xl transition-all shadow-lg text-xs sm:text-sm active:scale-95"
+            >
+              <GraduationCap className="w-4 h-4" />
+              <span>JFT-Basic Lessons &amp; Notes</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
             <a
               href="#mock-tests"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold px-5 py-3 sm:px-7 sm:py-3.5 rounded-2xl transition-all shadow-lg shadow-red-500/25 hover:shadow-red-500/40 text-xs sm:text-sm active:scale-95"
+              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold px-5 py-3 sm:px-6 sm:py-3.5 rounded-2xl backdrop-blur-md transition-all text-xs sm:text-sm border border-white/15 hover:border-white/30"
             >
               <BookOpen className="w-4 h-4" />
-              <span>Practice Mock Exams</span>
+              <span>Full CBT Mock Exams</span>
               <ChevronDown className="w-4 h-4" />
             </a>
             <a
-              href="#test-centers"
-              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-5 py-3 sm:px-7 sm:py-3.5 rounded-2xl backdrop-blur-md transition-all text-xs sm:text-sm border border-white/15 hover:border-white/30"
+              href="#section-mocks"
+              className="inline-flex items-center gap-2 bg-[#2C687B]/80 hover:bg-[#2C687B] text-white font-bold px-5 py-3 sm:px-6 sm:py-3.5 rounded-2xl transition-all text-xs sm:text-sm border border-[#8CC7C4]/40"
             >
-              <MapPin className="w-4 h-4" />
-              <span>Test Venues</span>
+              <Shuffle className="w-4 h-4" />
+              <span>Section-Wise Mocks</span>
             </a>
           </div>
         </div>
@@ -149,14 +190,161 @@ export default function JftBasicPage() {
         </div>
       </div>
 
+      {/* Pre-Exam Study CTA: JFT-Basic Learn Japanese & Lessons Hub */}
+      <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-5 sm:p-7 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-[#EAF4F4] dark:bg-slate-800 border border-[#CBE5E3] dark:border-slate-700 flex items-center justify-center text-[#2C687B] dark:text-[#8CC7C4] shrink-0">
+            <GraduationCap className="w-6 h-6" />
+          </div>
+          <div className="space-y-1">
+            <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#EAF4F4] dark:bg-slate-800 text-[#2C687B] dark:text-[#8CC7C4] text-[10px] font-black uppercase tracking-wider">
+              Start Here Before Your Mock Exam
+            </span>
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white leading-snug">
+              Need to Learn JFT-Basic Vocabulary, Kanji &amp; Grammar First?
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+              Study all 50 Minna no Nihongo lessons, 30 Kanji units, and A2 grammar notes in 7 languages with native audio.
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/lessons?tab=jft"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#DB1A1A] hover:bg-[#B81515] text-white text-xs sm:text-sm font-black shadow-sm transition shrink-0"
+        >
+          <span>Study JFT-Basic Lessons</span>
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
+
       {/* Online Practice Mock Exams Section */}
-      <div id="mock-tests" className="bg-white/90 dark:bg-slate-950/75 backdrop-blur-md rounded-3xl border border-slate-200/90 dark:border-slate-800/90 p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)]">
+      <div id="mock-tests" className="bg-white dark:bg-slate-950/75 rounded-3xl border border-[#CBE5E3] dark:border-slate-800/90 p-5 sm:p-10 shadow-sm">
         <PracticeTestGrid
           practiceTests={practiceTests}
-          title="JFT-Basic Practice Mock Exams"
-          subtitle="Take realistic JFT-Basic CBT practice tests online to get familiar with the exam interface and instant scoring."
+          title="JFT-Basic Full CBT Mock Exams"
+          subtitle="Take realistic full-length JFT-Basic CBT practice tests online to get familiar with the exam interface and instant scoring."
           catKey="basic"
         />
+      </div>
+
+      {/* =====================================================================
+          SECTION-WISE RANDOMIZED JFT-BASIC MOCK TESTS (4 OFFICIAL SECTIONS)
+         ===================================================================== */}
+      <div
+        id="section-mocks"
+        className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-5 sm:p-8 shadow-xs space-y-6 scroll-mt-20"
+      >
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#EAF4F4] dark:border-slate-800 pb-5">
+          <div className="space-y-1">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#EAF4F4] dark:bg-slate-800 text-[#2C687B] dark:text-[#8CC7C4] text-[10px] sm:text-xs font-black uppercase tracking-wider">
+              <Shuffle className="w-3.5 h-3.5 text-[#DB1A1A]" /> Smart Non-Repeating Practice
+            </span>
+            <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              Section-Wise Randomized Mock Tests
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+              Practice each of the 4 official JFT-Basic sections individually. Every new attempt shuffles fresh questions (excluding your previous attempt) and tracks your points out of <strong>62.5 pts</strong> per section!
+            </p>
+          </div>
+
+          {/* Live Combined 4-Section Score Pill */}
+          <div className="rounded-2xl bg-[#EAF4F4] dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-700 px-4 py-3 flex items-center gap-3 shrink-0">
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
+                Combined 4-Section Score
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
+                {totalCombinedPoints.toFixed(1)}{' '}
+                <span className="text-xs font-bold text-slate-500">/ 250 pts</span>
+              </div>
+            </div>
+            <span
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase ${
+                totalCombinedPoints >= 200
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-white dark:bg-slate-800 text-[#2C687B] dark:text-[#8CC7C4] border border-[#CBE5E3] dark:border-slate-700'
+              }`}
+            >
+              {totalCombinedPoints >= 200 ? 'Pass Ready' : 'Goal: 200'}
+            </span>
+          </div>
+        </div>
+
+        {/* 4 Section Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {fourSections.map((sec) => {
+            const IconComp = sectionIcons[sec.key] || BookOpen;
+            const saved = savedSectionScores[sec.key];
+            const pts = Number(saved?.latest_points || 0);
+            const maxPts = Number(sec.max_points || 62.5);
+            const pct = Math.min(100, Math.round((pts / maxPts) * 100));
+
+            return (
+              <div
+                key={sec.key}
+                className="rounded-2xl bg-white dark:bg-slate-900/80 border border-[#CBE5E3] dark:border-slate-800 hover:border-[#8CC7C4] p-4 sm:p-5 flex flex-col justify-between gap-4 shadow-2xs hover:shadow-md transition"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="w-10 h-10 rounded-xl bg-[#EAF4F4] dark:bg-slate-800 border border-[#CBE5E3] dark:border-slate-700 flex items-center justify-center text-[#2C687B] dark:text-[#8CC7C4]">
+                      <IconComp className="w-5 h-5" />
+                    </div>
+                    <span className="px-2 py-0.5 rounded-md bg-[#EAF4F4] dark:bg-slate-800 text-[#2C687B] dark:text-[#8CC7C4] text-[10px] font-black">
+                      {sec.name_ja}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 dark:text-white leading-snug">
+                      {sec.name}
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 mt-1 line-clamp-2">
+                      {sec.description}
+                    </p>
+                  </div>
+
+                  {/* Per-Section Points Tracker Box */}
+                  <div className="rounded-xl bg-[#EAF4F4]/70 dark:bg-slate-800/70 border border-[#CBE5E3] dark:border-slate-700 p-3 space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px] font-extrabold">
+                      <span className="text-[#2C687B] dark:text-[#8CC7C4]">Your Section Points</span>
+                      <span className="text-slate-900 dark:text-white font-black">
+                        {saved ? `${pts.toFixed(1)} / ${maxPts}` : `— / ${maxPts}`}
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-white dark:bg-slate-900 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${
+                          saved?.passed ? 'bg-emerald-500' : 'bg-[#DB1A1A]'
+                        }`}
+                        style={{ width: `${saved ? pct : 0}%` }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                      <span>
+                        {saved
+                          ? `Last: ${saved.score}/${saved.total_questions} (${saved.percentage}%)`
+                          : 'Not attempted yet'}
+                      </span>
+                      {saved?.best_points > 0 && (
+                        <span className="text-[#2C687B] dark:text-[#8CC7C4]">
+                          Best: {Number(saved.best_points).toFixed(1)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <Link
+                  href={`/jft-basic/section/${sec.key}`}
+                  className="w-full py-2.5 px-4 rounded-xl bg-[#DB1A1A] hover:bg-[#B81515] text-white text-xs font-black text-center transition flex items-center justify-center gap-1.5"
+                >
+                  <span>{saved ? 'Try Fresh Random Set' : 'Start Section Mock'}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Adsterra Native Sponsored Banner (Pre-Exam Discovery) */}
@@ -297,11 +485,6 @@ export default function JftBasicPage() {
             </li>
           </ul>
         </div>
-      </div>
-
-      {/* Bangladesh Test Centers Map */}
-      <div id="test-centers">
-        <JftCenterMap centersData={testCenters} />
       </div>
 
       {/* Prometric Registration Steps & Official Resources */}
