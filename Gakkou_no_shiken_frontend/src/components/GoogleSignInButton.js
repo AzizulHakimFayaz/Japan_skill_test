@@ -4,7 +4,23 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { googleAuthLogin, updateUserProfile } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
-import { User, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
+import { User, CheckCircle2, Sparkles, ArrowRight, Calendar, ChevronDown } from 'lucide-react';
+
+function addDaysIso(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+const EXAM_GUESS_PRESETS = [
+  { id: '1m', label: 'Next Month', days: 30 },
+  { id: '3m', label: 'In 2–3 Months', days: 75 },
+  { id: '6m', label: 'In 6 Months', days: 180 },
+  { id: '9m', label: '9+ Months', days: 270 },
+];
 
 const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
@@ -24,11 +40,14 @@ export default function GoogleSignInButton({
   const [error, setError] = useState(null);
   const buttonRef = useRef(null);
 
-  // Modal state for first-time Google sign-ups
+  // Modal state for first-time Google sign-ups (or returning Google users missing exam date)
   const [showUsernameModal, setShowUsernameModal] = useState(false);
+  const [isNewGoogleUser, setIsNewGoogleUser] = useState(true);
   const [newUserObj, setNewUserObj] = useState(null);
   const [chosenUsername, setChosenUsername] = useState('');
   const [chosenTargetExam, setChosenTargetExam] = useState('jft_basic');
+  const [chosenExamDate, setChosenExamDate] = useState('');
+  const [activePreset, setActivePreset] = useState('');
   const [savingUsername, setSavingUsername] = useState(false);
   const [modalError, setModalError] = useState(null);
 
@@ -41,14 +60,22 @@ export default function GoogleSignInButton({
     try {
       const data = await googleAuthLogin(response.credential);
       if (data?.user) {
-        if (data.is_new_user) {
-          // First time user: Prompt to confirm or choose username
+        const missingExamDate =
+          !data.user.profile?.planned_exam_date &&
+          !data.user.owned_partner_school?.slug &&
+          !data.user.is_staff;
+
+        if (data.is_new_user || missingExamDate) {
+          setIsNewGoogleUser(Boolean(data.is_new_user));
           setNewUserObj(data.user);
           setChosenUsername(data.user.username || '');
+          setChosenTargetExam(data.user.profile?.target_exam || 'jft_basic');
+          setChosenExamDate(data.user.profile?.planned_exam_date || '');
+          setActivePreset('');
           setShowUsernameModal(true);
           setLoading(false);
         } else {
-          // Existing user: Log in immediately
+          // Existing user with exam date set: Log in immediately
           login(data.user);
           router.push(next);
         }
@@ -61,8 +88,12 @@ export default function GoogleSignInButton({
 
   const handleConfirmUsername = async (e) => {
     e.preventDefault();
-    if (!chosenUsername.trim()) {
+    if (isNewGoogleUser && !chosenUsername.trim()) {
       setModalError('Please enter a username.');
+      return;
+    }
+    if (!chosenExamDate) {
+      setModalError('Please choose your expected exam date or pick a quick estimate below.');
       return;
     }
 
@@ -70,17 +101,21 @@ export default function GoogleSignInButton({
     setModalError(null);
 
     try {
-      const res = await updateUserProfile({
-        username: chosenUsername.trim(),
+      const payload = {
         target_exam: chosenTargetExam,
-      });
+        planned_exam_date: chosenExamDate,
+      };
+      if (isNewGoogleUser) {
+        payload.username = chosenUsername.trim();
+      }
+      const res = await updateUserProfile(payload);
 
       const updatedUser = res?.user || { ...newUserObj, username: chosenUsername.trim() };
       login(updatedUser);
       setShowUsernameModal(false);
       router.push(next);
     } catch (err) {
-      setModalError(err.message || 'Username might already be taken. Please choose another.');
+      setModalError(err.message || 'Could not save your profile. Please check your details.');
     } finally {
       setSavingUsername(false);
     }
@@ -183,75 +218,129 @@ export default function GoogleSignInButton({
         <span>{loading ? 'Verifying with Google...' : text}</span>
       </button>
 
-      {/* New Candidate Username Selection Modal */}
+      {/* Google Onboarding Modal: Username (new users) + Required Exam Date / Quick Estimate */}
       {showUsernameModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 space-y-5 animate-scale-up">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5 animate-scale-up max-h-[92dvh] overflow-y-auto">
             <div className="text-center space-y-2">
-              <div className="w-12 h-12 bg-red-50 text-japan-red rounded-2xl flex items-center justify-center mx-auto shadow-xs">
-                <Sparkles className="w-6 h-6" />
+              <div className="w-12 h-12 bg-red-50 dark:bg-rose-950/60 text-japan-red rounded-2xl flex items-center justify-center mx-auto shadow-xs">
+                {isNewGoogleUser ? <Sparkles className="w-6 h-6" /> : <Calendar className="w-6 h-6" />}
               </div>
-              <h3 className="text-xl font-black text-slate-900">Choose Candidate Username</h3>
-              <p className="text-slate-500 text-xs">
-                Welcome, <strong>{newUserObj?.first_name || newUserObj?.email}</strong>! Please choose your candidate username for leaderboards and scorecards.
+              <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                {isNewGoogleUser ? 'Complete Your Candidate Setup' : 'When Is Your Target Exam?'}
+              </h3>
+              <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
+                Welcome, <strong className="text-slate-800 dark:text-slate-200">{newUserObj?.first_name || newUserObj?.email}</strong>!{' '}
+                {isNewGoogleUser
+                  ? 'Confirm your username and tell us roughly when you plan to take your Japanese exam.'
+                  : 'Pick your exact exam date or a quick estimate so we can personalize your countdown & study plan.'}
               </p>
             </div>
 
             {modalError && (
-              <div className="p-3 bg-rose-50 text-rose-800 border border-rose-200 rounded-xl text-xs font-bold text-center animate-fade-in">
+              <div className="p-3 bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-800 rounded-xl text-xs font-bold text-center animate-fade-in">
                 {modalError}
               </div>
             )}
 
             <form onSubmit={handleConfirmUsername} className="space-y-4">
-              <div>
-                <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1.5">
-                  Candidate Username <span className="text-japan-red">*</span>
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">@</span>
-                  <input
-                    type="text"
-                    value={chosenUsername}
-                    onChange={(e) => setChosenUsername(e.target.value)}
-                    required
-                    autoFocus
-                    className="w-full pl-8 pr-4 py-3 rounded-2xl border border-slate-200 text-sm font-bold text-slate-900 focus:outline-none focus:border-japan-red focus:ring-4 focus:ring-red-100 transition-all font-mono"
-                    placeholder="e.g. kenji_tanaka"
-                  />
+              {isNewGoogleUser && (
+                <div>
+                  <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+                    Candidate Username <span className="text-japan-red">*</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">@</span>
+                    <input
+                      type="text"
+                      value={chosenUsername}
+                      onChange={(e) => setChosenUsername(e.target.value)}
+                      required
+                      autoFocus
+                      className="w-full h-11 pl-8 pr-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-japan-red/15 focus:border-japan-red transition-all font-mono"
+                      placeholder="e.g. kenji_tanaka"
+                    />
+                  </div>
                 </div>
-                <span className="text-[10px] text-slate-400 mt-1 block">
-                  Letters, numbers, and underscores only. You can change this later.
-                </span>
-              </div>
+              )}
 
               <div>
-                <label className="block text-xs font-extrabold uppercase text-slate-500 mb-1.5">
-                  Target Exam
+                <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+                  Target Exam Track <span className="text-japan-red">*</span>
                 </label>
-                <select
-                  value={chosenTargetExam}
-                  onChange={(e) => setChosenTargetExam(e.target.value)}
-                  className="w-full px-3.5 py-3 rounded-2xl border border-slate-200 text-xs font-bold text-slate-800 focus:outline-none focus:border-japan-red transition-all"
-                >
-                  <option value="jft_basic">JFT-Basic (A2 Standard)</option>
-                  <option value="ssw_nursing">SSW: Nursing Care (介護)</option>
-                  <option value="ssw_food">SSW: Food Service (外食業)</option>
-                  <option value="ssw_agriculture">SSW: Agriculture (農業)</option>
-                  <option value="ssw_construction">SSW: Construction (建設業)</option>
-                  <option value="ssw_manufacturing">SSW: Manufacturing (製造業)</option>
-                  <option value="ssw_accommodation">SSW: Accommodation (宿泊業)</option>
-                  <option value="jlpt_n4">JLPT N4</option>
-                  <option value="jlpt_n3">JLPT N3</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={chosenTargetExam}
+                    onChange={(e) => setChosenTargetExam(e.target.value)}
+                    className="w-full h-11 pl-3.5 pr-9 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-japan-red/15 focus:border-japan-red appearance-none cursor-pointer transition-all"
+                  >
+                    <option value="jft_basic">JFT-Basic (A2 Standard)</option>
+                    <option value="jlpt_n4">JLPT N4</option>
+                    <option value="jlpt_n3">JLPT N3</option>
+                    <option value="ssw_nursing">SSW: Nursing Care</option>
+                    <option value="ssw_food">SSW: Food Service</option>
+                    <option value="ssw_agriculture">SSW: Agriculture</option>
+                    <option value="ssw_construction">SSW: Construction</option>
+                    <option value="ssw_manufacturing">SSW: Manufacturing</option>
+                    <option value="ssw_accommodation">SSW: Accommodation</option>
+                    <option value="other">Other Examination</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Required Exam Date or 1-Tap Estimate */}
+              <div className="p-3.5 rounded-2xl bg-[#F4FAFA] dark:bg-slate-800/60 border border-[#CBE5E3] dark:border-slate-700 space-y-2.5">
+                <label className="block text-[11px] font-extrabold uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
+                  Expected Exam Date (or Best Guess) <span className="text-japan-red">*</span>
+                </label>
+
+                {/* 1-Tap Quick Estimate Pills */}
+                <div className="grid grid-cols-2 gap-1.5">
+                  {EXAM_GUESS_PRESETS.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        setActivePreset(p.id);
+                        setChosenExamDate(addDaysIso(p.days));
+                        setModalError(null);
+                      }}
+                      className={`py-2 px-2.5 rounded-xl text-[11px] font-extrabold border transition cursor-pointer ${
+                        activePreset === p.id
+                          ? 'bg-[#2C687B] text-white border-[#2C687B] shadow-xs'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-[#2C687B]'
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="relative flex items-center">
+                  <input
+                    type="date"
+                    required
+                    value={chosenExamDate}
+                    onChange={(e) => {
+                      setChosenExamDate(e.target.value);
+                      setActivePreset('');
+                      setModalError(null);
+                    }}
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#2C687B]/20 focus:border-[#2C687B] transition-all"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                  Not sure of the exact day? Just tap an estimate above — you can update it anytime in your Profile.
+                </p>
               </div>
 
               <button
                 type="submit"
                 disabled={savingUsername}
-                className="w-full py-4 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold rounded-2xl text-sm transition-all shadow-lg shadow-red-500/20 active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4"
+                className="w-full py-3.5 bg-gradient-to-r from-japan-red to-rose-600 hover:from-japan-redhover hover:to-rose-700 text-white font-extrabold rounded-xl text-sm transition-all shadow-lg shadow-red-500/20 active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                <span>{savingUsername ? 'Setting up Profile...' : 'Complete & Start Practice'}</span>
+                <span>{savingUsername ? 'Saving Profile...' : 'Save & Start Practice'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>

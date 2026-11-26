@@ -916,7 +916,7 @@ function SignupForm() {
                   htmlFor="id_planned_exam_date"
                   className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1.5"
                 >
-                  Expected Exam Date
+                  Expected Exam Date (or Guess)
                 </label>
                 <input
                   type="date"
@@ -926,6 +926,33 @@ function SignupForm() {
                   className="w-full h-11 px-3.5 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#2C687B]/20 focus:border-[#2C687B] transition-all"
                 />
               </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[10px] font-bold text-slate-400 mr-1">Quick guess:</span>
+              {[
+                { label: 'Next Month', days: 30 },
+                { label: 'In 3 Months', days: 90 },
+                { label: 'In 6 Months', days: 180 },
+              ].map((p) => {
+                const d = new Date();
+                d.setDate(d.getDate() + p.days);
+                const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                const active = plannedExamDate === iso;
+                return (
+                  <button
+                    key={p.label}
+                    type="button"
+                    onClick={() => setPlannedExamDate(iso)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold border transition cursor-pointer ${
+                      active
+                        ? 'bg-[#2C687B] text-white border-[#2C687B]'
+                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-[#2C687B]'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                );
+              })}
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
               Helps us tailor your mock test countdown &amp; seasonal study tips. You can change this anytime in your Profile.
