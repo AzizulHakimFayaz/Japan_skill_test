@@ -151,6 +151,11 @@ function SignupForm() {
       }
     }
 
+    if (role === 'candidate' && !plannedExamDate) {
+      setError('Please select your expected exam date (or tap one of the quick-guess buttons).');
+      return;
+    }
+
     if (password !== passwordConfirm) {
       setError('Passwords do not match.');
       return;
@@ -880,7 +885,7 @@ function SignupForm() {
                 <Calendar className="w-4 h-4 shrink-0" />
                 <span>When is your target exam?</span>
               </div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Optional</span>
+              <span className="text-[10px] font-black text-japan-red uppercase tracking-wider">Required</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -916,11 +921,12 @@ function SignupForm() {
                   htmlFor="id_planned_exam_date"
                   className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1.5"
                 >
-                  Expected Exam Date (or Guess)
+                  Expected Exam Date (or Guess) <span className="text-japan-red">*</span>
                 </label>
                 <input
                   type="date"
                   id="id_planned_exam_date"
+                  required={!isSchool}
                   value={plannedExamDate}
                   onChange={(e) => setPlannedExamDate(e.target.value)}
                   className="w-full h-11 px-3.5 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#2C687B]/20 focus:border-[#2C687B] transition-all"
