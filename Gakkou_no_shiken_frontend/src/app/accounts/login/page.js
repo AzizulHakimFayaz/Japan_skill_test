@@ -106,8 +106,8 @@ function LoginForm() {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 rounded-[30px] p-3 sm:p-4 shadow-2xl dark:shadow-[0_0_45px_rgba(0,0,0,0.55)] grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-stretch">
-      <div className="lg:col-span-6 p-3 sm:p-6 xl:p-8 flex flex-col justify-center space-y-5">
+    <div className="bg-white dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 rounded-[28px] p-3 sm:p-4 lg:p-5 shadow-2xl dark:shadow-[0_0_45px_rgba(0,0,0,0.55)] grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch lg:min-h-[680px]">
+      <div className="lg:col-span-6 xl:col-span-5 p-2 sm:p-6 xl:p-8 flex flex-col justify-center space-y-5">
         <AuthSplitShowcase role={role} variant="mobile" />
       {/* 1. Candidate vs School Role Switcher */}
       <div className="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/70">
@@ -379,8 +379,8 @@ function LoginForm() {
       </div>
       </div>
 
-      {/* RIGHT COLUMN (Desktop): Split-Screen Visual Showcase */}
-      <div className="lg:col-span-6">
+      {/* RIGHT COLUMN (Desktop): Full-Height Split-Screen Visual Showcase */}
+      <div className="lg:col-span-6 xl:col-span-7 flex">
         <AuthSplitShowcase role={role} variant="desktop" />
       </div>
     </div>
@@ -389,7 +389,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="max-w-6xl mx-auto py-4 sm:py-8 px-1 sm:px-2 animate-fade-in-up">
+    <div className="w-full max-w-[1440px] mx-auto py-3 sm:py-6 animate-fade-in-up">
       <Suspense fallback={<div className="text-center p-8 text-slate-500">Loading login portal...</div>}>
         <LoginForm />
       </Suspense>

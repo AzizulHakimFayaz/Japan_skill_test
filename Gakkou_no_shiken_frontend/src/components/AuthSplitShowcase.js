@@ -139,7 +139,7 @@ export default function AuthSplitShowcase({ role = 'candidate', variant = 'deskt
   // =========================================================================
   return (
     <div
-      className={`hidden lg:flex relative flex-col justify-between overflow-hidden rounded-[26px] p-8 xl:p-10 text-white select-none min-h-[640px] h-full ${
+      className={`hidden lg:flex relative flex-col justify-between overflow-hidden rounded-[22px] p-8 xl:p-12 text-white select-none w-full min-h-[640px] h-full ${
         isSchool
           ? 'bg-gradient-to-br from-[#0F172A] via-[#1B2B44] to-[#0B1220]'
           : 'bg-gradient-to-br from-[#0E2E38] via-[#205566] to-[#0A1F26]'
@@ -193,9 +193,9 @@ export default function AuthSplitShowcase({ role = 'candidate', variant = 'deskt
         )}
       </div>
 
-      {/* Center Floating Layered Screenshots (Kezak-style Composition) */}
+      {/* Center Floating Layered Screenshots (Sticky so tall forms always keep showcase centered) */}
       <div className="relative z-10 my-6 flex-1 flex items-center justify-center">
-        <div className="relative w-full max-w-[500px]">
+        <div className="lg:sticky lg:top-28 relative w-full max-w-[600px]">
           {/* Primary Screenshot Card */}
           <div className="relative z-20 rounded-2xl overflow-hidden bg-white p-1.5 shadow-[0_24px_60px_rgba(0,0,0,0.45)] border border-white/40 transition-all duration-500">
             <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 rounded-t-xl border-b border-slate-200/80">
@@ -215,7 +215,7 @@ export default function AuthSplitShowcase({ role = 'candidate', variant = 'deskt
               key={current.mainImg}
               src={current.mainImg}
               alt={current.mainAlt}
-              className="w-full h-[230px] xl:h-[260px] object-cover object-top rounded-b-xl animate-fade-in"
+              className="w-full h-[250px] xl:h-[310px] object-cover object-top rounded-b-xl animate-fade-in"
             />
           </div>
 

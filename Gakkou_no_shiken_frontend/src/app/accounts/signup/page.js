@@ -34,6 +34,8 @@ import {
   Camera,
   Calendar,
   X,
+  Lock,
+  ChevronDown,
 } from 'lucide-react';
 
 function SignupForm() {
@@ -456,9 +458,9 @@ function SignupForm() {
   const isSchool = role === 'school';
 
   return (
-    <div className="bg-white dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 rounded-[30px] p-3 sm:p-4 shadow-2xl dark:shadow-[0_0_45px_rgba(0,0,0,0.55)] grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-start">
+    <div className="bg-white dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 rounded-[28px] p-3 sm:p-4 lg:p-5 shadow-2xl dark:shadow-[0_0_45px_rgba(0,0,0,0.55)] grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch">
       {/* LEFT COLUMN: Form + Compact Mobile/Tablet Preview */}
-      <div className="lg:col-span-6 p-3 sm:p-6 xl:p-7 space-y-5">
+      <div className="lg:col-span-6 xl:col-span-5 p-2 sm:p-5 xl:p-7 space-y-5 flex flex-col justify-center">
         <AuthSplitShowcase role={role} variant="mobile" />
       {/* 1. Candidate vs School Role Switcher Tabs */}
       <div className="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/70">
@@ -545,7 +547,7 @@ function SignupForm() {
             </div>
 
             <div>
-              <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                 School / LPK / Japanese Institute Name <span className="text-rose-500">*</span>
               </label>
               <input
@@ -554,41 +556,41 @@ function SignupForm() {
                 value={schoolName}
                 onChange={(e) => setSchoolName(e.target.value)}
                 placeholder="e.g. LPK Sakura Nusantara / Dhaka Nihongo Academy"
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-slate-600"
+                className="w-full h-11 px-3.5 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-600 transition-all"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
-                  City / Campus Location <span className="text-rose-500">*</span>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  City / Campus <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
-                  <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="text"
                     required
                     value={schoolCity}
                     onChange={(e) => setSchoolCity(e.target.value)}
-                    placeholder="e.g. Dhaka, Jakarta, Kathmandu"
-                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-slate-600"
+                    placeholder="e.g. Dhaka, Jakarta"
+                    className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-600 transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
-                  Official WhatsApp / Phone <span className="text-rose-500">*</span>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  WhatsApp / Phone <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
-                  <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="text"
                     required
                     value={schoolPhone}
                     onChange={(e) => setSchoolPhone(e.target.value)}
                     placeholder="+880 17... / +62 812..."
-                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-slate-600"
+                    className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-600 transition-all"
                   />
                 </div>
               </div>
@@ -596,50 +598,54 @@ function SignupForm() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                   Students per Batch
                 </label>
                 <div className="relative">
-                  <Users className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Users className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="number"
                     min="1"
                     value={estimatedStudents}
                     onChange={(e) => setEstimatedStudents(e.target.value)}
-                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-slate-600"
+                    className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-600 transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                   Primary Exam Track
                 </label>
-                <select
-                  value={examFocus}
-                  onChange={(e) => setExamFocus(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-slate-600"
-                >
-                  <option value="JFT-Basic A2 & SSW Sector Skills">JFT-Basic A2 &amp; SSW Skills</option>
-                  <option value="JFT-Basic A2 Standard Only">JFT-Basic A2 Standard Only</option>
-                  <option value="SSW Caregiving / Food / Agriculture">SSW Caregiving / Food / Agri</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={examFocus}
+                    onChange={(e) => setExamFocus(e.target.value)}
+                    className="w-full h-11 pl-3.5 pr-9 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-600 appearance-none cursor-pointer transition-all"
+                  >
+                    <option value="JFT-Basic A2 & SSW Sector Skills">JFT-Basic A2 &amp; SSW Skills</option>
+                    <option value="JFT-Basic A2 Standard Only">JFT-Basic A2 Standard Only</option>
+                    <option value="SSW Caregiving / Food / Agriculture">SSW Caregiving / Food / Agri</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
             </div>
 
-            {/* Anti-Leak Security Checkboxes */}
-            <div className="pt-1 space-y-2 border-t border-slate-200/60 dark:border-slate-800/60">
+            {/* Anti-Leak Security Checkboxes (Clean Lucide icons, zero emojis) */}
+            <div className="pt-2 space-y-2.5 border-t border-slate-200/70 dark:border-slate-800/70">
               <label className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={requireJoinPin}
                   onChange={(e) => setRequireJoinPin(e.target.checked)}
-                  className="mt-0.5 rounded text-slate-700"
+                  className="mt-0.5 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
                 />
-                <span>
-                  <strong className="font-black text-slate-800 dark:text-slate-300">
-                    🔐 Enable 6-Digit Class Join PIN
-                  </strong>{' '}
+                <span className="flex-1 leading-relaxed">
+                  <span className="inline-flex items-center gap-1 font-extrabold text-slate-900 dark:text-slate-200">
+                    <Lock className="w-3.5 h-3.5 text-[#2C687B] shrink-0" />
+                    Enable 6-Digit Class Join PIN
+                  </span>{' '}
                   — Prevents outsiders from joining if a student shares your link.
                 </span>
               </label>
@@ -649,12 +655,13 @@ function SignupForm() {
                   type="checkbox"
                   checked={requireApproval}
                   onChange={(e) => setRequireApproval(e.target.checked)}
-                  className="mt-0.5 rounded text-slate-700"
+                  className="mt-0.5 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
                 />
-                <span>
-                  <strong className="font-black text-slate-800 dark:text-slate-300">
-                    🛡️ Require Sensei Approval Queue
-                  </strong>{' '}
+                <span className="flex-1 leading-relaxed">
+                  <span className="inline-flex items-center gap-1 font-extrabold text-slate-900 dark:text-slate-200">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#2C687B] shrink-0" />
+                    Require Sensei Approval Queue
+                  </span>{' '}
                   — Hold new students in Pending until you approve them.
                 </span>
               </label>
@@ -731,7 +738,7 @@ function SignupForm() {
           <div>
             <label
               htmlFor="id_first_name"
-              className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
+              className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
             >
               {isSchool ? 'Sensei First Name *' : 'First Name'}
             </label>
@@ -741,14 +748,14 @@ function SignupForm() {
               required={isSchool}
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 transition-all font-semibold text-slate-800 dark:text-white text-sm"
+              className="w-full h-11 px-3.5 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:ring-2 focus:ring-japan-red/15 focus:border-japan-red dark:focus:border-rose-500 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400 text-sm"
               placeholder={isSchool ? 'e.g. Budi / Rahim' : 'e.g. Kenji'}
             />
           </div>
           <div>
             <label
               htmlFor="id_last_name"
-              className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
+              className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
             >
               {isSchool ? 'Title / Last Name' : 'Last Name'}
             </label>
@@ -757,7 +764,7 @@ function SignupForm() {
               id="id_last_name"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 transition-all font-semibold text-slate-800 dark:text-white text-sm"
+              className="w-full h-11 px-3.5 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:ring-2 focus:ring-japan-red/15 focus:border-japan-red dark:focus:border-rose-500 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400 text-sm"
               placeholder={isSchool ? 'e.g. Sensei' : 'e.g. Tanaka'}
             />
           </div>
@@ -767,13 +774,13 @@ function SignupForm() {
         <div>
           <label
             htmlFor="id_username"
-            className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
+            className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
           >
             {isSchool ? 'Sensei Login Username' : 'Candidate Username'}{' '}
             <span className="text-japan-red">*</span>
           </label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm pointer-events-none">
               @
             </span>
             <input
@@ -782,7 +789,7 @@ function SignupForm() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              className="w-full pl-8 pr-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 transition-all font-bold text-slate-900 dark:text-white font-mono text-sm"
+              className="w-full h-11 pl-8 pr-3.5 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:ring-2 focus:ring-japan-red/15 focus:border-japan-red dark:focus:border-rose-500 transition-all font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 font-mono text-sm"
               placeholder={isSchool ? 'e.g. sakura_sensei' : 'e.g. kenji_tanaka'}
             />
           </div>
@@ -792,7 +799,7 @@ function SignupForm() {
         <div>
           <label
             htmlFor="id_email"
-            className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
+            className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
           >
             {isSchool ? 'Official School / Sensei Email' : 'Email Address'}{' '}
             <span className="text-japan-red">*</span>
@@ -803,17 +810,17 @@ function SignupForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 transition-all font-semibold text-slate-800 dark:text-white text-sm"
+            className="w-full h-11 px-3.5 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:ring-2 focus:ring-japan-red/15 focus:border-japan-red dark:focus:border-rose-500 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400 text-sm"
             placeholder={isSchool ? 'sensei@yourschool.com' : 'candidate@example.com'}
           />
         </div>
 
-        {/* Country */}
+        {/* Country (Clean select without flag emojis) */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <label
               htmlFor="id_country"
-              className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+              className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400"
             >
               Country / Exam Region <span className="text-japan-red">*</span>
             </label>
@@ -825,7 +832,7 @@ function SignupForm() {
             )}
           </div>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
               <Globe className="w-4 h-4" />
             </span>
             <select
@@ -833,23 +840,24 @@ function SignupForm() {
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               required
-              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 transition-all font-semibold text-slate-800 dark:text-white text-sm appearance-none cursor-pointer"
+              className="w-full h-11 pl-10 pr-10 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:ring-2 focus:ring-japan-red/15 focus:border-japan-red dark:focus:border-rose-500 transition-all font-medium text-slate-900 dark:text-white text-sm appearance-none cursor-pointer"
             >
-              <option value="Bangladesh">🇧🇩 Bangladesh</option>
-              <option value="Nepal">🇳🇵 Nepal</option>
-              <option value="Vietnam">🇻🇳 Vietnam</option>
-              <option value="Indonesia">🇮🇩 Indonesia</option>
-              <option value="Myanmar">🇲🇲 Myanmar</option>
-              <option value="Philippines">🇵🇭 Philippines</option>
-              <option value="Sri Lanka">🇱🇰 Sri Lanka</option>
-              <option value="India">🇮🇳 India</option>
-              <option value="Uzbekistan">🇺🇿 Uzbekistan</option>
-              <option value="Mongolia">🇲🇳 Mongolia</option>
-              <option value="Thailand">🇹🇭 Thailand</option>
-              <option value="Pakistan">🇵🇰 Pakistan</option>
-              <option value="Japan">🇯🇵 Japan</option>
-              <option value="Other">🌍 Other / Global</option>
+              <option value="Bangladesh">Bangladesh</option>
+              <option value="Nepal">Nepal</option>
+              <option value="Vietnam">Vietnam</option>
+              <option value="Indonesia">Indonesia</option>
+              <option value="Myanmar">Myanmar</option>
+              <option value="Philippines">Philippines</option>
+              <option value="Sri Lanka">Sri Lanka</option>
+              <option value="India">India</option>
+              <option value="Uzbekistan">Uzbekistan</option>
+              <option value="Mongolia">Mongolia</option>
+              <option value="Thailand">Thailand</option>
+              <option value="Pakistan">Pakistan</option>
+              <option value="Japan">Japan</option>
+              <option value="Other">Other / Global</option>
             </select>
+            <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {country === 'Other' && (
@@ -859,7 +867,7 @@ function SignupForm() {
               onChange={(e) => setCustomCountry(e.target.value)}
               required
               placeholder="Enter your country name"
-              className="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 transition-all font-semibold text-slate-800 dark:text-white text-sm animate-fade-in"
+              className="mt-2 w-full h-11 px-3.5 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:ring-2 focus:ring-japan-red/15 focus:border-japan-red dark:focus:border-rose-500 transition-all font-medium text-slate-900 dark:text-white text-sm animate-fade-in"
             />
           )}
         </div>
@@ -867,49 +875,55 @@ function SignupForm() {
         {/* Candidate Target Exam & Expected Exam Date */}
         {!isSchool && (
           <div className="p-4 rounded-2xl bg-[#F4FAFA] dark:bg-slate-800/50 border border-[#CBE5E3] dark:border-slate-700/80 space-y-3">
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
-              <Calendar className="w-4 h-4" />
-              <span>When is your target exam?</span>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
+                <Calendar className="w-4 h-4 shrink-0" />
+                <span>When is your target exam?</span>
+              </div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Optional</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label
                   htmlFor="id_target_exam"
-                  className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1"
+                  className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1.5"
                 >
                   Target Exam Track
                 </label>
-                <select
-                  id="id_target_exam"
-                  value={targetExam}
-                  onChange={(e) => setTargetExam(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#2C687B]"
-                >
-                  <option value="jft_basic">JFT-Basic (A2 Standard)</option>
-                  <option value="jlpt_n4">JLPT N4</option>
-                  <option value="jlpt_n3">JLPT N3</option>
-                  <option value="ssw_nursing">SSW: Nursing Care (介護)</option>
-                  <option value="ssw_food">SSW: Food Service (外食業)</option>
-                  <option value="ssw_agriculture">SSW: Agriculture (農業)</option>
-                  <option value="ssw_construction">SSW: Construction (建設業)</option>
-                  <option value="ssw_manufacturing">SSW: Manufacturing (製造業)</option>
-                  <option value="ssw_accommodation">SSW: Accommodation (宿泊業)</option>
-                  <option value="other">Other Examination</option>
-                </select>
+                <div className="relative">
+                  <select
+                    id="id_target_exam"
+                    value={targetExam}
+                    onChange={(e) => setTargetExam(e.target.value)}
+                    className="w-full h-11 pl-3.5 pr-9 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#2C687B]/20 focus:border-[#2C687B] appearance-none cursor-pointer transition-all"
+                  >
+                    <option value="jft_basic">JFT-Basic (A2 Standard)</option>
+                    <option value="jlpt_n4">JLPT N4</option>
+                    <option value="jlpt_n3">JLPT N3</option>
+                    <option value="ssw_nursing">SSW: Nursing Care</option>
+                    <option value="ssw_food">SSW: Food Service</option>
+                    <option value="ssw_agriculture">SSW: Agriculture</option>
+                    <option value="ssw_construction">SSW: Construction</option>
+                    <option value="ssw_manufacturing">SSW: Manufacturing</option>
+                    <option value="ssw_accommodation">SSW: Accommodation</option>
+                    <option value="other">Other Examination</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
               <div>
                 <label
                   htmlFor="id_planned_exam_date"
-                  className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1"
+                  className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1.5"
                 >
-                  Expected Exam Date <span className="text-slate-400 font-semibold normal-case">(Optional)</span>
+                  Expected Exam Date
                 </label>
                 <input
                   type="date"
                   id="id_planned_exam_date"
                   value={plannedExamDate}
                   onChange={(e) => setPlannedExamDate(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#2C687B]"
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#2C687B]/20 focus:border-[#2C687B] transition-all"
                 />
               </div>
             </div>
@@ -924,7 +938,7 @@ function SignupForm() {
           <div>
             <label
               htmlFor="id_password"
-              className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
+              className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
             >
               Password <span className="text-japan-red">*</span>
             </label>
@@ -935,7 +949,7 @@ function SignupForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full pl-4 pr-10 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 transition-all font-semibold text-slate-800 dark:text-white text-sm"
+                className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:ring-2 focus:ring-japan-red/15 focus:border-japan-red dark:focus:border-rose-500 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400 text-sm"
                 placeholder="Min 6 chars"
               />
               <button
@@ -952,7 +966,7 @@ function SignupForm() {
           <div>
             <label
               htmlFor="id_password_confirm"
-              className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
+              className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
             >
               Confirm Password <span className="text-japan-red">*</span>
             </label>
@@ -964,7 +978,7 @@ function SignupForm() {
                 onChange={(e) => setPasswordConfirm(e.target.value)}
                 required
                 placeholder="Repeat password"
-                className="w-full pl-4 pr-10 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:border-japan-red dark:focus:border-rose-500 transition-all font-semibold text-slate-800 dark:text-white text-sm"
+                className="w-full h-11 pl-3.5 pr-10 rounded-xl border border-slate-300/90 dark:border-slate-700 bg-white dark:bg-slate-800/90 focus:outline-none focus:ring-2 focus:ring-japan-red/15 focus:border-japan-red dark:focus:border-rose-500 transition-all font-medium text-slate-900 dark:text-white placeholder:text-slate-400 text-sm"
               />
               <button
                 type="button"
@@ -978,20 +992,27 @@ function SignupForm() {
           </div>
         </div>
 
-        {/* Optional Student School Join Box (When Candidate Role is selected) */}
+        {/* Optional Student School Join Box (Clean card button, zero emojis) */}
         {!isSchool && (
           <div className="pt-1">
             <button
               type="button"
               onClick={() => setShowStudentSchoolBox(!showStudentSchoolBox)}
-              className="text-xs font-extrabold text-slate-700 dark:text-slate-300 hover:underline flex items-center gap-1.5 cursor-pointer"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/40 hover:border-[#2C687B] text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between gap-2 cursor-pointer transition-colors"
             >
-              <GraduationCap className="w-4 h-4" />
-              <span>
-                {showStudentSchoolBox
-                  ? 'Hide Partner School / Classroom Link'
-                  : '🎒 Joining a Partner School or Training Center? Enter School Code & PIN (Optional)'}
+              <span className="flex items-center gap-2 text-left">
+                <GraduationCap className="w-4 h-4 text-[#2C687B] shrink-0" />
+                <span>
+                  {showStudentSchoolBox
+                    ? 'Hide Partner School / Classroom Link'
+                    : 'Joining a Partner School or Academy? Enter School Code & PIN'}
+                </span>
               </span>
+              <ChevronDown
+                className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${
+                  showStudentSchoolBox ? 'rotate-180' : ''
+                }`}
+              />
             </button>
 
             {showStudentSchoolBox && (
@@ -1085,8 +1106,8 @@ function SignupForm() {
       </div>
       </div>
 
-      {/* RIGHT COLUMN (Desktop): Sticky Split-Screen Visual Showcase */}
-      <div className="lg:col-span-6 lg:sticky lg:top-24">
+      {/* RIGHT COLUMN (Desktop): Full-Height Showcase Canvas */}
+      <div className="lg:col-span-6 xl:col-span-7 flex">
         <AuthSplitShowcase role={role} variant="desktop" />
       </div>
     </div>
@@ -1095,7 +1116,7 @@ function SignupForm() {
 
 export default function SignupPage() {
   return (
-    <div className="max-w-6xl mx-auto py-4 sm:py-8 px-1 sm:px-2 animate-fade-in-up">
+    <div className="w-full max-w-[1440px] mx-auto py-3 sm:py-6 animate-fade-in-up">
       <Suspense fallback={<div className="p-8 text-center text-sm font-bold text-slate-500">Loading registration portal...</div>}>
         <SignupForm />
       </Suspense>

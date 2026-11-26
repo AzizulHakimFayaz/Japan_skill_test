@@ -77,6 +77,21 @@ html[data-color-theme='sakura'].dark {
   --color-japan-redhover: #D45B88;
 }
 
+/* Keep browser autofilled inputs clean instead of jarring light-blue blocks */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #1e293b inset !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
 /* --- Keyframe Animations --- */
 @keyframes fadeInUp {
     0% {
