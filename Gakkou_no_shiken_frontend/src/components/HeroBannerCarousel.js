@@ -2,22 +2,22 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
-import { getHeroBanners } from '@/lib/api';
+import { getHeroBanners, getNotices } from '@/lib/api';
 import { useAuth } from './AuthContext';
 import {
-  Gamepad2,
-  BookOpen,
-  Layers,
   ArrowRight,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
   MessageSquare,
-  GraduationCap,
   Calendar,
   LayoutDashboard,
   Sparkles,
   UserPlus,
+  Bell,
+  BookMarked,
+  Trophy,
+  Building2,
 } from 'lucide-react';
 
 const DEFAULT_SLIDES = [
@@ -90,9 +90,21 @@ function computeCountdown(isoDate) {
   return { diffDays, formatted };
 }
 
+function formatShortDate(iso) {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  } catch {
+    return '';
+  }
+}
+
 export default function HeroBannerCarousel() {
   const { user, isAuthenticated } = useAuth();
   const [slides, setSlides] = useState(DEFAULT_SLIDES);
+  const [notices, setNotices] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const slideIntervalRef = useRef(null);
@@ -101,7 +113,7 @@ export default function HeroBannerCarousel() {
   const touchStartXRef = useRef(0);
   const touchEndXRef = useRef(0);
 
-  // Fetch dynamic banners from Django Admin API
+  // Fetch dynamic banners & latest official notices
   useEffect(() => {
     let isMounted = true;
     getHeroBanners()
@@ -122,6 +134,15 @@ export default function HeroBannerCarousel() {
         }
       })
       .catch(() => {});
+
+    getNotices()
+      .then((data) => {
+        if (!isMounted) return;
+        const list = Array.isArray(data) ? data : data?.results || data?.notices || [];
+        setNotices(list.slice(0, 3));
+      })
+      .catch(() => {});
+
     return () => {
       isMounted = false;
     };
@@ -170,89 +191,34 @@ export default function HeroBannerCarousel() {
     [user?.profile?.planned_exam_date]
   );
 
-  // Quick-launch 2x2 tiles
-  const quickTiles = [
-    {
-      href: '/jft-basic',
-      label: 'JFT-Basic',
-      sub: 'A2 CBT Mock',
-      icon: BookOpen,
-      tone: 'bg-red-50 text-[#DB1A1A] dark:bg-rose-950/50 dark:text-rose-400',
-    },
-    {
-      href: '/jlpt',
-      label: 'JLPT N5–N1',
-      sub: '32k+ Qs Hub',
-      icon: GraduationCap,
-      tone: 'bg-[#EAF4F4] text-[#2C687B] dark:bg-teal-950/50 dark:text-teal-300',
-    },
-    {
-      href: '/ssw-skill-test',
-      label: 'SSW Skills',
-      sub: 'Work Visa',
-      icon: Layers,
-      tone: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200',
-    },
-    isSensei
-      ? {
-          href: `/partner/${encodeURIComponent(ownedSchool.slug)}`,
-          label: 'Sensei LMS',
-          sub: 'Academy Hub',
-          icon: LayoutDashboard,
-          tone: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
-        }
-      : isAuthenticated
-      ? {
-          href: '/student-portal',
-          label: 'Student Portal',
-          sub: 'Courses & Scores',
-          icon: LayoutDashboard,
-          tone: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
-        }
-      : {
-          href: '/game-zone',
-          label: 'Game Zone',
-          sub: '8 Arcade Modes',
-          icon: Gamepad2,
-          tone: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
-        },
-  ];
+  const latestNotice = notices[0] || null;
 
-  // Desktop right-card 2x2 tiles (always includes Game Zone for students too)
-  const desktopTiles = [
-    {
-      href: '/jft-basic',
-      label: 'JFT-Basic',
-      sub: '4-Section CBT',
-      icon: BookOpen,
-      tone: 'bg-red-50 text-[#DB1A1A] dark:bg-rose-950/50 dark:text-rose-400',
-    },
-    {
-      href: '/jlpt',
-      label: 'JLPT N5–N1',
-      sub: 'Mock Sets',
-      icon: GraduationCap,
-      tone: 'bg-[#EAF4F4] text-[#2C687B] dark:bg-teal-950/50 dark:text-teal-300',
-    },
-    {
-      href: '/ssw-skill-test',
-      label: 'SSW Skills',
-      sub: '12 Sectors',
-      icon: Layers,
-      tone: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200',
-    },
-    {
-      href: '/game-zone',
-      label: 'Game Zone',
-      sub: '8 Arcade Modes',
-      icon: Gamepad2,
-      tone: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
-    },
-  ];
+  // Reusable circular avatar on the RIGHT side
+  const renderRoundAvatar = (sizeClass = 'w-12 h-12') => (
+    <Link
+      href={isSensei ? `/partner/${encodeURIComponent(ownedSchool.slug)}` : '/student-portal?tab=profile'}
+      title="View profile"
+      className={`${sizeClass} rounded-full ring-2 ring-[#CBE5E3] dark:ring-slate-700 bg-gradient-to-tr from-[#2C687B] to-japan-red text-white font-black text-sm flex items-center justify-center overflow-hidden shrink-0 shadow-sm hover:scale-105 transition-transform`}
+    >
+      {avatarUrl ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={avatarUrl}
+          alt={displayName}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+      ) : (
+        displayName.slice(0, 1).toUpperCase()
+      )}
+    </Link>
+  );
 
   return (
     <section
-      aria-label="Hero Showcase and Quick Launch"
+      aria-label="Hero Showcase and Live Updates"
       className="space-y-3 lg:space-y-0"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -262,7 +228,7 @@ export default function HeroBannerCarousel() {
          ===================================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 lg:gap-4 items-stretch">
         {/* -------------------------------------------------------------------
-            LEFT SIDE (7 cols on Desktop • Slim 175px Banner on Mobile)
+            LEFT SIDE (7 cols on Desktop • Slim 172px Banner on Mobile)
            ------------------------------------------------------------------- */}
         <div
           className="lg:col-span-7 relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#090d16] text-white shadow-lg border border-slate-800/80 group select-none flex flex-col justify-between"
@@ -294,7 +260,6 @@ export default function HeroBannerCarousel() {
 
                   {/* Single Clean Left Overlay (Headline + 1 Primary CTA) */}
                   <div className="relative z-10 h-full p-4 sm:p-6 lg:p-7 flex flex-col justify-between">
-                    {/* Top micro label (hidden on very small mobile to keep zero clutter) */}
                     <div className="hidden sm:inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-[10px] font-black uppercase tracking-wider text-[#8CC7C4]">
                       <Sparkles className="w-3 h-3" />
                       <span>{slide.badge_text}</span>
@@ -401,31 +366,23 @@ export default function HeroBannerCarousel() {
         </div>
 
         {/* -------------------------------------------------------------------
-            RIGHT SIDE (5 cols on Desktop • Smart Role-Aware Action Panel)
+            RIGHT SIDE (5 cols on Desktop • Round Avatar on Right + Live Notices)
+            Zero duplication with the Exam/Lessons/Game cards below!
            ------------------------------------------------------------------- */}
         <div className="hidden lg:flex lg:col-span-5 flex-col justify-between rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-5 shadow-md shadow-slate-200/40 dark:shadow-none">
-          {/* Top Personalized Header */}
+          {/* Top Personalized Header — Round Profile Picture on the RIGHT */}
           {isSensei ? (
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-11 h-11 rounded-2xl bg-slate-900 text-white font-black text-sm flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-                    {avatarUrl ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
-                    ) : (
-                      displayName.slice(0, 1).toUpperCase()
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
-                      Sensei LMS Quick Launch
-                    </span>
-                    <h2 className="text-base font-black text-slate-900 dark:text-white truncate">
-                      {ownedSchool.name || `Welcome, ${displayName}`}
-                    </h2>
-                  </div>
+                <div className="min-w-0">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
+                    Sensei LMS Quick Launch
+                  </span>
+                  <h2 className="text-lg font-black text-slate-900 dark:text-white truncate">
+                    {ownedSchool.name || `Welcome, ${displayName}`}
+                  </h2>
                 </div>
+                {renderRoundAvatar('w-12 h-12')}
               </div>
 
               <Link
@@ -442,44 +399,30 @@ export default function HeroBannerCarousel() {
           ) : isAuthenticated && user ? (
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#2C687B] to-japan-red text-white font-black text-sm flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-                    {avatarUrl ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
-                    ) : (
-                      displayName.slice(0, 1).toUpperCase()
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
-                      Welcome back,
-                    </p>
-                    <h2 className="text-base font-black text-slate-900 dark:text-white truncate">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                    Welcome back,
+                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-lg font-black text-slate-900 dark:text-white truncate">
                       {displayName}
                     </h2>
+                    {countdown && countdown.diffDays >= 0 ? (
+                      <span className="px-2 py-0.5 rounded-full bg-red-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400 text-[10px] font-black border border-red-200/70 dark:border-rose-800/60">
+                        {countdown.diffDays === 0 ? 'Exam Today!' : `${countdown.diffDays}d to exam`}
+                      </span>
+                    ) : (
+                      <Link
+                        href="/student-portal?tab=profile"
+                        className="px-2 py-0.5 rounded-full bg-[#F4FAFA] dark:bg-slate-800 text-[#2C687B] dark:text-[#8CC7C4] text-[10px] font-extrabold border border-[#CBE5E3] dark:border-slate-700 hover:border-[#2C687B] inline-flex items-center gap-1 transition"
+                      >
+                        <Calendar className="w-2.5 h-2.5" />
+                        <span>Set Exam Date</span>
+                      </Link>
+                    )}
                   </div>
                 </div>
-
-                {/* Live Exam Countdown Badge */}
-                {countdown && countdown.diffDays >= 0 ? (
-                  <div className="px-3 py-1.5 rounded-xl bg-[#F4FAFA] dark:bg-slate-800/80 border border-[#CBE5E3] dark:border-slate-700 text-right shrink-0">
-                    <p className="text-xs font-black text-japan-red leading-none">
-                      {countdown.diffDays === 0 ? 'Exam Today!' : `${countdown.diffDays}d left`}
-                    </p>
-                    <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-0.5">
-                      {countdown.formatted}
-                    </p>
-                  </div>
-                ) : (
-                  <Link
-                    href="/student-portal?tab=profile"
-                    className="px-2.5 py-1.5 rounded-xl bg-[#F4FAFA] dark:bg-slate-800/80 border border-[#CBE5E3] dark:border-slate-700 text-[10px] font-extrabold text-[#2C687B] dark:text-[#8CC7C4] hover:border-[#2C687B] flex items-center gap-1 shrink-0 transition"
-                  >
-                    <Calendar className="w-3 h-3" />
-                    <span>Set Exam Date</span>
-                  </Link>
-                )}
+                {renderRoundAvatar('w-12 h-12')}
               </div>
 
               <Link
@@ -490,24 +433,25 @@ export default function HeroBannerCarousel() {
                   <LayoutDashboard className="w-4 h-4" />
                   <span>Open Student Portal</span>
                 </span>
-                <span className="text-[10px] font-bold opacity-90 truncate max-w-[140px]">
+                <span className="text-[10px] font-bold opacity-90 truncate max-w-[150px]">
                   {targetExamDisplay} →
                 </span>
               </Link>
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="flex items-start justify-between gap-2">
-                <div>
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
                   <span className="text-[10px] font-black uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
                     100% Free CBT Portal
                   </span>
                   <h2 className="text-lg font-black text-slate-900 dark:text-white leading-snug">
                     Start Free CBT Practice
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Pick an exam track below or create a free profile to save scores &amp; track your exam countdown.
-                  </p>
+                </div>
+                <div className="w-11 h-11 rounded-full bg-[#F4FAFA] dark:bg-slate-800 border border-[#CBE5E3] dark:border-slate-700 flex items-center justify-center shrink-0 p-1.5">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/img/logo.png" alt="Gakkou No Shiken" className="w-full h-full object-contain" />
                 </div>
               </div>
 
@@ -529,83 +473,166 @@ export default function HeroBannerCarousel() {
             </div>
           )}
 
-          {/* 2x2 Quick-Launch Tiles */}
-          <div className="grid grid-cols-2 gap-2.5 pt-3 mt-3 border-t border-slate-100 dark:border-slate-800">
-            {desktopTiles.map((tile) => {
-              const Icon = tile.icon;
-              return (
+          {/* Middle Section: Live Official Exam Notices & Updates (Unique value, zero duplication!) */}
+          <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-800 flex-1 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                  <Bell className="w-3.5 h-3.5 text-japan-red" />
+                  <span>Latest Exam Notices</span>
+                </span>
                 <Link
-                  key={tile.href}
-                  href={tile.href}
-                  className="group flex items-center gap-2.5 p-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 hover:border-[#8CC7C4] dark:hover:border-slate-600 hover:bg-white dark:hover:bg-slate-800/80 transition-all"
+                  href="/notices"
+                  className="text-[11px] font-extrabold text-[#2C687B] dark:text-[#8CC7C4] hover:underline"
                 >
-                  <div
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${tile.tone} group-hover:scale-105 transition-transform`}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-black text-slate-900 dark:text-white truncate">
-                      {tile.label}
-                    </p>
-                    <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 truncate">
-                      {tile.sub}
-                    </p>
-                  </div>
+                  View All →
                 </Link>
-              );
-            })}
+              </div>
+
+              {notices.length > 0 ? (
+                <div className="space-y-1.5">
+                  {notices.slice(0, 3).map((n) => (
+                    <Link
+                      key={n.id || n.title}
+                      href="/notices"
+                      className="group flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-slate-50/80 dark:bg-slate-900/60 hover:bg-[#F4FAFA] dark:hover:bg-slate-800/80 border border-slate-200/70 dark:border-slate-800 transition-colors"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="w-1.5 h-1.5 rounded-full bg-japan-red shrink-0" />
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-japan-red truncate">
+                          {n.title}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-400 shrink-0">
+                        {formatShortDate(n.created_at || n.published_at)}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="px-3 py-3 rounded-xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
+                  Stay updated with JFT-Basic, JLPT &amp; SSW Prometric exam schedules, seat openings, and study materials.
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Unique Utility Pills (Resources not duplicated in the main grid below) */}
+            <div className="grid grid-cols-3 gap-2 pt-3 mt-2">
+              <Link
+                href="/books"
+                className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-[#F4FAFA] dark:bg-slate-800/70 border border-[#CBE5E3] dark:border-slate-700 hover:border-[#2C687B] text-[11px] font-extrabold text-slate-800 dark:text-slate-200 transition"
+              >
+                <BookMarked className="w-3.5 h-3.5 text-[#2C687B] dark:text-[#8CC7C4] shrink-0" />
+                <span className="truncate">PDF Books</span>
+              </Link>
+              <Link
+                href="/leaderboard"
+                className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-800/50 hover:border-amber-400 text-[11px] font-extrabold text-slate-800 dark:text-slate-200 transition"
+              >
+                <Trophy className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span className="truncate">Ranks</span>
+              </Link>
+              <Link
+                href="/partners"
+                className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl bg-slate-100/80 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 hover:border-slate-400 text-[11px] font-extrabold text-slate-800 dark:text-slate-200 transition"
+              >
+                <Building2 className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300 shrink-0" />
+                <span className="truncate">Schools</span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
 
       {/* =====================================================================
-          MOBILE & TABLET NATIVE APP 2×2 QUICK-LAUNCH GRID (< lg)
-          Always visible above the fold right beneath the slim 175px banner!
+          MOBILE & TABLET COMPACT ROLE + LIVE NOTICE CARD (< lg)
+          Zero duplicate JFT/JLPT/SSW tiles — keeps the Exam Suite higher up!
          ===================================================================== */}
-      <div className="lg:hidden space-y-2.5 pt-1">
-        {/* Compact Personalized Countdown Strip (Logged-in Student with Exam Date) */}
-        {isAuthenticated && !isSensei && countdown && countdown.diffDays >= 0 && (
-          <Link
-            href="/student-portal"
-            className="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-2xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 shadow-xs"
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              <Calendar className="w-4 h-4 text-japan-red shrink-0" />
-              <span className="text-xs font-extrabold text-slate-800 dark:text-white truncate">
-                Hi {displayName} • {targetExamDisplay}
-              </span>
-            </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-red-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400 text-[11px] font-black shrink-0">
-              {countdown.diffDays === 0 ? 'Today!' : `${countdown.diffDays}d left`}
-            </span>
-          </Link>
-        )}
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          {quickTiles.map((tile) => {
-            const Icon = tile.icon;
-            return (
-              <Link
-                key={tile.href}
-                href={tile.href}
-                className="flex items-center gap-2.5 p-3 rounded-2xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 shadow-xs active:scale-[0.98] transition"
-              >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${tile.tone}`}>
-                  <Icon className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
+      <div className="lg:hidden rounded-2xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-3.5 shadow-xs space-y-2.5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            {isSensei ? (
+              <>
+                <p className="text-[10px] font-black uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
+                  Sensei LMS Portal
+                </p>
+                <Link
+                  href={`/partner/${encodeURIComponent(ownedSchool.slug)}`}
+                  className="inline-flex items-center gap-1.5 text-sm font-black text-slate-900 dark:text-white hover:text-japan-red truncate max-w-full"
+                >
+                  <span className="truncate">{ownedSchool.name || displayName}</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-japan-red shrink-0" />
+                </Link>
+              </>
+            ) : isAuthenticated && user ? (
+              <>
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <p className="text-xs font-black text-slate-900 dark:text-white truncate">
-                    {tile.label}
+                    Hi, {displayName}
                   </p>
-                  <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 truncate">
-                    {tile.sub}
-                  </p>
+                  {countdown && countdown.diffDays >= 0 && (
+                    <span className="px-2 py-0.5 rounded-full bg-red-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400 text-[10px] font-black">
+                      {countdown.diffDays === 0 ? 'Exam Today!' : `${countdown.diffDays}d left`}
+                    </span>
+                  )}
                 </div>
-              </Link>
-            );
-          })}
+                <Link
+                  href="/student-portal"
+                  className="inline-flex items-center gap-1 text-[11px] font-extrabold text-[#2C687B] dark:text-[#8CC7C4] mt-0.5"
+                >
+                  <span>Open Student Portal</span>
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              </>
+            ) : (
+              <>
+                <p className="text-xs font-black text-slate-900 dark:text-white">
+                  Free Japanese CBT Portal
+                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <Link
+                    href="/accounts/signup"
+                    className="px-3 py-1 rounded-lg bg-japan-red text-white text-[11px] font-extrabold"
+                  >
+                    Create Free Account
+                  </Link>
+                  <Link
+                    href="/accounts/login"
+                    className="text-[11px] font-extrabold text-slate-600 dark:text-slate-300"
+                  >
+                    Sign In
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Circular Avatar on the RIGHT */}
+          {isAuthenticated ? (
+            renderRoundAvatar('w-10 h-10')
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-[#F4FAFA] dark:bg-slate-800 border border-[#CBE5E3] dark:border-slate-700 flex items-center justify-center shrink-0 p-1.5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/img/logo.png" alt="Gakkou No Shiken" className="w-full h-full object-contain" />
+            </div>
+          )}
         </div>
+
+        {/* 1-Line Live Exam Notice Ticker */}
+        <Link
+          href="/notices"
+          className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-800 text-[11px]"
+        >
+          <span className="flex items-center gap-1.5 min-w-0 font-bold text-slate-700 dark:text-slate-200">
+            <Bell className="w-3.5 h-3.5 text-japan-red shrink-0" />
+            <span className="truncate">
+              {latestNotice ? latestNotice.title : 'Check latest JFT-Basic, JLPT & SSW exam notices'}
+            </span>
+          </span>
+          <span className="text-[10px] font-extrabold text-[#2C687B] dark:text-[#8CC7C4] shrink-0">
+            Notices →
+          </span>
+        </Link>
       </div>
     </section>
   );
