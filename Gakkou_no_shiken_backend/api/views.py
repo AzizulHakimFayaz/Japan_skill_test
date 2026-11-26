@@ -1,6 +1,7 @@
 from collections import OrderedDict, defaultdict
 from typing import Any
 import csv
+import datetime
 import io
 import json
 import urllib.request
@@ -824,6 +825,21 @@ class VerifyRegistrationOTPAPIView(APIView):
             if detected:
                 profile.country = detected
                 profile.country_source = UserProfile.CountrySource.IP
+
+        raw_target_exam = str(request.data.get('target_exam') or '').strip()
+        valid_exams = {c[0] for c in UserProfile.TargetExam.choices}
+        if raw_target_exam in valid_exams:
+            profile.target_exam = raw_target_exam
+
+        raw_exam_date = str(request.data.get('planned_exam_date') or '').strip()
+        if raw_exam_date:
+            try:
+                if len(raw_exam_date) == 7:
+                    raw_exam_date = f"{raw_exam_date}-01"
+                profile.planned_exam_date = datetime.date.fromisoformat(raw_exam_date[:10])
+            except ValueError:
+                pass
+
         profile.save()
 
         # If registering as a School / Sensei (LPK), auto-provision PartnerSchool
@@ -834,7 +850,7 @@ class VerifyRegistrationOTPAPIView(APIView):
 
         tokens = get_tokens_for_user(user)
         return Response({
-            'user': UserSerializer(user).data,
+            'user': UserSerializer(user, context={'request': request}).data,
             'tokens': tokens,
             'partner_school': PartnerSchoolSummarySerializer(created_school).data if created_school else None,
             'message': (
@@ -903,7 +919,7 @@ class RegisterAPIView(APIView):
                 created_school = _provision_partner_school_for_user(user, request.data)
             tokens = get_tokens_for_user(user)
             return Response({
-                'user': UserSerializer(user).data,
+                'user': UserSerializer(user, context={'request': request}).data,
                 'tokens': tokens,
                 'partner_school': PartnerSchoolSummarySerializer(created_school).data if created_school else None,
                 'message': f"Welcome to JFT Practice, {user.username}!"
@@ -928,7 +944,7 @@ class PartnerSchoolSelfSetupAPIView(APIView):
         school = _provision_partner_school_for_user(request.user, request.data)
         return Response({
             'status': 'success',
-            'user': UserSerializer(request.user).data,
+            'user': UserSerializer(request.user, context={'request': request}).data,
             'partner_school': PartnerSchoolSummarySerializer(school).data,
             'message': f"{school.name} Sensei LMS Portal is ready!",
         }, status=status.HTTP_201_CREATED)
@@ -988,7 +1004,7 @@ class LoginAPIView(APIView):
                     profile.save(update_fields=update_fields)
             tokens = get_tokens_for_user(user)
             return Response({
-                'user': UserSerializer(user).data,
+                'user': UserSerializer(user, context={'request': request}).data,
                 'tokens': tokens,
                 'message': f"Welcome back, {user.username}!"
             })
@@ -1129,7 +1145,7 @@ class ConfirmCountryAPIView(APIView):
         return Response({
             'status': 'success',
             'message': f'Country confirmed as {country}.',
-            'user': UserSerializer(request.user).data
+            'user': UserSerializer(request.user, context={'request': request}).data
         }, status=status.HTTP_200_OK)
 
 
@@ -1249,7 +1265,7 @@ class GoogleAuthAPIView(APIView):
         message = f"Welcome to Gakkou No Shiken, {welcome_name}!" if is_new_user else f"Welcome back, {welcome_name}!"
 
         return Response({
-            'user': UserSerializer(user).data,
+            'user': UserSerializer(user, context={'request': request}).data,
             'tokens': tokens,
             'is_new_user': is_new_user,
             'message': message,
@@ -1263,7 +1279,7 @@ class MeAPIView(APIView):
 
     def get(self, request):
         return Response({
-            'user': UserSerializer(request.user).data
+            'user': UserSerializer(request.user, context={'request': request}).data
         })
 
 
@@ -1405,7 +1421,7 @@ class ProfileAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        return Response(UserSerializer(request.user).data)
+        return Response(UserSerializer(request.user, context={'request': request}).data)
 
     def put(self, request):
         return self.update_profile(request)
@@ -1417,8 +1433,9 @@ class ProfileAPIView(APIView):
         serializer = UserProfileUpdateSerializer(instance=request.user, data=request.data, partial=True)
         if serializer.is_valid():
             user = serializer.save()
+            refreshed = User.objects.select_related('profile', 'profile__partner_school').get(pk=user.pk)
             return Response({
-                'user': UserSerializer(user).data,
+                'user': UserSerializer(refreshed, context={'request': request}).data,
                 'message': 'Profile updated successfully!'
             })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -3093,7 +3110,7 @@ class PartnerSchoolJoinAPIView(APIView):
             'status': 'success',
             'partner_status': profile.partner_status,
             'message': status_msg,
-            'user': UserSerializer(refreshed_user).data,
+            'user': UserSerializer(refreshed_user, context={'request': request}).data,
             'partner_school': PartnerSchoolSummarySerializer(school).data,
         })
 
@@ -3112,7 +3129,7 @@ class PartnerSchoolLeaveAPIView(APIView):
         return Response({
             'status': 'success',
             'message': 'You have left the partner school batch.',
-            'user': UserSerializer(refreshed_user).data,
+            'user': UserSerializer(refreshed_user, context={'request': request}).data,
         })
 
 

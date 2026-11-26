@@ -9,6 +9,7 @@ import {
   resendRegistrationOTP,
   detectVisitorCountry,
   joinPartnerSchool,
+  uploadProfileAvatar,
 } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
 import GoogleSignInButton from '@/components/GoogleSignInButton';
@@ -29,6 +30,9 @@ import {
   MapPin,
   Users,
   KeyRound,
+  Camera,
+  Calendar,
+  X,
 } from 'lucide-react';
 
 function SignupForm() {
@@ -36,7 +40,7 @@ function SignupForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get('next') || '/';
   const initialRole = searchParams.get('role') === 'school' ? 'school' : 'candidate';
-  const { login } = useAuth();
+  const { login, refreshUser } = useAuth();
 
   // Role Switcher: 'candidate' | 'school'
   const [role, setRole] = useState(initialRole);
@@ -49,6 +53,12 @@ function SignupForm() {
   const [country, setCountry] = useState('Bangladesh');
   const [customCountry, setCustomCountry] = useState('');
   const [detectedLocation, setDetectedLocation] = useState(null);
+
+  // Optional Profile Photo + Target Exam Schedule (for Candidate analytics & personalization)
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState('');
+  const [targetExam, setTargetExam] = useState('jft_basic');
+  const [plannedExamDate, setPlannedExamDate] = useState('');
 
   // School / Sensei Specific State (Required when role === 'school')
   const [schoolName, setSchoolName] = useState('');
@@ -250,11 +260,25 @@ function SignupForm() {
               require_join_pin: requireJoinPin,
               require_approval: requireApproval,
             }
-          : { role: 'candidate' };
+          : {
+              role: 'candidate',
+              target_exam: targetExam,
+              ...(plannedExamDate ? { planned_exam_date: plannedExamDate } : {}),
+            };
 
       const data = await verifyRegistrationOTP(email, code, extraPayload);
       if (data?.user) {
         login(data.user);
+
+        // If user selected a profile photo during signup, compress & upload it now
+        if (avatarFile) {
+          try {
+            await uploadProfileAvatar(avatarFile);
+            if (refreshUser) await refreshUser();
+          } catch {
+            // Non-blocking: user can always upload later in Student Portal
+          }
+        }
 
         // If School registration, redirect directly to the new Schoooli Sensei LMS Portal
         const createdSlug =
@@ -636,6 +660,63 @@ function SignupForm() {
           </div>
         )}
 
+        {/* Optional Profile Photo Picker */}
+        <div className="flex items-center gap-4 p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/70">
+          <div className="relative shrink-0">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#2C687B] to-[#DB1A1A] text-white flex items-center justify-center overflow-hidden shadow-sm">
+              {avatarPreview ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={avatarPreview} alt="Avatar preview" className="w-full h-full object-cover" />
+              ) : (
+                <Camera className="w-6 h-6 opacity-90" />
+              )}
+            </div>
+            {avatarPreview && (
+              <button
+                type="button"
+                onClick={() => {
+                  setAvatarFile(null);
+                  setAvatarPreview('');
+                }}
+                aria-label="Remove selected photo"
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center shadow cursor-pointer hover:bg-[#DB1A1A]"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-extrabold text-slate-800 dark:text-white">
+              Profile Photo <span className="text-[11px] font-semibold text-slate-400">(Optional)</span>
+            </p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Auto-resized to crisp 256×256 WebP (~20 KB). Max 5 MB.
+            </p>
+            <label className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-200 hover:border-[#2C687B] cursor-pointer transition-colors">
+              <Camera className="w-3.5 h-3.5 text-[#2C687B]" />
+              <span>{avatarPreview ? 'Change Photo' : 'Choose Image'}</span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > 5 * 1024 * 1024) {
+                    setError('Profile photo must be under 5 MB.');
+                    e.target.value = '';
+                    return;
+                  }
+                  setAvatarFile(file);
+                  const reader = new FileReader();
+                  reader.onload = () => setAvatarPreview(String(reader.result || ''));
+                  reader.readAsDataURL(file);
+                }}
+              />
+            </label>
+          </div>
+        </div>
+
         {/* First & Last Name */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -773,6 +854,61 @@ function SignupForm() {
             />
           )}
         </div>
+
+        {/* Candidate Target Exam & Expected Exam Date */}
+        {!isSchool && (
+          <div className="p-4 rounded-2xl bg-[#F4FAFA] dark:bg-slate-800/50 border border-[#CBE5E3] dark:border-slate-700/80 space-y-3">
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
+              <Calendar className="w-4 h-4" />
+              <span>When is your target exam?</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label
+                  htmlFor="id_target_exam"
+                  className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1"
+                >
+                  Target Exam Track
+                </label>
+                <select
+                  id="id_target_exam"
+                  value={targetExam}
+                  onChange={(e) => setTargetExam(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#2C687B]"
+                >
+                  <option value="jft_basic">JFT-Basic (A2 Standard)</option>
+                  <option value="jlpt_n4">JLPT N4</option>
+                  <option value="jlpt_n3">JLPT N3</option>
+                  <option value="ssw_nursing">SSW: Nursing Care (介護)</option>
+                  <option value="ssw_food">SSW: Food Service (外食業)</option>
+                  <option value="ssw_agriculture">SSW: Agriculture (農業)</option>
+                  <option value="ssw_construction">SSW: Construction (建設業)</option>
+                  <option value="ssw_manufacturing">SSW: Manufacturing (製造業)</option>
+                  <option value="ssw_accommodation">SSW: Accommodation (宿泊業)</option>
+                  <option value="other">Other Examination</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor="id_planned_exam_date"
+                  className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1"
+                >
+                  Expected Exam Date <span className="text-slate-400 font-semibold normal-case">(Optional)</span>
+                </label>
+                <input
+                  type="date"
+                  id="id_planned_exam_date"
+                  value={plannedExamDate}
+                  onChange={(e) => setPlannedExamDate(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#2C687B]"
+                />
+              </div>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Helps us tailor your mock test countdown &amp; seasonal study tips. You can change this anytime in your Profile.
+            </p>
+          </div>
+        )}
 
         {/* Password & Confirm Password */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

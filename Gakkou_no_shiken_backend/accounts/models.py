@@ -174,6 +174,12 @@ class UserProfile(models.Model):
         default=TargetExam.JFT_BASIC,
         blank=True
     )
+    planned_exam_date = models.DateField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="Candidate's planned JFT-Basic / JLPT / SSW exam date (for study planning & peak-month analytics).",
+    )
     japanese_level = models.CharField(
         max_length=20,
         choices=JapaneseLevel.choices,

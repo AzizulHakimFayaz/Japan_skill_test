@@ -62,7 +62,16 @@ export function AuthProvider({ children }) {
         loading,
         login: handleLogin,
         logout: handleLogout,
-        refreshUser: () => getMe().then(res => setUser(res.user)),
+        refreshUser: () =>
+          getMe().then((res) => {
+            if (res?.user) {
+              setUser(res.user);
+              try {
+                localStorage.setItem('user_info', JSON.stringify(res.user));
+              } catch {}
+            }
+            return res;
+          }),
       }}
     >
       {children}

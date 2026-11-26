@@ -217,6 +217,7 @@ export default function StudentPortalPage() {
   const [profCountry, setProfCountry] = useState('');
   const [profLocation, setProfLocation] = useState('');
   const [profTargetExam, setProfTargetExam] = useState('jft_basic');
+  const [profExamDate, setProfExamDate] = useState('');
   const [profJpLevel, setProfJpLevel] = useState('n4');
   const [profBio, setProfBio] = useState('');
   const [profSaving, setProfSaving] = useState(false);
@@ -270,6 +271,7 @@ export default function StudentPortalPage() {
         setProfCountry(res.student.country || '');
         setProfLocation(res.student.location || '');
         setProfTargetExam(res.student.target_exam || 'jft_basic');
+        setProfExamDate(res.student.planned_exam_date || '');
         setProfJpLevel(res.student.japanese_level || 'n4');
         setProfBio(res.student.bio || '');
       }
@@ -441,6 +443,7 @@ export default function StudentPortalPage() {
         country: profCountry.trim(),
         location: profLocation.trim(),
         target_exam: profTargetExam,
+        planned_exam_date: profExamDate || null,
         japanese_level: profJpLevel,
         bio: profBio.trim(),
       });
@@ -2350,6 +2353,15 @@ export default function StudentPortalPage() {
                         <option key={o.value} value={o.value}>{o.label}</option>
                       ))}
                     </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">Planned Exam Date</label>
+                    <input
+                      type="date"
+                      value={profExamDate}
+                      onChange={(e) => setProfExamDate(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-700 text-xs font-semibold outline-none"
+                    />
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold text-slate-500 mb-1">Country</label>

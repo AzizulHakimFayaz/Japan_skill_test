@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
@@ -20,6 +21,9 @@ def get_absolute_media_url(file_field, request=None):
             if 'gakkounoshiken.site' in abs_url and abs_url.startswith('http://'):
                 abs_url = 'https://' + abs_url[len('http://'):]
             return abs_url
+        if not getattr(settings, 'DEBUG', False):
+            backend_origin = getattr(settings, 'PUBLIC_BACKEND_ORIGIN', 'https://api.gakkounoshiken.site').rstrip('/')
+            return f'{backend_origin}{url}'
         return url
     except Exception:
         return None
@@ -66,6 +70,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'bio',
             'target_exam',
             'target_exam_display',
+            'planned_exam_date',
             'japanese_level',
             'japanese_level_display',
             'location',
@@ -166,6 +171,7 @@ class UserProfileUpdateSerializer(serializers.Serializer):
     email = serializers.EmailField(required=False, allow_blank=True)
     bio = serializers.CharField(required=False, allow_blank=True, max_length=500)
     target_exam = serializers.ChoiceField(choices=UserProfile.TargetExam.choices, required=False)
+    planned_exam_date = serializers.DateField(required=False, allow_null=True, input_formats=['%Y-%m-%d', '%Y-%m'])
     japanese_level = serializers.ChoiceField(choices=UserProfile.JapaneseLevel.choices, required=False)
     location = serializers.CharField(required=False, allow_blank=True, max_length=100)
     country = serializers.CharField(required=False, allow_blank=False, max_length=100)
@@ -202,6 +208,8 @@ class UserProfileUpdateSerializer(serializers.Serializer):
             profile.bio = validated_data['bio']
         if 'target_exam' in validated_data:
             profile.target_exam = validated_data['target_exam']
+        if 'planned_exam_date' in validated_data:
+            profile.planned_exam_date = validated_data['planned_exam_date']
         if 'japanese_level' in validated_data:
             profile.japanese_level = validated_data['japanese_level']
         if 'location' in validated_data:

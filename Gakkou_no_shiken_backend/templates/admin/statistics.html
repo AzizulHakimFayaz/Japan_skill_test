@@ -167,6 +167,9 @@
             <a href="{% url 'admin:tests_attempt_changelist' %}" class="btn btn-outline-success btn-sm shadow-sm">
                 <i class="fas fa-file-signature me-1"></i> All Exam Attempts ({{ total_attempts }})
             </a>
+            <a href="?export=csv" class="btn btn-outline-warning btn-sm shadow-sm font-weight-bold">
+                <i class="fas fa-file-csv me-1"></i> Export Data Mining CSV
+            </a>
             <button onclick="window.location.reload();" class="btn btn-primary btn-sm shadow-sm font-weight-bold">
                 <i class="fas fa-sync-alt me-1"></i> Refresh Data
             </button>
@@ -311,6 +314,241 @@
         </div>
     </div>
 
+    <!-- ================================================================== -->
+    <!-- DATA MINING & PEAK EXAM INTELLIGENCE SUITE                         -->
+    <!-- ================================================================== -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card" style="border-top: 3px solid #DB1A1A;">
+                <div class="stat-label"><i class="fas fa-fire text-danger me-1"></i> Peak Exam Month</div>
+                <div class="stat-number" style="font-size: 1.65rem;">
+                    {% if peak_month_row %}{{ peak_month_row.full_label }}{% else %}—{% endif %}
+                </div>
+                <div class="mt-2 small text-muted">
+                    {% if peak_month_row %}
+                        <strong class="text-danger">{{ peak_month_row.attempts }}</strong> mock exams • {{ peak_month_row.pass_rate }}% pass rate
+                    {% else %}
+                        Awaiting exam attempts
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card" style="border-top: 3px solid #f59e0b;">
+                <div class="stat-label"><i class="fas fa-clock text-warning me-1"></i> Peak Exam Hour (BDT)</div>
+                <div class="stat-number" style="font-size: 1.45rem;">{{ peak_hour_label }}</div>
+                <div class="mt-2 small text-muted">
+                    <strong class="text-warning">{{ peak_hour_count }}</strong> exams submitted in this window
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card" style="border-top: 3px solid #0ea5e9;">
+                <div class="stat-label"><i class="fas fa-calendar-week text-info me-1"></i> Busiest Day of Week</div>
+                <div class="stat-number" style="font-size: 1.65rem;">{{ peak_weekday_name }}</div>
+                <div class="mt-2 small text-muted">
+                    <strong class="text-info">{{ peak_weekday_pct }}%</strong> of all mock exam volume
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stat-card" style="border-top: 3px solid #10b981;">
+                <div class="stat-label"><i class="fas fa-calendar-check text-success me-1"></i> Top Upcoming Exam Month</div>
+                <div class="stat-number" style="font-size: 1.65rem;">
+                    {% if top_upcoming_month %}{{ top_upcoming_month.label }}{% else %}Collecting…{% endif %}
+                </div>
+                <div class="mt-2 small text-muted">
+                    {% if top_upcoming_month %}
+                        <strong class="text-success">{{ top_upcoming_month.count }}</strong> candidates ({{ top_upcoming_month.top_track }})
+                    {% else %}
+                        {{ planned_total_users }} candidates set exam date ({{ planned_date_adoption_pct }}%)
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Trend + Upcoming Exam Demand Forecast Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-lg-7">
+            <div class="dash-card mb-0 h-100">
+                <div class="dash-card-header">
+                    <h5 class="dash-card-title">
+                        <i class="fas fa-chart-bar text-danger"></i> Monthly Exam Volume &amp; Signups (Last 12 Months)
+                    </h5>
+                    <span class="badge bg-secondary">Peak Month Highlighted</span>
+                </div>
+                <div class="p-3">
+                    <div class="d-flex align-items-end justify-content-between gap-1" style="height: 170px; padding-top: 16px;">
+                        {% for m in monthly_trends %}
+                        <div class="d-flex flex-column align-items-center flex-fill" style="min-width: 0;" title="{{ m.full_label }}: {{ m.attempts }} exams, {{ m.registrations }} signups, {{ m.pass_rate }}% pass">
+                            <span class="small font-weight-bold mb-1" style="font-size: 10px; color: {% if m.is_peak %}#DB1A1A{% else %}var(--dropx-text-muted){% endif %};">
+                                {{ m.attempts }}
+                            </span>
+                            <div class="w-100 d-flex align-items-end justify-content-center" style="height: 120px;">
+                                <div style="width: 72%; max-width: 28px; height: {{ m.bar_pct }}%; min-height: {% if m.attempts > 0 %}6px{% else %}2px{% endif %}; border-radius: 6px 6px 2px 2px; background: {% if m.is_peak %}linear-gradient(180deg, #DB1A1A, #f43f5e){% elif m.attempts > 0 %}linear-gradient(180deg, #2C687B, #8CC7C4){% else %}var(--dropx-border){% endif %};"></div>
+                            </div>
+                            <span class="mt-1 text-muted text-truncate" style="font-size: 10px;">{{ m.label }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-dash table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th class="text-center">Mock Exams</th>
+                                    <th class="text-center">New Signups</th>
+                                    <th class="text-center">Pass Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for m in monthly_trends reversed %}
+                                {% if m.attempts > 0 or m.registrations > 0 %}
+                                <tr>
+                                    <td>
+                                        <strong class="text-white">{{ m.full_label }}</strong>
+                                        {% if m.is_peak %}<span class="badge bg-danger ms-1" style="font-size: 9px;">PEAK</span>{% endif %}
+                                    </td>
+                                    <td class="text-center font-weight-bold">{{ m.attempts }}</td>
+                                    <td class="text-center text-info">+{{ m.registrations }}</td>
+                                    <td class="text-center">
+                                        <span class="badge {% if m.pass_rate >= 60 %}bg-success{% elif m.pass_rate >= 30 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                            {{ m.pass_rate }}%
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+            <div class="dash-card mb-0 h-100">
+                <div class="dash-card-header">
+                    <h5 class="dash-card-title">
+                        <i class="fas fa-calendar-alt text-success"></i> Upcoming Exam Demand Forecast
+                    </h5>
+                    <span class="badge bg-success">{{ planned_total_users }} Planned</span>
+                </div>
+                <div class="p-3">
+                    <p class="small text-muted mb-3">
+                        Based on candidates' target exam dates chosen during registration &amp; profile setup. Shows which future months will have the highest exam rush.
+                    </p>
+                    {% if upcoming_exam_months %}
+                        <div class="d-flex flex-column gap-3 mb-3">
+                            {% for um in upcoming_exam_months %}
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-white font-weight-bold small">
+                                        {{ um.label }}
+                                        {% if um.is_peak %}<span class="badge bg-success ms-1" style="font-size: 9px;">HIGHEST DEMAND</span>{% endif %}
+                                    </span>
+                                    <span class="small text-muted">
+                                        <strong class="text-success">{{ um.count }}</strong> candidates • {{ um.top_track }}
+                                    </span>
+                                </div>
+                                <div class="progress progress-dark">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ um.bar_pct }}%;"></div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4 border border-secondary border-opacity-25 rounded-3 mb-3">
+                            <i class="fas fa-calendar-plus fa-2x mb-2 opacity-50"></i>
+                            <p class="small mb-0">No upcoming exam dates recorded yet. As new candidates register with their target exam date, monthly demand will populate here automatically.</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="border-top border-secondary border-opacity-25 pt-3">
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span class="text-muted"><i class="fas fa-camera me-1 text-info"></i> Profile Photo Adoption</span>
+                            <strong class="text-white">{{ avatar_uploaded_count }} / {{ total_users }} ({{ avatar_adoption_pct }}%)</strong>
+                        </div>
+                        <div class="d-flex justify-content-between small mb-3">
+                            <span class="text-muted"><i class="fas fa-bullseye me-1 text-success"></i> Exam Date Set Rate</span>
+                            <strong class="text-white">{{ planned_total_users }} / {{ total_users }} ({{ planned_date_adoption_pct }}%)</strong>
+                        </div>
+                        <div class="stat-label mb-2" style="font-size: 0.72rem;">Target Exam Track Breakdown</div>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for te in target_exam_breakdown %}
+                            <span class="stat-badge badge-indigo">{{ te.label }}: {{ te.count }} ({{ te.percentage }}%)</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 24-Hour Peak Activity + Day of Week Heatmap Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-lg-8">
+            <div class="dash-card mb-0 h-100">
+                <div class="dash-card-header">
+                    <h5 class="dash-card-title">
+                        <i class="fas fa-stopwatch text-warning"></i> 24-Hour Exam Activity Distribution (BDT / UTC+6)
+                    </h5>
+                    <span class="badge bg-warning text-dark">Peak: {{ peak_hour_label }}</span>
+                </div>
+                <div class="p-3">
+                    <div class="d-flex align-items-end justify-content-between gap-1" style="height: 145px;">
+                        {% for h in hourly_distribution %}
+                        <div class="d-flex flex-column align-items-center flex-fill" style="min-width: 0;" title="{{ h.label }} (BDT): {{ h.count }} exams ({{ h.percentage }}%)">
+                            <div class="w-100 d-flex align-items-end justify-content-center" style="height: 112px;">
+                                <div style="width: 82%; height: {{ h.bar_pct }}%; min-height: {% if h.count > 0 %}5px{% else %}2px{% endif %}; border-radius: 4px 4px 1px 1px; background: {% if h.is_peak %}#DB1A1A{% elif h.count > 0 %}#f59e0b{% else %}var(--dropx-border){% endif %};"></div>
+                            </div>
+                            <span class="mt-1 text-muted" style="font-size: 9px;">{% if h.hour|divisibleby:2 %}{{ h.short_label }}{% else %}&nbsp;{% endif %}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="row g-2 mt-2">
+                        {% for tb in time_blocks %}
+                        <div class="col-6 col-md-3">
+                            <div class="p-2 rounded-3 border border-secondary border-opacity-25 text-center">
+                                <div class="small text-muted" style="font-size: 10px;"><i class="fas {{ tb.icon }} me-1" style="color: {{ tb.color }};"></i>{{ tb.name }}</div>
+                                <div class="font-weight-bold text-white">{{ tb.count }} <span class="small text-muted">({{ tb.percentage }}%)</span></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="dash-card mb-0 h-100">
+                <div class="dash-card-header">
+                    <h5 class="dash-card-title">
+                        <i class="fas fa-calendar-day text-info"></i> Day-of-Week Exam Load
+                    </h5>
+                    <span class="badge bg-info text-dark">{{ peak_weekday_name }}</span>
+                </div>
+                <div class="p-3 d-flex flex-column gap-2">
+                    {% for wd in weekday_distribution %}
+                    <div>
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="text-white font-weight-bold">
+                                {{ wd.day }}
+                                {% if wd.is_peak %}<span class="badge bg-danger ms-1" style="font-size: 9px;">PEAK</span>{% endif %}
+                            </span>
+                            <span class="text-muted"><strong class="text-info">{{ wd.count }}</strong> ({{ wd.percentage }}%)</span>
+                        </div>
+                        <div class="progress progress-dark">
+                            <div class="progress-bar {% if wd.is_peak %}bg-danger{% else %}bg-info{% endif %}" role="progressbar" style="width: {{ wd.bar_pct }}%;"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content Row -->
     <div class="row g-3">
         <!-- Left Column: Country Distribution & Exam Performance -->
@@ -428,8 +666,12 @@
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
-                                        <div class="avatar-circle">
+                                        <div class="avatar-circle" style="overflow: hidden;">
+                                            {% if u.avatar_url %}
+                                            <img src="{{ u.avatar_url }}" alt="{{ u.username }}" style="width: 100%; height: 100%; object-fit: cover;" />
+                                            {% else %}
                                             {{ u.username|first|upper }}
+                                            {% endif %}
                                         </div>
                                         <div>
                                             <a href="{% url 'admin:auth_user_change' u.id %}" class="text-info font-weight-bold text-decoration-none">
@@ -437,6 +679,9 @@
                                             </a>
                                             {% if u.is_staff %}
                                             <span class="badge bg-danger ms-1" style="font-size: 10px;">STAFF</span>
+                                            {% endif %}
+                                            {% if u.planned_exam_date %}
+                                            <span class="badge bg-success ms-1" style="font-size: 10px;">Exam: {{ u.planned_exam_date|date:"M Y" }}</span>
                                             {% endif %}
                                             <div class="small text-muted">{{ u.email }}</div>
                                         </div>

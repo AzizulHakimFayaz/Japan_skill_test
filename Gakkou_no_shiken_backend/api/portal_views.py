@@ -435,6 +435,7 @@ class StudentPortalOverviewAPIView(APIView):
                     'avatar_url': get_absolute_media_url(profile.avatar, request),
                     'bio': profile.bio,
                     'target_exam': profile.target_exam,
+                    'planned_exam_date': profile.planned_exam_date.isoformat() if profile.planned_exam_date else None,
                     'japanese_level': profile.japanese_level,
                     'location': profile.location,
                     'country': profile.country or '',
