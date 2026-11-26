@@ -36,10 +36,15 @@ import {
   LogIn,
   ShieldCheck,
   Loader2,
+  Trophy,
+  Eye,
+  ArrowRight,
+  Check,
 } from 'lucide-react';
 import { useAuth } from '@/components/AuthContext';
 import {
   getStudentPortal,
+  getMyResults,
   updateStudentLessonProgress,
   getCourseDiscussions,
   postCourseDiscussion,
@@ -49,11 +54,33 @@ import {
 const SIDEBAR_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'courses', label: 'My Courses', icon: BookOpen },
+  { id: 'results', label: 'Exam Results', icon: Award },
   { id: 'resources', label: 'Resources', icon: Bookmark },
   { id: 'schedule', label: 'Schedule', icon: Calendar },
   { id: 'notices', label: 'Academy Notices', icon: Bell },
   { id: 'profile', label: 'Profile', icon: User },
   { id: 'settings', label: 'Settings', icon: Settings },
+];
+
+const TARGET_EXAM_OPTIONS = [
+  { value: 'jft_basic', label: 'JFT-Basic (A2 Standard)' },
+  { value: 'ssw_nursing', label: 'SSW: Nursing Care (介護)' },
+  { value: 'ssw_food', label: 'SSW: Food Service (外食業)' },
+  { value: 'ssw_agriculture', label: 'SSW: Agriculture (農業)' },
+  { value: 'ssw_construction', label: 'SSW: Construction (建設業)' },
+  { value: 'ssw_manufacturing', label: 'SSW: Manufacturing (製造業)' },
+  { value: 'ssw_accommodation', label: 'SSW: Accommodation (宿泊業)' },
+  { value: 'jlpt_n4', label: 'JLPT N4' },
+  { value: 'jlpt_n3', label: 'JLPT N3' },
+  { value: 'other', label: 'Other Examination' },
+];
+
+const JAPANESE_LEVEL_OPTIONS = [
+  { value: 'n5', label: 'Beginner (N5 / A1)' },
+  { value: 'n4', label: 'Elementary (N4 / A2)' },
+  { value: 'n3', label: 'Intermediate (N3 / B1)' },
+  { value: 'n2', label: 'Upper Intermediate (N2 / B2)' },
+  { value: 'n1', label: 'Advanced (N1 / C1)' },
 ];
 
 const STUDY_LANG_OPTIONS = [
@@ -121,9 +148,35 @@ export default function StudentPortalPage() {
   const { isAuthenticated, loading: authLoading, refreshUser } = useAuth();
 
   const [portal, setPortal] = useState(null);
+  const [resultsData, setResultsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const switchTab = useCallback((tabId) => {
+    setActiveTab(tabId);
+    if (tabId !== 'courses') setSelectedCourseId(null);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (tabId && tabId !== 'dashboard') {
+        url.searchParams.set('tab', tabId);
+      } else {
+        url.searchParams.delete('tab');
+      }
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, []);
+
+  // Support deep linking via ?tab=profile|results|courses|resources|schedule|notices|settings
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const sp = new URLSearchParams(window.location.search);
+    const tab = (sp.get('tab') || '').toLowerCase();
+    const valid = SIDEBAR_ITEMS.map((i) => i.id);
+    if (valid.includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState('');
 
@@ -155,10 +208,13 @@ export default function StudentPortalPage() {
   const [newTaskTime, setNewTaskTime] = useState('08:00 PM');
 
   // Profile Edit state
+  const [profUsername, setProfUsername] = useState('');
   const [profFirst, setProfFirst] = useState('');
   const [profLast, setProfLast] = useState('');
   const [profCountry, setProfCountry] = useState('');
   const [profLocation, setProfLocation] = useState('');
+  const [profTargetExam, setProfTargetExam] = useState('jft_basic');
+  const [profJpLevel, setProfJpLevel] = useState('n4');
   const [profBio, setProfBio] = useState('');
   const [profSaving, setProfSaving] = useState(false);
 
@@ -197,13 +253,20 @@ export default function StudentPortalPage() {
   const loadPortal = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      const res = await getStudentPortal();
+      const [res, myRes] = await Promise.all([
+        getStudentPortal(),
+        getMyResults().catch(() => null),
+      ]);
       setPortal(res);
+      if (myRes) setResultsData(myRes);
       if (res?.student) {
+        setProfUsername(res.student.username || '');
         setProfFirst(res.student.first_name || '');
         setProfLast(res.student.last_name || '');
         setProfCountry(res.student.country || '');
         setProfLocation(res.student.location || '');
+        setProfTargetExam(res.student.target_exam || 'jft_basic');
+        setProfJpLevel(res.student.japanese_level || 'n4');
         setProfBio(res.student.bio || '');
       }
     } catch {
@@ -331,10 +394,13 @@ export default function StudentPortalPage() {
     setProfSaving(true);
     try {
       await updateUserProfile({
+        username: profUsername.trim(),
         first_name: profFirst.trim(),
         last_name: profLast.trim(),
         country: profCountry.trim(),
         location: profLocation.trim(),
+        target_exam: profTargetExam,
+        japanese_level: profJpLevel,
         bio: profBio.trim(),
       });
       if (refreshUser) await refreshUser();
@@ -593,8 +659,7 @@ export default function StudentPortalPage() {
                     key={item.id}
                     type="button"
                     onClick={() => {
-                      setActiveTab(item.id);
-                      if (item.id !== 'courses') setSelectedCourseId(null);
+                      switchTab(item.id);
                       setMobileMenuOpen(false);
                     }}
                     className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition cursor-pointer ${
@@ -714,10 +779,7 @@ export default function StudentPortalPage() {
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    if (item.id !== 'courses') setSelectedCourseId(null);
-                  }}
+                  onClick={() => switchTab(item.id)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap border transition cursor-pointer shrink-0 ${
                     active
                       ? 'bg-[#DB1A1A] text-white border-[#DB1A1A] shadow-xs'
@@ -1115,9 +1177,13 @@ export default function StudentPortalPage() {
                 <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-5 space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-black text-slate-900 dark:text-white">Recent Exam Scores</h3>
-                    <Link href="/accounts/my-results" className="text-[11px] font-extrabold text-[#DB1A1A]">
+                    <button
+                      type="button"
+                      onClick={() => switchTab('results')}
+                      className="text-[11px] font-extrabold text-[#DB1A1A] cursor-pointer"
+                    >
                       See all
-                    </Link>
+                    </button>
                   </div>
                   {(portal.recent_exams || []).length === 0 ? (
                     <p className="text-xs text-slate-500">
@@ -1588,6 +1654,228 @@ export default function StudentPortalPage() {
           )}
 
           {/* =================================================================
+              TAB: EXAM RESULTS & CBT DIAGNOSTICS (Unified Scorecard)
+             ================================================================= */}
+          {activeTab === 'results' && (
+            <div className="space-y-5 sm:space-y-6">
+              {/* 4 CBT KPIs (Horizontal Swipe Strip on Mobile, 4-Col Grid on Desktop) */}
+              <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 -mx-3.5 px-3.5 pb-1 md:grid md:grid-cols-4 md:mx-0 md:px-0 md:overflow-visible scrollbar-none">
+                <div className="min-w-[165px] md:min-w-0 snap-start rounded-2xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-4 space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Exams</span>
+                  <div className="text-2xl font-black text-slate-900 dark:text-white">
+                    {resultsData?.total_attempts ?? stats.total_attempts ?? 0}
+                  </div>
+                  <div className="text-[11px] font-semibold text-slate-500">Completed CBT</div>
+                </div>
+                <div className="min-w-[165px] md:min-w-0 snap-start rounded-2xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-4 space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Pass Rate</span>
+                  <div className="text-2xl font-black text-emerald-600">
+                    {resultsData?.pass_rate ?? 0}%
+                  </div>
+                  <div className="text-[11px] font-semibold text-slate-500">
+                    {resultsData?.passed_attempts ?? 0} of {resultsData?.total_attempts ?? 0} passed
+                  </div>
+                </div>
+                <div className="min-w-[165px] md:min-w-0 snap-start rounded-2xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-4 space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Max Score</span>
+                  <div className="text-2xl font-black text-[#2C687B] dark:text-[#8CC7C4]">
+                    {resultsData?.highest_scaled_score ?? 0}
+                    <span className="text-xs font-bold text-slate-400"> / 250</span>
+                  </div>
+                  <div className="text-[11px] font-semibold text-slate-500">
+                    Avg: {resultsData?.avg_scaled_score ?? 0} pts
+                  </div>
+                </div>
+                <div className="min-w-[165px] md:min-w-0 snap-start rounded-2xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200/80 dark:border-rose-800/60 p-4 space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-[#DB1A1A]">CEFR Level</span>
+                  <div className="text-2xl font-black text-[#DB1A1A]">
+                    {resultsData?.highest_level || 'Below A1'}
+                  </div>
+                  <div className="text-[11px] font-semibold text-slate-500">JFT Standard</div>
+                </div>
+              </div>
+
+              {/* Cumulative 4-Section JFT Diagnostic Breakdown */}
+              {(resultsData?.section_stats || []).length > 0 && (
+                <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-5 sm:p-6 space-y-4">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#DB1A1A]">
+                      Diagnostic Analysis
+                    </span>
+                    <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                      Cumulative Section Performance
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      Accuracy breakdown across all 4 official JFT-Basic exam sections.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    {resultsData.section_stats.map((sec) => (
+                      <div
+                        key={sec.key}
+                        className="p-4 rounded-2xl bg-[#F9FCFC] dark:bg-slate-900 border border-[#CBE5E3]/80 dark:border-slate-800 space-y-2"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                              {sec.name_en}
+                            </div>
+                            <div className="text-[11px] font-semibold text-slate-400">{sec.name_ja}</div>
+                          </div>
+                          <span className="text-base font-black text-[#2C687B] dark:text-[#8CC7C4]">
+                            {sec.pct}%
+                          </span>
+                        </div>
+                        <div className="h-2 rounded-full bg-[#EAF4F4] dark:bg-slate-800 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-[#DB1A1A] transition-all"
+                            style={{ width: `${sec.pct}%` }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
+                          <span>{sec.correct} of {sec.total} correct</span>
+                          <span className="font-bold text-slate-700 dark:text-slate-300">Pass: 80%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Full Exam Attempt History */}
+              <div className="rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 overflow-hidden">
+                <div className="p-5 sm:p-6 border-b border-[#EAF4F4] dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                      Exam Attempt History
+                    </h2>
+                    <p className="text-xs text-slate-500">All completed CBT mock tests and detailed scorecards.</p>
+                  </div>
+                  <Link
+                    href="/jft-basic"
+                    className="px-4 py-2 rounded-xl bg-[#DB1A1A] hover:bg-[#B81515] text-white text-xs font-black inline-flex items-center gap-1.5"
+                  >
+                    Take New Mock Exam <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+
+                {(resultsData?.attempts || []).length === 0 ? (
+                  <div className="p-10 text-center space-y-3">
+                    <FileText className="w-10 h-10 text-[#8CC7C4] mx-auto" />
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white">
+                      No Exam Attempts Recorded Yet
+                    </h3>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                      Take your first JFT-Basic or SSW practice exam to unlock your 4-section diagnostic scorecard.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Desktop Table */}
+                    <div className="hidden sm:block overflow-x-auto">
+                      <table className="w-full text-left text-xs">
+                        <thead className="bg-[#EAF4F4]/60 dark:bg-slate-900 text-[#2C687B] dark:text-[#8CC7C4] uppercase text-[10px] font-black border-b border-[#CBE5E3] dark:border-slate-800">
+                          <tr>
+                            <th className="px-5 py-3.5">Exam Title</th>
+                            <th className="px-5 py-3.5">Date</th>
+                            <th className="px-5 py-3.5">Scaled Score</th>
+                            <th className="px-5 py-3.5">CEFR</th>
+                            <th className="px-5 py-3.5">Result</th>
+                            <th className="px-5 py-3.5 text-right">Scorecard</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#EAF4F4] dark:divide-slate-800">
+                          {resultsData.attempts.map((a) => (
+                            <tr key={a.id} className="hover:bg-[#EAF4F4]/30 dark:hover:bg-slate-900/60">
+                              <td className="px-5 py-3.5 font-black text-slate-900 dark:text-white">
+                                {a.test_title}
+                              </td>
+                              <td className="px-5 py-3.5 font-mono text-slate-500">
+                                {new Date(a.completed_at).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                })}
+                              </td>
+                              <td className="px-5 py-3.5 font-mono font-black text-slate-900 dark:text-white">
+                                {a.scaled_score} <span className="text-slate-400 font-normal">/ 250</span>
+                              </td>
+                              <td className="px-5 py-3.5 font-extrabold text-[#DB1A1A]">
+                                {a.assessment_level}
+                              </td>
+                              <td className="px-5 py-3.5">
+                                {a.passed ? (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-black">
+                                    <Check className="w-3 h-3" /> PASS
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-[#DB1A1A] border border-rose-200 text-[10px] font-black">
+                                    <X className="w-3 h-3" /> NO PASS
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-5 py-3.5 text-right">
+                                <Link
+                                  href={`/attempt/${a.id}`}
+                                  className="text-xs font-black text-[#DB1A1A] hover:underline inline-flex items-center gap-1"
+                                >
+                                  View Scorecard <ArrowRight className="w-3 h-3" />
+                                </Link>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile Cards */}
+                    <div className="sm:hidden divide-y divide-[#EAF4F4] dark:divide-slate-800">
+                      {resultsData.attempts.map((a) => (
+                        <div key={a.id} className="p-4 space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="text-sm font-black text-slate-900 dark:text-white">
+                                {a.test_title}
+                              </div>
+                              <div className="text-[11px] font-mono text-slate-400">
+                                {new Date(a.completed_at).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                })}
+                              </div>
+                            </div>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                                a.passed
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : 'bg-rose-50 text-[#DB1A1A] border border-rose-200'
+                              }`}
+                            >
+                              {a.passed ? 'PASS' : 'NO PASS'}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs pt-1">
+                            <span className="font-mono font-black text-slate-800 dark:text-slate-200">
+                              {a.scaled_score} / 250 • {a.assessment_level}
+                            </span>
+                            <Link
+                              href={`/attempt/${a.id}`}
+                              className="text-xs font-black text-[#DB1A1A] inline-flex items-center gap-1"
+                            >
+                              Scorecard <ArrowRight className="w-3 h-3" />
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* =================================================================
               TAB 3: RESOURCES (Sensei Notes & PDFs)
              ================================================================= */}
           {activeTab === 'resources' && (
@@ -1885,15 +2173,45 @@ export default function StudentPortalPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Quick Public Profile & Leaderboard Links */}
+                <div className="pt-3 border-t border-[#EAF4F4] dark:border-slate-800 flex flex-col gap-2">
+                  {student.username && (
+                    <Link
+                      href={`/profile/${encodeURIComponent(student.username)}`}
+                      className="w-full py-2.5 px-3 rounded-xl bg-[#EAF4F4] dark:bg-slate-800 hover:bg-[#CBE5E3]/70 text-[#2C687B] dark:text-[#8CC7C4] text-xs font-black inline-flex items-center justify-center gap-1.5 transition"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> View Public Profile ↗
+                    </Link>
+                  )}
+                  <Link
+                    href="/leaderboard"
+                    className="w-full py-2.5 px-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 text-amber-800 dark:text-amber-300 text-xs font-black inline-flex items-center justify-center gap-1.5 transition"
+                  >
+                    <Trophy className="w-3.5 h-3.5" /> Global Leaderboard
+                  </Link>
+                </div>
               </div>
 
-              {/* Right Edit Form */}
+              {/* Right Edit Form (Unified Candidate Profile Settings) */}
               <form
                 onSubmit={handleSaveProfile}
                 className="lg:col-span-8 rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-6 space-y-4"
               >
-                <h3 className="text-base font-black text-slate-900 dark:text-white">Profile Settings</h3>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-base font-black text-slate-900 dark:text-white">Profile Settings</h3>
+                  <span className="text-[11px] font-mono text-slate-400">@{student.username}</span>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">Username</label>
+                    <input
+                      type="text"
+                      value={profUsername}
+                      onChange={(e) => setProfUsername(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-700 text-xs font-semibold outline-none"
+                    />
+                  </div>
                   <div>
                     <label className="block text-[11px] font-bold text-slate-500 mb-1">First Name</label>
                     <input
@@ -1911,6 +2229,30 @@ export default function StudentPortalPage() {
                       onChange={(e) => setProfLast(e.target.value)}
                       className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-700 text-xs font-semibold outline-none"
                     />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">Target Exam</label>
+                    <select
+                      value={profTargetExam}
+                      onChange={(e) => setProfTargetExam(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-700 text-xs font-semibold outline-none"
+                    >
+                      {TARGET_EXAM_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-1">Japanese Level</label>
+                    <select
+                      value={profJpLevel}
+                      onChange={(e) => setProfJpLevel(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-700 text-xs font-semibold outline-none"
+                    >
+                      {JAPANESE_LEVEL_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold text-slate-500 mb-1">Country</label>

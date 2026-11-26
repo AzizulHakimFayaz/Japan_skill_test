@@ -19,7 +19,11 @@ export default function MobileDock() {
   const isTools = pathname?.startsWith('/tools');
   const isGameZone = pathname?.startsWith('/game-zone');
   const isLeaderboard = pathname?.includes('/leaderboard');
-  const isProfile = pathname?.includes('/my-results') || pathname?.includes('/login') || pathname?.includes('/signup');
+  const isProfile =
+    pathname?.startsWith('/student-portal') ||
+    pathname?.includes('/my-results') ||
+    pathname?.includes('/login') ||
+    pathname?.includes('/signup');
 
   return (
     <nav aria-label="Mobile Navigation" className="fixed bottom-0 inset-x-0 z-50 sm:hidden bg-white/95 dark:bg-[#060913]/95 backdrop-blur-xl border-t border-slate-200/90 dark:border-slate-800/90 shadow-lg transition-colors duration-300">
@@ -79,7 +83,7 @@ export default function MobileDock() {
         {/* Tab 5: Profile / Login */}
         {isAuthenticated && user ? (
           <Link
-            href="/accounts/my-results"
+            href="/student-portal?tab=profile"
             className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-all ${
               isProfile ? 'text-japan-red dark:text-rose-400 font-black' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'
             }`}

@@ -140,6 +140,19 @@ export default function MyResultsPage() {
 
   return (
     <div className="space-y-6 sm:space-y-10 animate-fade-in">
+      {/* Unified Student Portal Banner */}
+      <div className="rounded-2xl bg-[#EAF4F4] dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-800 px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+        <span className="text-xs font-bold text-[#2C687B] dark:text-[#8CC7C4]">
+          Your Exam Scorecard, Courses &amp; Profile are now unified inside the new <strong>Student Portal</strong>.
+        </span>
+        <Link
+          href="/student-portal?tab=results"
+          className="px-3.5 py-1.5 rounded-xl bg-[#DB1A1A] hover:bg-[#B81515] text-white text-xs font-black inline-flex items-center gap-1"
+        >
+          Open in Student Portal <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
       {/* Candidate Profile Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-japan-navy to-slate-900 text-white p-6 sm:p-10 shadow-2xl shadow-slate-900/20 border border-slate-800/80 mobile-app-card">
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-8">

@@ -695,7 +695,7 @@ export default function Navbar() {
                   </a>
                 )}
                 <Link
-                  href="/accounts/my-results"
+                  href="/student-portal?tab=profile"
                   className="flex items-center gap-1.5 group p-1 pr-2 rounded-2xl hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-all whitespace-nowrap shrink-0"
                 >
                   <span className="w-7 h-7 xl:w-8 xl:h-8 rounded-xl bg-gradient-to-tr from-japan-red via-rose-600 to-amber-500 text-white text-xs font-black flex items-center justify-center shadow-md shadow-red-500/20 group-hover:scale-105 transition-transform shrink-0">
@@ -741,7 +741,7 @@ export default function Navbar() {
 
             {isAuthenticated && user && (
               <Link
-                href="/accounts/my-results"
+                href="/student-portal?tab=profile"
                 className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-japan-red to-amber-500 text-white text-xs font-extrabold flex items-center justify-center shadow-sm active:scale-95 transition-transform shrink-0"
               >
                 {user.username?.slice(0, 1).toUpperCase()}
@@ -1031,7 +1031,7 @@ export default function Navbar() {
               {isAuthenticated && user ? (
                 <div className="flex items-center justify-between gap-2">
                   <Link
-                    href="/accounts/my-results"
+                    href="/student-portal?tab=profile"
                     onClick={() => setOpen(false)}
                     className="flex items-center gap-2 min-w-0"
                   >
