@@ -80,7 +80,7 @@ export default async function HomePage() {
   };
 
   return (
-    <div className="space-y-6 sm:space-y-12">
+    <div className="space-y-5 sm:space-y-8">
       {/* Schema.org FAQPage, BreadcrumbList, and WebApplication JSON-LD */}
       <script
         type="application/ld+json"

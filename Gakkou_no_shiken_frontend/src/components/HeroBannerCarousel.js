@@ -1,131 +1,97 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
-import { getHeroBanners, getLeaderboard } from '@/lib/api';
-import { useLanguage } from './LanguageContext';
+import { getHeroBanners } from '@/lib/api';
+import { useAuth } from './AuthContext';
 import {
   Gamepad2,
   BookOpen,
   Layers,
-  Trophy,
-  CheckCircle2,
-  Globe,
-  Zap,
   ArrowRight,
-  Award,
   ChevronLeft,
   ChevronRight,
-  HeartPulse,
-  UtensilsCrossed,
-  Wheat,
-  Building2,
-  HardHat,
-  Crown,
-  Medal,
-  Sparkles,
   ExternalLink,
   MessageSquare,
-  ShieldCheck,
   GraduationCap,
-  Flame,
-  Play,
-  Swords,
-  Headphones,
-  Compass,
+  Calendar,
+  LayoutDashboard,
+  Sparkles,
+  UserPlus,
 } from 'lucide-react';
 
-// Default initial slides (publicizing Game Zone, Lessons, CBT, JAC Books, SSW)
 const DEFAULT_SLIDES = [
+  {
+    id: 'cbt-simulator',
+    title: 'JFT-Basic & SSW CBT Mock Exams',
+    subtitle:
+      'Practice with authentic Prometric CBT timers, native Japanese listening audio, and instant 250-point CEFR score reports.',
+    badge_text: 'CBT EXAM SIMULATOR',
+    image_display: '/img/hero_professional_cbt.jpg',
+    mobile_image_display: '/img/hero_professional_cbt.jpg',
+    primary_btn_text: 'Start JFT-Basic',
+    primary_btn_url: '/jft-basic',
+  },
   {
     id: 'game-zone',
     title: 'Play & Master Japanese in Game Zone',
-    title_highlight: 'Game Zone Arcade',
-    subtitle: 'Interactive arcade games with sound effects! Kanji Hunter, Word Match, Sentence Builder & 3 Lives challenge.',
-    mobile_headline_lines: ['PLAY.', 'LEARN.', 'CONQUER.'],
-    badge_text: '🎮 JAPANESE ARCADE GAME ZONE',
-    badge_icon: 'gamepad',
+    subtitle:
+      'Interactive arcade games with sound effects — Kanji Hunter, Word Match, Listen & Catch, and 3 Lives challenge.',
+    badge_text: 'JAPANESE ARCADE',
     image_display: '/img/game_banner.jpg',
     mobile_image_display: '/img/game_banner.jpg',
     primary_btn_text: 'Play Games Now',
     primary_btn_url: '/game-zone',
-    secondary_btn_text: 'Hall of Fame',
-    secondary_btn_url: '/game-zone/ranks',
-    theme_color: 'purple',
-    type: 'game',
   },
   {
     id: 'lessons-hub',
-    title: 'Master Structured JLPT N5 & N4 Lessons',
-    title_highlight: 'Japanese Lessons',
-    subtitle: 'Structured vocabulary, Kanji stroke orders, and native pronunciation with English and Bengali translations.',
-    mobile_headline_lines: ['MASTER.', 'VOCAB & KANJI.', 'N5 / N4.'],
-    badge_text: '📚 STRUCTURED LESSONS (N5 • N4)',
-    badge_icon: 'book',
+    title: 'Structured JLPT N5 & N4 Lessons',
+    subtitle:
+      'Master vocabulary, grammar, and Kanji with 7-language explanations and interactive flashcards.',
+    badge_text: 'CURRICULUM & LESSONS',
     image_display: '/img/hero_anime_student.jpg',
     mobile_image_display: '/img/hero_anime_student.jpg',
     primary_btn_text: 'Start Lessons',
     primary_btn_url: '/lessons',
-    secondary_btn_text: 'Study Flashcards',
-    secondary_btn_url: '/tools/flashcards',
-    theme_color: 'cyan',
-    type: 'lessons',
-  },
-  {
-    id: 'cbt-simulator',
-    title: 'JFT-Basic & SSW CBT Mock Exams',
-    title_highlight: 'CBT Mock Exams',
-    subtitle: "Asia's realistic CBT practice simulator — built to help you get familiar with the real exam interface, listening audio, and 250-point practice score reports.",
-    mobile_headline_lines: ['AUTHENTIC.', 'PROMETRIC CBT.', 'CEFR PASS.'],
-    badge_text: "🇧🇩 BANGLADESH'S #1 CBT SIMULATOR",
-    badge_icon: 'zap',
-    image_display: '/img/hero_professional_cbt.jpg',
-    mobile_image_display: '/img/hero_professional_cbt.jpg',
-    primary_btn_text: 'Start JFT Test',
-    primary_btn_url: '/jft-basic',
-    secondary_btn_text: 'SSW Skill Tests',
-    secondary_btn_url: '/ssw-skill-test',
-    theme_color: 'rose',
-    type: 'cbt',
   },
   {
     id: 'jac-books',
-    title: '26 Official JAC Textbooks & Synchronized Audio',
-    title_highlight: 'JAC Textbooks',
-    subtitle: 'All 26 official JAC textbooks across 15 languages with synchronized cloud PDF reader and native audio player.',
-    mobile_headline_lines: ['26 BOOKS.', '15 LANGUAGES.', 'NATIVE AUDIO.'],
-    badge_text: '📖 26 JAC TEXTBOOKS (15 LANGUAGES)',
-    badge_icon: 'book',
+    title: '26 Official JAC Textbooks & Audio',
+    subtitle:
+      'Read all 26 official JAC textbooks across 15 languages with synchronized cloud PDF and native audio player.',
+    badge_text: 'PDF BOOKS & AUDIO',
     image_display: '/img/japanese_night_street.jpg',
     mobile_image_display: '/img/japanese_night_street.jpg',
     primary_btn_text: 'Read Textbooks',
     primary_btn_url: '/books',
-    secondary_btn_text: 'JAC Guide',
-    secondary_btn_url: '/guides/jac-textbooks-guide',
-    theme_color: 'emerald',
-    type: 'books',
-  },
-  {
-    id: 'ssw-sectors',
-    title: 'Launch Your Career in Japan with SSW Visa',
-    title_highlight: 'Japan with SSW',
-    subtitle: 'Prepare for official Prometric exams in Nursing Care, Food Service, Agriculture, and 12 Specified Skilled Worker sectors.',
-    mobile_headline_lines: ['SSW VISA.', '12 SECTORS.', 'JAPAN READY.'],
-    badge_text: '💼 12 SSW INDUSTRY SECTORS',
-    badge_icon: 'shield',
-    image_display: '/img/hero_professional_cbt.jpg',
-    mobile_image_display: '/img/hero_professional_cbt.jpg',
-    primary_btn_text: 'Explore Sectors',
-    primary_btn_url: '/ssw-skill-test',
-    secondary_btn_text: 'SSW Guide',
-    secondary_btn_url: '/guides/ssw-skill-test-guide',
-    theme_color: 'emerald',
-    type: 'ssw',
   },
 ];
 
+function stripLeadingEmoji(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/^[\p{Extended_Pictographic}\p{Regional_Indicator}\uFE0F\u200D\s]+/gu, '')
+    .trim();
+}
+
+function computeCountdown(isoDate) {
+  if (!isoDate) return null;
+  const parts = String(isoDate).slice(0, 10).split('-').map(Number);
+  if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+  const target = new Date(parts[0], parts[1] - 1, parts[2]);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffDays = Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const formatted = target.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+  return { diffDays, formatted };
+}
+
 export default function HeroBannerCarousel() {
-  const { t } = useLanguage();
+  const { user, isAuthenticated } = useAuth();
   const [slides, setSlides] = useState(DEFAULT_SLIDES);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -135,764 +101,512 @@ export default function HeroBannerCarousel() {
   const touchStartXRef = useRef(0);
   const touchEndXRef = useRef(0);
 
-  // Top 3 candidate scores for leaderboard showcase
-  const [topThree, setTopThree] = useState([
-    { rank: 1, name: 'Kenji Tanaka', username: 'kenji_tanaka', score: 245, exam: 'JFT-Basic A2' },
-    { rank: 2, name: 'Rahim Ahmed', username: 'rahim_ahmed', score: 238, exam: 'SSW Nursing' },
-    { rank: 3, name: 'Aung Min', username: 'aung_min', score: 225, exam: 'SSW Food' },
-  ]);
-
-  // Fetch dynamic banners from backend API
+  // Fetch dynamic banners from Django Admin API
   useEffect(() => {
     let isMounted = true;
     getHeroBanners()
       .then((data) => {
         if (isMounted && Array.isArray(data) && data.length > 0) {
-          // Merge backend fields with fallbacks
           const formatted = data.map((b, idx) => ({
             id: b.id || `banner-${idx}`,
-            title: b.title,
-            title_highlight: b.title_highlight || '',
+            title: b.title || 'Practice Japanese CBT Exams',
             subtitle: b.subtitle || '',
-            badge_text: b.badge_text || 'FEATURED',
-            badge_icon: b.badge_icon || 'zap',
+            badge_text: stripLeadingEmoji(b.badge_text) || 'FEATURED',
             image_display: b.image_display || b.image_url || '/img/game_banner.jpg',
-            mobile_image_display: b.mobile_image_display || b.mobile_image_url || b.image_display || '/img/game_banner.jpg',
+            mobile_image_display:
+              b.mobile_image_display || b.mobile_image_url || b.image_display || '/img/game_banner.jpg',
             primary_btn_text: b.primary_btn_text || 'Explore Now',
-            primary_btn_url: b.primary_btn_url || '/game-zone',
-            secondary_btn_text: b.secondary_btn_text || '',
-            secondary_btn_url: b.secondary_btn_url || '',
-            theme_color: b.theme_color || 'purple',
-            mobile_headline_lines: b.title
-              ? b.title.split(' ').slice(0, 3).map((w) => w.toUpperCase() + '.')
-              : ['EXPLORE.', 'PRACTICE.', 'MASTER.'],
-            type: b.primary_btn_url?.includes('game')
-              ? 'game'
-              : b.primary_btn_url?.includes('lesson')
-                ? 'lessons'
-                : b.primary_btn_url?.includes('book')
-                  ? 'books'
-                  : b.primary_btn_url?.includes('ssw')
-                    ? 'ssw'
-                    : 'cbt',
+            primary_btn_url: b.primary_btn_url || '/jft-basic',
           }));
           setSlides(formatted);
         }
       })
-      .catch(() => { });
-
-    // Fetch leaderboard
-    getLeaderboard()
-      .then((data) => {
-        if (isMounted && data?.top_three && data.top_three.length > 0) {
-          const formatted = data.top_three.map((c, i) => ({
-            rank: i + 1,
-            name: c.full_name || c.username || `Candidate #${i + 1}`,
-            username: c.username || `candidate_${i + 1}`,
-            score: c.highest_score || c.avg_score || 200,
-            exam: c.target_exam_display || 'JFT-Basic',
-          }));
-          setTopThree(formatted);
-        }
-      })
-      .catch(() => { });
-
+      .catch(() => {});
     return () => {
       isMounted = false;
     };
   }, []);
 
   const totalSlides = slides.length;
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % totalSlides);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % totalSlides);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
-  };
-
-  // Auto-play interval
   useEffect(() => {
     if (isHovered || totalSlides <= 1) {
       if (slideIntervalRef.current) clearInterval(slideIntervalRef.current);
       return;
     }
-
     slideIntervalRef.current = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % totalSlides);
     }, 6000);
-
     return () => {
       if (slideIntervalRef.current) clearInterval(slideIntervalRef.current);
     };
   }, [isHovered, currentSlide, totalSlides]);
 
-  // Touch Swipe Handlers for Mobile
   const handleTouchStart = (e) => {
     touchStartXRef.current = e.touches[0].clientX;
+    touchEndXRef.current = e.touches[0].clientX;
   };
-
   const handleTouchMove = (e) => {
     touchEndXRef.current = e.touches[0].clientX;
   };
-
   const handleTouchEnd = () => {
     const diff = touchStartXRef.current - touchEndXRef.current;
-    if (Math.abs(diff) > 45) {
-      if (diff > 0) {
-        nextSlide();
-      } else {
-        prevSlide();
-      }
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) nextSlide();
+      else prevSlide();
     }
   };
 
-  const activeSlide = slides[currentSlide] || slides[0];
+  // Role & Personalized State
+  const ownedSchool = user?.owned_partner_school;
+  const isSensei = Boolean(isAuthenticated && ownedSchool?.slug);
+  const displayName = user?.first_name?.trim() || user?.username || 'Candidate';
+  const avatarUrl = user?.profile?.avatar_url || null;
+  const targetExamDisplay = user?.profile?.target_exam_display || 'JFT-Basic (A2 Standard)';
+  const countdown = useMemo(
+    () => computeCountdown(user?.profile?.planned_exam_date),
+    [user?.profile?.planned_exam_date]
+  );
 
-  // Helper theme colors for border, glow, buttons
-  const getThemeStyles = (theme) => {
-    switch (theme) {
-      case 'purple':
-        return {
-          glow: 'shadow-[0_0_35px_rgba(168,85,247,0.22)]',
-          border: 'border-slate-500/40',
-          badgeBg: 'bg-slate-950/80 border-slate-400/50 text-slate-300',
-          gradientText: 'from-slate-800 via-red-400 to-amber-300',
-          primaryBtn: 'bg-gradient-to-r from-slate-900 via-red-600 to-slate-900 hover:from-slate-800 hover:to-slate-800 shadow-slate-600/35',
-          dot: 'bg-slate-900',
-          accent: 'text-slate-300',
-        };
-      case 'cyan':
-        return {
-          glow: 'shadow-[0_0_35px_rgba(6,182,212,0.22)]',
-          border: 'border-slate-500/40',
-          badgeBg: 'bg-slate-950/80 border-slate-400/50 text-slate-300',
-          gradientText: 'from-slate-800 via-slate-800 to-emerald-300',
-          primaryBtn: 'bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-600 hover:from-slate-800 hover:to-slate-800 shadow-slate-600/35',
-          dot: 'bg-slate-700',
-          accent: 'text-slate-300',
-        };
-      case 'emerald':
-        return {
-          glow: 'shadow-[0_0_35px_rgba(16,185,129,0.22)]',
-          border: 'border-emerald-500/40',
-          badgeBg: 'bg-emerald-950/80 border-emerald-400/50 text-emerald-300',
-          gradientText: 'from-emerald-400 via-slate-800 to-slate-800',
-          primaryBtn: 'bg-gradient-to-r from-emerald-600 via-slate-900 to-emerald-600 hover:from-emerald-500 hover:to-slate-800 shadow-emerald-600/35',
-          dot: 'bg-emerald-500',
-          accent: 'text-emerald-400',
-        };
-      case 'amber':
-        return {
-          glow: 'shadow-[0_0_35px_rgba(245,158,11,0.22)]',
-          border: 'border-amber-500/40',
-          badgeBg: 'bg-amber-950/80 border-amber-400/50 text-amber-300',
-          gradientText: 'from-amber-400 via-yellow-300 to-red-400',
-          primaryBtn: 'bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 shadow-amber-500/35 text-slate-950',
-          dot: 'bg-amber-400',
-          accent: 'text-amber-400',
-        };
-      case 'rose':
-      default:
-        return {
-          glow: 'shadow-[0_0_35px_rgba(220,38,38,0.22)]',
-          border: 'border-red-500/40',
-          badgeBg: 'bg-rose-950/80 border-rose-400/50 text-rose-300',
-          gradientText: 'from-rose-400 via-japan-red to-amber-300',
-          primaryBtn: 'bg-gradient-to-r from-japan-red via-rose-600 to-japan-red hover:from-japan-redhover hover:to-rose-700 shadow-red-500/35',
-          dot: 'bg-japan-red',
-          accent: 'text-rose-400',
-        };
-    }
-  };
+  // Quick-launch 2x2 tiles
+  const quickTiles = [
+    {
+      href: '/jft-basic',
+      label: 'JFT-Basic',
+      sub: 'A2 CBT Mock',
+      icon: BookOpen,
+      tone: 'bg-red-50 text-[#DB1A1A] dark:bg-rose-950/50 dark:text-rose-400',
+    },
+    {
+      href: '/jlpt',
+      label: 'JLPT N5–N1',
+      sub: '32k+ Qs Hub',
+      icon: GraduationCap,
+      tone: 'bg-[#EAF4F4] text-[#2C687B] dark:bg-teal-950/50 dark:text-teal-300',
+    },
+    {
+      href: '/ssw-skill-test',
+      label: 'SSW Skills',
+      sub: 'Work Visa',
+      icon: Layers,
+      tone: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200',
+    },
+    isSensei
+      ? {
+          href: `/partner/${encodeURIComponent(ownedSchool.slug)}`,
+          label: 'Sensei LMS',
+          sub: 'Academy Hub',
+          icon: LayoutDashboard,
+          tone: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
+        }
+      : isAuthenticated
+      ? {
+          href: '/student-portal',
+          label: 'Student Portal',
+          sub: 'Courses & Scores',
+          icon: LayoutDashboard,
+          tone: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
+        }
+      : {
+          href: '/game-zone',
+          label: 'Game Zone',
+          sub: '8 Arcade Modes',
+          icon: Gamepad2,
+          tone: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
+        },
+  ];
 
-  const themeStyle = getThemeStyles(activeSlide.theme_color);
+  // Desktop right-card 2x2 tiles (always includes Game Zone for students too)
+  const desktopTiles = [
+    {
+      href: '/jft-basic',
+      label: 'JFT-Basic',
+      sub: '4-Section CBT',
+      icon: BookOpen,
+      tone: 'bg-red-50 text-[#DB1A1A] dark:bg-rose-950/50 dark:text-rose-400',
+    },
+    {
+      href: '/jlpt',
+      label: 'JLPT N5–N1',
+      sub: 'Mock Sets',
+      icon: GraduationCap,
+      tone: 'bg-[#EAF4F4] text-[#2C687B] dark:bg-teal-950/50 dark:text-teal-300',
+    },
+    {
+      href: '/ssw-skill-test',
+      label: 'SSW Skills',
+      sub: '12 Sectors',
+      icon: Layers,
+      tone: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200',
+    },
+    {
+      href: '/game-zone',
+      label: 'Game Zone',
+      sub: '8 Arcade Modes',
+      icon: Gamepad2,
+      tone: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
+    },
+  ];
 
   return (
-    <div
-      className="space-y-3 sm:space-y-4"
+    <section
+      aria-label="Hero Showcase and Quick Launch"
+      className="space-y-3 lg:space-y-0"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
     >
-      {/* ============================================================
-          MAIN HERO BANNER CONTAINER
-          - On mobile: Exact proportions and card layout from user reference photo
-          - On desktop: Rich glassmorphic wide layout with interactive widgets
-          ============================================================ */}
-      <div className="relative overflow-hidden -mx-2.5 sm:mx-0 rounded-none sm:rounded-3xl bg-[#090d16] text-white shadow-lg sm:shadow-2xl shadow-slate-950/30 border-y sm:border border-slate-800/80 group select-none">
-        {slides.map((slide, idx) => {
-          const isActive = idx === currentSlide;
-          const slideTheme = getThemeStyles(slide.theme_color);
-
-          return (
-            <div
-              key={slide.id || idx}
-              className={`transition-opacity duration-700 ease-in-out ${isActive ? 'opacity-100 relative z-10' : 'opacity-0 absolute inset-0 pointer-events-none z-0'
-                }`}
-            >
-              {/* ──────────────────────────────────────────────────────────
-                  DESKTOP BACKGROUND ARTWORK (Rich wide art from backend)
-                  ────────────────────────────────────────────────────────── */}
-              <div
-                className="hidden sm:block absolute inset-0 bg-cover bg-[position:center_center] bg-no-repeat opacity-90 pointer-events-none transition-transform duration-1000 scale-100"
-                style={{ backgroundImage: `url('${slide.image_display}')` }}
-              />
-              <div className="hidden sm:block absolute inset-0 bg-gradient-to-r from-black/90 via-black/55 to-black/80 pointer-events-none" />
-              <div className="hidden sm:block absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-black/50 pointer-events-none" />
-
-              {/* ──────────────────────────────────────────────────────────
-                  MOBILE BANNER VIEW: Full-bleed edge-to-edge modern card
-                  ────────────────────────────────────────────────────────── */}
-              <div className="block sm:hidden relative w-full min-h-[235px] overflow-hidden bg-slate-950 text-white">
-                {/* Background Picture from Backend */}
+      {/* =====================================================================
+          SMART SPLIT HERO BENTO (Desktop 7/5 Split • Compact ~335px Height)
+         ===================================================================== */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 lg:gap-4 items-stretch">
+        {/* -------------------------------------------------------------------
+            LEFT SIDE (7 cols on Desktop • Slim 175px Banner on Mobile)
+           ------------------------------------------------------------------- */}
+        <div
+          className="lg:col-span-7 relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#090d16] text-white shadow-lg border border-slate-800/80 group select-none flex flex-col justify-between"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Slide Canvas */}
+          <div className="relative flex-1 min-h-[172px] sm:min-h-[260px] lg:min-h-[296px] overflow-hidden">
+            {slides.map((slide, idx) => {
+              const isActive = idx === currentSlide;
+              return (
                 <div
-                  className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
-                  style={{ backgroundImage: `url('${slide.mobile_image_display || slide.image_display}')` }}
-                />
-
-                {/* Clean directional gradient overlay for crisp text legibility */}
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/75 to-slate-950/30 pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/20 to-black/35 pointer-events-none" />
-
-                {/* Foreground Mobile Content */}
-                <div className="relative z-10 min-h-[235px] px-4 pt-4 pb-9 flex flex-col justify-between gap-3">
-                  {/* Top Row: Badge + Slide Counter */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/55 border border-white/20 backdrop-blur-md text-[10px] font-black uppercase tracking-wider text-white">
-                      <Sparkles className="w-2.5 h-2.5 text-[#8CC7C4]" />
-                      <span className="truncate max-w-[210px]">{slide.badge_text}</span>
-                    </div>
-
-                    <span className="text-[10px] font-extrabold text-white/90 bg-black/50 px-2 py-0.5 rounded-full border border-white/15 shrink-0">
-                      {idx + 1}/{totalSlides}
-                    </span>
-                  </div>
-
-                  {/* Middle: Crisp Headline & 2-Line Subtitle */}
-                  <div className="space-y-1.5 max-w-[92%]">
-                    <h2 className="text-xl font-black tracking-tight leading-snug text-white drop-shadow-md">
-                      {slide.title}
-                    </h2>
-                    <p className="text-xs text-slate-200/90 font-medium line-clamp-2 leading-relaxed">
-                      {slide.subtitle}
-                    </p>
-                  </div>
-
-                  {/* Action Buttons Row */}
-                  <div className="flex items-center gap-2.5 pt-1">
-                    <Link
-                      href={slide.primary_btn_url}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#DB1A1A] hover:bg-[#B81515] text-white font-black text-xs shadow-md active:scale-95 transition-all cursor-pointer"
-                    >
-                      <span>{slide.primary_btn_text}</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-
-                    {slide.secondary_btn_text && (
-                      <Link
-                        href={slide.secondary_btn_url}
-                        className="inline-flex items-center px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/25 text-white font-bold text-xs transition-all"
-                      >
-                        {slide.secondary_btn_text}
-                      </Link>
-                    )}
-                  </div>
-                </div>
-
-                {/* Mobile Bottom Centered Pagination Dots (Own dedicated lane) */}
-                <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 pointer-events-auto">
-                  {slides.map((_, dotIdx) => (
-                    <button
-                      key={dotIdx}
-                      type="button"
-                      onClick={() => setCurrentSlide(dotIdx)}
-                      aria-label={`Go to slide ${dotIdx + 1}`}
-                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${currentSlide === dotIdx
-                          ? 'w-6 bg-[#DB1A1A]'
-                          : 'w-1.5 bg-white/40 hover:bg-white/70'
-                        }`}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* ──────────────────────────────────────────────────────────
-                  DESKTOP WIDE VIEW: Full interactive dual-card experience
-                  ────────────────────────────────────────────────────────── */}
-              <div className="hidden sm:block relative z-10 p-6 sm:p-8 lg:p-10 space-y-4 sm:space-y-8">
-                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-10">
-                  {/* Left Glass Card */}
+                  key={slide.id || idx}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                    isActive ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none z-0'
+                  }`}
+                >
+                  {/* Artwork */}
                   <div
-                    className={`relative w-full max-w-md xl:max-w-lg bg-black/65 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-5 sm:p-7 border ${slideTheme.border} ${slideTheme.glow} ring-1 ring-white/15 space-y-3 sm:space-y-4`}
-                  >
-                    {/* Badge Pill */}
-                    <div
-                      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${slideTheme.badgeBg} shadow-md text-[10px] sm:text-xs font-black tracking-wide`}
-                    >
-                      <Sparkles className="w-3 h-3 animate-spin text-amber-300" />
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 group-hover:scale-[1.02]"
+                    style={{
+                      backgroundImage: `url('${slide.image_display}')`,
+                    }}
+                  />
+                  {/* Single clean directional scrim so artwork breathes on the right */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#070b14]/92 via-[#070b14]/65 to-[#070b14]/15" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#070b14]/90 via-transparent to-[#070b14]/25" />
+
+                  {/* Single Clean Left Overlay (Headline + 1 Primary CTA) */}
+                  <div className="relative z-10 h-full p-4 sm:p-6 lg:p-7 flex flex-col justify-between">
+                    {/* Top micro label (hidden on very small mobile to keep zero clutter) */}
+                    <div className="hidden sm:inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-[10px] font-black uppercase tracking-wider text-[#8CC7C4]">
+                      <Sparkles className="w-3 h-3" />
                       <span>{slide.badge_text}</span>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src="/img/logo.png"
-                        alt="Gakkou No Shiken"
-                        className="w-6 h-6 sm:w-7 sm:h-7 object-contain filter drop-shadow-md"
-                      />
-                      <span className="text-[10px] sm:text-xs font-black tracking-widest text-slate-200 uppercase">
-                        GAKKOU NO SHIKEN • 2026 EDITION
-                      </span>
-                    </div>
-
-                    <h1 className="text-xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight text-white drop-shadow-md">
-                      {slide.title_highlight ? (
-                        <>
-                          {slide.title.replace(slide.title_highlight, '')}{' '}
-                          <span
-                            className={`text-transparent bg-clip-text bg-gradient-to-r ${slideTheme.gradientText}`}
-                          >
-                            {slide.title_highlight}
-                          </span>
-                        </>
-                      ) : (
-                        slide.title
+                    <div className="mt-auto space-y-2 sm:space-y-3 max-w-[88%] sm:max-w-[78%] pb-4 sm:pb-2">
+                      <h1 className="text-lg sm:text-2xl lg:text-[26px] font-black tracking-tight leading-tight text-white drop-shadow-sm line-clamp-2">
+                        {slide.title}
+                      </h1>
+                      {slide.subtitle && (
+                        <p className="hidden sm:block text-xs lg:text-[13px] text-slate-200/90 font-medium leading-relaxed line-clamp-2">
+                          {slide.subtitle}
+                        </p>
                       )}
-                    </h1>
-
-                    <p className="text-[11px] sm:text-sm text-slate-200/95 font-medium leading-relaxed drop-shadow-xs">
-                      {slide.subtitle}
-                    </p>
-
-                    {/* Quick Feature Pills */}
-                    <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                      {slide.type === 'game' ? (
-                        <>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-900/25 border border-slate-500/40 text-slate-200 text-[10px] font-bold">
-                            <Gamepad2 className="w-3 h-3 text-slate-300" />
-                            <span>8 Arcade Modes</span>
-                          </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-600/25 border border-red-600/40 text-red-200 text-[10px] font-bold">
-                            <Swords className="w-3 h-3 text-red-400" />
-                            <span>Kanji Hunter</span>
-                          </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/25 border border-amber-500/40 text-amber-200 text-[10px] font-bold">
-                            <Trophy className="w-3 h-3 text-amber-400" />
-                            <span>Global Ranks</span>
-                          </span>
-                        </>
-                      ) : slide.type === 'lessons' ? (
-                        <>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-900/25 border border-slate-500/40 text-slate-200 text-[10px] font-bold">
-                            <GraduationCap className="w-3 h-3 text-slate-300" />
-                            <span>JLPT N5 &amp; N4</span>
-                          </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-500/40 text-emerald-200 text-[10px] font-bold">
-                            <Headphones className="w-3 h-3 text-emerald-400" />
-                            <span>Audio Pronunciation</span>
-                          </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/25 border border-amber-500/40 text-amber-200 text-[10px] font-bold">
-                            <span>Bilingual (EN • BN)</span>
-                          </span>
-                        </>
-                      ) : slide.type === 'books' ? (
-                        <>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-500/40 text-emerald-200 text-[10px] font-bold">
-                            <span>26 JAC Textbooks</span>
-                          </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-900/25 border border-slate-500/40 text-slate-200 text-[10px] font-bold">
-                            <span>15 National Languages</span>
-                          </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/25 border border-amber-500/40 text-amber-200 text-[10px] font-bold">
-                            <span>Native Voice Audio</span>
-                          </span>
-                        </>
-                      ) : slide.type === 'ssw' ? (
-                        <>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-500/40 text-emerald-200 text-[10px] font-bold">
-                            <span>12 SSW Sectors</span>
-                          </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-900/25 border border-slate-500/40 text-slate-200 text-[10px] font-bold">
-                            <span>Prometric CBT</span>
-                          </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/25 border border-amber-500/40 text-amber-200 text-[10px] font-bold">
-                            <span>Visa Ready</span>
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/25 border border-rose-500/40 text-rose-200 text-[10px] font-bold">
-                            <span>JFT-Basic A2</span>
-                          </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/25 border border-amber-500/40 text-amber-200 text-[10px] font-bold">
-                            <span>Prometric Simulator</span>
-                          </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-500/40 text-emerald-200 text-[10px] font-bold">
-                            <span>Instant Certificate</span>
-                          </span>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="grid grid-cols-2 gap-2.5 pt-1">
-                      <Link
-                        href={slide.primary_btn_url}
-                        className={`inline-flex items-center justify-center gap-1.5 ${slideTheme.primaryBtn} text-white font-extrabold py-3 px-4 rounded-xl transition-all duration-300 text-xs sm:text-sm active:scale-95 text-center shadow-lg cursor-pointer`}
-                      >
-                        <span>{slide.primary_btn_text}</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </Link>
-
-                      {slide.secondary_btn_text && (
+                      <div className="pt-0.5 flex items-center gap-2.5">
                         <Link
-                          href={slide.secondary_btn_url}
-                          className="inline-flex items-center justify-center gap-1.5 bg-slate-950/80 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded-xl backdrop-blur-md transition-all duration-300 text-xs sm:text-sm border border-slate-700 hover:border-slate-500 active:scale-95 text-center cursor-pointer"
+                          href={slide.primary_btn_url}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-japan-red hover:bg-japan-redhover text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-red-600/25 active:scale-95 transition-all"
                         >
-                          <span>{slide.secondary_btn_text}</span>
+                          <span>{slide.primary_btn_text}</span>
+                          <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </Link>
-                      )}
+                      </div>
                     </div>
                   </div>
+                </div>
+              );
+            })}
 
-                  {/* Right Interactive Showcase Widget (Desktop) */}
-                  <div className="hidden lg:flex flex-col items-end flex-shrink-0 relative">
-                    {slide.type === 'game' ? (
-                      /* Game Zone Showcase */
-                      <div className="relative w-72 xl:w-80 rounded-3xl bg-slate-950/85 border border-slate-500/40 p-5 shadow-2xl backdrop-blur-md space-y-3.5">
-                        <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                          <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-slate-700 animate-ping" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">
-                              ARCADE ZONE LIVE
-                            </span>
-                          </div>
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-slate-700/20 text-slate-300 border border-slate-400/40">
-                            8 MODES
-                          </span>
-                        </div>
+            {/* Desktop Prev/Next Arrows */}
+            {totalSlides > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={prevSlide}
+                  aria-label="Previous slide"
+                  className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/50 hover:bg-black/85 text-white border border-white/20 backdrop-blur-md items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={nextSlide}
+                  aria-label="Next slide"
+                  className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/50 hover:bg-black/85 text-white border border-white/20 backdrop-blur-md items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </>
+            )}
 
-                        <div className="grid grid-cols-2 gap-2">
-                          <Link
-                            href="/game-zone/kanji-hunter"
-                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-500/50 flex flex-col items-center justify-center text-center space-y-1 transition-all group/item"
-                          >
-                            <Swords className="w-6 h-6 text-red-400 group-hover/item:scale-110 transition-transform" />
-                            <span className="text-xs font-black text-white">Kanji Hunter</span>
-                            <span className="text-[9px] text-slate-400">Boss Battle</span>
-                          </Link>
+            {/* Slide Indicator Dots */}
+            {totalSlides > 1 && (
+              <div className="absolute bottom-3 right-3.5 sm:right-5 z-20 flex items-center gap-1.5">
+                {slides.map((_, dotIdx) => (
+                  <button
+                    key={dotIdx}
+                    type="button"
+                    onClick={() => setCurrentSlide(dotIdx)}
+                    aria-label={`Slide ${dotIdx + 1}`}
+                    className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                      currentSlide === dotIdx
+                        ? 'w-6 bg-japan-red'
+                        : 'w-1.5 bg-white/40 hover:bg-white/75'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
 
-                          <Link
-                            href="/game-zone/word-match"
-                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-500/50 flex flex-col items-center justify-center text-center space-y-1 transition-all group/item"
-                          >
-                            <Gamepad2 className="w-6 h-6 text-slate-300 group-hover/item:scale-110 transition-transform" />
-                            <span className="text-xs font-black text-white">Word Match</span>
-                            <span className="text-[9px] text-slate-400">Card Pairs</span>
-                          </Link>
+          {/* Slim Community Strip along bottom of Left Carousel */}
+          <div className="relative z-10 bg-slate-950/95 border-t border-slate-800/80 px-3.5 sm:px-5 py-2 flex items-center justify-between gap-2 text-[10px] sm:text-[11px]">
+            <a
+              href="https://whatsapp.com/channel/0029Vb8f5nVGOj9mKhSBbp3m"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-emerald-400 hover:underline font-bold truncate"
+            >
+              <MessageSquare className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Official WhatsApp Channel</span>
+              <ExternalLink className="w-2.5 h-2.5 shrink-0 hidden sm:inline" />
+            </a>
+            <div className="flex items-center gap-2 shrink-0 text-slate-300 font-bold">
+              <a
+                href="https://www.facebook.com/Gakkou.No.Shiken"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+              >
+                Facebook
+              </a>
+              <span className="text-slate-600">•</span>
+              <a
+                href="https://www.instagram.com/gakkou.no.shiken/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+              >
+                Instagram
+              </a>
+            </div>
+          </div>
+        </div>
 
-                          <Link
-                            href="/game-zone/listen-catch"
-                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-500/50 flex flex-col items-center justify-center text-center space-y-1 transition-all group/item"
-                          >
-                            <Headphones className="w-6 h-6 text-slate-300 group-hover/item:scale-110 transition-transform" />
-                            <span className="text-xs font-black text-white">Listen &amp; Catch</span>
-                            <span className="text-[9px] text-slate-400">Audio Quiz</span>
-                          </Link>
-
-                          <Link
-                            href="/game-zone/three-lives"
-                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-500/50 flex flex-col items-center justify-center text-center space-y-1 transition-all group/item"
-                          >
-                            <Flame className="w-6 h-6 text-amber-400 group-hover/item:scale-110 transition-transform" />
-                            <span className="text-xs font-black text-white">3 Lives</span>
-                            <span className="text-[9px] text-slate-400">Survival</span>
-                          </Link>
-                        </div>
-
-                        <Link
-                          href="/game-zone"
-                          className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-500/40 flex items-center justify-center gap-1.5 text-xs font-black text-slate-200 hover:bg-slate-900/60 transition-colors"
-                        >
-                          <Play className="w-3.5 h-3.5 text-slate-300" />
-                          <span>Enter Japanese Arcade →</span>
-                        </Link>
-                      </div>
-                    ) : slide.type === 'lessons' ? (
-                      /* Lessons Hub Showcase */
-                      <div className="relative w-72 xl:w-80 rounded-3xl bg-slate-950/85 border border-slate-500/40 p-5 shadow-2xl backdrop-blur-md space-y-3.5">
-                        <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                          <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-slate-700 animate-pulse" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">
-                              CURRICULUM HUB
-                            </span>
-                          </div>
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-slate-700/20 text-slate-300 border border-slate-400/40">
-                            N5 &amp; N4
-                          </span>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Link
-                            href="/lessons"
-                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-500/50 flex items-center justify-between transition-all"
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-9 h-9 rounded-xl bg-slate-900/20 text-slate-300 font-black text-xs flex items-center justify-center">
-                                N5
-                              </div>
-                              <div>
-                                <div className="text-xs font-bold text-white">JLPT N5 Core Lessons</div>
-                                <div className="text-[10px] text-slate-400">25 Structured Units</div>
-                              </div>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-slate-300" />
-                          </Link>
-
-                          <Link
-                            href="/lessons"
-                            className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-slate-500/50 flex items-center justify-between transition-all"
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-9 h-9 rounded-xl bg-slate-900/20 text-slate-300 font-black text-xs flex items-center justify-center">
-                                N4
-                              </div>
-                              <div>
-                                <div className="text-xs font-bold text-white">JLPT N4 Intermediate</div>
-                                <div className="text-[10px] text-slate-400">Grammar &amp; Vocabulary</div>
-                              </div>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-slate-300" />
-                          </Link>
-                        </div>
-
-                        <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-500/30 flex items-center justify-center gap-1.5 text-xs font-extrabold text-slate-300">
-                          <GraduationCap className="w-4 h-4 text-slate-300" />
-                          <span>100% Free Structured Lessons</span>
-                        </div>
-                      </div>
-                    ) : slide.type === 'books' ? (
-                      /* JAC Textbooks Showcase */
-                      <div className="relative w-72 xl:w-80 rounded-3xl bg-slate-950/85 border border-emerald-500/40 p-5 shadow-2xl backdrop-blur-md space-y-3.5">
-                        <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                          <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-                              JAC TEXTBOOK LIBRARY
-                            </span>
-                          </div>
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-emerald-400/20 text-emerald-300 border border-emerald-400/40">
-                            15 LANGS
-                          </span>
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center gap-3">
-                            <span className="text-2xl">🇧🇩</span>
-                            <div>
-                              <div className="text-xs font-bold text-white">Bengali Edition</div>
-                              <div className="text-[10px] text-slate-400">JAC Civil &amp; Architecture (150 P.)</div>
-                            </div>
-                          </div>
-                          <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center gap-3">
-                            <span className="text-2xl">🇮🇩</span>
-                            <div>
-                              <div className="text-xs font-bold text-white">Indonesian Edition</div>
-                              <div className="text-[10px] text-slate-400">JAC Civil &amp; Architecture (152 P.)</div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <Link
-                          href="/books"
-                          className="p-2.5 rounded-xl bg-emerald-950/60 border border-emerald-500/40 flex items-center justify-center gap-1.5 text-xs font-black text-emerald-200 hover:bg-emerald-900/60 transition-colors"
-                        >
-                          <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Open Cloud PDF Reader →</span>
-                        </Link>
-                      </div>
-                    ) : slide.type === 'ssw' ? (
-                      /* SSW Sectors Showcase */
-                      <div className="relative w-72 xl:w-80 rounded-3xl bg-slate-950/85 border border-emerald-500/40 p-5 shadow-2xl backdrop-blur-md space-y-3.5">
-                        <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                          <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-slate-700 animate-pulse" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">
-                              12 SSW SECTORS
-                            </span>
-                          </div>
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-emerald-400/20 text-emerald-300 border border-emerald-400/40">
-                            VISA READY
-                          </span>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col items-center justify-center text-center space-y-1">
-                            <HeartPulse className="w-5 h-5 text-rose-400" />
-                            <span className="text-[11px] font-extrabold text-white">Nursing Care</span>
-                            <span className="text-[9px] text-slate-400">介護分野</span>
-                          </div>
-                          <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col items-center justify-center text-center space-y-1">
-                            <UtensilsCrossed className="w-5 h-5 text-amber-400" />
-                            <span className="text-[11px] font-extrabold text-white">Food Service</span>
-                            <span className="text-[9px] text-slate-400">外食業分野</span>
-                          </div>
-                          <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col items-center justify-center text-center space-y-1">
-                            <Wheat className="w-5 h-5 text-emerald-400" />
-                            <span className="text-[11px] font-extrabold text-white">Agriculture</span>
-                            <span className="text-[9px] text-slate-400">農業分野</span>
-                          </div>
-                          <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col items-center justify-center text-center space-y-1">
-                            <HardHat className="w-5 h-5 text-slate-300" />
-                            <span className="text-[11px] font-extrabold text-white">Construction</span>
-                            <span className="text-[9px] text-slate-400">建設分野</span>
-                          </div>
-                        </div>
-
-                        <Link
-                          href="/ssw-skill-test"
-                          className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-500/40 flex items-center justify-center gap-1.5 text-xs font-black text-slate-200 hover:bg-slate-900/60 transition-colors"
-                        >
-                          <Compass className="w-3.5 h-3.5 text-slate-300" />
-                          <span>Explore All 12 Sectors →</span>
-                        </Link>
-                      </div>
+        {/* -------------------------------------------------------------------
+            RIGHT SIDE (5 cols on Desktop • Smart Role-Aware Action Panel)
+           ------------------------------------------------------------------- */}
+        <div className="hidden lg:flex lg:col-span-5 flex-col justify-between rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-5 shadow-md shadow-slate-200/40 dark:shadow-none">
+          {/* Top Personalized Header */}
+          {isSensei ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-2xl bg-slate-900 text-white font-black text-sm flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                    {avatarUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
                     ) : (
-                      /* CBT Engine Showcase */
-                      <div className="relative w-72 xl:w-80 rounded-3xl bg-slate-950/85 border border-slate-700/70 p-5 shadow-2xl backdrop-blur-md space-y-3.5">
-                        <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                          <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-200">
-                              CBT ENGINE LIVE
-                            </span>
-                          </div>
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/40">
-                            2026 EDITION
-                          </span>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2 pt-0.5">
-                          <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-center">
-                            <div className="text-[8px] font-extrabold text-slate-400 uppercase tracking-wider">
-                              PASS BENCHMARK
-                            </div>
-                            <div className="text-xs font-black text-emerald-400 mt-0.5">80% · 200/250</div>
-                          </div>
-                          <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-center">
-                            <div className="text-[8px] font-extrabold text-slate-400 uppercase tracking-wider">
-                              STANDARD
-                            </div>
-                            <div className="text-xs font-black text-rose-400 mt-0.5">CEFR-J A1–A2</div>
-                          </div>
-                        </div>
-
-                        <div className="p-2 rounded-xl bg-slate-900/80 border border-amber-500/30 flex items-center justify-center gap-1.5 text-[11px] font-extrabold text-amber-300">
-                          <Award className="w-3.5 h-3.5 text-amber-400" />
-                          <span>Exam-Style CBT Interface</span>
-                        </div>
-                      </div>
+                      displayName.slice(0, 1).toUpperCase()
                     )}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
+                      Sensei LMS Quick Launch
+                    </span>
+                    <h2 className="text-base font-black text-slate-900 dark:text-white truncate">
+                      {ownedSchool.name || `Welcome, ${displayName}`}
+                    </h2>
                   </div>
                 </div>
               </div>
+
+              <Link
+                href={`/partner/${encodeURIComponent(ownedSchool.slug)}`}
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 text-white font-extrabold text-xs flex items-center justify-between transition shadow-sm"
+              >
+                <span className="flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span>Open Sensei Academy Dashboard</span>
+                </span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
-          );
-        })}
+          ) : isAuthenticated && user ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#2C687B] to-japan-red text-white font-black text-sm flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                    {avatarUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                    ) : (
+                      displayName.slice(0, 1).toUpperCase()
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                      Welcome back,
+                    </p>
+                    <h2 className="text-base font-black text-slate-900 dark:text-white truncate">
+                      {displayName}
+                    </h2>
+                  </div>
+                </div>
 
-        {/* ──────────────────────────────────────────────────────────
-            DESKTOP CAROUSEL CONTROLS: Left / Right Arrows & Dot Indicators
-            ────────────────────────────────────────────────────────── */}
-        <button
-          type="button"
-          onClick={prevSlide}
-          aria-label="Previous Slide"
-          className="hidden sm:flex absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 hover:bg-black/90 text-white/80 hover:text-white border border-white/20 backdrop-blur-md items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer shadow-lg active:scale-95"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
+                {/* Live Exam Countdown Badge */}
+                {countdown && countdown.diffDays >= 0 ? (
+                  <div className="px-3 py-1.5 rounded-xl bg-[#F4FAFA] dark:bg-slate-800/80 border border-[#CBE5E3] dark:border-slate-700 text-right shrink-0">
+                    <p className="text-xs font-black text-japan-red leading-none">
+                      {countdown.diffDays === 0 ? 'Exam Today!' : `${countdown.diffDays}d left`}
+                    </p>
+                    <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-0.5">
+                      {countdown.formatted}
+                    </p>
+                  </div>
+                ) : (
+                  <Link
+                    href="/student-portal?tab=profile"
+                    className="px-2.5 py-1.5 rounded-xl bg-[#F4FAFA] dark:bg-slate-800/80 border border-[#CBE5E3] dark:border-slate-700 text-[10px] font-extrabold text-[#2C687B] dark:text-[#8CC7C4] hover:border-[#2C687B] flex items-center gap-1 shrink-0 transition"
+                  >
+                    <Calendar className="w-3 h-3" />
+                    <span>Set Exam Date</span>
+                  </Link>
+                )}
+              </div>
 
-        <button
-          type="button"
-          onClick={nextSlide}
-          aria-label="Next Slide"
-          className="hidden sm:flex absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/50 hover:bg-black/90 text-white/80 hover:text-white border border-white/20 backdrop-blur-md items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer shadow-lg active:scale-95"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-
-        {/* Desktop Slide Indicators */}
-        <div className="hidden sm:flex absolute bottom-16 sm:bottom-20 right-4 sm:right-8 z-20 items-center gap-2">
-          {slides.map((_, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => setCurrentSlide(idx)}
-              aria-label={`Go to slide ${idx + 1}`}
-              className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 cursor-pointer ${currentSlide === idx
-                  ? 'w-8 sm:w-10 bg-gradient-to-r from-japan-red to-amber-400 shadow-md shadow-red-500/50'
-                  : 'w-2 sm:w-2.5 bg-white/30 hover:bg-white/60'
-                }`}
-            />
-          ))}
-        </div>
-
-        {/* ──────────────────────────────────────────────────────────
-            BOTTOM COMMUNITY CHANNELS STRIP (Single clean row on mobile)
-            ────────────────────────────────────────────────────────── */}
-        <div className="relative z-10 bg-slate-950/95 border-t border-slate-800/80 px-3 sm:px-8 py-2.5 flex items-center justify-between gap-2 text-[10px] sm:text-xs">
-          <div className="hidden sm:flex items-center gap-2 text-slate-300 font-semibold">
-            <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-              <MessageSquare className="w-3 h-3" />
+              <Link
+                href="/student-portal"
+                className="w-full py-2.5 px-4 rounded-xl bg-japan-red hover:bg-japan-redhover text-white font-extrabold text-xs flex items-center justify-between transition shadow-sm shadow-red-500/20"
+              >
+                <span className="flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span>Open Student Portal</span>
+                </span>
+                <span className="text-[10px] font-bold opacity-90 truncate max-w-[140px]">
+                  {targetExamDisplay} →
+                </span>
+              </Link>
             </div>
-            <span>OFFICIAL WHATSAPP CHANNEL</span>
-            <a
-              href="https://whatsapp.com/channel/0029Vb8f5nVGOj9mKhSBbp3m"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-emerald-400 hover:underline flex items-center gap-1 font-bold ml-1"
-            >
-              <span>Follow Channel</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
-          </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-[#2C687B] dark:text-[#8CC7C4]">
+                    100% Free CBT Portal
+                  </span>
+                  <h2 className="text-lg font-black text-slate-900 dark:text-white leading-snug">
+                    Start Free CBT Practice
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Pick an exam track below or create a free profile to save scores &amp; track your exam countdown.
+                  </p>
+                </div>
+              </div>
 
-          <div className="grid grid-cols-3 sm:flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
-            <a
-              href="https://www.facebook.com/Gakkou.No.Shiken"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-bold flex items-center justify-center gap-1 transition-colors text-[10px] sm:text-xs"
-            >
-              <span>Facebook</span>
-              <ExternalLink className="w-2.5 h-2.5" />
-            </a>
-            <a
-              href="https://www.instagram.com/gakkou.no.shiken/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-2 sm:px-2.5 py-1.5 sm:py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-bold flex items-center justify-center gap-1 transition-colors text-[10px] sm:text-xs"
-            >
-              <span>Instagram</span>
-              <ExternalLink className="w-2.5 h-2.5" />
-            </a>
-            <a
-              href="https://whatsapp.com/channel/0029Vb8f5nVGOj9mKhSBbp3m"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-2 sm:px-3 py-1.5 sm:py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-bold flex items-center justify-center gap-1 transition-colors text-[10px] sm:text-xs"
-            >
-              <MessageSquare className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
-              <span>WhatsApp</span>
-            </a>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/accounts/signup"
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-japan-red hover:bg-japan-redhover text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition shadow-sm shadow-red-500/20"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Create Free Account</span>
+                </Link>
+                <Link
+                  href="/accounts/login"
+                  className="py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-extrabold text-xs transition"
+                >
+                  Sign In
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* 2x2 Quick-Launch Tiles */}
+          <div className="grid grid-cols-2 gap-2.5 pt-3 mt-3 border-t border-slate-100 dark:border-slate-800">
+            {desktopTiles.map((tile) => {
+              const Icon = tile.icon;
+              return (
+                <Link
+                  key={tile.href}
+                  href={tile.href}
+                  className="group flex items-center gap-2.5 p-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 hover:border-[#8CC7C4] dark:hover:border-slate-600 hover:bg-white dark:hover:bg-slate-800/80 transition-all"
+                >
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${tile.tone} group-hover:scale-105 transition-transform`}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-black text-slate-900 dark:text-white truncate">
+                      {tile.label}
+                    </p>
+                    <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 truncate">
+                      {tile.sub}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
-    </div>
+
+      {/* =====================================================================
+          MOBILE & TABLET NATIVE APP 2×2 QUICK-LAUNCH GRID (< lg)
+          Always visible above the fold right beneath the slim 175px banner!
+         ===================================================================== */}
+      <div className="lg:hidden space-y-2.5 pt-1">
+        {/* Compact Personalized Countdown Strip (Logged-in Student with Exam Date) */}
+        {isAuthenticated && !isSensei && countdown && countdown.diffDays >= 0 && (
+          <Link
+            href="/student-portal"
+            className="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-2xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 shadow-xs"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <Calendar className="w-4 h-4 text-japan-red shrink-0" />
+              <span className="text-xs font-extrabold text-slate-800 dark:text-white truncate">
+                Hi {displayName} • {targetExamDisplay}
+              </span>
+            </div>
+            <span className="px-2.5 py-0.5 rounded-full bg-red-50 dark:bg-rose-950/60 text-japan-red dark:text-rose-400 text-[11px] font-black shrink-0">
+              {countdown.diffDays === 0 ? 'Today!' : `${countdown.diffDays}d left`}
+            </span>
+          </Link>
+        )}
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          {quickTiles.map((tile) => {
+            const Icon = tile.icon;
+            return (
+              <Link
+                key={tile.href}
+                href={tile.href}
+                className="flex items-center gap-2.5 p-3 rounded-2xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 shadow-xs active:scale-[0.98] transition"
+              >
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${tile.tone}`}>
+                  <Icon className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-black text-slate-900 dark:text-white truncate">
+                    {tile.label}
+                  </p>
+                  <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 truncate">
+                    {tile.sub}
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }
