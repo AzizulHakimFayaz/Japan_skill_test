@@ -13,6 +13,7 @@ import {
 } from '@/lib/api';
 import { useAuth } from '@/components/AuthContext';
 import GoogleSignInButton from '@/components/GoogleSignInButton';
+import AuthSplitShowcase from '@/components/AuthSplitShowcase';
 import {
   Mail,
   ShieldCheck,
@@ -350,8 +351,9 @@ function SignupForm() {
   // ==========================================
   if (step === 'otp') {
     return (
-      <div className="bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] space-y-6 animate-scale-up">
-        <div className="text-center space-y-3">
+      <div className="bg-white dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 rounded-[30px] p-3 sm:p-4 shadow-2xl dark:shadow-[0_0_45px_rgba(0,0,0,0.55)] grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-stretch animate-scale-up">
+        <div className="lg:col-span-6 p-4 sm:p-8 flex flex-col justify-center space-y-6">
+          <div className="text-center space-y-3">
           <div
             className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto shadow-xs border ${
               role === 'school'
@@ -440,6 +442,10 @@ function SignupForm() {
             <span>{resendCooldown > 0 ? `Resend Code (${resendCooldown}s)` : 'Resend Code'}</span>
           </button>
         </div>
+        </div>
+        <div className="lg:col-span-6">
+          <AuthSplitShowcase role={role} variant="desktop" />
+        </div>
       </div>
     );
   }
@@ -450,7 +456,10 @@ function SignupForm() {
   const isSchool = role === 'school';
 
   return (
-    <div className="bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-xl dark:shadow-[0_0_35px_rgba(0,0,0,0.5)] space-y-6">
+    <div className="bg-white dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 rounded-[30px] p-3 sm:p-4 shadow-2xl dark:shadow-[0_0_45px_rgba(0,0,0,0.55)] grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-start">
+      {/* LEFT COLUMN: Form + Compact Mobile/Tablet Preview */}
+      <div className="lg:col-span-6 p-3 sm:p-6 xl:p-7 space-y-5">
+        <AuthSplitShowcase role={role} variant="mobile" />
       {/* 1. Candidate vs School Role Switcher Tabs */}
       <div className="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/70">
         <button
@@ -1052,18 +1061,33 @@ function SignupForm() {
       <hr className="border-slate-100 dark:border-slate-800" />
 
       {/* Footer */}
-      <div className="text-center text-xs sm:text-sm">
-        <span className="text-slate-500 dark:text-slate-400 font-medium">
-          {isSchool ? 'Already registered your school?' : 'Already have an account?'}
-        </span>
-        <Link
-          href={`/accounts/login?role=${role}${next && next !== '/' ? `&next=${encodeURIComponent(next)}` : ''}`}
-          className={`hover:underline font-bold transition-colors ml-1 ${
-            isSchool ? 'text-slate-700 dark:text-slate-300' : 'text-japan-red dark:text-rose-400'
-          }`}
-        >
-          {isSchool ? 'Sign In to Sensei Portal' : 'Sign In'}
-        </Link>
+      <div className="text-center text-xs sm:text-sm space-y-2">
+        <div>
+          <span className="text-slate-500 dark:text-slate-400 font-medium">
+            {isSchool ? 'Already registered your school?' : 'Already have an account?'}
+          </span>
+          <Link
+            href={`/accounts/login?role=${role}${next && next !== '/' ? `&next=${encodeURIComponent(next)}` : ''}`}
+            className={`hover:underline font-bold transition-colors ml-1 ${
+              isSchool ? 'text-slate-700 dark:text-slate-300' : 'text-japan-red dark:text-rose-400'
+            }`}
+          >
+            {isSchool ? 'Sign In to Sensei Portal' : 'Sign In'}
+          </Link>
+        </div>
+        <div className="text-[11px] text-slate-400 flex items-center justify-center gap-2 pt-1">
+          <span>© Gakkou No Shiken</span>
+          <span>•</span>
+          <Link href="/terms" className="hover:underline">Terms &amp; Conditions</Link>
+          <span>•</span>
+          <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
+        </div>
+      </div>
+      </div>
+
+      {/* RIGHT COLUMN (Desktop): Sticky Split-Screen Visual Showcase */}
+      <div className="lg:col-span-6 lg:sticky lg:top-24">
+        <AuthSplitShowcase role={role} variant="desktop" />
       </div>
     </div>
   );
@@ -1071,7 +1095,7 @@ function SignupForm() {
 
 export default function SignupPage() {
   return (
-    <div className="max-w-lg mx-auto py-6 sm:py-10 animate-fade-in-up">
+    <div className="max-w-6xl mx-auto py-4 sm:py-8 px-1 sm:px-2 animate-fade-in-up">
       <Suspense fallback={<div className="p-8 text-center text-sm font-bold text-slate-500">Loading registration portal...</div>}>
         <SignupForm />
       </Suspense>

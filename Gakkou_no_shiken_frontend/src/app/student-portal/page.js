@@ -41,8 +41,12 @@ import {
   ArrowRight,
   Check,
   Camera,
+  Palette,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useAuth } from '@/components/AuthContext';
+import { useTheme, COLOR_THEMES } from '@/components/ThemeContext';
 import {
   getStudentPortal,
   getMyResults,
@@ -153,6 +157,7 @@ export default function StudentPortalPage() {
   const [portal, setPortal] = useState(null);
   const [resultsData, setResultsData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { theme, setTheme, colorTheme, setColorTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -224,7 +229,7 @@ export default function StudentPortalPage() {
   const [avatarBusy, setAvatarBusy] = useState(false);
 
   // Settings state (localStorage)
-  const [settingsSubTab, setSettingsSubTab] = useState('notifications');
+  const [settingsSubTab, setSettingsSubTab] = useState('appearance');
   const [prefs, setPrefs] = useState({
     studyLang: 'en',
     examNotices: true,
@@ -2409,6 +2414,7 @@ export default function StudentPortalPage() {
             <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
               <div className="md:col-span-4 space-y-2">
                 {[
+                  { id: 'appearance', label: 'Appearance & Color Theme' },
                   { id: 'notifications', label: 'Notifications & Alerts' },
                   { id: 'language', label: 'Preferred Study Language' },
                 ].map((s) => (
@@ -2418,7 +2424,7 @@ export default function StudentPortalPage() {
                     onClick={() => setSettingsSubTab(s.id)}
                     className={`w-full text-left p-4 rounded-2xl border text-xs font-black cursor-pointer transition ${
                       settingsSubTab === s.id
-                        ? 'bg-[#DB1A1A] text-white border-[#DB1A1A]'
+                        ? 'bg-japan-red text-white border-japan-red'
                         : 'bg-white dark:bg-[#0f1629] text-slate-700 dark:text-slate-300 border-[#CBE5E3] dark:border-slate-800'
                     }`}
                   >
@@ -2427,8 +2433,127 @@ export default function StudentPortalPage() {
                 ))}
               </div>
 
-              <div className="md:col-span-8 rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-6 space-y-4">
-                {settingsSubTab === 'notifications' ? (
+              <div className="md:col-span-8 rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-6 space-y-5">
+                {settingsSubTab === 'appearance' ? (
+                  <div className="space-y-6">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Palette className="w-4 h-4 text-japan-red" />
+                        <h3 className="text-base font-black text-slate-900 dark:text-white">
+                          Color Theme Palette
+                        </h3>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Choose your favorite Japanese-inspired color palette. Changes apply immediately across your portal &amp; study pages.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                      {COLOR_THEMES.map((ct) => {
+                        const isSelected = colorTheme === ct.id;
+                        return (
+                          <button
+                            key={ct.id}
+                            type="button"
+                            onClick={() => {
+                              setColorTheme(ct.id);
+                              showToast(`Theme switched to ${ct.name}!`);
+                            }}
+                            className={`group text-left rounded-2xl border-2 p-3 transition-all cursor-pointer ${
+                              isSelected
+                                ? 'border-japan-red bg-slate-50/90 dark:bg-slate-800/70 shadow-md'
+                                : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-slate-300 dark:hover:border-slate-700'
+                            }`}
+                          >
+                            {/* 4-Stripe Palette Preview (exact swatches) */}
+                            <div className="h-24 w-full rounded-xl overflow-hidden flex flex-col border border-black/10 shadow-xs mb-3">
+                              {ct.swatches.map((hex) => (
+                                <div
+                                  key={hex}
+                                  className="flex-1 w-full"
+                                  style={{ backgroundColor: hex }}
+                                />
+                              ))}
+                            </div>
+
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="text-xs font-black text-slate-900 dark:text-white truncate">
+                                  {ct.name}
+                                </p>
+                                <p className="text-[10px] font-bold text-slate-400">
+                                  {ct.jpName}
+                                </p>
+                              </div>
+                              {isSelected && (
+                                <span className="w-5 h-5 rounded-full bg-japan-red text-white flex items-center justify-center shrink-0">
+                                  <Check className="w-3 h-3" />
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 leading-snug">
+                              {ct.tagline}
+                            </p>
+
+                            {/* Mini Hex Dots */}
+                            <div className="flex items-center gap-1.5 mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                              {ct.swatches.map((hex) => (
+                                <span
+                                  key={hex}
+                                  title={hex}
+                                  className="w-4 h-4 rounded-full border border-black/15"
+                                  style={{ backgroundColor: hex }}
+                                />
+                              ))}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Light vs Midnight Dark Mode Toggle */}
+                    <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+                        Display Brightness
+                      </h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTheme('light');
+                            showToast('Switched to Light Mode.');
+                          }}
+                          className={`flex items-center gap-2.5 p-3.5 rounded-2xl border-2 text-xs font-black cursor-pointer transition ${
+                            theme === 'light'
+                              ? 'border-japan-red bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white'
+                              : 'border-slate-200 dark:border-slate-800 text-slate-500 hover:border-slate-300'
+                          }`}
+                        >
+                          <Sun className="w-4 h-4 text-amber-500" />
+                          <span>Daylight Mode</span>
+                          {theme === 'light' && <Check className="w-3.5 h-3.5 ml-auto text-japan-red" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTheme('dark');
+                            showToast('Switched to Midnight Tokyo Dark Mode.');
+                          }}
+                          className={`flex items-center gap-2.5 p-3.5 rounded-2xl border-2 text-xs font-black cursor-pointer transition ${
+                            theme === 'dark'
+                              ? 'border-japan-red bg-slate-900 text-white'
+                              : 'border-slate-200 dark:border-slate-800 text-slate-500 hover:border-slate-300'
+                          }`}
+                        >
+                          <Moon className="w-4 h-4 text-indigo-400" />
+                          <span>Midnight Dark</span>
+                          {theme === 'dark' && <Check className="w-3.5 h-3.5 ml-auto text-japan-red" />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : settingsSubTab === 'notifications' ? (
                   <>
                     <h3 className="text-base font-black text-slate-900 dark:text-white">
                       Notification Preferences

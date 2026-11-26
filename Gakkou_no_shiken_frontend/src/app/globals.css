@@ -16,6 +16,67 @@
   --color-sakura-coral: #8CC7C4;
 }
 
+/* ==========================================================================
+   USER-SELECTABLE COLOR THEMES (Torii Crimson | Okinawa Aqua | Kyoto Sakura)
+   ========================================================================== */
+:root,
+html[data-color-theme='torii'] {
+  --gns-page-bg: #FFF6F6;
+  --gns-surface-soft: #F4FAFA;
+  --gns-border-soft: #CBE5E3;
+  --gns-accent: #DB1A1A;
+  --gns-accent-hover: #B81515;
+  --gns-secondary: #2C687B;
+}
+
+html[data-color-theme='aqua']:not(.dark) {
+  --color-japan-red: #0E8A91;
+  --color-japan-redhover: #0A6E74;
+  --color-sakura-cream: #E3FDFD;
+  --color-sakura-mist: #CBF1F5;
+  --color-sakura-blush: #A6E3E9;
+  --color-sakura-coral: #71C9CE;
+  --gns-page-bg: #E3FDFD;
+  --gns-surface-soft: #CBF1F5;
+  --gns-border-soft: #A6E3E9;
+  --gns-accent: #0E8A91;
+  --gns-accent-hover: #0A6E74;
+  --gns-secondary: #71C9CE;
+}
+
+html[data-color-theme='aqua']:not(.dark) body {
+  background-color: #E3FDFD !important;
+}
+
+html[data-color-theme='sakura']:not(.dark) {
+  --color-japan-red: #C94A78;
+  --color-japan-redhover: #A83862;
+  --color-sakura-cream: #F9F5F6;
+  --color-sakura-mist: #F8E8EE;
+  --color-sakura-blush: #FDCEDF;
+  --color-sakura-coral: #F2BED1;
+  --gns-page-bg: #F9F5F6;
+  --gns-surface-soft: #F8E8EE;
+  --gns-border-soft: #FDCEDF;
+  --gns-accent: #C94A78;
+  --gns-accent-hover: #A83862;
+  --gns-secondary: #F2BED1;
+}
+
+html[data-color-theme='sakura']:not(.dark) body {
+  background-color: #F9F5F6 !important;
+}
+
+html[data-color-theme='aqua'].dark {
+  --color-japan-red: #22B8C2;
+  --color-japan-redhover: #179BA4;
+}
+
+html[data-color-theme='sakura'].dark {
+  --color-japan-red: #E8749F;
+  --color-japan-redhover: #D45B88;
+}
+
 /* --- Keyframe Animations --- */
 @keyframes fadeInUp {
     0% {
