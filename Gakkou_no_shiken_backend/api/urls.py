@@ -114,6 +114,10 @@ urlpatterns = [
     path('student/portal/courses/<int:course_id>/discussions/', portal_views.StudentCourseDiscussionAPIView.as_view(), name='api_student_course_discussions'),
     path('partners/<slug:slug>/studio/', portal_views.SenseiStudioAPIView.as_view(), name='api_sensei_studio'),
     path('partners/<slug:slug>/studio/action/', portal_views.SenseiStudioActionAPIView.as_view(), name='api_sensei_studio_action'),
+
+    # Auto-Compressed WebP Profile Avatar & Admin-Controlled Smart Popups
+    path('auth/profile/avatar/', portal_views.ProfileAvatarAPIView.as_view(), name='api_profile_avatar'),
+    path('popups/active/', portal_views.ActivePopupNoticeAPIView.as_view(), name='api_active_popup'),
 ]
 
 

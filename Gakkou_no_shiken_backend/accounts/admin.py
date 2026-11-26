@@ -863,8 +863,17 @@ from .models import (
     PartnerCourseLesson,
     PartnerCourseModule,
     PartnerScheduleEvent,
+    SitePopupNotice,
     StudentLessonProgress,
 )
+
+
+@admin.register(SitePopupNotice)
+class SitePopupNoticeAdmin(admin.ModelAdmin):
+    list_display = ('title', 'popup_type', 'target_audience', 'priority', 'is_active', 'updated_at')
+    list_editable = ('priority', 'is_active')
+    list_filter = ('popup_type', 'target_audience', 'is_active')
+    search_fields = ('title', 'message')
 
 
 @admin.register(PartnerCourse)

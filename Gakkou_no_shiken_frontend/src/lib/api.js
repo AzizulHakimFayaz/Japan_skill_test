@@ -791,6 +791,27 @@ export function uploadSenseiStudioWithProgress(slug, formData, { key = '', onPro
   });
 }
 
+// --- Profile Avatar (Auto-Compressed 256x256 WebP) & Smart Popup Notice ---
+
+export async function uploadProfileAvatar(file) {
+  const fd = new FormData();
+  fd.append('avatar', file);
+  return apiRequest('/api/auth/profile/avatar/', {
+    method: 'POST',
+    body: fd,
+  });
+}
+
+export async function deleteProfileAvatar() {
+  return apiRequest('/api/auth/profile/avatar/', {
+    method: 'DELETE',
+  });
+}
+
+export async function getActiveSitePopup() {
+  return apiRequest('/api/popups/active/', { cache: 'no-store' });
+}
+
 
 
 

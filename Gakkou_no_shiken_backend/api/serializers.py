@@ -52,6 +52,7 @@ class PartnerSchoolSummarySerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    avatar_url = serializers.SerializerMethodField()
     target_exam_display = serializers.CharField(source='get_target_exam_display', read_only=True)
     japanese_level_display = serializers.CharField(source='get_japanese_level_display', read_only=True)
     country_source_display = serializers.CharField(source='get_country_source_display', read_only=True)
@@ -61,6 +62,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = [
+            'avatar_url',
             'bio',
             'target_exam',
             'target_exam_display',
@@ -78,6 +80,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'partner_joined_at',
             'updated_at',
         ]
+
+    def get_avatar_url(self, obj):
+        return get_absolute_media_url(obj.avatar, self.context.get('request'))
 
 
 class UserSerializer(serializers.ModelSerializer):

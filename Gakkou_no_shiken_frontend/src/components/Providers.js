@@ -8,6 +8,7 @@ import AnimatedThemeBackground from './AnimatedThemeBackground';
 import AppLayout from './AppLayout';
 import CountryConfirmationBanner from './CountryConfirmationBanner';
 import PartnerInviteBanner from './PartnerInviteBanner';
+import SmartPopupNoticeModal from './SmartPopupNoticeModal';
 import AdsterraSocialBar from './AdsterraSocialBar';
 
 export default function Providers({ children }) {
@@ -19,6 +20,7 @@ export default function Providers({ children }) {
           <AdsterraSocialBar />
           <CountryConfirmationBanner />
           <PartnerInviteBanner />
+          <SmartPopupNoticeModal />
           <AppLayout>{children}</AppLayout>
         </AuthProvider>
       </LanguageProvider>

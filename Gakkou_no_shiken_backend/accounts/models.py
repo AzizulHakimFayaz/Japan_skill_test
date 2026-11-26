@@ -161,6 +161,12 @@ class UserProfile(models.Model):
         REJECTED = 'rejected', 'Rejected / Blocked'
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    avatar = models.ImageField(
+        upload_to='avatars/',
+        null=True,
+        blank=True,
+        help_text="Auto-compressed 256x256 WebP profile avatar (~20 KB).",
+    )
     bio = models.TextField(max_length=500, blank=True, default='', help_text="Short candidate introduction or learning target.")
     target_exam = models.CharField(
         max_length=40,
@@ -702,6 +708,44 @@ class PartnerScheduleEvent(models.Model):
 
     def __str__(self):
         return f"[{self.school.name}] {self.event_date} — {self.title}"
+
+
+class SitePopupNotice(models.Model):
+    """Admin-controlled popup notification (shown once a day; user can dismiss forever)."""
+
+    class PopupType(models.TextChoices):
+        PROFILE_UPDATE = 'profile_update', 'Profile / Avatar Update Prompt'
+        ANNOUNCEMENT = 'announcement', 'General Announcement'
+        EXAM_ALERT = 'exam_alert', 'Exam / Registration Alert'
+        FEATURE = 'feature', 'New Feature Highlight'
+
+    class TargetAudience(models.TextChoices):
+        MISSING_AVATAR = 'missing_avatar_only', 'Logged-in Users Without Profile Photo'
+        ALL_LOGGED_IN = 'all_logged_in', 'All Logged-in Users'
+        ALL_VISITORS = 'all_visitors', 'All Visitors (Including Guests)'
+
+    title = models.CharField(max_length=180)
+    message = models.TextField(max_length=800)
+    popup_type = models.CharField(max_length=32, choices=PopupType.choices, default=PopupType.PROFILE_UPDATE)
+    target_audience = models.CharField(
+        max_length=32,
+        choices=TargetAudience.choices,
+        default=TargetAudience.MISSING_AVATAR,
+    )
+    cta_label = models.CharField(max_length=80, blank=True, default='Update My Profile')
+    cta_url = models.CharField(max_length=300, blank=True, default='/student-portal?tab=profile')
+    priority = models.PositiveIntegerField(default=10, help_text="Higher number shows first.")
+    is_active = models.BooleanField(default=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-priority', '-created_at']
+        verbose_name = 'Site Popup Notification'
+        verbose_name_plural = 'Site Popup Notifications'
+
+    def __str__(self):
+        return f"[{self.get_popup_type_display()}] {self.title}"
 
 
 

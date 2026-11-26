@@ -168,8 +168,26 @@ export default function PracticeTestGrid({
       return;
     }
     if (typeof window !== 'undefined') {
-      window.open(FACEBOOK_PAGE_URL, '_blank', 'noopener,noreferrer');
-      window.location.href = targetUrl;
+      // Smart frequency cap: show Facebook page at most once per day & max 3 times total
+      try {
+        const countKey = 'gns_fb_exam_promo_count';
+        const dayKey = 'gns_fb_exam_promo_day';
+        const count = parseInt(localStorage.getItem(countKey) || '0', 10) || 0;
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const lastDay = localStorage.getItem(dayKey) || '';
+
+        if (count < 3 && lastDay !== today) {
+          localStorage.setItem(countKey, String(count + 1));
+          localStorage.setItem(dayKey, today);
+          window.open(FACEBOOK_PAGE_URL, '_blank', 'noopener,noreferrer');
+          window.location.href = targetUrl;
+          return;
+        }
+      } catch {
+        // ignore storage errors and continue directly to exam
+      }
+      router.push(targetUrl);
       return;
     }
     router.push(targetUrl);

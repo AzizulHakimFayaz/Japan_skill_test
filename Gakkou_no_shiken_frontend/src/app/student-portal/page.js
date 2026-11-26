@@ -40,6 +40,7 @@ import {
   Eye,
   ArrowRight,
   Check,
+  Camera,
 } from 'lucide-react';
 import { useAuth } from '@/components/AuthContext';
 import {
@@ -49,6 +50,8 @@ import {
   getCourseDiscussions,
   postCourseDiscussion,
   updateUserProfile,
+  uploadProfileAvatar,
+  deleteProfileAvatar,
 } from '@/lib/api';
 
 const SIDEBAR_ITEMS = [
@@ -217,6 +220,7 @@ export default function StudentPortalPage() {
   const [profJpLevel, setProfJpLevel] = useState('n4');
   const [profBio, setProfBio] = useState('');
   const [profSaving, setProfSaving] = useState(false);
+  const [avatarBusy, setAvatarBusy] = useState(false);
 
   // Settings state (localStorage)
   const [settingsSubTab, setSettingsSubTab] = useState('notifications');
@@ -387,6 +391,43 @@ export default function StudentPortalPage() {
     try {
       localStorage.setItem('gns_portal_personal_tasks', JSON.stringify(next));
     } catch {}
+  };
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Please choose an image under 5 MB.');
+      e.target.value = '';
+      return;
+    }
+    setAvatarBusy(true);
+    try {
+      const res = await uploadProfileAvatar(file);
+      if (refreshUser) await refreshUser();
+      await loadPortal(true);
+      showToast(`Photo updated! (${res?.size_kb || 20} KB WebP)`);
+    } catch (err) {
+      showToast(err?.message || 'Failed to upload photo.');
+    } finally {
+      setAvatarBusy(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleAvatarRemove = async () => {
+    if (!window.confirm('Remove your profile photo?')) return;
+    setAvatarBusy(true);
+    try {
+      await deleteProfileAvatar();
+      if (refreshUser) await refreshUser();
+      await loadPortal(true);
+      showToast('Profile photo removed.');
+    } catch (err) {
+      showToast(err?.message || 'Failed to remove photo.');
+    } finally {
+      setAvatarBusy(false);
+    }
   };
 
   const handleSaveProfile = async (e) => {
@@ -760,8 +801,13 @@ export default function StudentPortalPage() {
                 onClick={() => setActiveTab('profile')}
                 className="flex items-center gap-2 p-1 sm:pl-1.5 sm:pr-3 sm:py-1 rounded-full bg-white dark:bg-slate-900 border border-[#CBE5E3] dark:border-slate-800 cursor-pointer"
               >
-                <div className="w-7 h-7 rounded-full bg-[#2C687B] text-white text-[11px] font-black flex items-center justify-center shrink-0">
-                  {initials}
+                <div className="w-7 h-7 rounded-full bg-[#2C687B] text-white text-[11px] font-black flex items-center justify-center shrink-0 overflow-hidden">
+                  {student.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={student.avatar_url} alt={student.full_name} className="w-full h-full object-cover" />
+                  ) : (
+                    initials
+                  )}
                 </div>
                 <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 max-w-[110px] truncate hidden sm:inline">
                   {student.full_name}
@@ -2131,9 +2177,60 @@ export default function StudentPortalPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Left Summary Card */}
               <div className="lg:col-span-4 rounded-3xl bg-white dark:bg-[#0f1629] border border-[#CBE5E3] dark:border-slate-800 p-6 text-center space-y-5">
-                <div className="space-y-2">
-                  <div className="w-20 h-20 rounded-full bg-[#2C687B] text-white text-2xl font-black flex items-center justify-center mx-auto">
-                    {initials}
+                <div className="space-y-2.5">
+                  <div className="relative w-24 h-24 mx-auto">
+                    <div className="w-24 h-24 rounded-full bg-[#2C687B] text-white text-2xl font-black flex items-center justify-center overflow-hidden border-4 border-[#EAF4F4] dark:border-slate-800 shadow-md">
+                      {student.avatar_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={student.avatar_url}
+                          alt={student.full_name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        initials
+                      )}
+                    </div>
+                    <label
+                      htmlFor="portal-avatar-input"
+                      title="Upload profile photo (auto-compressed WebP)"
+                      className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[#DB1A1A] hover:bg-[#B81515] text-white flex items-center justify-center shadow-md cursor-pointer border-2 border-white dark:border-slate-900 transition"
+                    >
+                      {avatarBusy ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Camera className="w-4 h-4" />
+                      )}
+                    </label>
+                    <input
+                      id="portal-avatar-input"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      disabled={avatarBusy}
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                    />
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <label
+                      htmlFor="portal-avatar-input"
+                      className="text-[11px] font-extrabold text-[#2C687B] dark:text-[#8CC7C4] hover:text-[#DB1A1A] cursor-pointer"
+                    >
+                      {student.avatar_url ? 'Change Photo' : 'Upload Photo'}
+                    </label>
+                    {student.avatar_url && (
+                      <>
+                        <span className="text-slate-300">•</span>
+                        <button
+                          type="button"
+                          disabled={avatarBusy}
+                          onClick={handleAvatarRemove}
+                          className="text-[11px] font-bold text-slate-400 hover:text-rose-600 cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      </>
+                    )}
                   </div>
                   <h2 className="text-lg font-black text-slate-900 dark:text-white">{student.full_name}</h2>
                   <span className="inline-block px-3 py-0.5 rounded-full bg-[#EAF4F4] dark:bg-slate-800 text-[11px] font-black text-[#2C687B] dark:text-[#8CC7C4]">

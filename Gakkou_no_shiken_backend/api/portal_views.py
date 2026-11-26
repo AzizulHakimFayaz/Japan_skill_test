@@ -33,6 +33,7 @@ from accounts.models import (
     PartnerScheduleEvent,
     PartnerSchool,
     PartnerStudyNote,
+    SitePopupNotice,
     StudentLessonProgress,
     UserProfile,
 )
@@ -431,6 +432,7 @@ class StudentPortalOverviewAPIView(APIView):
                     'first_name': user.first_name,
                     'last_name': user.last_name,
                     'email': user.email,
+                    'avatar_url': get_absolute_media_url(profile.avatar, request),
                     'bio': profile.bio,
                     'target_exam': profile.target_exam,
                     'japanese_level': profile.japanese_level,
@@ -781,3 +783,141 @@ class SenseiStudioActionAPIView(APIView):
             return Response({'detail': 'Sensei reply posted.'}, status=status.HTTP_201_CREATED)
 
         return Response({'detail': f"Unknown studio action '{action}'."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+MAX_AVATAR_INPUT_BYTES = 5 * 1024 * 1024  # 5 MB upload cap before compression
+
+
+class ProfileAvatarAPIView(APIView):
+    """
+    POST   /api/auth/profile/avatar/ -> Auto-resize to 256x256 WebP (~20 KB) & delete old file
+    DELETE /api/auth/profile/avatar/ -> Remove current avatar & delete file from disk
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def post(self, request):
+        from io import BytesIO
+        import uuid
+        from django.core.files.base import ContentFile
+        from PIL import Image, ImageOps
+
+        uploaded = request.FILES.get('avatar')
+        if not uploaded:
+            return Response({'detail': 'Please select an image file.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if uploaded.size > MAX_AVATAR_INPUT_BYTES:
+            return Response(
+                {'detail': 'Image must be 5 MB or smaller.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            img = Image.open(uploaded)
+            img = ImageOps.exif_transpose(img)
+            if img.mode in ('RGBA', 'LA', 'P'):
+                bg = Image.new('RGB', img.size, (255, 255, 255))
+                if img.mode == 'P':
+                    img = img.convert('RGBA')
+                bg.paste(img, mask=img.split()[-1] if img.mode in ('RGBA', 'LA') else None)
+                img = bg
+            elif img.mode != 'RGB':
+                img = img.convert('RGB')
+
+            img = ImageOps.fit(img, (256, 256), method=Image.Resampling.LANCZOS)
+            buf = BytesIO()
+            img.save(buf, format='WEBP', quality=82, method=4)
+            webp_bytes = buf.getvalue()
+        except Exception:
+            return Response(
+                {'detail': 'Invalid image file. Please upload a JPG, PNG, or WebP photo.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        # Auto-delete old avatar file so zero orphan files accumulate
+        if profile.avatar:
+            try:
+                profile.avatar.delete(save=False)
+            except Exception:
+                pass
+
+        filename = f'u{request.user.id}_{uuid.uuid4().hex[:10]}.webp'
+        profile.avatar.save(filename, ContentFile(webp_bytes), save=True)
+
+        return Response(
+            {
+                'detail': 'Profile photo updated!',
+                'avatar_url': get_absolute_media_url(profile.avatar, request),
+                'size_kb': round(len(webp_bytes) / 1024, 1),
+            }
+        )
+
+    def delete(self, request):
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        if profile.avatar:
+            try:
+                profile.avatar.delete(save=False)
+            except Exception:
+                pass
+            profile.avatar = None
+            profile.save(update_fields=['avatar'])
+        return Response({'detail': 'Profile photo removed.', 'avatar_url': None})
+
+
+class ActivePopupNoticeAPIView(APIView):
+    """
+    GET /api/popups/active/
+    Returns the highest-priority active SitePopupNotice for the current user.
+    If no admin popup is configured and a logged-in user has no avatar yet,
+    returns a gentle default profile-photo prompt (shown at most once/day, dismissible forever).
+    """
+
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        user = getattr(request, 'user', None)
+        is_auth = bool(user and user.is_authenticated)
+        has_avatar = False
+        if is_auth:
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            has_avatar = bool(profile.avatar)
+
+        active_notices = SitePopupNotice.objects.filter(is_active=True).order_by('-priority', '-created_at')
+        for n in active_notices:
+            if n.target_audience == SitePopupNotice.TargetAudience.MISSING_AVATAR:
+                if not is_auth or has_avatar:
+                    continue
+            elif n.target_audience == SitePopupNotice.TargetAudience.ALL_LOGGED_IN:
+                if not is_auth:
+                    continue
+            return Response(
+                {
+                    'popup': {
+                        'id': f'notice-{n.id}',
+                        'title': n.title,
+                        'message': n.message,
+                        'popup_type': n.popup_type,
+                        'cta_label': n.cta_label,
+                        'cta_url': n.cta_url,
+                    }
+                }
+            )
+
+        # Smart default: gently nudge logged-in users without a profile photo
+        if is_auth and not has_avatar:
+            return Response(
+                {
+                    'popup': {
+                        'id': 'default-profile-avatar-v1',
+                        'title': 'Add Your Profile Photo!',
+                        'message': 'Personalize your Gakkou Student Portal, Public Profile, and Leaderboard rank by uploading a profile photo. It takes 5 seconds and is automatically optimized.',
+                        'popup_type': 'profile_update',
+                        'cta_label': 'Update My Profile',
+                        'cta_url': '/student-portal?tab=profile',
+                    }
+                }
+            )
+
+        return Response({'popup': None})
