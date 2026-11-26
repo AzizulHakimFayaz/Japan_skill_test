@@ -746,31 +746,10 @@ export default function Navbar() {
           </div>
         </div>
 
-          {/* Mobile Top App Actions (Avatar / Theme Toggle / Notification) */}
+          {/* Mobile Top App Actions (Language / Theme Toggle / Notification) */}
           <div className="flex items-center gap-1 sm:gap-1.5 lg:hidden shrink-0">
             <LanguageSwitcher compact={true} />
             <ThemeToggle size="compact" />
-
-            {isAuthenticated && user && (
-              <Link
-                href="/student-portal?tab=profile"
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-japan-red to-amber-500 text-white text-xs font-extrabold flex items-center justify-center shadow-sm active:scale-95 transition-transform shrink-0 overflow-hidden"
-              >
-                {user.profile?.avatar_url ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    src={user.profile.avatar_url}
-                    alt={user.username}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                ) : (
-                  user.username?.slice(0, 1).toUpperCase()
-                )}
-              </Link>
-            )}
 
             {/* Mobile Notification Bell */}
             <NotificationBell align="right" compact={true} />
