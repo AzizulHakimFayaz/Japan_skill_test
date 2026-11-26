@@ -8,11 +8,11 @@ export const metadata = {
     canonical: 'https://www.gakkounoshiken.site',
   },
   title: {
-    default: 'Gakkou No Shiken | Japanese CBT Mock Exam Simulator for JFT-Basic & SSW',
+    default: 'Gakkou No Shiken | Free JFT-Basic, JLPT (N5–N1) & SSW CBT Mock Tests',
     template: '%s | Gakkou No Shiken',
   },
   description:
-    'Authentic Prometric CBT mock examination simulator for JFT-Basic and Specified Skilled Worker (SSW) tests with native Japanese audio dialogues, JAC textbook readers, and instant CEFR score reports.',
+    'Free online Japanese mock tests for JFT-Basic, JLPT (N5, N4, N3, N2, N1) & Specified Skilled Worker (SSW) exams with 32,800+ questions, native audio, 7-language explanations, JAC textbooks, and instant CEFR score reports.',
   authors: [{ name: 'Gakkou No Shiken Academic Team' }],
   creator: 'Gakkou No Shiken',
   publisher: 'Gakkou No Shiken',
@@ -32,9 +32,9 @@ export const metadata = {
     locale: 'en_US',
     url: 'https://www.gakkounoshiken.site',
     siteName: 'Gakkou No Shiken',
-    title: 'Gakkou No Shiken | Japanese CBT Mock Exam Simulator',
+    title: 'Gakkou No Shiken | Free JFT-Basic, JLPT (N5–N1) & SSW Mock Tests',
     description:
-      'Practice JFT-Basic and Specified Skilled Worker (SSW) examinations with authentic Prometric CBT software, native listening audio, and instant CEFR score reports.',
+      'Practice JFT-Basic, JLPT N5–N1, and SSW examinations online for free with authentic Prometric CBT software, 32,800+ JLPT questions, native listening audio, and instant score reports.',
     images: [
       {
         url: '/img/logo.png',
@@ -46,9 +46,9 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Gakkou No Shiken | Japanese CBT Mock Exam Simulator',
+    title: 'Gakkou No Shiken | Free JFT-Basic, JLPT (N5–N1) & SSW Mock Tests',
     description:
-      'Practice JFT-Basic and Specified Skilled Worker (SSW) examinations with authentic Prometric CBT software, native listening audio, and instant CEFR score reports.',
+      'Practice JFT-Basic, JLPT N5–N1, and SSW examinations online for free with authentic CBT software, native listening audio, and instant score reports.',
     images: ['/img/logo.png'],
   },
   verification: {
@@ -83,7 +83,8 @@ export default function RootLayout({ children }) {
                 '@type': 'WebSite',
                 name: 'Gakkou No Shiken',
                 alternateName: [
-                  'JFT-Basic & SSW CBT Mock Test Platform',
+                  'JFT-Basic, JLPT & SSW CBT Mock Test Platform',
+                  'Free JLPT N5 N4 N3 N2 N1 Mock Test Online',
                   '学校の試験',
                   'GakkouNoShiken',
                 ],

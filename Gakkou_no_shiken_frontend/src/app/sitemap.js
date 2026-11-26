@@ -19,10 +19,40 @@ export default async function sitemap() {
       priority: 0.95,
     },
     {
+      url: `${baseUrl}/jlpt`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.98,
+    },
+    {
       url: `${baseUrl}/ssw-skill-test`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/guides/jlpt-n5-n1-exam-guide-and-passing-marks`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/guides/jft-basic-vs-jlpt-n4-which-exam-should-you-take`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/guides/jlpt-registration-guide-bangladesh-dhaka`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/notices`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/books`,

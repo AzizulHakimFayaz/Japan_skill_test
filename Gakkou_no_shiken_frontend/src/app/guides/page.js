@@ -23,15 +23,45 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'JFT-Basic & SSW Examination Study Guides Hub (2026) | Gakkou No Shiken',
+  title: 'JFT-Basic, JLPT (N5–N1) & SSW Examination Study Guides Hub (2026) | Gakkou No Shiken',
   description:
-    'Comprehensive editorial study guides for Japanese Prometric CBT exams. Master JFT-Basic scoring, Prometric registration in Dhaka, SSW sector blueprints (Nursing Care, Food Service, Agriculture), grammar particles, and study plans.',
+    'Comprehensive editorial study guides for JFT-Basic, JLPT N5–N1, and SSW Japanese exams. Master passing marks, Dhaka registration, JFT vs JLPT comparison, SSW sector blueprints, grammar particles, and study plans.',
   alternates: {
     canonical: 'https://www.gakkounoshiken.site/guides',
   },
 };
 
 const GUIDES = [
+  {
+    slug: 'jlpt-n5-n1-exam-guide-and-passing-marks',
+    category: 'JLPT Complete Blueprint',
+    title: 'Complete JLPT (N5–N1) Exam Guide, Syllabus & Passing Marks (2026)',
+    description:
+      'Exact JLPT N5, N4, N3, N2 & N1 passing scores out of 180, sectional minimums, kanji & vocabulary targets, study hours, and free online mock test roadmap.',
+    readTime: '7 min read',
+    icon: Award,
+    badgeColor: 'bg-[#EAF4F4] text-[#2C687B] border-[#CBE5E3] dark:bg-teal-950/60 dark:text-teal-300 dark:border-teal-900/40',
+  },
+  {
+    slug: 'jft-basic-vs-jlpt-n4-which-exam-should-you-take',
+    category: 'JLPT vs JFT-Basic',
+    title: 'JFT-Basic vs JLPT N4: Differences, Pass Rate & Which Exam to Choose (2026)',
+    description:
+      'Side-by-side comparison of JFT-Basic (CBT) and JLPT N4 for Japan SSW work visas, universities, exam frequency, duration, and scoring.',
+    readTime: '6 min read',
+    icon: BookOpen,
+    badgeColor: 'bg-rose-50 text-japan-red border-rose-200 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-900/40',
+  },
+  {
+    slug: 'jlpt-registration-guide-bangladesh-dhaka',
+    category: 'JLPT Bangladesh',
+    title: 'JLPT Registration Guide in Bangladesh (Dhaka): Dates, Fees & Mock Prep (2026)',
+    description:
+      'Step-by-step JLPT registration checklist for Bangladeshi candidates in Dhaka covering July & December sessions, documents, and free Bangla-explained mock tests.',
+    readTime: '6 min read',
+    icon: Calendar,
+    badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-900/40',
+  },
   {
     slug: 'prometric-cbt-registration-guide-dhaka',
     category: 'Registration & Test Center',
